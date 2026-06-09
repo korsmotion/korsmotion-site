@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kors Motion — Motion Design Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--violet-deep:#5B3FBF;--violet-mid:#8B6FE8;--violet-soft:#C9B8F5;--violet-mist:#E8DFFB;--violet-whisper:#F5F0FF;--white:#FFFFFF;--ink:#1A1530;--ink-soft:#4A4566;--ink-mute:#8A85A6}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Manrope',sans-serif;color:var(--ink);background:linear-gradient(180deg,#FFFFFF 0%,#F8F3FF 20%,#EDE2FB 45%,#D9C5F5 70%,#B89AED 100%);background-attachment:fixed;min-height:100vh;overflow-x:hidden;line-height:1.6;font-weight:400}
+body.modal-open{overflow:hidden}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.5;pointer-events:none;z-index:0}
+.orb-1{width:500px;height:500px;background:radial-gradient(circle,#B89AED,transparent 70%);top:-100px;right:-100px;animation:float 20s ease-in-out infinite}
+.orb-2{width:400px;height:400px;background:radial-gradient(circle,#8B6FE8,transparent 70%);bottom:20%;left:-150px;animation:float 25s ease-in-out infinite reverse}
+.orb-3{width:350px;height:350px;background:radial-gradient(circle,#C9B8F5,transparent 70%);top:50%;right:10%;animation:float 30s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-50px) scale(1.05)}66%{transform:translate(-20px,30px) scale(.95)}}
+nav{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:100;background:rgba(255,255,255,.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.8);border-radius:100px;padding:10px 12px 10px 28px;display:flex;align-items:center;gap:32px;box-shadow:0 8px 32px rgba(91,63,191,.08)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo img{width:36px;height:36px;object-fit:contain}
+.nav-logo-text{font-family:'Playfair Display',serif;font-weight:500;font-size:17px;color:var(--ink)}
+nav ul{display:flex;gap:28px;list-style:none}
+nav a.nav-link{font-weight:500;font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .3s;cursor:pointer}
+nav a.nav-link:hover{color:var(--violet-deep)}
+.lang-switcher{position:relative}
+.lang-button{background:rgba(255,255,255,.5);border:1px solid rgba(184,154,237,.3);border-radius:100px;padding:8px 14px;font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .3s}
+.lang-button:hover{background:rgba(255,255,255,.8)}
+.lang-button svg{transition:transform .3s}
+.lang-switcher.open .lang-button svg{transform:rotate(180deg)}
+.lang-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border:1px solid rgba(184,154,237,.3);border-radius:16px;padding:8px;min-width:140px;box-shadow:0 12px 32px rgba(91,63,191,.15);opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .3s}
+.lang-switcher.open .lang-dropdown{opacity:1;visibility:visible;transform:translateY(0)}
+.lang-option{width:100%;background:none;border:none;padding:10px 14px;text-align:left;border-radius:10px;font-family:'Manrope',sans-serif;font-size:14px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:10px;transition:background .2s}
+.lang-option:hover{background:var(--violet-mist)}
+.lang-option.active{background:var(--violet-mist);color:var(--violet-deep);font-weight:600}
+.lang-flag{width:22px;height:16px;border-radius:3px;flex-shrink:0;display:inline-block;border:1px solid rgba(0,0,0,.1);overflow:hidden;background-size:cover;background-position:center}
+.flag-ru{background:linear-gradient(180deg,#fff 0%,#fff 33.3%,#0039A6 33.3%,#0039A6 66.6%,#D52B1E 66.6%,#D52B1E 100%)}
+.flag-de{background:linear-gradient(180deg,#000 0%,#000 33.3%,#DD0000 33.3%,#DD0000 66.6%,#FFCE00 66.6%,#FFCE00 100%)}
+.flag-en{background:#012169;position:relative}
+.flag-en::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 45%,#fff 45%,#fff 55%,transparent 55%),linear-gradient(-45deg,transparent 45%,#fff 45%,#fff 55%,transparent 55%),linear-gradient(0deg,transparent 40%,#fff 40%,#fff 60%,transparent 60%),linear-gradient(90deg,transparent 40%,#fff 40%,#fff 60%,transparent 60%)}
+.flag-en::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,transparent 45%,#C8102E 45%,#C8102E 55%,transparent 55%),linear-gradient(90deg,transparent 45%,#C8102E 45%,#C8102E 55%,transparent 55%)}
+.flag-it{background:linear-gradient(90deg,#009246 0%,#009246 33.3%,#fff 33.3%,#fff 66.6%,#CE2B37 66.6%,#CE2B37 100%)}
+.flag-fr{background:linear-gradient(90deg,#0055A4 0%,#0055A4 33.3%,#fff 33.3%,#fff 66.6%,#EF4135 66.6%,#EF4135 100%)}
+.nav-cta{background:var(--ink);color:white !important;padding:10px 20px;border-radius:100px;transition:all .3s;font-weight:500;font-size:14px;text-decoration:none;cursor:pointer;border:none}
+.nav-cta:hover{background:var(--violet-deep);transform:translateY(-1px)}
+.container{max-width:1280px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
+.hero{min-height:100vh;display:flex;align-items:center;padding:140px 0 80px}
+.hero-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:80px;align-items:center;width:100%}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.7);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:100px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--violet-deep);margin-bottom:32px;animation:fadeInUp .8s ease}
+.hero-badge::before{content:'';width:6px;height:6px;background:var(--violet-deep);border-radius:50%;animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+h1{font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(48px,7vw,92px);line-height:.95;letter-spacing:-.03em;color:var(--ink);margin-bottom:28px;animation:fadeInUp .8s ease .1s both}
+h1 em{font-style:normal;font-weight:400;background:linear-gradient(135deg,var(--violet-deep),var(--violet-mid));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-text{font-size:18px;line-height:1.7;color:var(--ink-soft);max-width:520px;margin-bottom:40px;animation:fadeInUp .8s ease .2s both}
+.hero-buttons{display:flex;gap:16px;align-items:center;animation:fadeInUp .8s ease .3s both}
+.btn-primary{background:var(--ink);color:white;padding:16px 28px;border-radius:100px;text-decoration:none;font-family:'Manrope',sans-serif;font-weight:600;font-size:15px;display:inline-flex;align-items:center;gap:10px;transition:all .3s;border:none;cursor:pointer}
+.btn-primary:hover{background:var(--violet-deep);transform:translateY(-2px);box-shadow:0 12px 32px rgba(91,63,191,.3)}
+.btn-ghost{color:var(--ink);padding:16px 24px;text-decoration:none;font-family:'Manrope',sans-serif;font-weight:500;font-size:15px;display:inline-flex;align-items:center;gap:10px;transition:gap .3s;background:none;border:none;cursor:pointer}
+.btn-ghost:hover{gap:14px}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.hero-visual{position:relative;height:500px;display:flex;align-items:center;justify-content:center;animation:fadeInUp 1s ease .4s both}
+.logo-card{background:rgba(255,255,255,.4);backdrop-filter:blur(30px);border:1.5px solid rgba(255,255,255,.8);border-radius:32px;padding:60px;width:100%;aspect-ratio:1;max-width:460px;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 60px rgba(91,63,191,.15),inset 0 1px 0 rgba(255,255,255,.9);position:relative;overflow:hidden}
+.logo-card::before{content:'';position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:linear-gradient(135deg,transparent,rgba(139,111,232,.4),transparent);border-radius:32px;z-index:-1;animation:rotate 8s linear infinite}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.hero-logo{width:75%;height:auto;filter:drop-shadow(0 12px 30px rgba(91,63,191,.25));animation:heroLogoIntro 2s cubic-bezier(.34,1.56,.64,1) both,heroLogoFloat 6s ease-in-out 2s infinite}
+@keyframes heroLogoIntro{0%{opacity:0;transform:scale(.3) rotate(-180deg);filter:blur(20px)}60%{opacity:1;transform:scale(1.05) rotate(10deg);filter:blur(0)}100%{opacity:1;transform:scale(1) rotate(0);filter:blur(0)}}
+@keyframes heroLogoFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.02)}}
+.logo-ring{position:absolute;border-radius:50%;border:1px dashed rgba(139,111,232,.3);animation:rotate 30s linear infinite}
+.logo-ring-1{width:90%;height:90%}
+.logo-ring-2{width:70%;height:70%;border-style:solid;border-color:rgba(139,111,232,.15);animation-direction:reverse;animation-duration:40s}
+section{padding:100px 0;position:relative}
+.section-label{display:inline-block;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--violet-deep);margin-bottom:20px}
+.section-title{font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(36px,5vw,64px);line-height:1.05;letter-spacing:-.02em;color:var(--ink);margin-bottom:24px;max-width:720px}
+.section-title em{font-style:normal;font-weight:400;color:var(--violet-deep)}
+.section-intro{font-size:18px;color:var(--ink-soft);max-width:600px;margin-bottom:64px}
+.services-list{display:flex;flex-direction:column;gap:24px}
+.service-card{background:rgba(255,255,255,.55);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:28px;padding:32px;display:grid;grid-template-columns:320px 1fr;gap:40px;align-items:center;transition:all .4s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;cursor:pointer}
+.service-card:hover{transform:translateY(-4px);background:rgba(255,255,255,.7);box-shadow:0 30px 60px rgba(91,63,191,.18)}
+.service-window{width:100%;aspect-ratio:1;border-radius:20px;overflow:hidden;position:relative;background:linear-gradient(135deg,#1A1530 0%,#2A2050 100%);display:flex;align-items:center;justify-content:center;border:1px solid rgba(139,111,232,.2)}
+.anim-logo{width:70%;height:auto;filter:brightness(1.4) drop-shadow(0 8px 20px rgba(139,111,232,.5));animation:animLogoLoop 4s ease-in-out infinite}
+@keyframes animLogoLoop{0%{transform:scale(.8) rotate(0);opacity:.3}20%{transform:scale(1) rotate(0);opacity:1}50%{transform:scale(1) rotate(360deg);opacity:1}80%{transform:scale(1) rotate(720deg);opacity:1}100%{transform:scale(.8) rotate(720deg);opacity:.3}}
+.anim-motion{position:relative;width:80%;height:80%}
+.anim-motion .shape{position:absolute;border-radius:8px}
+.anim-motion .shape-1{width:50px;height:50px;background:linear-gradient(135deg,#8B6FE8,#5B3FBF);top:20%;left:20%;animation:motionShape1 3s ease-in-out infinite}
+.anim-motion .shape-2{width:70px;height:70px;background:linear-gradient(135deg,#C9B8F5,#8B6FE8);border-radius:50%;top:40%;right:20%;animation:motionShape2 3s ease-in-out infinite}
+.anim-motion .shape-3{width:40px;height:40px;background:linear-gradient(135deg,#E8DFFB,#C9B8F5);bottom:20%;left:35%;animation:motionShape3 3s ease-in-out infinite;transform:rotate(45deg)}
+@keyframes motionShape1{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(60px,40px) rotate(180deg)}}
+@keyframes motionShape2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,-30px) scale(1.3)}}
+@keyframes motionShape3{0%,100%{transform:rotate(45deg) translate(0,0)}50%{transform:rotate(225deg) translate(30px,-40px)}}
+.anim-design{position:relative;width:70%;height:70%}
+.anim-design .layer{position:absolute;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.anim-design .layer-1{width:60%;height:70%;background:linear-gradient(135deg,#FFF,#E8DFFB);top:0;left:0;animation:designLayer1 4s ease-in-out infinite}
+.anim-design .layer-2{width:60%;height:70%;background:linear-gradient(135deg,#C9B8F5,#8B6FE8);top:15%;left:20%;animation:designLayer2 4s ease-in-out infinite}
+.anim-design .layer-3{width:60%;height:70%;background:linear-gradient(135deg,#5B3FBF,#1A1530);top:30%;left:40%;animation:designLayer3 4s ease-in-out infinite}
+@keyframes designLayer1{0%,100%{transform:translate(0,0)}50%{transform:translate(-15px,-15px) rotate(-3deg)}}
+@keyframes designLayer2{0%,100%{transform:translate(0,0)}50%{transform:translate(0,5px) rotate(2deg)}}
+@keyframes designLayer3{0%,100%{transform:translate(0,0)}50%{transform:translate(15px,15px) rotate(3deg)}}
+.anim-logocreate{position:relative;width:60%;height:60%;display:flex;align-items:center;justify-content:center}
+.anim-logocreate .grid-block{position:absolute;background:linear-gradient(135deg,#8B6FE8,#5B3FBF);border-radius:4px}
+.anim-logocreate .b1{width:30%;height:30%;top:0;left:0;animation:blockBuild 3s ease infinite 0s}
+.anim-logocreate .b2{width:30%;height:30%;top:0;right:0;animation:blockBuild 3s ease infinite .2s}
+.anim-logocreate .b3{width:30%;height:30%;bottom:0;left:0;animation:blockBuild 3s ease infinite .4s}
+.anim-logocreate .b4{width:30%;height:30%;bottom:0;right:0;animation:blockBuild 3s ease infinite .6s}
+.anim-logocreate .center{width:30%;height:30%;background:linear-gradient(135deg,#FFF,#C9B8F5);border-radius:50%;animation:centerPulse 3s ease infinite;z-index:2}
+@keyframes blockBuild{0%,100%{opacity:0;transform:scale(0)}30%,70%{opacity:1;transform:scale(1)}}
+@keyframes centerPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(184,154,237,.7)}50%{transform:scale(1.2);box-shadow:0 0 0 30px rgba(184,154,237,0)}}
+.anim-web{width:80%;height:70%;background:white;border-radius:12px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.4);display:flex;flex-direction:column}
+.anim-web .browser-bar{height:24px;background:#f0f0f5;display:flex;align-items:center;padding:0 10px;gap:6px}
+.anim-web .dot{width:8px;height:8px;border-radius:50%}
+.anim-web .dot:nth-child(1){background:#ff5f57}
+.anim-web .dot:nth-child(2){background:#febc2e}
+.anim-web .dot:nth-child(3){background:#28c840}
+.anim-web .browser-content{flex:1;background:linear-gradient(135deg,#F5F0FF,#C9B8F5);padding:16px;position:relative;overflow:hidden}
+.anim-web .web-line{height:8px;background:rgba(91,63,191,.3);border-radius:4px;margin-bottom:8px;animation:webLineSlide 3s ease infinite}
+.anim-web .web-line:nth-child(1){width:70%}
+.anim-web .web-line:nth-child(2){width:90%;animation-delay:.2s}
+.anim-web .web-line:nth-child(3){width:50%;animation-delay:.4s}
+.anim-web .web-block{width:60%;height:40%;background:linear-gradient(135deg,#5B3FBF,#8B6FE8);border-radius:8px;margin-top:12px;animation:webBlockBuild 3s ease infinite}
+@keyframes webLineSlide{0%,100%{transform:translateX(-20px);opacity:0}30%,80%{transform:translateX(0);opacity:1}}
+@keyframes webBlockBuild{0%{transform:scale(.8);opacity:0}50%,100%{transform:scale(1);opacity:1}}
+.anim-support{position:relative;width:70%;height:70%;display:flex;align-items:center;justify-content:center}
+.anim-support .gear{position:absolute;border-radius:50%;background:conic-gradient(from 0deg,#5B3FBF,#8B6FE8,#C9B8F5,#8B6FE8,#5B3FBF);box-shadow:0 10px 30px rgba(91,63,191,.4)}
+.anim-support .gear::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40%;height:40%;background:#1A1530;border-radius:50%}
+.anim-support .gear-1{width:50%;height:50%;top:10%;left:10%;animation:rotate 6s linear infinite}
+.anim-support .gear-2{width:35%;height:35%;bottom:10%;right:10%;animation:rotate 4s linear infinite reverse}
+.anim-support .check{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60px;height:60px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--violet-deep);z-index:2;animation:checkBounce 3s ease infinite;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+@keyframes checkBounce{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.15)}}
+.service-content{flex:1}
+.service-number{font-family:'Playfair Display',serif;font-size:14px;font-style:normal;color:var(--violet-deep);margin-bottom:8px}
+.service-title{font-family:'Playfair Display',serif;font-weight:500;font-size:30px;line-height:1.2;color:var(--ink);margin-bottom:14px}
+.service-desc{font-size:16px;line-height:1.7;color:var(--ink-soft);margin-bottom:20px}
+.service-features{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.service-features span{background:rgba(184,154,237,.15);color:var(--violet-deep);padding:6px 12px;border-radius:100px;font-size:13px;font-weight:500}
+.service-link{display:inline-flex;align-items:center;gap:6px;color:var(--violet-deep);font-weight:600;font-size:14px;text-decoration:none;cursor:pointer;transition:gap .3s}
+.service-link:hover{gap:10px}
+.portfolio-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
+.portfolio-item{border-radius:24px;overflow:hidden;position:relative;aspect-ratio:4/3;transition:transform .5s;cursor:pointer;background:rgba(255,255,255,.4);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.7)}
+.portfolio-item:hover{transform:scale(1.02)}
+.portfolio-item.large{grid-column:span 7}
+.portfolio-item.small{grid-column:span 5}
+.portfolio-item.third{grid-column:span 4}
+.portfolio-visual{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
+.pv-1{background:linear-gradient(135deg,#1A1530 0%,#5B3FBF 100%)}
+.pv-2{background:linear-gradient(135deg,#E8DFFB 0%,#B89AED 100%)}
+.pv-3{background:linear-gradient(135deg,#8B6FE8 0%,#5B3FBF 100%)}
+.pv-4{background:linear-gradient(135deg,#F5F0FF 0%,#C9B8F5 100%)}
+.pv-5{background:linear-gradient(135deg,#1A1530 0%,#4A4566 100%)}
+.portfolio-meta{position:absolute;bottom:24px;left:24px;right:24px;color:white;z-index:2}
+.portfolio-meta.dark{color:var(--ink)}
+.portfolio-cat{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;opacity:.8;margin-bottom:8px}
+.portfolio-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:500;line-height:1.2}
+.portfolio-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(91,63,191,.85),rgba(26,21,48,.85));opacity:0;transition:opacity .4s;display:flex;align-items:center;justify-content:center;z-index:3}
+.portfolio-item:hover .portfolio-overlay{opacity:1}
+.portfolio-overlay-text{color:white;font-weight:600;display:flex;align-items:center;gap:8px;transform:translateY(20px);transition:transform .4s}
+.portfolio-item:hover .portfolio-overlay-text{transform:translateY(0)}
+.deco-circle{width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);animation:float 8s ease infinite}
+.deco-square{width:100px;height:100px;background:linear-gradient(135deg,white,transparent);transform:rotate(45deg);opacity:.4}
+.deco-ring{width:180px;height:180px;border-radius:50%;border:2px solid rgba(255,255,255,.3);animation:rotate 20s linear infinite;position:relative}
+.deco-ring::after{content:'';position:absolute;width:12px;height:12px;background:white;border-radius:50%;top:-6px;left:50%;transform:translateX(-50%)}
+.portfolio-logo-small{width:50%;filter:brightness(1.5);opacity:.8}
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.testimonial{background:rgba(255,255,255,.6);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:24px;padding:36px 32px;transition:all .3s}
+.testimonial:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(91,63,191,.12)}
+.stars{display:flex;gap:4px;margin-bottom:20px;color:var(--violet-deep)}
+.testimonial-text{font-family:'Playfair Display',serif;font-size:17px;line-height:1.6;color:var(--ink);margin-bottom:24px;font-style:normal}
+.testimonial-author{display:flex;align-items:center;gap:14px}
+.author-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--violet-mid),var(--violet-deep));display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:16px}
+.author-name{font-weight:600;font-size:14px;color:var(--ink)}
+.author-role{font-size:13px;color:var(--ink-mute)}
+.cta-card{background:rgba(255,255,255,.7);backdrop-filter:blur(30px);border:1.5px solid rgba(255,255,255,.9);border-radius:36px;padding:80px 64px;box-shadow:0 30px 80px rgba(91,63,191,.15);text-align:center;position:relative;overflow:hidden}
+.cta-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(139,111,232,.15),transparent 50%);animation:rotate 20s linear infinite;pointer-events:none}
+.cta-content{position:relative;z-index:1}
+.cta-title{font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(36px,4vw,56px);line-height:1.05;color:var(--ink);margin-bottom:20px}
+.cta-title em{font-style:normal;color:var(--violet-deep)}
+.cta-text{font-size:18px;color:var(--ink-soft);margin-bottom:36px;max-width:540px;margin-left:auto;margin-right:auto}
+.cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:80px}
+.footer-grid{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px}
+.footer-logo{display:flex;align-items:center;gap:10px}
+.footer-logo img{width:32px;height:32px}
+.footer-logo-text{font-family:'Playfair Display',serif;font-weight:500;font-size:18px;color:var(--ink)}
+.footer-links{display:flex;gap:28px;list-style:none}
+.footer-links a{font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .3s;cursor:pointer}
+.footer-links a:hover{color:var(--violet-deep)}
+.footer-copy{font-size:13px;color:var(--ink-mute)}
+.modal-overlay{position:fixed;inset:0;background:rgba(26,21,48,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:all .4s ease}
+.modal-overlay.active{opacity:1;visibility:visible}
+.modal{background:white;border-radius:32px;max-width:720px;width:100%;max-height:90vh;overflow:hidden;transform:scale(.9) translateY(20px);transition:transform .4s cubic-bezier(.34,1.56,.64,1);position:relative;box-shadow:0 40px 100px rgba(26,21,48,.4);display:flex;flex-direction:column}
+.modal-scroll{overflow-y:auto;overflow-x:hidden;flex:1;border-radius:32px}
+.modal-scroll::-webkit-scrollbar{width:6px}
+.modal-scroll::-webkit-scrollbar-track{background:transparent}
+.modal-scroll::-webkit-scrollbar-thumb{background:rgba(184,154,237,.5);border-radius:3px}
+.modal-scroll::-webkit-scrollbar-thumb:hover{background:rgba(91,63,191,.7)}
+.modal-overlay.active .modal{transform:scale(1) translateY(0)}
+
+.modal-large{max-width:960px}
+.modal-close{position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border:1px solid rgba(184,154,237,.3);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:all .3s;z-index:11;box-shadow:0 4px 16px rgba(26,21,48,.15)}
+.modal-close:hover{background:var(--violet-deep);color:white;transform:rotate(90deg)}
+.modal-header-gradient{background:linear-gradient(135deg,#5B3FBF,#8B6FE8);padding:40px 48px 36px;border-radius:32px 32px 0 0;color:white;position:relative;overflow:hidden;margin:-1px -1px 0 -1px}
+.modal-header-gradient::after{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.2),transparent 70%);border-radius:50%}
+.modal-header-label{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;opacity:.85;margin-bottom:8px}
+.modal-header-title{font-family:'Playfair Display',serif;font-weight:400;font-size:36px;line-height:1.1;margin-bottom:12px}
+.modal-header-title em{font-style:normal}
+.modal-header-text{font-size:15px;opacity:.9;line-height:1.6;max-width:480px}
+.modal-body{padding:36px 48px 48px}
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:8px}
+.form-input,.form-textarea,.form-select{width:100%;background:var(--violet-whisper);border:1.5px solid transparent;border-radius:14px;padding:14px 18px;font-family:'Manrope',sans-serif;font-size:15px;color:var(--ink);transition:all .3s;outline:none}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--violet-deep);background:white;box-shadow:0 0 0 4px rgba(139,111,232,.15)}
+.form-textarea{resize:vertical;min-height:120px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%235B3FBF' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 18px center;padding-right:48px}
+.contact-info-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px;padding-top:28px;border-top:1px solid var(--violet-mist)}
+.contact-info-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-soft)}
+.contact-info-item svg{color:var(--violet-deep);flex-shrink:0}
+.form-success{text-align:center;padding:40px 0;display:none}
+.form-success.active{display:block}
+.form-success-icon{width:80px;height:80px;margin:0 auto 20px;background:linear-gradient(135deg,var(--violet-mid),var(--violet-deep));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;animation:successBounce .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes successBounce{0%{transform:scale(0)}100%{transform:scale(1)}}
+.form-success-title{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:12px;color:var(--ink)}
+.form-success-text{color:var(--ink-soft);margin-bottom:24px}
+.service-detail-hero{padding:48px 48px 32px;background:linear-gradient(135deg,var(--violet-whisper),white);border-radius:32px 32px 0 0}
+.service-detail-icon{display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;background:linear-gradient(135deg,var(--violet-mid),var(--violet-deep));border-radius:18px;color:white;margin-bottom:24px;box-shadow:0 10px 30px rgba(91,63,191,.3)}
+.service-detail-title{font-family:'Playfair Display',serif;font-weight:400;font-size:40px;line-height:1.1;color:var(--ink);margin-bottom:16px}
+.service-detail-subtitle{font-size:17px;color:var(--ink-soft);line-height:1.6}
+.service-detail-body{padding:32px 48px 48px}
+.service-detail-block{margin-bottom:32px}
+.service-detail-block-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--ink);margin-bottom:16px}
+.service-detail-block-text{color:var(--ink-soft);line-height:1.7;margin-bottom:12px}
+.process-steps{display:flex;flex-direction:column;gap:16px}
+.process-step{display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--violet-whisper);border-radius:16px}
+.process-step-num{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--violet-mid),var(--violet-deep));color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.process-step-content{flex:1}
+.process-step-title{font-weight:600;color:var(--ink);margin-bottom:4px;font-size:15px}
+.process-step-text{color:var(--ink-soft);font-size:14px;line-height:1.6}
+.price-box{background:linear-gradient(135deg,var(--violet-deep),var(--violet-mid));color:white;padding:32px;border-radius:24px;text-align:center;margin-bottom:24px}
+.price-label{font-size:13px;opacity:.85;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.price-value{font-family:'Playfair Display',serif;font-size:42px;font-weight:500;margin-bottom:4px}
+.price-note{font-size:13px;opacity:.8}
+.faq-item{border-bottom:1px solid var(--violet-mist);padding:16px 0}
+.faq-question{font-weight:600;color:var(--ink);margin-bottom:8px;font-size:15px}
+.faq-answer{color:var(--ink-soft);font-size:14px;line-height:1.6}
+.portfolio-detail-image{width:100%;aspect-ratio:16/9;border-radius:32px 32px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
+.portfolio-detail-body{padding:36px 48px 48px}
+.portfolio-detail-cat{display:inline-block;background:var(--violet-mist);color:var(--violet-deep);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px}
+.portfolio-detail-title{font-family:'Playfair Display',serif;font-weight:400;font-size:36px;line-height:1.1;color:var(--ink);margin-bottom:16px}
+.portfolio-detail-text{color:var(--ink-soft);line-height:1.7;margin-bottom:24px}
+.portfolio-detail-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:20px;background:var(--violet-whisper);border-radius:16px;margin-bottom:24px}
+.meta-item-label{font-size:11px;font-weight:600;color:var(--ink-mute);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.meta-item-value{font-weight:600;color:var(--ink);font-size:14px}
+@media (max-width:968px){.hero-grid{grid-template-columns:1fr;gap:60px}.hero-visual{height:400px}.service-card{grid-template-columns:1fr;gap:24px}.service-window{max-width:280px;margin:0 auto}.portfolio-item.large,.portfolio-item.small,.portfolio-item.third{grid-column:span 12}.testimonials-grid{grid-template-columns:1fr}.cta-card{padding:48px 24px}nav{padding:8px 12px;gap:12px}nav ul{display:none}.form-row{grid-template-columns:1fr}.modal{max-height:95vh;border-radius:20px}.modal-scroll{border-radius:20px}.modal-header-gradient,.service-detail-hero{padding:32px 24px 24px;border-radius:20px 20px 0 0}.modal-body,.service-detail-body,.portfolio-detail-body{padding:24px}.modal-header-title,.service-detail-title{font-size:28px}.contact-info-row{grid-template-columns:1fr;gap:12px}.portfolio-detail-meta{grid-template-columns:1fr}}
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s ease,transform .8s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<nav>
+  <a href="#" class="nav-logo">
+    <img src="logo.png" alt="Kors Motion">
+    <span class="nav-logo-text">Kors Motion</span>
+  </a>
+  <ul>
+    <li><a href="#services" class="nav-link" data-i18n="nav.services">Услуги</a></li>
+    <li><a href="#portfolio" class="nav-link" data-i18n="nav.portfolio">Работы</a></li>
+    <li><a href="#reviews" class="nav-link" data-i18n="nav.reviews">Отзывы</a></li>
+  </ul>
+  <div class="lang-switcher" id="langSwitcher">
+    <button class="lang-button" id="langButton">
+      <span class="lang-flag flag-ru" id="currentFlag"></span>
+      <span id="currentLang">RU</span>
+      <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <button class="lang-option" data-lang="ru"><span class="lang-flag flag-ru"></span> Русский</button>
+      <button class="lang-option" data-lang="de"><span class="lang-flag flag-de"></span> Deutsch</button>
+      <button class="lang-option" data-lang="en"><span class="lang-flag flag-en"></span> English</button>
+      <button class="lang-option" data-lang="it"><span class="lang-flag flag-it"></span> Italiano</button>
+      <button class="lang-option" data-lang="fr"><span class="lang-flag flag-fr"></span> Français</button>
+    </div>
+  </div>
+  <button class="nav-cta" onclick="openModal('contactModal')" data-i18n="nav.cta">Связаться</button>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-badge" data-i18n="hero.badge">Studio · Switzerland</div>
+        <h1 data-i18n-html="hero.title">Движение,<br>которое <em>запоминается</em></h1>
+        <p class="hero-text" data-i18n="hero.text">Студия моушн-дизайна.</p>
+        <div class="hero-buttons">
+          <button class="btn-primary" onclick="openModal('contactModal')">
+            <span data-i18n="hero.btn1">Обсудить проект</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <a href="#portfolio" class="btn-ghost">
+            <span data-i18n="hero.btn2">Смотреть работы</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="logo-card">
+          <div class="logo-ring logo-ring-1"></div>
+          <div class="logo-ring logo-ring-2"></div>
+          <img src="logo.png" alt="Kors Motion" class="hero-logo">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label" data-i18n="services.label">— Что я делаю</div>
+      <h2 class="section-title" data-i18n-html="services.title">Услуги, отточенные<br>до <em>совершенства</em></h2>
+      <p class="section-intro" data-i18n="services.intro">Шесть направлений.</p>
+    </div>
+    <div class="services-list reveal">
+      <div class="service-card" onclick="openServiceDetail('s1')">
+        <div class="service-window"><img src="logo.png" alt="" class="anim-logo"></div>
+        <div class="service-content">
+          <div class="service-number">— 01</div>
+          <h3 class="service-title" data-i18n="services.s1.title">Анимация логотипа</h3>
+          <p class="service-desc" data-i18n="services.s1.desc">Превращаю статичный логотип в кинематографичную сцену.</p>
+          <div class="service-features"><span data-i18n="services.s1.f1">Intro</span><span data-i18n="services.s1.f2">Outro</span><span data-i18n="services.s1.f3">Stinger</span><span>4K</span></div>
+          <span class="service-link"><span data-i18n="services.detail">Подробнее</span> →</span>
+        </div>
+      </div>
+      <div class="service-card" onclick="openServiceDetail('s2')">
+        <div class="service-window"><div class="anim-motion"><div class="shape shape-1"></div><div class="shape shape-2"></div><div class="shape shape-3"></div></div></div>
+        <div class="service-content">
+          <div class="service-number">— 02</div>
+          <h3 class="service-title" data-i18n="services.s2.title">Моушн-графика</h3>
+          <p class="service-desc" data-i18n="services.s2.desc">Анимированная инфографика, рекламные ролики.</p>
+          <div class="service-features"><span data-i18n="services.s2.f1">Реклама</span><span data-i18n="services.s2.f2">Explainer</span><span data-i18n="services.s2.f3">Инфографика</span></div>
+          <span class="service-link"><span data-i18n="services.detail">Подробнее</span> →</span>
+        </div>
+      </div>
+      <div class="service-card" onclick="openServiceDetail('s3')">
+        <div class="service-window"><div class="anim-design"><div class="layer layer-1"></div><div class="layer layer-2"></div><div class="layer layer-3"></div></div></div>
+        <div class="service-content">
+          <div class="service-number">— 03</div>
+          <h3 class="service-title" data-i18n="services.s3.title">Графический дизайн</h3>
+          <p class="service-desc" data-i18n="services.s3.desc">Постеры, баннеры, обложки, рекламные макеты.</p>
+          <div class="service-features"><span data-i18n="services.s3.f1">Постеры</span><span data-i18n="services.s3.f2">Баннеры</span><span data-i18n="services.s3.f3">Соцсети</span></div>
+          <span class="service-link"><span data-i18n="services.detail">Подробнее</span> →</span>
+        </div>
+      </div>
+      <div class="service-card" onclick="openServiceDetail('s4')">
+        <div class="service-window"><div class="anim-logocreate"><div class="grid-block b1"></div><div class="grid-block b2"></div><div class="grid-block b3"></div><div class="grid-block b4"></div><div class="grid-block center"></div></div></div>
+        <div class="service-content">
+          <div class="service-number">— 04</div>
+          <h3 class="service-title" data-i18n="services.s4.title">Разработка логотипов</h3>
+          <p class="service-desc" data-i18n="services.s4.desc">Логотип как фундамент бренда.</p>
+          <div class="service-features"><span data-i18n="services.s4.f1">Логотип</span><span data-i18n="services.s4.f2">Брендбук</span><span data-i18n="services.s4.f3">Identity</span></div>
+          <span class="service-link"><span data-i18n="services.detail">Подробнее</span> →</span>
+        </div>
+      </div>
+      <div class="service-card" onclick="openServiceDetail('s5')">
+        <div class="service-window"><div class="anim-web"><div class="browser-bar"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="browser-content"><div class="web-line"></div><div class="web-line"></div><div class="web-line"></div><div class="web-block"></div></div></div></div>
+        <div class="service-content">
+          <div class="service-number">— 05</div>
+          <h3 class="service-title" data-i18n="services.s5.title">Создание сайтов</h3>
+          <p class="service-desc" data-i18n="services.s5.desc">Лендинги и многостраничные сайты.</p>
+          <div class="service-features"><span data-i18n="services.s5.f1">Landing</span><span data-i18n="services.s5.f2">Multi-page</span><span>SEO</span></div>
+          <span class="service-link"><span data-i18n="services.detail">Подробнее</span> →</span>
+        </div>
+      </div>
+      <div class="service-card" onclick="openServiceDetail('s6')">
+        <div class="service-window"><div class="anim-support"><div class="gear gear-1"></div><div class="gear gear-2"></div><div class="check"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div></div>
+        <div class="service-content">
+          <div class="service-number">— 06</div>
+          <h3 class="service-title" data-i18n="services.s6.title">Поддержка сайтов</h3>
+          <p class="service-desc" data-i18n="services.s6.desc">Регулярные обновления, защита, скорость.</p>
+          <div class="service-features"><span data-i18n="services.s6.f1">Обновления</span><span data-i18n="services.s6.f2">Безопасность</span><span data-i18n="services.s6.f3">Скорость</span></div>
+          <span class="service-link"><span data-i18n="services.detail">Подробнее</span> →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="portfolio">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label" data-i18n="portfolio.label">— Избранные работы</div>
+      <h2 class="section-title" data-i18n-html="portfolio.title">Портфолио<br><em>в движении</em></h2>
+    </div>
+    <div class="portfolio-grid reveal">
+      <div class="portfolio-item large" onclick="openPortfolioDetail('p1')">
+        <div class="portfolio-visual pv-1"><img src="logo.png" alt="" class="portfolio-logo-small" style="width:35%"></div>
+        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span data-i18n="portfolio.viewMore">Смотреть подробнее</span> →</div></div>
+        <div class="portfolio-meta"><div class="portfolio-cat">Logo Animation</div><div class="portfolio-name" data-i18n="portfolio.p1">Apex Core</div></div>
+      </div>
+      <div class="portfolio-item small" onclick="openPortfolioDetail('p2')">
+        <div class="portfolio-visual pv-2"><div class="deco-circle"></div></div>
+        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span data-i18n="portfolio.viewMore">Смотреть подробнее</span> →</div></div>
+        <div class="portfolio-meta dark"><div class="portfolio-cat">Branding</div><div class="portfolio-name" data-i18n="portfolio.p2">Soft Identity</div></div>
+      </div>
+      <div class="portfolio-item third" onclick="openPortfolioDetail('p3')">
+        <div class="portfolio-visual pv-3"><div class="deco-ring"></div></div>
+        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span data-i18n="portfolio.viewMore">Смотреть</span> →</div></div>
+        <div class="portfolio-meta"><div class="portfolio-cat">Motion</div><div class="portfolio-name" data-i18n="portfolio.p3">Promo Reel</div></div>
+      </div>
+      <div class="portfolio-item third" onclick="openPortfolioDetail('p4')">
+        <div class="portfolio-visual pv-4"><div class="deco-square"></div></div>
+        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span data-i18n="portfolio.viewMore">Смотреть</span> →</div></div>
+        <div class="portfolio-meta dark"><div class="portfolio-cat">Web Design</div><div class="portfolio-name" data-i18n="portfolio.p4">Studio Landing</div></div>
+      </div>
+      <div class="portfolio-item third" onclick="openPortfolioDetail('p5')">
+        <div class="portfolio-visual pv-5"><img src="logo.png" alt="" class="portfolio-logo-small" style="width:40%;opacity:.5"></div>
+        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span data-i18n="portfolio.viewMore">Смотреть</span> →</div></div>
+        <div class="portfolio-meta"><div class="portfolio-cat">Identity</div><div class="portfolio-name" data-i18n="portfolio.p5">Premium Mark</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label" data-i18n="reviews.label">— Что говорят клиенты</div>
+      <h2 class="section-title" data-i18n-html="reviews.title">Доверяют<br><em>профессионалу</em></h2>
+    </div>
+    <div class="testimonials-grid reveal">
+      <div class="testimonial">
+        <div class="stars">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+        </div>
+        <p class="testimonial-text" data-i18n="reviews.t1">«Сергей сделал анимацию нашего логотипа за неделю.»</p>
+        <div class="testimonial-author"><div class="author-avatar">AW</div><div><div class="author-name">Alex Weber</div><div class="author-role">Co-founder, Apex Core</div></div></div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+        </div>
+        <p class="testimonial-text" data-i18n="reviews.t2">«Профессионал высокого уровня.»</p>
+        <div class="testimonial-author"><div class="author-avatar">MK</div><div><div class="author-name">Maria Klein</div><div class="author-role" data-i18n="reviews.t2role">Marketing Lead</div></div></div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+        </div>
+        <p class="testimonial-text" data-i18n="reviews.t3">«Идеальный результат с первого раза.»</p>
+        <div class="testimonial-author"><div class="author-avatar">DR</div><div><div class="author-name">Daniel Roth</div><div class="author-role" data-i18n="reviews.t3role">Brand Director</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cta">
+  <div class="container">
+    <div class="cta-card reveal">
+      <div class="cta-content">
+        <div class="section-label" data-i18n="cta.label">— Готовы начать?</div>
+        <h2 class="cta-title" data-i18n-html="cta.title">Расскажите<br>о вашем <em>проекте</em></h2>
+        <p class="cta-text" data-i18n="cta.text">Опишите задачу — отвечу в течение дня.</p>
+        <div class="cta-buttons">
+          <button class="btn-primary" onclick="openModal('contactModal')">
+            <span data-i18n="cta.btn1">Написать сообщение</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <a href="mailto:info@korsmotion.ch" class="btn-ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            info@korsmotion.ch
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-logo"><img src="logo.png" alt="Kors Motion"><span class="footer-logo-text">Kors Motion</span></div>
+      <ul class="footer-links">
+        <li><a href="#services" data-i18n="nav.services">Услуги</a></li>
+        <li><a href="#portfolio" data-i18n="nav.portfolio">Работы</a></li>
+        <li><a href="#reviews" data-i18n="nav.reviews">Отзывы</a></li>
+        <li><a onclick="openModal('contactModal')" data-i18n="footer.contact">Контакты</a></li>
+      </ul>
+      <div class="footer-copy">© 2026 Kors Motion · Switzerland</div>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="contactModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('contactModal')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-scroll">
+    <div class="modal-header-gradient">
+      <div class="modal-header-label" data-i18n="contact.label">— Связаться</div>
+      <h2 class="modal-header-title" data-i18n-html="contact.title">Расскажите о <em>проекте</em></h2>
+      <p class="modal-header-text" data-i18n="contact.text">Опишите задачу — отвечу в течение дня.</p>
+    </div>
+    <div class="modal-body">
+      <form id="contactForm" action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label" data-i18n="form.name">Имя</label><input type="text" name="name" class="form-input" required data-i18n-placeholder="form.namePh" placeholder="Ваше имя"></div>
+          <div class="form-group"><label class="form-label" data-i18n="form.email">Email</label><input type="email" name="email" class="form-input" required placeholder="email@example.com"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="form.type">Тип проекта</label>
+          <select name="project_type" class="form-select" required>
+            <option value="" data-i18n="form.typeSelect">Выберите услугу</option>
+            <option value="logo-animation" data-i18n="services.s1.title">Анимация логотипа</option>
+            <option value="motion-graphics" data-i18n="services.s2.title">Моушн-графика</option>
+            <option value="graphic-design" data-i18n="services.s3.title">Графический дизайн</option>
+            <option value="logo-design" data-i18n="services.s4.title">Разработка логотипов</option>
+            <option value="website" data-i18n="services.s5.title">Создание сайтов</option>
+            <option value="support" data-i18n="services.s6.title">Поддержка сайтов</option>
+            <option value="other" data-i18n="form.typeOther">Другое</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="form.budget">Бюджет (опционально)</label>
+          <select name="budget" class="form-select">
+            <option value="" data-i18n="form.budgetSelect">Выберите диапазон</option>
+            <option value="<1000">До 1'000 CHF</option>
+            <option value="1000-3000">1'000 — 3'000 CHF</option>
+            <option value="3000-5000">3'000 — 5'000 CHF</option>
+            <option value="5000-10000">5'000 — 10'000 CHF</option>
+            <option value=">10000">10'000+ CHF</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="form.message">Расскажите подробнее</label>
+          <textarea name="message" class="form-textarea" required data-i18n-placeholder="form.messagePh" placeholder="Краткое описание задачи..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%;justify-content:center">
+          <span data-i18n="form.submit">Отправить заявку</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <div class="contact-info-row">
+          <div class="contact-info-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            info@korsmotion.ch
+          </div>
+          <div class="contact-info-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span data-i18n="contact.location">Thurgau, CH</span>
+          </div>
+
+        </div>
+      </form>
+      <div class="form-success" id="formSuccess">
+        <div class="form-success-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h3 class="form-success-title" data-i18n="form.successTitle">Сообщение отправлено!</h3>
+        <p class="form-success-text" data-i18n="form.successText">Свяжусь с вами в течение 24 часов.</p>
+        <button class="btn-primary" onclick="closeModal('contactModal')"><span data-i18n="form.successClose">Закрыть</span></button>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="serviceModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('serviceModal')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-scroll" id="serviceModalContent"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="portfolioModal">
+  <div class="modal modal-large">
+    <button class="modal-close" onclick="closeModal('portfolioModal')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-scroll" id="portfolioModalContent"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

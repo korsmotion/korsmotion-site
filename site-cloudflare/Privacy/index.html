@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — TV Sleep Timer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --border: #e4e2dc;
+    --accent: #6d28d9;
+    --accent-soft: #ede9fe;
+    --text: #1a1818;
+    --muted: #6b6760;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    line-height: 1.75;
+  }
+
+  .hero {
+    padding: 72px 40px 56px;
+    max-width: 760px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .app-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-soft);
+    border-radius: 100px;
+    padding: 5px 14px 5px 8px;
+    margin-bottom: 28px;
+  }
+
+  .app-badge .dot {
+    width: 7px; height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  .app-badge span {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(38px, 6vw, 56px);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .updated {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .content {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 56px 40px 100px;
+  }
+
+  section { margin-bottom: 52px; }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  h2::before {
+    content: '';
+    display: block;
+    width: 3px; height: 20px;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  p {
+    font-size: 16px;
+    color: #3d3a35;
+    margin-bottom: 12px;
+  }
+
+  .highlight-box {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+  }
+
+  .highlight-box p {
+    color: #4c1d95;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .permission-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .permission-list li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .perm-icon {
+    width: 38px; height: 38px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+
+  .perm-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .perm-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .contact-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+  }
+
+  .contact-item .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+
+  .contact-item .value {
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .contact-item a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 40px;
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  footer span { font-size: 13px; color: var(--muted); }
+  footer a { font-size: 13px; color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .hero, .content, footer { padding-left: 22px; padding-right: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="app-badge">
+    <div class="dot"></div>
+    <span>TV Sleep Timer · Kors Motion</span>
+  </div>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated: June 4, 2026</p>
+</div>
+
+<div class="content">
+
+  <section>
+    <h2>Overview</h2>
+    <div class="highlight-box">
+      <p>TV Sleep Timer does not collect, store, or transmit any personal data. All settings are stored locally on your device and never leave it.</p>
+    </div>
+    <p>This application is developed by Kors Motion (Sergej Korsakov), based in Switzerland. We are committed to protecting your privacy.</p>
+  </section>
+
+  <section>
+    <h2>Permissions Used</h2>
+    <ul class="permission-list">
+      <li>
+        <div class="perm-icon">🔒</div>
+        <div>
+          <div class="perm-name">Device Administrator</div>
+          <p class="perm-desc">Used to lock the screen when the sleep timer expires. Primary method on NVIDIA Shield and Android TV. Can be deactivated at any time in device settings.</p>
+        </div>
+      </li>
+      <li>
+        <div class="perm-icon">⚙️</div>
+        <div>
+          <div class="perm-name">Modify System Settings</div>
+          <p class="perm-desc">Used to temporarily adjust screen timeout to trigger sleep mode. The original value is always restored after the timer executes.</p>
+        </div>
+      </li>
+      <li>
+        <div class="perm-icon">🪟</div>
+        <div>
+          <div class="perm-name">Draw Over Other Apps</div>
+          <p class="perm-desc">Used to display the countdown overlay and clock widget on top of other content while you watch TV.</p>
+        </div>
+      </li>
+      <li>
+        <div class="perm-icon">🔄</div>
+        <div>
+          <div class="perm-name">Receive Boot Completed</div>
+          <p class="perm-desc">Used to restore scheduled timers after the device restarts, so your schedule continues working automatically.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Weather Data</h2>
+    <p>If you enable the clock widget with weather display, weather data is fetched via a Kors Motion proxy server. Only a general city-level location is used — no precise GPS coordinates are collected or stored.</p>
+  </section>
+
+  <section>
+    <h2>Third-Party Services</h2>
+    <p>TV Sleep Timer does not include any advertising SDKs, analytics tools, or user tracking. No data is shared with third parties. The app is distributed via Google Play — Google's own privacy policy applies to the Play Store itself.</p>
+  </section>
+
+  <section>
+    <h2>Children's Privacy</h2>
+    <p>This app does not collect data from anyone. There is no account system, registration, or data collection of any kind.</p>
+  </section>
+
+  <section>
+    <h2>Contact</h2>
+    <div class="contact-block">
+      <div class="contact-item">
+        <div class="label">Developer</div>
+        <div class="value">Kors Motion · Sergej Korsakov</div>
+      </div>
+      <div class="contact-item">
+        <div class="label">Support</div>
+        <a href="mailto:info@korsmotion.ch">info@korsmotion.ch</a>
+      </div>
+      <div class="contact-item">
+        <div class="label">Website</div>
+        <a href="https://korsmotion.ch" target="_blank">korsmotion.ch</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <span>© 2026 Kors Motion. Switzerland.</span>
+  <a href="https://korsmotion.ch">← korsmotion.ch</a>
+</footer>
+
+</body>
+</html>
