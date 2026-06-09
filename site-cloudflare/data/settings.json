@@ -1,0 +1,21 @@
+{
+  "show_dev_section": true,
+  "apps": [
+    {
+      "id": "app1",
+      "title": "Kors TV Launcher",
+      "description": "Минималистичный лаунчер для Android TV с фокусом на скорость и чистый интерфейс.",
+      "platform": "Android TV",
+      "link": "https://play.google.com/store",
+      "visible": true
+    },
+    {
+      "id": "app2",
+      "title": "Motion Preview",
+      "description": "Просмотр и демонстрация motion-проектов прямо на большом экране.",
+      "platform": "Android TV",
+      "link": "https://play.google.com/store",
+      "visible": true
+    }
+  ]
+}

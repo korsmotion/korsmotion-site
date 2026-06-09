@@ -160,6 +160,16 @@ section{padding:100px 0;position:relative}
 .deco-ring{width:180px;height:180px;border-radius:50%;border:2px solid rgba(255,255,255,.3);animation:rotate 20s linear infinite;position:relative}
 .deco-ring::after{content:'';position:absolute;width:12px;height:12px;background:white;border-radius:50%;top:-6px;left:50%;transform:translateX(-50%)}
 .portfolio-logo-small{width:50%;filter:brightness(1.5);opacity:.8}
+.portfolio-thumb{width:100%;height:100%;object-fit:cover}
+.dev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.dev-card{background:rgba(255,255,255,.55);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:24px;padding:32px;transition:all .3s;display:flex;flex-direction:column}
+.dev-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(91,63,191,.12)}
+.dev-platform{display:inline-block;background:rgba(124,58,237,.15);color:var(--violet-deep);padding:6px 12px;border-radius:100px;font-size:12px;font-weight:600;margin-bottom:16px;width:fit-content}
+.dev-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:500;color:var(--ink);margin-bottom:12px}
+.dev-desc{font-size:15px;color:var(--ink-soft);line-height:1.6;margin-bottom:20px;flex:1}
+.dev-link{display:inline-flex;align-items:center;gap:6px;color:var(--violet-deep);font-weight:600;font-size:14px;text-decoration:none;transition:gap .3s}
+.dev-link:hover{gap:10px}
+.portfolio-video{width:100%;aspect-ratio:16/9;border-radius:12px;margin-bottom:20px}
 .testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .testimonial{background:rgba(255,255,255,.6);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:24px;padding:36px 32px;transition:all .3s}
 .testimonial:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(91,63,191,.12)}
@@ -268,6 +278,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   <ul>
     <li><a href="#services" class="nav-link" data-i18n="nav.services">Услуги</a></li>
     <li><a href="#portfolio" class="nav-link" data-i18n="nav.portfolio">Работы</a></li>
+    <li id="navDevItem" style="display:none"><a href="#development" class="nav-link" data-i18n="nav.development">Разработка</a></li>
     <li><a href="#reviews" class="nav-link" data-i18n="nav.reviews">Отзывы</a></li>
   </ul>
   <div class="lang-switcher" id="langSwitcher">
@@ -394,33 +405,18 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
       <div class="section-label" data-i18n="portfolio.label">— Избранные работы</div>
       <h2 class="section-title" data-i18n-html="portfolio.title">Портфолио<br><em>в движении</em></h2>
     </div>
-    <div class="portfolio-grid reveal">
-      <div class="portfolio-item large" onclick="openPortfolioDetail('p1')">
-        <div class="portfolio-visual pv-1"><img src="logo.png" alt="" class="portfolio-logo-small" style="width:35%"></div>
-        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span data-i18n="portfolio.viewMore">Смотреть подробнее</span> →</div></div>
-        <div class="portfolio-meta"><div class="portfolio-cat">Logo Animation</div><div class="portfolio-name" data-i18n="portfolio.p1">Apex Core</div></div>
-      </div>
-      <div class="portfolio-item small" onclick="openPortfolioDetail('p2')">
-        <div class="portfolio-visual pv-2"><div class="deco-circle"></div></div>
-        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span data-i18n="portfolio.viewMore">Смотреть подробнее</span> →</div></div>
-        <div class="portfolio-meta dark"><div class="portfolio-cat">Branding</div><div class="portfolio-name" data-i18n="portfolio.p2">Soft Identity</div></div>
-      </div>
-      <div class="portfolio-item third" onclick="openPortfolioDetail('p3')">
-        <div class="portfolio-visual pv-3"><div class="deco-ring"></div></div>
-        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span data-i18n="portfolio.viewMore">Смотреть</span> →</div></div>
-        <div class="portfolio-meta"><div class="portfolio-cat">Motion</div><div class="portfolio-name" data-i18n="portfolio.p3">Promo Reel</div></div>
-      </div>
-      <div class="portfolio-item third" onclick="openPortfolioDetail('p4')">
-        <div class="portfolio-visual pv-4"><div class="deco-square"></div></div>
-        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span data-i18n="portfolio.viewMore">Смотреть</span> →</div></div>
-        <div class="portfolio-meta dark"><div class="portfolio-cat">Web Design</div><div class="portfolio-name" data-i18n="portfolio.p4">Studio Landing</div></div>
-      </div>
-      <div class="portfolio-item third" onclick="openPortfolioDetail('p5')">
-        <div class="portfolio-visual pv-5"><img src="logo.png" alt="" class="portfolio-logo-small" style="width:40%;opacity:.5"></div>
-        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span data-i18n="portfolio.viewMore">Смотреть</span> →</div></div>
-        <div class="portfolio-meta"><div class="portfolio-cat">Identity</div><div class="portfolio-name" data-i18n="portfolio.p5">Premium Mark</div></div>
-      </div>
+    <div class="portfolio-grid reveal" id="portfolioGrid"></div>
+  </div>
+</section>
+
+<section id="development" style="display:none">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label" data-i18n="dev.label">— Разработка</div>
+      <h2 class="section-title" data-i18n-html="dev.title">Приложения<br><em>для Android TV</em></h2>
+      <p class="section-intro" data-i18n="dev.intro">Собственные проекты для большого экрана.</p>
     </div>
+    <div class="dev-grid reveal" id="devGrid"></div>
   </div>
 </section>
 
@@ -497,6 +493,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
       <ul class="footer-links">
         <li><a href="#services" data-i18n="nav.services">Услуги</a></li>
         <li><a href="#portfolio" data-i18n="nav.portfolio">Работы</a></li>
+        <li id="footerDevItem" style="display:none"><a href="#development" data-i18n="nav.development">Разработка</a></li>
         <li><a href="#reviews" data-i18n="nav.reviews">Отзывы</a></li>
         <li><a onclick="openModal('contactModal')" data-i18n="footer.contact">Контакты</a></li>
       </ul>

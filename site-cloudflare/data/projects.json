@@ -1,0 +1,74 @@
+{
+  "projects": [
+    {
+      "id": "p1",
+      "title": "Apex Core — динамичная подача",
+      "category": "Logo Animation",
+      "thumbnail": "logo.png",
+      "videoUrl": "",
+      "visible": true,
+      "layout": "large",
+      "gradient": "pv-1",
+      "client": "Apex Core",
+      "year": "2026",
+      "duration": "8 секунд",
+      "description": "Анимация логотипа для стартапа Apex Core — платформы для дизайнеров. Динамичная вспышка света раскрывает марку."
+    },
+    {
+      "id": "p2",
+      "title": "Soft Identity Series",
+      "category": "Branding",
+      "thumbnail": "",
+      "videoUrl": "",
+      "visible": true,
+      "layout": "small",
+      "gradient": "pv-2",
+      "client": "Студийный проект",
+      "year": "2025",
+      "duration": "Серия",
+      "description": "Серия мягких айдентик для wellness-брендов. Пастельная палитра и геометрия в основе."
+    },
+    {
+      "id": "p3",
+      "title": "Промо-ролик",
+      "category": "Motion",
+      "thumbnail": "",
+      "videoUrl": "",
+      "visible": true,
+      "layout": "third",
+      "gradient": "pv-3",
+      "client": "Tech Brand",
+      "year": "2025",
+      "duration": "30 секунд",
+      "description": "Динамичный промо-ролик для технологического продукта."
+    },
+    {
+      "id": "p4",
+      "title": "Студийный лендинг",
+      "category": "Web Design",
+      "thumbnail": "",
+      "videoUrl": "",
+      "visible": true,
+      "layout": "third",
+      "gradient": "pv-4",
+      "client": "Design Studio",
+      "year": "2025",
+      "duration": "4 недели",
+      "description": "Лендинг-страница для дизайн-студии с анимациями и формой захвата лидов."
+    },
+    {
+      "id": "p5",
+      "title": "Premium Mark",
+      "category": "Identity",
+      "thumbnail": "logo.png",
+      "videoUrl": "",
+      "visible": true,
+      "layout": "third",
+      "gradient": "pv-5",
+      "client": "Lifestyle Brand",
+      "year": "2024",
+      "duration": "3 недели",
+      "description": "Логотип для премиум-бренда с акцентом на типографику и минимализм."
+    }
+  ]
+}

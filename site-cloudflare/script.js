@@ -1,7 +1,7 @@
 // ============== TRANSLATIONS ==============
 const translations = {
   ru: {
-    'nav.services':'Услуги','nav.portfolio':'Работы','nav.reviews':'Отзывы','nav.cta':'Связаться',
+    'nav.services':'Услуги','nav.portfolio':'Работы','nav.development':'Разработка','nav.reviews':'Отзывы','nav.cta':'Связаться',
     'hero.badge':'Студия моушн-дизайна · Швейцария',
     'hero.title':'Движение,<br>которое <em>запоминается</em>',
     'hero.text':'Kors Motion — студия моушн-дизайна. Создаю анимацию логотипов, графику для брендов и веб-сайты, которые работают на результат.',
@@ -22,7 +22,9 @@ const translations = {
     'services.s6.title':'Поддержка сайтов','services.s6.desc':'Регулярные обновления, защита от взлома, оптимизация скорости.',
     'services.s6.f1':'Обновления','services.s6.f2':'Безопасность','services.s6.f3':'Скорость',
     'portfolio.label':'— Избранные работы','portfolio.title':'Портфолио<br><em>в движении</em>',
-    'portfolio.viewMore':'Смотреть подробнее',
+    'portfolio.viewMore':'Смотреть подробнее','portfolio.empty':'Проекты скоро появятся',
+    'dev.label':'— Разработка','dev.title':'Приложения<br><em>для Android TV</em>',
+    'dev.intro':'Собственные проекты для большого экрана.','dev.link':'Подробнее',
     'portfolio.p1':'Apex Core — динамичная подача','portfolio.p2':'Soft Identity Series',
     'portfolio.p3':'Промо-ролик','portfolio.p4':'Студийный лендинг','portfolio.p5':'Premium Mark',
     'reviews.label':'— Что говорят клиенты','reviews.title':'Доверяют<br><em>профессионалу</em>',
@@ -132,7 +134,7 @@ const translations = {
     'pd.client':'Клиент','pd.year':'Год','pd.duration':'Срок','pd.cta':'Заказать похожее'
   },
   en: {
-    'nav.services':'Services','nav.portfolio':'Work','nav.reviews':'Testimonials','nav.cta':'Contact',
+    'nav.services':'Services','nav.portfolio':'Work','nav.development':'Development','nav.reviews':'Testimonials','nav.cta':'Contact',
     'hero.badge':'Motion Design Studio · Switzerland',
     'hero.title':'Motion<br>that <em>resonates</em>',
     'hero.text':'Kors Motion is a premium motion design studio. I craft logo animations, brand graphics, and high-performance websites that deliver real results.',
@@ -153,7 +155,9 @@ const translations = {
     'services.s6.title':'Website Support','services.s6.desc':'Regular updates, security monitoring, and performance optimization.',
     'services.s6.f1':'Updates','services.s6.f2':'Security','services.s6.f3':'Performance',
     'portfolio.label':'— Selected Work','portfolio.title':'Portfolio<br><em>in motion</em>',
-    'portfolio.viewMore':'View details',
+    'portfolio.viewMore':'View details','portfolio.empty':'Projects coming soon',
+    'dev.label':'— Development','dev.title':'Apps<br><em>for Android TV</em>',
+    'dev.intro':'Own projects for the big screen.','dev.link':'Learn more',
     'portfolio.p1':'Apex Core — Dynamic reveal','portfolio.p2':'Soft Identity Series',
     'portfolio.p3':'Promo Reel','portfolio.p4':'Studio Landing Page','portfolio.p5':'Premium Mark',
     'reviews.label':'— Client feedback','reviews.title':'Trusted by<br><em>professionals</em>',
@@ -263,7 +267,7 @@ const translations = {
     'pd.client':'Client','pd.year':'Year','pd.duration':'Duration','pd.cta':'Order similar'
   },
   de: {
-    'nav.services':'Services','nav.portfolio':'Portfolio','nav.reviews':'Referenzen','nav.cta':'Kontakt',
+    'nav.services':'Services','nav.portfolio':'Portfolio','nav.development':'Entwicklung','nav.reviews':'Referenzen','nav.cta':'Kontakt',
     'hero.badge':'Motion Design Studio · Schweiz',
     'hero.title':'Bewegung, die<br><em>eindruckt</em>',
     'hero.text':'Kors Motion ist Ihr Spezialist für Motion Design. Ich erstelle Logo-Animationen, Markengrafiken und Websites mit messbarem Erfolg.',
@@ -284,7 +288,9 @@ const translations = {
     'services.s6.title':'Website-Support','services.s6.desc':'Regelmässige Updates, Sicherheit und Performance-Optimierung.',
     'services.s6.f1':'Updates','services.s6.f2':'Sicherheit','services.s6.f3':'Speed',
     'portfolio.label':'— Ausgewählte Arbeiten','portfolio.title':'Portfolio<br><em>in Bewegung</em>',
-    'portfolio.viewMore':'Details ansehen',
+    'portfolio.viewMore':'Details ansehen','portfolio.empty':'Projekte folgen bald',
+    'dev.label':'— Entwicklung','dev.title':'Apps<br><em>für Android TV</em>',
+    'dev.intro':'Eigene Projekte für den grossen Bildschirm.','dev.link':'Mehr erfahren',
     'portfolio.p1':'Apex Core — Dynamische Präsentation','portfolio.p2':'Soft Identity Series',
     'portfolio.p3':'Promo Reel','portfolio.p4':'Studio Landingpage','portfolio.p5':'Premium Mark',
     'reviews.label':'— Kundenstimmen','reviews.title':'Vertrauen in<br><em>Professionalität</em>',
@@ -394,7 +400,7 @@ const translations = {
     'pd.client':'Kunde','pd.year':'Jahr','pd.duration':'Dauer','pd.cta':'Ähnliches bestellen'
   },
   it: {
-    'nav.services':'Servizi','nav.portfolio':'Portfolio','nav.reviews':'Dicono di me','nav.cta':'Contatti',
+    'nav.services':'Servizi','nav.portfolio':'Portfolio','nav.development':'Sviluppo','nav.reviews':'Dicono di me','nav.cta':'Contatti',
     'hero.badge':'Studio di Motion Design · Svizzera',
     'hero.title':'Un movimento<br>che <em>lascia il segno</em>',
     'hero.text':'Kors Motion è uno studio specializzato in motion design. Realizzo animazioni di loghi, grafiche per brand e siti web ad alte prestazioni.',
@@ -415,7 +421,9 @@ const translations = {
     'services.s6.title':'Supporto Web','services.s6.desc':'Aggiornamenti regolari, monitoraggio della sicurezza e ottimizzazione.',
     'services.s6.f1':'Aggiornamenti','services.s6.f2':'Sicurezza','services.s6.f3':'Performance',
     'portfolio.label':'— Lavori selezionati','portfolio.title':'Portfolio<br><em>in movimento</em>',
-    'portfolio.viewMore':'Vedi i dettagli',
+    'portfolio.viewMore':'Vedi i dettagli','portfolio.empty':'Progetti in arrivo',
+    'dev.label':'— Sviluppo','dev.title':'App<br><em>per Android TV</em>',
+    'dev.intro':'Progetti propri per il grande schermo.','dev.link':'Scopri di più',
     'portfolio.p1':'Apex Core — Presentazione dinamica','portfolio.p2':'Soft Identity Series',
     'portfolio.p3':'Promo Reel','portfolio.p4':'Landing page studio','portfolio.p5':'Premium Mark',
     'reviews.label':'— Feedback dei clienti','reviews.title':'La fiducia di<br>un <em>professionista</em>',
@@ -525,7 +533,7 @@ const translations = {
     'pd.client':'Cliente','pd.year':'Anno','pd.duration':'Durata','pd.cta':'Ordina simile'
   },
   fr: {
-    'nav.services':'Services','nav.portfolio':'Portfolio','nav.reviews':'Témoignages','nav.cta':'Contact',
+    'nav.services':'Services','nav.portfolio':'Portfolio','nav.development':'Développement','nav.reviews':'Témoignages','nav.cta':'Contact',
     'hero.badge':'Studio de Motion Design · Suisse',
     'hero.title':'Un mouvement<br>qui <em>marque les esprits</em>',
     'hero.text':'Kors Motion est un studio de motion design. Je crée des animations de logos, des identités visuelles et des sites web performants.',
@@ -546,7 +554,9 @@ const translations = {
     'services.s6.title':'Maintenance Web','services.s6.desc':'Mises à jour régulières, sécurité renforcée et optimisation des performances.',
     'services.s6.f1':'Mises à jour','services.s6.f2':'Sécurité','services.s6.f3':'Performance',
     'portfolio.label':'— Projets sélectionnés','portfolio.title':'Le portfolio<br><em>en mouvement</em>',
-    'portfolio.viewMore':'Voir les détails',
+    'portfolio.viewMore':'Voir les détails','portfolio.empty':'Projets à venir',
+    'dev.label':'— Développement','dev.title':'Applications<br><em>pour Android TV</em>',
+    'dev.intro':'Projets personnels pour le grand écran.','dev.link':'En savoir plus',
     'portfolio.p1':'Apex Core — Présentation dynamique','portfolio.p2':'Soft Identity Series',
     'portfolio.p3':'Promo Reel','portfolio.p4':'Landing page studio','portfolio.p5':'Premium Mark',
     'reviews.label':'— Avis clients','reviews.title':'La confiance d\'un<br><em>professionnel</em>',
@@ -692,6 +702,8 @@ function applyLang(lang) {
     btn.classList.toggle('active', btn.dataset.lang === lang);
   });
   localStorage.setItem('korsmotion_lang', lang);
+  renderPortfolio();
+  renderDevSection();
 }
 
 const switcher = document.getElementById('langSwitcher');
@@ -794,37 +806,169 @@ function openServiceDetail(id) {
   openModal('serviceModal');
 }
 
-// PORTFOLIO DETAILS
-const portfolioVisuals = {
-  p1: 'background:linear-gradient(135deg,#1A1530 0%,#5B3FBF 100%);',
-  p2: 'background:linear-gradient(135deg,#E8DFFB 0%,#B89AED 100%);',
-  p3: 'background:linear-gradient(135deg,#8B6FE8 0%,#5B3FBF 100%);',
-  p4: 'background:linear-gradient(135deg,#F5F0FF 0%,#C9B8F5 100%);',
-  p5: 'background:linear-gradient(135deg,#1A1530 0%,#4A4566 100%);'
+// SITE DATA (portfolio + dev apps)
+const STORAGE_PROJECTS = 'korsmotion_projects';
+const STORAGE_SETTINGS = 'korsmotion_settings';
+
+const gradientStyles = {
+  'pv-1': 'background:linear-gradient(135deg,#1A1530 0%,#5B3FBF 100%);',
+  'pv-2': 'background:linear-gradient(135deg,#E8DFFB 0%,#B89AED 100%);',
+  'pv-3': 'background:linear-gradient(135deg,#8B6FE8 0%,#5B3FBF 100%);',
+  'pv-4': 'background:linear-gradient(135deg,#F5F0FF 0%,#C9B8F5 100%);',
+  'pv-5': 'background:linear-gradient(135deg,#1A1530 0%,#4A4566 100%);'
 };
-const portfolioImage = {
-  p1: '<img src="logo.png" alt="" style="width:25%;filter:brightness(1.5)">',
-  p2: '<div style="width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);animation:float 6s ease infinite"></div>',
-  p3: '<div style="width:280px;height:280px;border-radius:50%;border:3px solid rgba(255,255,255,.4);animation:rotate 15s linear infinite"></div>',
-  p4: '<div style="width:200px;height:200px;background:linear-gradient(135deg,white,transparent);transform:rotate(45deg);opacity:.5"></div>',
-  p5: '<img src="logo.png" alt="" style="width:30%;opacity:.5;filter:brightness(1.5)">'
+const decoElements = {
+  'pv-1': '<img src="logo.png" alt="" class="portfolio-logo-small" style="width:35%">',
+  'pv-2': '<div class="deco-circle"></div>',
+  'pv-3': '<div class="deco-ring"></div>',
+  'pv-4': '<div class="deco-square"></div>',
+  'pv-5': '<img src="logo.png" alt="" class="portfolio-logo-small" style="width:40%;opacity:.5">'
 };
+const darkMetaGradients = ['pv-2', 'pv-4'];
+
+let allProjects = [];
+let siteProjects = [];
+let siteSettings = { show_dev_section: false, apps: [] };
+
+async function loadSiteData() {
+  let projects = null;
+  let settings = null;
+
+  const storedP = localStorage.getItem(STORAGE_PROJECTS);
+  const storedS = localStorage.getItem(STORAGE_SETTINGS);
+  if (storedP) try { projects = JSON.parse(storedP); } catch (_) {}
+  if (storedS) try { settings = JSON.parse(storedS); } catch (_) {}
+
+  if (!projects || !settings) {
+    try {
+      const [pRes, sRes] = await Promise.all([
+        fetch('data/projects.json'),
+        fetch('data/settings.json')
+      ]);
+      if (!projects && pRes.ok) projects = await pRes.json();
+      if (!settings && sRes.ok) settings = await sRes.json();
+    } catch (_) {}
+  }
+
+  allProjects = projects?.projects || [];
+  siteProjects = allProjects.filter(p => p.visible);
+  siteSettings = settings || { show_dev_section: false, apps: [] };
+  renderPortfolio();
+  renderDevSection();
+}
+
+function getPortfolioVisual(project) {
+  if (project.thumbnail) {
+    return `<img src="${escHtml(project.thumbnail)}" alt="" class="portfolio-thumb">`;
+  }
+  return decoElements[project.gradient] || decoElements['pv-1'];
+}
+
+function renderPortfolio() {
+  const grid = document.getElementById('portfolioGrid');
+  if (!grid) return;
+  const t = translations[currentLanguage];
+
+  if (!siteProjects.length) {
+    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--ink-soft);padding:40px 0">${t['portfolio.empty']}</p>`;
+    return;
+  }
+
+  grid.innerHTML = siteProjects.map(p => {
+    const layout = p.layout || 'third';
+    const darkMeta = darkMetaGradients.includes(p.gradient) ? ' dark' : '';
+    const gradClass = p.gradient || 'pv-1';
+    return `
+      <div class="portfolio-item ${layout}" onclick="openPortfolioDetail('${escHtml(p.id)}')">
+        <div class="portfolio-visual ${gradClass}">${getPortfolioVisual(p)}</div>
+        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span>${t['portfolio.viewMore']}</span> →</div></div>
+        <div class="portfolio-meta${darkMeta}">
+          <div class="portfolio-cat">${escHtml(p.category)}</div>
+          <div class="portfolio-name">${escHtml(p.title)}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderDevSection() {
+  const section = document.getElementById('development');
+  const grid = document.getElementById('devGrid');
+  const navItem = document.getElementById('navDevItem');
+  const footerItem = document.getElementById('footerDevItem');
+  if (!section) return;
+
+  const show = !!siteSettings.show_dev_section;
+  section.style.display = show ? '' : 'none';
+  if (navItem) navItem.style.display = show ? '' : 'none';
+  if (footerItem) footerItem.style.display = show ? '' : 'none';
+
+  if (!show || !grid) return;
+
+  const t = translations[currentLanguage];
+  const apps = (siteSettings.apps || []).filter(a => a.visible);
+
+  grid.innerHTML = apps.map(a => `
+    <div class="dev-card">
+      <span class="dev-platform">${escHtml(a.platform)}</span>
+      <h3 class="dev-title">${escHtml(a.title)}</h3>
+      <p class="dev-desc">${escHtml(a.description)}</p>
+      ${a.link ? `<a href="${escHtml(a.link)}" class="dev-link" target="_blank" rel="noopener">${t['dev.link']} →</a>` : ''}
+    </div>
+  `).join('');
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function getProjectById(id) {
+  return allProjects.find(p => p.id === id);
+}
+
+function embedVideo(url) {
+  if (!url) return '';
+  let embed = '';
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+  if (ytMatch) {
+    embed = `https://www.youtube.com/embed/${ytMatch[1]}`;
+  } else if (url.match(/\.(mp4|webm|ogg)(\?|$)/i)) {
+    return `<video class="portfolio-video" controls src="${escHtml(url)}"></video>`;
+  }
+  if (embed) {
+    return `<iframe class="portfolio-video" src="${escHtml(embed)}" frameborder="0" allowfullscreen></iframe>`;
+  }
+  return `<a href="${escHtml(url)}" class="btn-primary" style="display:inline-flex;margin-bottom:20px" target="_blank" rel="noopener">Watch video →</a>`;
+}
 
 function openPortfolioDetail(id) {
   const t = translations[currentLanguage];
+  const project = getProjectById(id);
+  if (!project) return;
+
   const content = document.getElementById('portfolioModalContent');
+  const gradStyle = gradientStyles[project.gradient] || gradientStyles['pv-1'];
+  const visual = project.thumbnail
+    ? `<img src="${escHtml(project.thumbnail)}" alt="" style="width:100%;height:100%;object-fit:cover">`
+    : (decoElements[project.gradient] || decoElements['pv-1']);
+
   content.innerHTML = `
-    <div class="portfolio-detail-image" style="${portfolioVisuals[id]}">
-      ${portfolioImage[id]}
-    </div>
+    <div class="portfolio-detail-image" style="${gradStyle}">${visual}</div>
     <div class="portfolio-detail-body">
-      <div class="portfolio-detail-cat">${t['pd.' + id + '.cat']}</div>
-      <h2 class="portfolio-detail-title">${t['pd.' + id + '.title']}</h2>
-      <p class="portfolio-detail-text">${t['pd.' + id + '.text']}</p>
+      <div class="portfolio-detail-cat">${escHtml(project.category)}</div>
+      <h2 class="portfolio-detail-title">${escHtml(project.title)}</h2>
+      ${project.videoUrl ? embedVideo(project.videoUrl) : ''}
+      <p class="portfolio-detail-text">${escHtml(project.description || '')}</p>
       <div class="portfolio-detail-meta">
-        <div><div class="meta-item-label">${t['pd.client']}</div><div class="meta-item-value">${t['pd.' + id + '.client']}</div></div>
-        <div><div class="meta-item-label">${t['pd.year']}</div><div class="meta-item-value">${t['pd.' + id + '.year']}</div></div>
-        <div><div class="meta-item-label">${t['pd.duration']}</div><div class="meta-item-value">${t['pd.' + id + '.duration']}</div></div>
+        <div><div class="meta-item-label">${t['pd.client']}</div><div class="meta-item-value">${escHtml(project.client || '—')}</div></div>
+        <div><div class="meta-item-label">${t['pd.year']}</div><div class="meta-item-value">${escHtml(project.year || '—')}</div></div>
+        <div><div class="meta-item-label">${t['pd.duration']}</div><div class="meta-item-value">${escHtml(project.duration || '—')}</div></div>
       </div>
       <button class="btn-primary" style="width:100%;justify-content:center" onclick="closeModal('portfolioModal'); openModal('contactModal');">
         <span>${t['pd.cta']}</span>
@@ -865,3 +1009,7 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+loadSiteData().then(() => {
+  document.querySelectorAll('#portfolioGrid .portfolio-item, #devGrid .dev-card').forEach(el => observer.observe(el));
+});
