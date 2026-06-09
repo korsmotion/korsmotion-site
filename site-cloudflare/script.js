@@ -872,6 +872,7 @@ function renderPortfolio() {
   const grid = document.getElementById('portfolioGrid');
   if (!grid) return;
   const t = translations[currentLanguage];
+  const lang = currentLanguage;
 
   if (!siteProjects.length) {
     grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--ink-soft);padding:40px 0">${t['portfolio.empty']}</p>`;
@@ -882,16 +883,20 @@ function renderPortfolio() {
     const layout = p.layout || 'third';
     const darkMeta = darkMetaGradients.includes(p.gradient) ? ' dark' : '';
     const gradClass = p.gradient || 'pv-1';
+
+    // Multilang title: prefer titles[lang], fallback to title
+    const displayTitle = (p.titles && p.titles[lang]) || p.title || '';
+    const displayCat = p.category || '';
+
     return `
       <div class="portfolio-item ${layout}" onclick="openPortfolioDetail('${escHtml(p.id)}')">
         <div class="portfolio-visual ${gradClass}">${getPortfolioVisual(p)}</div>
         <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span>${t['portfolio.viewMore']}</span> →</div></div>
         <div class="portfolio-meta${darkMeta}">
-          <div class="portfolio-cat">${escHtml(p.category)}</div>
-          <div class="portfolio-name">${escHtml(p.title)}</div>
+          <div class="portfolio-cat">${escHtml(displayCat)}</div>
+          <div class="portfolio-name">${escHtml(displayTitle)}</div>
         </div>
-      </div>
-    `;
+      </div>`;
   }).join('');
 }
 
@@ -953,6 +958,7 @@ function embedVideo(url) {
 
 function openPortfolioDetail(id) {
   const t = translations[currentLanguage];
+  const lang = currentLanguage;
   const project = getProjectById(id);
   if (!project) return;
 
@@ -962,13 +968,17 @@ function openPortfolioDetail(id) {
     ? `<img src="${escHtml(project.thumbnail)}" alt="" style="width:100%;height:100%;object-fit:cover">`
     : (decoElements[project.gradient] || decoElements['pv-1']);
 
+  // Multilang fields
+  const displayTitle = (project.titles && project.titles[lang]) || project.title || '';
+  const displayDesc = (project.descriptions && project.descriptions[lang]) || project.description || '';
+
   content.innerHTML = `
     <div class="portfolio-detail-image" style="${gradStyle}">${visual}</div>
     <div class="portfolio-detail-body">
       <div class="portfolio-detail-cat">${escHtml(project.category)}</div>
-      <h2 class="portfolio-detail-title">${escHtml(project.title)}</h2>
+      <h2 class="portfolio-detail-title">${escHtml(displayTitle)}</h2>
       ${project.videoUrl ? embedVideo(project.videoUrl) : ''}
-      <p class="portfolio-detail-text">${escHtml(project.description || '')}</p>
+      <p class="portfolio-detail-text">${escHtml(displayDesc)}</p>
       <div class="portfolio-detail-meta">
         <div><div class="meta-item-label">${t['pd.client']}</div><div class="meta-item-value">${escHtml(project.client || '—')}</div></div>
         <div><div class="meta-item-label">${t['pd.year']}</div><div class="meta-item-value">${escHtml(project.year || '—')}</div></div>
@@ -978,8 +988,7 @@ function openPortfolioDetail(id) {
         <span>${t['pd.cta']}</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
-    </div>
-  `;
+    </div>`;
   openModal('portfolioModal');
 }
 
