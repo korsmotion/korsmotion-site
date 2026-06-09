@@ -1,0 +1,6 @@
+name = "korsmotion-site"
+pages_build_output_dir = "site-cloudflare"
+
+[[kv_namespaces]]
+binding = "KORSMOTION_DATA"
+id = "9a8f79d609684edeb2e43f14038f8db3"

@@ -834,16 +834,20 @@ async function loadSiteData() {
   let projects = null;
   let settings = null;
 
-  const storedP = localStorage.getItem(STORAGE_PROJECTS);
-  const storedS = localStorage.getItem(STORAGE_SETTINGS);
-  if (storedP) try { projects = JSON.parse(storedP); } catch (_) {}
-  if (storedS) try { settings = JSON.parse(storedS); } catch (_) {}
+  try {
+    const res = await fetch('/api/data');
+    if (res.ok) {
+      const data = await res.json();
+      projects = data.projects || null;
+      settings = data.settings || null;
+    }
+  } catch (_) {}
 
   if (!projects || !settings) {
     try {
       const [pRes, sRes] = await Promise.all([
         fetch('data/projects.json'),
-        fetch('data/settings.json')
+        fetch('data/settings.json'),
       ]);
       if (!projects && pRes.ok) projects = await pRes.json();
       if (!settings && sRes.ok) settings = await sRes.json();
