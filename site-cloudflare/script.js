@@ -23,6 +23,8 @@ const translations = {
     'services.s6.f1':'Обновления','services.s6.f2':'Безопасность','services.s6.f3':'Скорость',
     'portfolio.label':'— Избранные работы','portfolio.title':'Портфолио<br><em>в движении</em>',
     'portfolio.viewMore':'Смотреть подробнее','portfolio.empty':'Проекты скоро появятся',
+    'cat.motion':'Моушн-дизайн','cat.graphic':'Графический дизайн','cat.web':'Веб','cat.app':'Разработка',
+    'portfolio.viewAll':'Смотреть все','portfolio.of':'из',
     'dev.label':'— Разработка','dev.title':'Приложения<br><em>для Android TV</em>',
     'dev.intro':'Собственные проекты для большого экрана.','dev.link':'Подробнее',
     'portfolio.p1':'Apex Core — динамичная подача','portfolio.p2':'Soft Identity Series',
@@ -156,6 +158,8 @@ const translations = {
     'services.s6.f1':'Updates','services.s6.f2':'Security','services.s6.f3':'Performance',
     'portfolio.label':'— Selected Work','portfolio.title':'Portfolio<br><em>in motion</em>',
     'portfolio.viewMore':'View details','portfolio.empty':'Projects coming soon',
+    'cat.motion':'Motion Design','cat.graphic':'Graphic Design','cat.web':'Web','cat.app':'App Dev',
+    'portfolio.viewAll':'View all','portfolio.of':'of',
     'dev.label':'— Development','dev.title':'Apps<br><em>for Android TV</em>',
     'dev.intro':'Own projects for the big screen.','dev.link':'Learn more',
     'portfolio.p1':'Apex Core — Dynamic reveal','portfolio.p2':'Soft Identity Series',
@@ -289,6 +293,8 @@ const translations = {
     'services.s6.f1':'Updates','services.s6.f2':'Sicherheit','services.s6.f3':'Speed',
     'portfolio.label':'— Ausgewählte Arbeiten','portfolio.title':'Portfolio<br><em>in Bewegung</em>',
     'portfolio.viewMore':'Details ansehen','portfolio.empty':'Projekte folgen bald',
+    'cat.motion':'Motion Design','cat.graphic':'Grafik Design','cat.web':'Web','cat.app':'App Dev',
+    'portfolio.viewAll':'Alle ansehen','portfolio.of':'von',
     'dev.label':'— Entwicklung','dev.title':'Apps<br><em>für Android TV</em>',
     'dev.intro':'Eigene Projekte für den grossen Bildschirm.','dev.link':'Mehr erfahren',
     'portfolio.p1':'Apex Core — Dynamische Präsentation','portfolio.p2':'Soft Identity Series',
@@ -422,6 +428,8 @@ const translations = {
     'services.s6.f1':'Aggiornamenti','services.s6.f2':'Sicurezza','services.s6.f3':'Performance',
     'portfolio.label':'— Lavori selezionati','portfolio.title':'Portfolio<br><em>in movimento</em>',
     'portfolio.viewMore':'Vedi i dettagli','portfolio.empty':'Progetti in arrivo',
+    'cat.motion':'Motion Design','cat.graphic':'Grafica','cat.web':'Web','cat.app':'Sviluppo',
+    'portfolio.viewAll':'Vedi tutto','portfolio.of':'di',
     'dev.label':'— Sviluppo','dev.title':'App<br><em>per Android TV</em>',
     'dev.intro':'Progetti propri per il grande schermo.','dev.link':'Scopri di più',
     'portfolio.p1':'Apex Core — Presentazione dinamica','portfolio.p2':'Soft Identity Series',
@@ -555,6 +563,8 @@ const translations = {
     'services.s6.f1':'Mises à jour','services.s6.f2':'Sécurité','services.s6.f3':'Performance',
     'portfolio.label':'— Projets sélectionnés','portfolio.title':'Le portfolio<br><em>en mouvement</em>',
     'portfolio.viewMore':'Voir les détails','portfolio.empty':'Projets à venir',
+    'cat.motion':'Motion Design','cat.graphic':'Design Graphique','cat.web':'Web','cat.app':'Développement',
+    'portfolio.viewAll':'Voir tout','portfolio.of':'sur',
     'dev.label':'— Développement','dev.title':'Applications<br><em>pour Android TV</em>',
     'dev.intro':'Projets personnels pour le grand écran.','dev.link':'En savoir plus',
     'portfolio.p1':'Apex Core — Présentation dynamique','portfolio.p2':'Soft Identity Series',
@@ -861,12 +871,16 @@ async function loadSiteData() {
   renderDevSection();
 }
 
-function getPortfolioVisual(project) {
-  if (project.thumbnail) {
-    return `<img src="${escHtml(project.thumbnail)}" alt="" class="portfolio-thumb">`;
-  }
-  return decoElements[project.gradient] || decoElements['pv-1'];
-}
+const carouselState = {};
+const carouselTimers = {};
+const AUTOPLAY_DELAY = 4000;
+
+const PORTFOLIO_CATS = [
+  { id: 'motion',  labelKey: 'cat.motion',  icon: '🎬' },
+  { id: 'graphic', labelKey: 'cat.graphic', icon: '🎨' },
+  { id: 'web',     labelKey: 'cat.web',     icon: '🌐' },
+  { id: 'app',     labelKey: 'cat.app',     icon: '📱' },
+];
 
 function renderPortfolio() {
   const grid = document.getElementById('portfolioGrid');
@@ -875,29 +889,177 @@ function renderPortfolio() {
   const lang = currentLanguage;
 
   if (!siteProjects.length) {
-    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--ink-soft);padding:40px 0">${t['portfolio.empty']}</p>`;
+    grid.innerHTML = `<p style="text-align:center;color:var(--ink-soft);padding:40px 0;grid-column:1/-1">${t['portfolio.empty'] || ''}</p>`;
+    const section = document.getElementById('portfolio');
+    if (section) section.style.display = 'none';
     return;
   }
 
-  grid.innerHTML = siteProjects.map(p => {
-    const layout = p.layout || 'third';
-    const darkMeta = darkMetaGradients.includes(p.gradient) ? ' dark' : '';
-    const gradClass = p.gradient || 'pv-1';
+  const section = document.getElementById('portfolio');
+  if (section) section.style.display = '';
 
-    // Multilang title: prefer titles[lang], fallback to title
-    const displayTitle = (p.titles && p.titles[lang]) || p.title || '';
-    const displayCat = p.category || '';
+  const catGroups = PORTFOLIO_CATS.map(cat => ({
+    ...cat,
+    label: t[cat.labelKey] || cat.id,
+    items: siteProjects.filter(p => (p.categoryId || 'motion') === cat.id)
+  })).filter(cat => cat.items.length > 0);
 
-    return `
-      <div class="portfolio-item ${layout}" onclick="openPortfolioDetail('${escHtml(p.id)}')">
-        <div class="portfolio-visual ${gradClass}">${getPortfolioVisual(p)}</div>
-        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span>${t['portfolio.viewMore']}</span> →</div></div>
+  grid.innerHTML = catGroups.map(cat => {
+    if (!carouselState[cat.id]) carouselState[cat.id] = 0;
+    return renderCategoryCarousel(cat, lang, t);
+  }).join('');
+
+  catGroups.forEach(cat => {
+    startAutoplay(cat.id, cat.items.length);
+  });
+}
+
+function renderCategoryCarousel(cat, lang, t) {
+  const items = cat.items;
+  const current = Math.min(carouselState[cat.id] || 0, items.length - 1);
+  const p = items[current];
+  const total = items.length;
+  const displayTitle = (p.titles && p.titles[lang]) || p.title || '';
+  const visual = p.thumbnail
+    ? `<img src="${escHtml(p.thumbnail)}" alt="" class="portfolio-thumb">`
+    : (decoElements[p.gradient] || decoElements['pv-1']);
+  const darkMeta = darkMetaGradients.includes(p.gradient) ? ' dark' : '';
+
+  return `
+    <div class="pf-category" id="pfcat-${cat.id}">
+      <div class="pf-cat-header">
+        <div class="pf-cat-title">
+          <span class="pf-cat-icon">${cat.icon}</span>
+          <span>${cat.label}</span>
+          <span class="pf-cat-count">${total}</span>
+        </div>
+        <div class="pf-cat-controls">
+          ${total > 1 ? `
+            <button class="pf-arrow" onclick="carouselPrev('${cat.id}',${total})" aria-label="prev">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <span class="pf-counter">${current + 1} <span style="opacity:.5">${t['portfolio.of'] || '/'}</span> ${total}</span>
+            <button class="pf-arrow" onclick="carouselNext('${cat.id}',${total})" aria-label="next">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          ` : ''}
+          ${total > 1 ? `
+            <button class="pf-view-all-btn" onclick="openCategoryModal('${cat.id}')">
+              ${t['portfolio.viewAll'] || 'View all'} →
+            </button>
+          ` : ''}
+        </div>
+      </div>
+
+      <div class="pf-card" onclick="openPortfolioDetail('${escHtml(p.id)}')">
+        <div class="portfolio-visual ${p.gradient || 'pv-1'}">${visual}</div>
+        <div class="portfolio-overlay">
+          <div class="portfolio-overlay-text"><span>${t['portfolio.viewMore'] || '→'}</span> →</div>
+        </div>
         <div class="portfolio-meta${darkMeta}">
-          <div class="portfolio-cat">${escHtml(displayCat)}</div>
+          <div class="portfolio-cat">${escHtml(p.category || '')}</div>
           <div class="portfolio-name">${escHtml(displayTitle)}</div>
+        </div>
+        ${total > 1 ? `
+          <div class="pf-dots">
+            ${items.map((_, i) => `<span class="pf-dot ${i === current ? 'active' : ''}" onclick="event.stopPropagation();carouselGo('${cat.id}',${i},${total})"></span>`).join('')}
+          </div>
+        ` : ''}
+      </div>
+    </div>`;
+}
+
+function carouselNext(catId, total) {
+  carouselState[catId] = ((carouselState[catId] || 0) + 1) % total;
+  refreshCarousel(catId);
+  resetAutoplay(catId, total);
+}
+
+function carouselPrev(catId, total) {
+  carouselState[catId] = ((carouselState[catId] || 0) - 1 + total) % total;
+  refreshCarousel(catId);
+  resetAutoplay(catId, total);
+}
+
+function carouselGo(catId, index, total) {
+  carouselState[catId] = index;
+  refreshCarousel(catId);
+  resetAutoplay(catId, total);
+}
+
+function refreshCarousel(catId) {
+  const t = translations[currentLanguage];
+  const lang = currentLanguage;
+  const cat = PORTFOLIO_CATS.find(c => c.id === catId);
+  if (!cat) return;
+  const items = siteProjects.filter(p => (p.categoryId || 'motion') === catId);
+  const catWithItems = { ...cat, label: t[cat.labelKey] || cat.id, items };
+  const el = document.getElementById('pfcat-' + catId);
+  if (el) el.outerHTML = renderCategoryCarousel(catWithItems, lang, t);
+}
+
+function startAutoplay(catId, total) {
+  if (total <= 1) return;
+  clearInterval(carouselTimers[catId]);
+  carouselTimers[catId] = setInterval(() => {
+    carouselState[catId] = ((carouselState[catId] || 0) + 1) % total;
+    refreshCarousel(catId);
+  }, AUTOPLAY_DELAY);
+}
+
+function resetAutoplay(catId, total) {
+  clearInterval(carouselTimers[catId]);
+  startAutoplay(catId, total);
+}
+
+function openCategoryModal(catId) {
+  const t = translations[currentLanguage];
+  const lang = currentLanguage;
+  const cat = PORTFOLIO_CATS.find(c => c.id === catId);
+  const items = siteProjects.filter(p => (p.categoryId || 'motion') === catId);
+  const label = cat ? (t[cat.labelKey] || catId) : catId;
+
+  let modal = document.getElementById('categoryModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'categoryModal';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal" style="max-width:900px">
+        <div class="modal-header" style="padding:28px 32px 0;display:flex;align-items:center;justify-content:space-between">
+          <h3 id="catModalTitle" style="font-family:'Playfair Display',serif;font-size:24px;font-weight:500"></h3>
+          <button onclick="closeCategoryModal()" style="background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:24px">×</button>
+        </div>
+        <div id="catModalGrid" style="padding:24px 32px 32px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;overflow-y:auto;max-height:70vh"></div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeCategoryModal(); });
+  }
+
+  document.getElementById('catModalTitle').textContent = label;
+  document.getElementById('catModalGrid').innerHTML = items.map(p => {
+    const displayTitle = (p.titles && p.titles[lang]) || p.title || '';
+    const visual = p.thumbnail
+      ? `<img src="${escHtml(p.thumbnail)}" alt="" style="width:100%;height:100%;object-fit:cover">`
+      : (decoElements[p.gradient] || decoElements['pv-1']);
+    return `
+      <div class="portfolio-item third" style="aspect-ratio:4/3;cursor:pointer" onclick="closeCategoryModal();openPortfolioDetail('${escHtml(p.id)}')">
+        <div class="portfolio-visual ${p.gradient || 'pv-1'}">${visual}</div>
+        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span>${t['portfolio.viewMore']}</span> →</div></div>
+        <div class="portfolio-meta${darkMetaGradients.includes(p.gradient) ? ' dark' : ''}">
+          <div class="portfolio-cat">${escHtml(p.category || '')}</div>
+          <div class="portfolio-name" style="font-size:16px">${escHtml(displayTitle)}</div>
         </div>
       </div>`;
   }).join('');
+
+  modal.classList.add('active');
+  document.body.classList.add('modal-open');
+}
+
+function closeCategoryModal() {
+  const modal = document.getElementById('categoryModal');
+  if (modal) { modal.classList.remove('active'); document.body.classList.remove('modal-open'); }
 }
 
 function renderDevSection() {
@@ -968,14 +1130,13 @@ function openPortfolioDetail(id) {
     ? `<img src="${escHtml(project.thumbnail)}" alt="" style="width:100%;height:100%;object-fit:cover">`
     : (decoElements[project.gradient] || decoElements['pv-1']);
 
-  // Multilang fields
   const displayTitle = (project.titles && project.titles[lang]) || project.title || '';
   const displayDesc = (project.descriptions && project.descriptions[lang]) || project.description || '';
 
   content.innerHTML = `
     <div class="portfolio-detail-image" style="${gradStyle}">${visual}</div>
     <div class="portfolio-detail-body">
-      <div class="portfolio-detail-cat">${escHtml(project.category)}</div>
+      <div class="portfolio-detail-cat">${escHtml(project.category || '')}</div>
       <h2 class="portfolio-detail-title">${escHtml(displayTitle)}</h2>
       ${project.videoUrl ? embedVideo(project.videoUrl) : ''}
       <p class="portfolio-detail-text">${escHtml(displayDesc)}</p>
@@ -984,7 +1145,7 @@ function openPortfolioDetail(id) {
         <div><div class="meta-item-label">${t['pd.year']}</div><div class="meta-item-value">${escHtml(project.year || '—')}</div></div>
         <div><div class="meta-item-label">${t['pd.duration']}</div><div class="meta-item-value">${escHtml(project.duration || '—')}</div></div>
       </div>
-      <button class="btn-primary" style="width:100%;justify-content:center" onclick="closeModal('portfolioModal'); openModal('contactModal');">
+      <button class="btn-primary" style="width:100%;justify-content:center" onclick="closeModal('portfolioModal');openModal('contactModal');">
         <span>${t['pd.cta']}</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
@@ -1026,3 +1187,9 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 loadSiteData().then(() => {
   document.querySelectorAll('#portfolioGrid .portfolio-item, #devGrid .dev-card').forEach(el => observer.observe(el));
 });
+
+window.carouselNext = carouselNext;
+window.carouselPrev = carouselPrev;
+window.carouselGo = carouselGo;
+window.openCategoryModal = openCategoryModal;
+window.closeCategoryModal = closeCategoryModal;
