@@ -680,6 +680,10 @@ const translations = {
 const codes = { ru:'RU', de:'DE', en:'EN', it:'IT', fr:'FR' };
 let currentLanguage = 'ru';
 
+let allProjects = [];
+let siteProjects = [];
+let siteSettings = { show_dev_section: false, apps: [] };
+
 function detectLang() {
   const saved = localStorage.getItem('korsmotion_lang');
   if (saved && translations[saved]) return saved;
@@ -835,10 +839,6 @@ const decoElements = {
   'pv-5': '<img src="logo.png" alt="" class="portfolio-logo-small" style="width:40%;opacity:.5">'
 };
 const darkMetaGradients = ['pv-2', 'pv-4'];
-
-let allProjects = [];
-let siteProjects = [];
-let siteSettings = { show_dev_section: false, apps: [] };
 
 async function loadSiteData() {
   let projects = null;
