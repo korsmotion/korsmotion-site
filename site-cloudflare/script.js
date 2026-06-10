@@ -1234,52 +1234,57 @@ function openAppModal(appId) {
 
   const old = document.getElementById('appModal');
   if (old) old.remove();
+  if (!window._amState) window._amState = {};
+  window._amState[a.id] = 0;
 
   const modal = document.createElement('div');
   modal.id = 'appModal';
   modal.className = 'modal-overlay';
 
   const googleBtn = a.showGooglePlay && a.googlePlayUrl ? `
-    <a href="${escHtml(a.googlePlayUrl)}" class="store-btn store-btn-google" target="_blank" rel="noopener">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 0 2.07-.22l11.43-6.6-2.57-2.57zM1 2.24A2 2 0 0 0 .5 3.5v17a2 2 0 0 0 .5 1.26l.07.07 9.52-9.52v-.22zM20.34 10.47l-2.63-1.52-2.87 2.87 2.87 2.87 2.65-1.53a2 2 0 0 0 0-3.69zM5.25.46A2 2 0 0 0 3.18.24L14.11 9.6l-2.57-2.56z"/></svg>
+    <a href="${escHtml(a.googlePlayUrl)}" class="store-btn store-btn-google" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 0 2.07-.22l11.43-6.6-2.57-2.57zM1 2.24A2 2 0 0 0 .5 3.5v17a2 2 0 0 0 .5 1.26l.07.07 9.52-9.52v-.22zM20.34 10.47l-2.63-1.52-2.87 2.87 2.87 2.87 2.65-1.53a2 2 0 0 0 0-3.69zM5.25.46A2 2 0 0 0 3.18.24L14.11 9.6l-2.57-2.56z"/></svg>
       Google Play
     </a>` : '';
 
   const appleBtn = a.showAppStore && a.appStoreUrl ? `
-    <a href="${escHtml(a.appStoreUrl)}" class="store-btn store-btn-apple" target="_blank" rel="noopener">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.14-2.18 1.27-2.16 3.8.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.78M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+    <a href="${escHtml(a.appStoreUrl)}" class="store-btn store-btn-apple" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.14-2.18 1.27-2.16 3.8.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.78M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
       App Store
     </a>` : '';
 
+  const aid = escHtml(a.id);
   const screensHtml = screens.length ? `
-    <div class="app-modal-screens">
-      ${screens.map((s, i) => `
-        <div class="app-modal-screen ${i === 0 ? 'active' : ''}" onclick="appModalGo(${i}, ${screens.length})">
-          <img src="${escHtml(s)}" alt="Screenshot ${i+1}" style="width:100%;border-radius:12px;cursor:pointer">
-        </div>`).join('')}
-    </div>
-    ${screens.length > 1 ? `
-      <div class="app-screen-dots" style="position:static;transform:none;justify-content:center;margin-top:10px">
-        ${screens.map((_, i) => `<span class="app-screen-dot ${i === 0 ? 'active' : ''}" id="amdot-${i}" onclick="appModalGo(${i}, ${screens.length})"></span>`).join('')}
-      </div>` : ''}` : '';
+    <div style="position:relative;background:#000;overflow:hidden">
+      <div id="amtrack-${aid}" style="display:flex;transition:transform .35s ease;will-change:transform">
+        ${screens.map(s => `
+          <div style="min-width:100%;flex-shrink:0">
+            <img src="${escHtml(s)}" alt="" style="width:100%;display:block;max-height:420px;object-fit:contain">
+          </div>`).join('')}
+      </div>
+      ${screens.length > 1 ? `
+        <button onclick="event.stopPropagation();appModalPrev('${aid}',${screens.length})" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
+        <button onclick="event.stopPropagation();appModalNext('${aid}',${screens.length})" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
+        <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px">
+          ${screens.map((_, i) => `<span id="amdot-${aid}-${i}" style="width:${i===0?'16px':'6px'};height:6px;border-radius:3px;background:${i===0?'#fff':'rgba(255,255,255,.45)'};cursor:pointer;transition:all .3s" onclick="event.stopPropagation();appModalGo('${aid}',${i},${screens.length})"></span>`).join('')}
+        </div>` : ''}
+    </div>` : '';
 
   modal.innerHTML = `
-    <div class="modal" style="max-width:720px;width:92%;max-height:88vh;overflow-y:auto">
-      <div style="padding:24px 28px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(91,63,191,.1)">
-        <div style="display:flex;align-items:center;gap:14px">
-          ${a.icon ? `<img src="${escHtml(a.icon)}" style="width:52px;height:52px;border-radius:13px;object-fit:cover">` : ''}
-          <div>
-            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--violet-deep)">${escHtml(a.platform)}</div>
-            <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:500;color:var(--ink)">${escHtml(a.title)}</div>
+    <div class="modal" style="max-width:760px;width:94%;max-height:90vh;overflow-y:auto;padding:0;border-radius:20px">
+      <div style="padding:20px 24px 16px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid rgba(91,63,191,.1)">
+        <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
+          ${a.icon ? `<img src="${escHtml(a.icon)}" style="width:56px;height:56px;border-radius:14px;object-fit:cover;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.15)">` : ''}
+          <div style="min-width:0">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--violet-deep);margin-bottom:2px">${escHtml(a.platform)}</div>
+            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:500;color:var(--ink);line-height:1.2;margin-bottom:10px">${escHtml(a.title)}</div>
+            ${googleBtn || appleBtn ? `<div style="display:flex;gap:8px;flex-wrap:wrap">${googleBtn}${appleBtn}</div>` : ''}
           </div>
         </div>
-        <button onclick="closeAppModal()" style="background:rgba(91,63,191,.08);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center">×</button>
+        <button onclick="closeAppModal()" style="background:rgba(91,63,191,.08);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:20px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:12px">×</button>
       </div>
-      <div style="padding:20px 28px 28px">
-        ${screensHtml}
-        ${desc ? `<p style="font-size:15px;color:var(--ink-soft);line-height:1.7;margin-top:20px">${escHtml(desc)}</p>` : ''}
-        ${googleBtn || appleBtn ? `<div class="store-buttons" style="padding:16px 0 0;flex-wrap:wrap">${googleBtn}${appleBtn}</div>` : ''}
-      </div>
+      ${screensHtml}
+      ${desc ? `<div style="padding:20px 24px 24px"><p style="font-size:15px;color:var(--ink-soft);line-height:1.7;margin:0">${escHtml(desc)}</p></div>` : '<div style="height:8px"></div>'}
     </div>`;
 
   document.body.appendChild(modal);
@@ -1288,9 +1293,30 @@ function openAppModal(appId) {
   document.body.classList.add('modal-open');
 }
 
-window.appModalGo = function(idx, total) {
-  document.querySelectorAll('.app-modal-screen').forEach((el, i) => el.classList.toggle('active', i === idx));
-  document.querySelectorAll('[id^="amdot-"]').forEach((el, i) => el.classList.toggle('active', i === idx));
+window.appModalGo = function(appId, idx, total) {
+  if (!window._amState) window._amState = {};
+  window._amState[appId] = idx;
+  const track = document.getElementById('amtrack-' + appId);
+  if (track) track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+  for (let i = 0; i < total; i++) {
+    const dot = document.getElementById('amdot-' + appId + '-' + i);
+    if (dot) {
+      dot.style.width = i === idx ? '16px' : '6px';
+      dot.style.background = i === idx ? '#fff' : 'rgba(255,255,255,.45)';
+    }
+  }
+};
+
+window.appModalNext = function(appId, total) {
+  if (!window._amState) window._amState = {};
+  const next = ((window._amState[appId] || 0) + 1) % total;
+  window.appModalGo(appId, next, total);
+};
+
+window.appModalPrev = function(appId, total) {
+  if (!window._amState) window._amState = {};
+  const prev = ((window._amState[appId] || 0) - 1 + total) % total;
+  window.appModalGo(appId, prev, total);
 };
 
 function closeAppModal() {
