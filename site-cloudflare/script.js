@@ -1259,19 +1259,19 @@ function openAppModal(appId) {
       <div id="amtrack-${aid}" style="display:flex;transition:transform .35s ease;will-change:transform">
         ${screens.map(s => `
           <div style="min-width:100%;flex-shrink:0">
-            <img src="${escHtml(s)}" alt="" style="width:100%;display:block;max-height:380px;object-fit:cover">
+            <img src="${escHtml(s)}" alt="" style="width:100%;display:block;max-height:520px;object-fit:cover">
           </div>`).join('')}
       </div>
       ${screens.length > 1 ? `
-        <button onclick="event.stopPropagation();appModalPrev('${aid}',${screens.length})" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
-        <button onclick="event.stopPropagation();appModalNext('${aid}',${screens.length})" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
+        <button onclick="event.stopPropagation();appModalPrev('${aid}',${screens.length})" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.7);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.4)">‹</button>
+        <button onclick="event.stopPropagation();appModalNext('${aid}',${screens.length})" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.7);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.4)">›</button>
         <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px">
           ${screens.map((_, i) => `<span id="amdot-${aid}-${i}" style="width:${i===0?'16px':'6px'};height:6px;border-radius:3px;background:${i===0?'#fff':'rgba(255,255,255,.45)'};cursor:pointer;transition:all .3s" onclick="event.stopPropagation();appModalGo('${aid}',${i},${screens.length})"></span>`).join('')}
         </div>` : ''}
     </div>` : '';
 
   modal.innerHTML = `
-    <div class="modal" style="max-width:760px;width:94%;max-height:90vh;overflow-y:auto;padding:0;border-radius:20px">
+    <div class="modal" style="max-width:960px;width:96%;max-height:95vh;overflow-y:auto;padding:0;border-radius:20px">
       <div style="padding:20px 24px 16px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid rgba(91,63,191,.1)">
         <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
           ${a.icon ? `<img src="${escHtml(a.icon)}" style="width:56px;height:56px;border-radius:14px;object-fit:cover;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.15)">` : ''}
