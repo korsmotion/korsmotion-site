@@ -528,8 +528,8 @@ function renderApps() {
   container.innerHTML = items.map((a, i) => {
     const iconUrl = a.icon || '';
     const iconHtml = iconUrl
-      ? `<img src="${esc(iconUrl)}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)">`
-      : `<div style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
+      ? `<img id="app-icon-${i}" src="${esc(iconUrl)}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)" onerror="this.outerHTML='<div id=app-icon-${i} style=width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px>📱</div>'">`
+      : `<div id="app-icon-${i}" style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
 
     return `
     <div class="item-card ${a.visible ? '' : 'hidden-item'}">
@@ -625,6 +625,16 @@ function renderApps() {
       } else {
         settingsData.apps[idx][field] = e.target.value;
         if (field === 'title') e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
+        if (field === 'icon') {
+          const iconEl = document.getElementById('app-icon-' + idx);
+          if (iconEl) {
+            if (e.target.value) {
+              iconEl.outerHTML = `<img id="app-icon-${idx}" src="${esc(e.target.value)}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)" onerror="this.style.display='none'">`;
+            } else {
+              iconEl.outerHTML = `<div id="app-icon-${idx}" style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
+            }
+          }
+        }
       }
     });
   });

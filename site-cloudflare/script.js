@@ -1225,6 +1225,83 @@ function openCategoryModal(catId) {
   document.body.classList.add('modal-open');
 }
 
+function openAppModal(appId) {
+  const a = (siteSettings.apps || []).find(x => x.id === appId);
+  if (!a) return;
+  const lang = currentLanguage;
+  const desc = (a.descriptions && (a.descriptions[lang] || a.descriptions['en'])) || a.description || '';
+  const screens = (a.screens || []).filter(s => s && s.trim());
+
+  const old = document.getElementById('appModal');
+  if (old) old.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'appModal';
+  modal.className = 'modal-overlay';
+
+  const googleBtn = a.showGooglePlay && a.googlePlayUrl ? `
+    <a href="${escHtml(a.googlePlayUrl)}" class="store-btn store-btn-google" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 0 2.07-.22l11.43-6.6-2.57-2.57zM1 2.24A2 2 0 0 0 .5 3.5v17a2 2 0 0 0 .5 1.26l.07.07 9.52-9.52v-.22zM20.34 10.47l-2.63-1.52-2.87 2.87 2.87 2.87 2.65-1.53a2 2 0 0 0 0-3.69zM5.25.46A2 2 0 0 0 3.18.24L14.11 9.6l-2.57-2.56z"/></svg>
+      Google Play
+    </a>` : '';
+
+  const appleBtn = a.showAppStore && a.appStoreUrl ? `
+    <a href="${escHtml(a.appStoreUrl)}" class="store-btn store-btn-apple" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.14-2.18 1.27-2.16 3.8.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.78M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      App Store
+    </a>` : '';
+
+  const screensHtml = screens.length ? `
+    <div class="app-modal-screens">
+      ${screens.map((s, i) => `
+        <div class="app-modal-screen ${i === 0 ? 'active' : ''}" onclick="appModalGo(${i}, ${screens.length})">
+          <img src="${escHtml(s)}" alt="Screenshot ${i+1}" style="width:100%;border-radius:12px;cursor:pointer">
+        </div>`).join('')}
+    </div>
+    ${screens.length > 1 ? `
+      <div class="app-screen-dots" style="position:static;transform:none;justify-content:center;margin-top:10px">
+        ${screens.map((_, i) => `<span class="app-screen-dot ${i === 0 ? 'active' : ''}" id="amdot-${i}" onclick="appModalGo(${i}, ${screens.length})"></span>`).join('')}
+      </div>` : ''}` : '';
+
+  modal.innerHTML = `
+    <div class="modal" style="max-width:720px;width:92%;max-height:88vh;overflow-y:auto">
+      <div style="padding:24px 28px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(91,63,191,.1)">
+        <div style="display:flex;align-items:center;gap:14px">
+          ${a.icon ? `<img src="${escHtml(a.icon)}" style="width:52px;height:52px;border-radius:13px;object-fit:cover">` : ''}
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--violet-deep)">${escHtml(a.platform)}</div>
+            <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:500;color:var(--ink)">${escHtml(a.title)}</div>
+          </div>
+        </div>
+        <button onclick="closeAppModal()" style="background:rgba(91,63,191,.08);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center">×</button>
+      </div>
+      <div style="padding:20px 28px 28px">
+        ${screensHtml}
+        ${desc ? `<p style="font-size:15px;color:var(--ink-soft);line-height:1.7;margin-top:20px">${escHtml(desc)}</p>` : ''}
+        ${googleBtn || appleBtn ? `<div class="store-buttons" style="padding:16px 0 0;flex-wrap:wrap">${googleBtn}${appleBtn}</div>` : ''}
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeAppModal(); });
+  requestAnimationFrame(() => modal.classList.add('active'));
+  document.body.classList.add('modal-open');
+}
+
+window.appModalGo = function(idx, total) {
+  document.querySelectorAll('.app-modal-screen').forEach((el, i) => el.classList.toggle('active', i === idx));
+  document.querySelectorAll('[id^="amdot-"]').forEach((el, i) => el.classList.toggle('active', i === idx));
+};
+
+function closeAppModal() {
+  const modal = document.getElementById('appModal');
+  if (modal) {
+    modal.classList.remove('active');
+    setTimeout(() => { modal.remove(); document.body.classList.remove('modal-open'); }, 300);
+  }
+}
+window.closeAppModal = closeAppModal;
+
 function closeCategoryModal() {
   const modal = document.getElementById('categoryModal');
   if (modal) {
@@ -1243,7 +1320,7 @@ function startAppSlider(appId, total) {
   appSliderTimers[appId] = setInterval(() => {
     appSliderState[appId] = ((appSliderState[appId] || 0) + 1) % total;
     updateAppSlider(appId, total);
-  }, 3000);
+  }, 5000);
 }
 
 function updateAppSlider(appId, total) {
@@ -1317,7 +1394,7 @@ function renderDevSection() {
     const hasButtons = googlePlayBtn || appStoreBtn;
 
     return `
-      <div class="dev-card">
+      <div class="dev-card" onclick="openAppModal('${escHtml(a.id)}')" style="cursor:pointer">
         <div class="dev-card-header">
           ${hasIcon ? `<img class="dev-icon" src="${escHtml(a.icon)}" alt="${escHtml(a.title)}">` : `<div class="dev-icon-placeholder">📱</div>`}
           <div class="dev-card-meta">
@@ -1326,7 +1403,7 @@ function renderDevSection() {
           </div>
         </div>
         ${sliderHtml}
-        <p class="dev-desc">${escHtml(a.description)}</p>
+        <p class="dev-desc">${escHtml((a.descriptions && a.descriptions[currentLanguage]) || (a.descriptions && a.descriptions['en']) || a.description || '')}</p>
         ${hasButtons ? `<div class="store-buttons">${googlePlayBtn}${appStoreBtn}</div>` : ''}
       </div>`;
   }).join('');
