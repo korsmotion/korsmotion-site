@@ -1255,7 +1255,7 @@ function openAppModal(appId) {
 
   const aid = escHtml(a.id);
   const screensHtml = screens.length ? `
-    <div style="position:relative;background:#000;overflow:hidden">
+    <div style="position:relative;background:#000;overflow:hidden;flex:1;min-height:0">
       <div id="amtrack-${aid}" style="display:flex;transition:transform .35s ease;will-change:transform">
         ${screens.map(s => `
           <div style="min-width:100%;flex-shrink:0">
@@ -1271,7 +1271,7 @@ function openAppModal(appId) {
     </div>` : '';
 
   modal.innerHTML = `
-    <div class="modal" style="max-width:1100px;width:98%;max-height:97vh;overflow-y:auto;padding:0;border-radius:20px">
+    <div class="modal" style="max-width:1000px;width:95%;max-height:92vh;display:flex;flex-direction:column;padding:0;border-radius:20px;overflow:hidden">
       <div style="padding:20px 24px 16px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid rgba(91,63,191,.1)">
         <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
           ${a.icon ? `<img src="${escHtml(a.icon)}" style="width:56px;height:56px;border-radius:14px;object-fit:cover;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.15)">` : ''}
@@ -1284,7 +1284,7 @@ function openAppModal(appId) {
         <button onclick="closeAppModal()" style="background:rgba(91,63,191,.08);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:20px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:12px">×</button>
       </div>
       ${screensHtml}
-      ${desc ? `<div style="padding:16px 24px 28px;text-align:center"><p style="font-size:15px;color:var(--ink-soft);line-height:1.7;margin:0">${escHtml(desc)}</p></div>` : '<div style="height:16px"></div>'}
+      ${desc ? `<div style="padding:14px 24px 20px;text-align:center;flex-shrink:0"><p style="font-size:15px;color:var(--ink-soft);line-height:1.7;margin:0">${escHtml(desc)}</p></div>` : '<div style="height:16px"></div>'}
     </div>`;
 
   document.body.appendChild(modal);
