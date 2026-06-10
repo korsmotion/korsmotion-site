@@ -873,7 +873,6 @@ async function loadSiteData() {
 
 const carouselState = {};
 const carouselTimers = {};
-const AUTOPLAY_DELAY = 4000;
 
 const PORTFOLIO_CATS = [
   { id: 'motion',  labelKey: 'cat.motion',  icon: '🎬' },
@@ -881,6 +880,30 @@ const PORTFOLIO_CATS = [
   { id: 'web',     labelKey: 'cat.web',     icon: '🌐' },
   { id: 'app',     labelKey: 'cat.app',     icon: '📱' },
 ];
+
+function getYouTubeId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+  return m ? m[1] : null;
+}
+
+function buildYouTubeEmbed(videoUrl, loop = true) {
+  const id = getYouTubeId(videoUrl);
+  if (!id) return null;
+  const params = new URLSearchParams({
+    autoplay: 1,
+    mute: 1,
+    loop: loop ? 1 : 0,
+    playlist: id,
+    controls: 0,
+    modestbranding: 1,
+    rel: 0,
+    showinfo: 0,
+    playsinline: 1,
+    enablejsapi: 1,
+  });
+  return `https://www.youtube.com/embed/${id}?${params}`;
+}
 
 function renderPortfolio() {
   const grid = document.getElementById('portfolioGrid');
@@ -920,10 +943,29 @@ function renderCategoryCarousel(cat, lang, t) {
   const p = items[current];
   const total = items.length;
   const displayTitle = (p.titles && p.titles[lang]) || p.title || '';
-  const visual = p.thumbnail
-    ? `<img src="${escHtml(p.thumbnail)}" alt="" class="portfolio-thumb">`
-    : (decoElements[p.gradient] || decoElements['pv-1']);
   const darkMeta = darkMetaGradients.includes(p.gradient) ? ' dark' : '';
+
+  const ytId = getYouTubeId(p.videoUrl);
+  let cardContent = '';
+
+  if (ytId) {
+    const embedUrl = buildYouTubeEmbed(p.videoUrl);
+    cardContent = `
+      <div class="pf-video-wrap">
+        <iframe
+          class="pf-video-iframe"
+          src="${embedUrl}"
+          frameborder="0"
+          allow="autoplay; encrypted-media"
+          allowfullscreen
+          loading="lazy"
+        ></iframe>
+      </div>`;
+  } else if (p.thumbnail) {
+    cardContent = `<div class="portfolio-visual ${p.gradient || 'pv-1'}"><img src="${escHtml(p.thumbnail)}" alt="" class="portfolio-thumb"></div>`;
+  } else {
+    cardContent = `<div class="portfolio-visual ${p.gradient || 'pv-1'}">${decoElements[p.gradient] || decoElements['pv-1']}</div>`;
+  }
 
   return `
     <div class="pf-category" id="pfcat-${cat.id}">
@@ -935,11 +977,11 @@ function renderCategoryCarousel(cat, lang, t) {
         </div>
         <div class="pf-cat-controls">
           ${total > 1 ? `
-            <button class="pf-arrow" onclick="carouselPrev('${cat.id}',${total})" aria-label="prev">
+            <button class="pf-arrow" onclick="carouselPrev('${cat.id}',${total})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
             <span class="pf-counter">${current + 1} <span style="opacity:.5">${t['portfolio.of'] || '/'}</span> ${total}</span>
-            <button class="pf-arrow" onclick="carouselNext('${cat.id}',${total})" aria-label="next">
+            <button class="pf-arrow" onclick="carouselNext('${cat.id}',${total})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
             </button>
           ` : ''}
@@ -951,18 +993,20 @@ function renderCategoryCarousel(cat, lang, t) {
         </div>
       </div>
 
-      <div class="pf-card" onclick="openPortfolioDetail('${escHtml(p.id)}')">
-        <div class="portfolio-visual ${p.gradient || 'pv-1'}">${visual}</div>
-        <div class="portfolio-overlay">
-          <div class="portfolio-overlay-text"><span>${t['portfolio.viewMore'] || '→'}</span> →</div>
-        </div>
-        <div class="portfolio-meta${darkMeta}">
-          <div class="portfolio-cat">${escHtml(p.category || '')}</div>
-          <div class="portfolio-name">${escHtml(displayTitle)}</div>
+      <div class="pf-card" id="pfcard-${cat.id}-${current}">
+        ${cardContent}
+        <div class="pf-card-footer" onclick="openPortfolioDetail('${escHtml(p.id)}')">
+          <div class="pf-card-meta${darkMeta}">
+            <div class="portfolio-cat">${escHtml(p.category || '')}</div>
+            <div class="portfolio-name">${escHtml(displayTitle)}</div>
+          </div>
+          <button class="pf-detail-btn">
+            ${t['portfolio.viewMore'] || 'View'} →
+          </button>
         </div>
         ${total > 1 ? `
           <div class="pf-dots">
-            ${items.map((_, i) => `<span class="pf-dot ${i === current ? 'active' : ''}" onclick="event.stopPropagation();carouselGo('${cat.id}',${i},${total})"></span>`).join('')}
+            ${items.map((_, i) => `<span class="pf-dot ${i === current ? 'active' : ''}" onclick="carouselGo('${cat.id}',${i},${total})"></span>`).join('')}
           </div>
         ` : ''}
       </div>
@@ -995,16 +1039,22 @@ function refreshCarousel(catId) {
   const items = siteProjects.filter(p => (p.categoryId || 'motion') === catId);
   const catWithItems = { ...cat, label: t[cat.labelKey] || cat.id, items };
   const el = document.getElementById('pfcat-' + catId);
-  if (el) el.outerHTML = renderCategoryCarousel(catWithItems, lang, t);
+  if (el) {
+    el.outerHTML = renderCategoryCarousel(catWithItems, lang, t);
+  }
 }
 
 function startAutoplay(catId, total) {
   if (total <= 1) return;
   clearInterval(carouselTimers[catId]);
+  const current = carouselState[catId] || 0;
+  const items = siteProjects.filter(p => (p.categoryId || 'motion') === catId);
+  const p = items[current];
+  if (p && getYouTubeId(p.videoUrl)) return;
   carouselTimers[catId] = setInterval(() => {
     carouselState[catId] = ((carouselState[catId] || 0) + 1) % total;
     refreshCarousel(catId);
-  }, AUTOPLAY_DELAY);
+  }, 5000);
 }
 
 function resetAutoplay(catId, total) {

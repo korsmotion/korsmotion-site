@@ -313,6 +313,12 @@ function renderProjectCard(p) {
             <div class="form-group full">
               <label class="form-label">${t.fieldVideo}</label>
               <input class="form-input proj-field" data-id="${p.id}" data-field="videoUrl" value="${esc(p.videoUrl)}" placeholder="https://youtube.com/watch?v=...">
+              ${p.videoUrl && getYouTubeIdAdmin(p.videoUrl) ? `
+                <div class="video-thumb-wrap" id="vthumb-${p.id}">
+                  <img class="video-thumb-img" src="https://img.youtube.com/vi/${getYouTubeIdAdmin(p.videoUrl)}/mqdefault.jpg" alt="">
+                  <button class="video-play-btn" onclick="toggleVideoPreview('${p.id}','${esc(p.videoUrl)}')">▶ Play</button>
+                </div>
+              ` : ''}
             </div>
             <div class="form-group">
               <label class="form-label">${t.fieldClient}</label>
@@ -451,3 +457,27 @@ document.querySelectorAll('.admin-lang-btn').forEach(btn => {
 });
 
 if (isLoggedIn()) showAdmin(); else showLogin();
+
+function getYouTubeIdAdmin(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+  return m ? m[1] : null;
+}
+
+window.toggleVideoPreview = function(id, url) {
+  const ytId = getYouTubeIdAdmin(url);
+  if (!ytId) return;
+  const wrap = document.getElementById('vthumb-' + id);
+  if (!wrap) return;
+  if (wrap.querySelector('iframe')) {
+    wrap.innerHTML = `
+      <img class="video-thumb-img" src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="">
+      <button class="video-play-btn" onclick="toggleVideoPreview('${id}','${url}')">▶ Play</button>`;
+    return;
+  }
+  wrap.innerHTML = `
+    <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" frameborder="0"
+      allow="autoplay; encrypted-media" allowfullscreen 
+      style="width:100%;height:100%;border-radius:8px;border:none"></iframe>
+    <button class="video-play-btn stop" onclick="toggleVideoPreview('${id}','${url}')">■ Stop</button>`;
+};
