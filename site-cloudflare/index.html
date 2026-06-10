@@ -378,6 +378,28 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   .pf-media { aspect-ratio: 16/9; }
 }
 #portfolio:empty { display: none; }
+
+.pf-card-full {
+  grid-template-columns: 1fr !important;
+}
+.pf-card-full .pf-media {
+  aspect-ratio: 16/9;
+  border-radius: 24px;
+}
+.pf-card-full .pf-dots {
+  bottom: 16px;
+}
+@keyframes pfSlideIn {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.pf-info-animate {
+  animation: pfSlideIn .45s ease both;
+}
+.pf-info-animate:nth-child(2) { animation-delay: .05s; }
+.pf-info-animate:nth-child(3) { animation-delay: .10s; }
+.pf-info-animate:nth-child(4) { animation-delay: .15s; }
+.pf-info-animate:nth-child(5) { animation-delay: .20s; }
 </style>
 </head>
 <body>

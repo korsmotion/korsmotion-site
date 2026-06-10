@@ -926,22 +926,22 @@ function renderCategoryCarousel(cat, lang, t) {
   const total = items.length;
   const displayTitle = (p.titles && p.titles[lang]) || p.title || '';
   const displayDesc = (p.descriptions && p.descriptions[lang]) || p.description || '';
-
   const ytId = getYouTubeId(p.videoUrl);
+  const isFullVideo = p.cardType === 'full';
 
   let mediaHtml = '';
   if (ytId) {
     mediaHtml = `
       <div class="pf-media" onclick="openPortfolioDetail('${escHtml(p.id)}')">
-        <iframe
-          class="pf-iframe"
-          src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&playsinline=1"
-          frameborder="0"
-          allow="autoplay; encrypted-media"
-          allowfullscreen
-        ></iframe>
+        <iframe class="pf-iframe"
+          src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1"
+          frameborder="0" allow="autoplay; encrypted-media" allowfullscreen
+          id="yt-${escHtml(p.id)}"></iframe>
         <div class="pf-media-overlay">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,.4)"/><polygon points="10,8 16,12 10,16" fill="white"/></svg>
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="white">
+            <circle cx="12" cy="12" r="11" fill="rgba(0,0,0,.45)"/>
+            <polygon points="10,8 16,12 10,16" fill="white"/>
+          </svg>
         </div>
       </div>`;
   } else if (p.thumbnail) {
@@ -955,6 +955,21 @@ function renderCategoryCarousel(cat, lang, t) {
         ${decoElements[p.gradient] || decoElements['pv-1']}
       </div>`;
   }
+
+  const cardClass = isFullVideo ? 'pf-card pf-card-full' : 'pf-card';
+  const infoHtml = isFullVideo ? '' : `
+    <div class="pf-info">
+      <div class="pf-info-cat">${escHtml(p.category || '')}</div>
+      <div class="pf-info-title pf-info-animate">${escHtml(displayTitle)}</div>
+      ${displayDesc ? `<p class="pf-info-desc pf-info-animate">${escHtml(displayDesc)}</p>` : ''}
+      <div class="pf-info-meta pf-info-animate">
+        ${p.client ? `<span class="pf-meta-item"><span class="pf-meta-label">${t['pd.client'] || 'Client'}</span> ${escHtml(p.client)}</span>` : ''}
+        ${p.year ? `<span class="pf-meta-item"><span class="pf-meta-label">${t['pd.year'] || 'Year'}</span> ${escHtml(p.year)}</span>` : ''}
+      </div>
+      <button class="pf-detail-btn pf-info-animate" onclick="openPortfolioDetail('${escHtml(p.id)}')">
+        ${t['portfolio.viewMore'] || 'View project'} →
+      </button>
+    </div>`;
 
   return `
     <div class="pf-category" id="pfcat-${cat.id}">
@@ -980,23 +995,13 @@ function renderCategoryCarousel(cat, lang, t) {
         </div>
       </div>
 
-      <div class="pf-card">
+      <div class="${cardClass}">
         ${mediaHtml}
-        <div class="pf-info">
-          <div class="pf-info-cat">${escHtml(p.category || '')}</div>
-          <div class="pf-info-title">${escHtml(displayTitle)}</div>
-          ${displayDesc ? `<p class="pf-info-desc">${escHtml(displayDesc)}</p>` : ''}
-          <div class="pf-info-meta">
-            ${p.client ? `<span class="pf-meta-item"><span class="pf-meta-label">${t['pd.client'] || 'Client'}</span> ${escHtml(p.client)}</span>` : ''}
-            ${p.year ? `<span class="pf-meta-item"><span class="pf-meta-label">${t['pd.year'] || 'Year'}</span> ${escHtml(p.year)}</span>` : ''}
-          </div>
-          <button class="pf-detail-btn" onclick="openPortfolioDetail('${escHtml(p.id)}')">
-            ${t['portfolio.viewMore'] || 'View project'} →
-          </button>
-        </div>
+        ${infoHtml}
         ${total > 1 ? `
           <div class="pf-dots">
-            ${items.map((_, i) => `<span class="pf-dot ${i === current ? 'active' : ''}" onclick="carouselGo('${cat.id}',${i},${total})"></span>`).join('')}
+            ${items.map((_, i) => `<span class="pf-dot ${i === current ? 'active' : ''}"
+              onclick="carouselGo('${cat.id}',${i},${total})"></span>`).join('')}
           </div>
         ` : ''}
       </div>
@@ -1044,7 +1049,7 @@ function startAutoplay(catId, total) {
   carouselTimers[catId] = setInterval(() => {
     carouselState[catId] = ((carouselState[catId] || 0) + 1) % total;
     refreshCarousel(catId);
-  }, 5000);
+  }, 6000);
 }
 
 function resetAutoplay(catId, total) {
@@ -1059,47 +1064,62 @@ function openCategoryModal(catId) {
   const items = siteProjects.filter(p => (p.categoryId || 'motion') === catId);
   const label = cat ? (t[cat.labelKey] || catId) : catId;
 
-  let modal = document.getElementById('categoryModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'categoryModal';
-    modal.className = 'modal-overlay';
-    modal.innerHTML = `
-      <div class="modal" style="max-width:900px">
-        <div class="modal-header" style="padding:28px 32px 0;display:flex;align-items:center;justify-content:space-between">
-          <h3 id="catModalTitle" style="font-family:'Playfair Display',serif;font-size:24px;font-weight:500"></h3>
-          <button onclick="closeCategoryModal()" style="background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:24px">×</button>
-        </div>
-        <div id="catModalGrid" style="padding:24px 32px 32px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;overflow-y:auto;max-height:70vh"></div>
-      </div>`;
-    document.body.appendChild(modal);
-    modal.addEventListener('click', e => { if (e.target === modal) closeCategoryModal(); });
-  }
+  const old = document.getElementById('categoryModal');
+  if (old) old.remove();
 
-  document.getElementById('catModalTitle').textContent = label;
-  document.getElementById('catModalGrid').innerHTML = items.map(p => {
+  const modal = document.createElement('div');
+  modal.id = 'categoryModal';
+  modal.className = 'modal-overlay';
+
+  const gridItems = items.map(p => {
     const displayTitle = (p.titles && p.titles[lang]) || p.title || '';
-    const visual = p.thumbnail
-      ? `<img src="${escHtml(p.thumbnail)}" alt="" style="width:100%;height:100%;object-fit:cover">`
-      : (decoElements[p.gradient] || decoElements['pv-1']);
+    const ytId = getYouTubeId(p.videoUrl);
+    let thumb = '';
+    if (ytId) {
+      thumb = `<img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:14px 14px 0 0">`;
+    } else if (p.thumbnail) {
+      thumb = `<img src="${escHtml(p.thumbnail)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:14px 14px 0 0">`;
+    } else {
+      thumb = `<div class="portfolio-visual ${p.gradient || 'pv-1'}" style="border-radius:14px 14px 0 0;height:100%">${decoElements[p.gradient] || decoElements['pv-1']}</div>`;
+    }
     return `
-      <div class="portfolio-item third" style="aspect-ratio:4/3;cursor:pointer" onclick="closeCategoryModal();openPortfolioDetail('${escHtml(p.id)}')">
-        <div class="portfolio-visual ${p.gradient || 'pv-1'}">${visual}</div>
-        <div class="portfolio-overlay"><div class="portfolio-overlay-text"><span>${t['portfolio.viewMore']}</span> →</div></div>
-        <div class="portfolio-meta${darkMetaGradients.includes(p.gradient) ? ' dark' : ''}">
-          <div class="portfolio-cat">${escHtml(p.category || '')}</div>
-          <div class="portfolio-name" style="font-size:16px">${escHtml(displayTitle)}</div>
+      <div onclick="closeCategoryModal();openPortfolioDetail('${escHtml(p.id)}')" style="
+        background:rgba(255,255,255,.7);border-radius:16px;overflow:hidden;
+        border:1px solid rgba(255,255,255,.8);cursor:pointer;transition:transform .2s;
+        box-shadow:0 4px 16px rgba(91,63,191,.08);"
+        onmouseover="this.style.transform='translateY(-4px)'"
+        onmouseout="this.style.transform='translateY(0)'">
+        <div style="aspect-ratio:16/9;overflow:hidden">${thumb}</div>
+        <div style="padding:14px 16px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--violet-deep);margin-bottom:6px">${escHtml(p.category || '')}</div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:500;color:var(--ink)">${escHtml(displayTitle)}</div>
         </div>
       </div>`;
   }).join('');
 
-  modal.classList.add('active');
+  modal.innerHTML = `
+    <div class="modal" style="max-width:860px;width:90%">
+      <div style="padding:28px 32px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(91,63,191,.1)">
+        <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:500;color:var(--ink)">${escHtml(label)}</h3>
+        <button onclick="closeCategoryModal()" style="background:rgba(91,63,191,.08);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center">×</button>
+      </div>
+      <div style="padding:24px 32px 32px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;overflow-y:auto;max-height:65vh">
+        ${gridItems}
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeCategoryModal(); });
+  requestAnimationFrame(() => modal.classList.add('active'));
   document.body.classList.add('modal-open');
 }
 
 function closeCategoryModal() {
   const modal = document.getElementById('categoryModal');
-  if (modal) { modal.classList.remove('active'); document.body.classList.remove('modal-open'); }
+  if (modal) {
+    modal.classList.remove('active');
+    setTimeout(() => { modal.remove(); document.body.classList.remove('modal-open'); }, 300);
+  }
 }
 
 function renderDevSection() {

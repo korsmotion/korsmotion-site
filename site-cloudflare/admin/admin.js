@@ -328,6 +328,19 @@ function renderProjectCard(p) {
               <label class="form-label">${t.fieldYear}</label>
               <input class="form-input proj-field" data-id="${p.id}" data-field="year" value="${esc(p.year)}">
             </div>
+            <div class="form-group full">
+              <label class="form-label">Тип карточки</label>
+              <div class="card-type-toggle">
+                <button class="card-type-btn ${!p.cardType || p.cardType === 'default' ? 'active' : ''}"
+                  onclick="setCardType('${p.id}','default')">
+                  📋 Видео + текст
+                </button>
+                <button class="card-type-btn ${p.cardType === 'full' ? 'active' : ''}"
+                  onclick="setCardType('${p.id}','full')">
+                  🎬 Только видео
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="lang-section">
@@ -480,4 +493,9 @@ window.toggleVideoPreview = function(id, url) {
       allow="autoplay; encrypted-media" allowfullscreen 
       style="width:100%;height:100%;border-radius:8px;border:none"></iframe>
     <button class="video-play-btn stop" onclick="toggleVideoPreview('${id}','${url}')">■ Stop</button>`;
+};
+
+window.setCardType = function(id, type) {
+  const p = projectsData.projects.find(x => x.id === id);
+  if (p) { p.cardType = type; renderProjects(); }
 };
