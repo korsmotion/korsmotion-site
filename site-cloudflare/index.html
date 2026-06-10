@@ -161,14 +161,31 @@ section{padding:100px 0;position:relative}
 .deco-ring::after{content:'';position:absolute;width:12px;height:12px;background:white;border-radius:50%;top:-6px;left:50%;transform:translateX(-50%)}
 .portfolio-logo-small{width:50%;filter:brightness(1.5);opacity:.8}
 .portfolio-thumb{width:100%;height:100%;object-fit:cover}
-.dev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
-.dev-card{background:rgba(255,255,255,.55);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:24px;padding:32px;transition:all .3s;display:flex;flex-direction:column}
+.dev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
+.dev-card{background:rgba(255,255,255,.55);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:24px;overflow:hidden;transition:all .3s;display:flex;flex-direction:column}
 .dev-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(91,63,191,.12)}
-.dev-platform{display:inline-block;background:rgba(124,58,237,.15);color:var(--violet-deep);padding:6px 12px;border-radius:100px;font-size:12px;font-weight:600;margin-bottom:16px;width:fit-content}
-.dev-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:500;color:var(--ink);margin-bottom:12px}
-.dev-desc{font-size:15px;color:var(--ink-soft);line-height:1.6;margin-bottom:20px;flex:1}
-.dev-link{display:inline-flex;align-items:center;gap:6px;color:var(--violet-deep);font-weight:600;font-size:14px;text-decoration:none;transition:gap .3s}
-.dev-link:hover{gap:10px}
+.dev-card-header{display:flex;align-items:center;gap:14px;padding:20px 24px 0}
+.dev-icon{width:56px;height:56px;border-radius:14px;object-fit:cover;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.dev-icon-placeholder{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#1a1a2e,#0f3460);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.dev-card-meta{display:flex;flex-direction:column;gap:4px}
+.dev-platform{display:inline-block;background:rgba(124,58,237,.15);color:var(--violet-deep);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;width:fit-content}
+.dev-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:500;color:var(--ink)}
+/* Screenshot slider */
+.app-slider{position:relative;margin-top:16px;overflow:hidden;aspect-ratio:16/9}
+.app-screens{position:relative;width:100%;height:100%}
+.app-screen-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}
+.app-screen-img.active{opacity:1}
+.app-screen-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}
+.app-screen-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:all .3s}
+.app-screen-dot.active{background:#fff;width:16px;border-radius:3px}
+.dev-desc{font-size:14px;color:var(--ink-soft);line-height:1.6;padding:16px 24px 0;flex:1}
+/* Store buttons */
+.store-buttons{display:flex;gap:10px;padding:16px 24px 20px;flex-wrap:wrap}
+.store-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s}
+.store-btn-google{background:#000;color:#fff}
+.store-btn-google:hover{background:#1a1a1a;transform:translateY(-1px)}
+.store-btn-apple{background:#000;color:#fff}
+.store-btn-apple:hover{background:#1a1a1a;transform:translateY(-1px)}
 .portfolio-video{width:100%;aspect-ratio:16/9;border-radius:12px;margin-bottom:20px}
 .testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .testimonial{background:rgba(255,255,255,.6);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:24px;padding:36px 32px;transition:all .3s}
@@ -329,10 +346,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
 /* YouTube overlay — блокирует ВСЕ кнопки YouTube */
 .pf-yt-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   z-index: 10;
   cursor: pointer;
   background: transparent;

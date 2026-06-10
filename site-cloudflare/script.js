@@ -1233,6 +1233,36 @@ function closeCategoryModal() {
   }
 }
 
+// ── App screenshot slider state ───────────────────────────────────────────────
+const appSliderState = {};
+const appSliderTimers = {};
+
+function startAppSlider(appId, total) {
+  if (total <= 1) return;
+  clearInterval(appSliderTimers[appId]);
+  appSliderTimers[appId] = setInterval(() => {
+    appSliderState[appId] = ((appSliderState[appId] || 0) + 1) % total;
+    updateAppSlider(appId, total);
+  }, 3000);
+}
+
+function updateAppSlider(appId, total) {
+  const current = appSliderState[appId] || 0;
+  const wrap = document.getElementById('appslider-' + appId);
+  if (!wrap) return;
+  const imgs = wrap.querySelectorAll('.app-screen-img');
+  const dots = wrap.querySelectorAll('.app-screen-dot');
+  imgs.forEach((img, i) => img.classList.toggle('active', i === current));
+  dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+}
+
+window.appSliderGo = function(appId, idx, total) {
+  appSliderState[appId] = idx;
+  updateAppSlider(appId, total);
+  clearInterval(appSliderTimers[appId]);
+  startAppSlider(appId, total);
+};
+
 function renderDevSection() {
   const section = document.getElementById('development');
   const grid = document.getElementById('devGrid');
@@ -1250,14 +1280,65 @@ function renderDevSection() {
   const t = translations[currentLanguage];
   const apps = (siteSettings.apps || []).filter(a => a.visible);
 
-  grid.innerHTML = apps.map(a => `
-    <div class="dev-card">
-      <span class="dev-platform">${escHtml(a.platform)}</span>
-      <h3 class="dev-title">${escHtml(a.title)}</h3>
-      <p class="dev-desc">${escHtml(a.description)}</p>
-      ${a.link ? `<a href="${escHtml(a.link)}" class="dev-link" target="_blank" rel="noopener">${t['dev.link']} →</a>` : ''}
-    </div>
-  `).join('');
+  grid.innerHTML = apps.map(a => {
+    const screens = (a.screens || []).filter(s => s && s.trim());
+    const hasScreens = screens.length > 0;
+    const hasIcon = !!a.icon;
+
+    // Screenshot slider
+    const sliderHtml = hasScreens ? `
+      <div class="app-slider" id="appslider-${escHtml(a.id)}">
+        <div class="app-screens">
+          ${screens.map((s, i) => `
+            <img class="app-screen-img ${i === 0 ? 'active' : ''}"
+              src="${escHtml(s)}" alt="Screenshot ${i+1}">`).join('')}
+        </div>
+        ${screens.length > 1 ? `
+          <div class="app-screen-dots">
+            ${screens.map((_, i) => `
+              <span class="app-screen-dot ${i === 0 ? 'active' : ''}"
+                onclick="appSliderGo('${escHtml(a.id)}',${i},${screens.length})"></span>`).join('')}
+          </div>` : ''}
+      </div>` : '';
+
+    // Store buttons
+    const googlePlayBtn = a.showGooglePlay && a.googlePlayUrl ? `
+      <a href="${escHtml(a.googlePlayUrl)}" class="store-btn store-btn-google" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 0 2.07-.22l11.43-6.6-2.57-2.57zM1 2.24A2 2 0 0 0 .5 3.5v17a2 2 0 0 0 .5 1.26l.07.07 9.52-9.52v-.22zM20.34 10.47l-2.63-1.52-2.87 2.87 2.87 2.87 2.65-1.53a2 2 0 0 0 0-3.69zM5.25.46A2 2 0 0 0 3.18.24L14.11 9.6l-2.57-2.56z"/></svg>
+        Google Play
+      </a>` : '';
+
+    const appStoreBtn = a.showAppStore && a.appStoreUrl ? `
+      <a href="${escHtml(a.appStoreUrl)}" class="store-btn store-btn-apple" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.14-2.18 1.27-2.16 3.8.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.78M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        App Store
+      </a>` : '';
+
+    const hasButtons = googlePlayBtn || appStoreBtn;
+
+    return `
+      <div class="dev-card">
+        <div class="dev-card-header">
+          ${hasIcon ? `<img class="dev-icon" src="${escHtml(a.icon)}" alt="${escHtml(a.title)}">` : `<div class="dev-icon-placeholder">📱</div>`}
+          <div class="dev-card-meta">
+            <span class="dev-platform">${escHtml(a.platform)}</span>
+            <h3 class="dev-title">${escHtml(a.title)}</h3>
+          </div>
+        </div>
+        ${sliderHtml}
+        <p class="dev-desc">${escHtml(a.description)}</p>
+        ${hasButtons ? `<div class="store-buttons">${googlePlayBtn}${appStoreBtn}</div>` : ''}
+      </div>`;
+  }).join('');
+
+  // Start sliders
+  apps.forEach(a => {
+    const screens = (a.screens || []).filter(s => s && s.trim());
+    if (screens.length > 1) {
+      appSliderState[a.id] = 0;
+      startAppSlider(a.id, screens.length);
+    }
+  });
 }
 
 function escHtml(str) {

@@ -322,15 +322,44 @@ function renderVideoPreviewBlock(p) {
 function renderCardTypePreview(p) {
   const isFullVideo = p.cardType === 'full';
   const ytId = getYouTubeIdAdmin(p.videoUrl || '');
-  const thumbUrl = ytId ? 'https://img.youtube.com/vi/' + ytId + '/mqdefault.jpg' : '';
-  const mediaBg = thumbUrl ? 'background:url(' + thumbUrl + ') center/cover no-repeat;' : 'background:linear-gradient(135deg,#1a1a2e,#0f3460);';
+  const thumbUrl = ytId
+    ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`
+    : '';
+  const mediaBg = thumbUrl
+    ? `background:url('${thumbUrl}') center/cover no-repeat;`
+    : 'background:linear-gradient(135deg,#1a1a2e,#0f3460);';
+
   const titleVal = (p.titles && (p.titles['de'] || p.titles['en'] || p.titles['ru'])) || p.title || 'Название';
   const descVal = (p.descriptions && (p.descriptions['de'] || p.descriptions['en'] || p.descriptions['ru'])) || '';
 
   if (isFullVideo) {
-    return '<div class="card-preview"><div class="cp-label">Предпросмотр — только видео:</div><div class="cp-full-wrap"><div class="cp-media-full" style="' + mediaBg + '"><div class="cp-play-icon">▶</div><div class="cp-dots-row"><span class="cp-dot cp-dot-active"></span><span class="cp-dot"></span></div></div></div></div>';
+    return `
+      <div class="card-preview">
+        <div class="cp-label">Предпросмотр — только видео:</div>
+        <div class="cp-full-wrap">
+          <div class="cp-media-full" style="${mediaBg}">
+            <div class="cp-play-icon">▶</div>
+            <div class="cp-dots-row"><span class="cp-dot cp-dot-active"></span><span class="cp-dot"></span></div>
+          </div>
+        </div>
+      </div>`;
   }
-  return '<div class="card-preview"><div class="cp-label">Предпросмотр — видео + текст:</div><div class="cp-split-wrap"><div class="cp-media-left" style="' + mediaBg + '"><div class="cp-play-icon">▶</div><div class="cp-dots-row"><span class="cp-dot cp-dot-active"></span><span class="cp-dot"></span></div></div><div class="cp-text-right"><div class="cp-text-cat">MOTION DESIGN</div><div class="cp-text-title">' + esc(titleVal) + '</div><div class="cp-text-btn">Details ansehen →</div></div></div></div>';
+  return `
+    <div class="card-preview">
+      <div class="cp-label">Предпросмотр — видео + текст:</div>
+      <div class="cp-split-wrap">
+        <div class="cp-media-left" style="${mediaBg}">
+          <div class="cp-play-icon">▶</div>
+          <div class="cp-dots-row"><span class="cp-dot cp-dot-active"></span><span class="cp-dot"></span></div>
+        </div>
+        <div class="cp-text-right">
+          <div class="cp-text-cat">MOTION DESIGN</div>
+          <div class="cp-text-title">${esc(titleVal)}</div>
+          ${descVal ? `<div class="cp-text-desc">${esc(descVal.slice(0,60))}${descVal.length>60?'…':''}</div>` : ''}
+          <div class="cp-text-btn">Details ansehen →</div>
+        </div>
+      </div>
+    </div>`;
 }
 
 function renderProjectCard(p) {
@@ -468,6 +497,16 @@ window.setProjectLangTab = function(id, lang) {
 };
 
 // ── Dev Apps ──────────────────────────────────────────────────────────────────
+function renderAppScreensAdmin(a, i) {
+  const screens = a.screens || ['', '', '', ''];
+  return screens.map((s, si) => `
+    <div class="form-group">
+      <label class="form-label">Скриншот ${si + 1}</label>
+      <input class="form-input app-field" data-index="${i}" data-field="screens" data-screen="${si}"
+        value="${esc(s)}" placeholder="images/apps/appname/screen${si+1}.png">
+    </div>`).join('');
+}
+
 function renderApps() {
   const t = u();
   const items = settingsData.apps || [];
@@ -479,7 +518,13 @@ function renderApps() {
     return;
   }
 
-  container.innerHTML = items.map((a, i) => `
+  container.innerHTML = items.map((a, i) => {
+    const iconUrl = a.icon || '';
+    const iconHtml = iconUrl
+      ? `<img src="${esc(iconUrl)}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)">`
+      : `<div style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
+
+    return `
     <div class="item-card ${a.visible ? '' : 'hidden-item'}">
       <div class="item-card-head">
         <span class="item-card-title">${esc(a.title || 'Untitled')}</span>
@@ -488,33 +533,87 @@ function renderApps() {
           <button class="btn btn-danger btn-sm app-del-btn" data-index="${i}">${t.delete}</button>
         </div>
       </div>
-      <div class="item-fields" style="margin-top:14px">
-        <div class="form-group">
-          <label class="form-label">${t.fieldTitle}</label>
-          <input class="form-input app-field" data-index="${i}" data-field="title" value="${esc(a.title)}">
-        </div>
-        <div class="form-group">
-          <label class="form-label">${t.fieldPlatform}</label>
-          <input class="form-input app-field" data-index="${i}" data-field="platform" value="${esc(a.platform)}" placeholder="Android TV">
-        </div>
-        <div class="form-group full">
-          <label class="form-label">${t.fieldDesc}</label>
-          <textarea class="form-textarea app-field" data-index="${i}" data-field="description">${esc(a.description)}</textarea>
-        </div>
-        <div class="form-group full">
-          <label class="form-label">${t.fieldLink}</label>
-          <input class="form-input app-field" data-index="${i}" data-field="link" value="${esc(a.link)}" placeholder="https://...">
+
+      <div style="display:flex;gap:16px;margin-top:14px;align-items:flex-start">
+        <div>${iconHtml}</div>
+        <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-group">
+            <label class="form-label">Название</label>
+            <input class="form-input app-field" data-index="${i}" data-field="title" value="${esc(a.title)}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Платформа</label>
+            <input class="form-input app-field" data-index="${i}" data-field="platform" value="${esc(a.platform)}" placeholder="Android TV">
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Иконка (путь)</label>
+            <input class="form-input app-field" data-index="${i}" data-field="icon" value="${esc(a.icon||'')}" placeholder="images/apps/appname/icon.png">
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Описание</label>
+            <textarea class="form-textarea app-field" data-index="${i}" data-field="description">${esc(a.description)}</textarea>
+          </div>
         </div>
       </div>
-    </div>`).join('');
 
+      <!-- Скриншоты -->
+      <div style="margin-top:12px;padding:12px;background:var(--bg-input);border-radius:10px;border:2px solid var(--border)">
+        <div class="form-label" style="margin-bottom:10px">🖼 Скриншоты (images/apps/appname/)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${renderAppScreensAdmin(a, i)}
+        </div>
+      </div>
+
+      <!-- Кнопки магазинов -->
+      <div style="margin-top:12px;padding:12px;background:var(--bg-input);border-radius:10px;border:2px solid var(--border)">
+        <div class="form-label" style="margin-bottom:10px">🏪 Магазины</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center">
+
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap">
+            <input type="checkbox" class="app-check" data-index="${i}" data-field="showGooglePlay" ${a.showGooglePlay ? 'checked' : ''}>
+            Google Play
+          </label>
+          <input class="form-input app-field" data-index="${i}" data-field="googlePlayUrl"
+            value="${esc(a.googlePlayUrl||'')}" placeholder="https://play.google.com/store/apps/details?id=...">
+
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap">
+            <input type="checkbox" class="app-check" data-index="${i}" data-field="showAppStore" ${a.showAppStore ? 'checked' : ''}>
+            App Store
+          </label>
+          <input class="form-input app-field" data-index="${i}" data-field="appStoreUrl"
+            value="${esc(a.appStoreUrl||'')}" placeholder="https://apps.apple.com/app/...">
+
+        </div>
+      </div>
+
+    </div>`;
+  }).join('');
+
+  // Bind inputs
   container.querySelectorAll('.app-field').forEach(el => {
     el.addEventListener('input', e => {
-      const idx = +e.target.dataset.index, field = e.target.dataset.field;
-      settingsData.apps[idx][field] = e.target.value;
-      if (field === 'title') e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
+      const idx = +e.target.dataset.index;
+      const field = e.target.dataset.field;
+      const screenIdx = e.target.dataset.screen;
+      if (screenIdx !== undefined) {
+        if (!settingsData.apps[idx].screens) settingsData.apps[idx].screens = ['','','',''];
+        settingsData.apps[idx].screens[+screenIdx] = e.target.value;
+      } else {
+        settingsData.apps[idx][field] = e.target.value;
+        if (field === 'title') e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
+        if (field === 'icon') renderApps();
+      }
     });
   });
+
+  // Bind checkboxes
+  container.querySelectorAll('.app-check').forEach(el => {
+    el.addEventListener('change', e => {
+      const idx = +e.target.dataset.index;
+      settingsData.apps[idx][e.target.dataset.field] = e.target.checked;
+    });
+  });
+
   container.querySelectorAll('.app-vis-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       settingsData.apps[+btn.dataset.index].visible = !settingsData.apps[+btn.dataset.index].visible;
@@ -529,7 +628,13 @@ function renderApps() {
 }
 
 document.getElementById('addAppBtn').addEventListener('click', () => {
-  settingsData.apps.push({ id: uid(), title: 'New App', description: '', platform: 'Android TV', link: '', visible: true });
+  settingsData.apps.push({
+    id: uid(), title: 'New App', description: '', platform: 'Android TV',
+    icon: '', screens: ['','','',''],
+    showGooglePlay: false, googlePlayUrl: '',
+    showAppStore: false, appStoreUrl: '',
+    visible: true
+  });
   renderApps();
 });
 
