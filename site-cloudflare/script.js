@@ -1259,7 +1259,7 @@ function openAppModal(appId) {
       <div id="amtrack-${aid}" style="display:flex;transition:transform .35s ease;will-change:transform">
         ${screens.map(s => `
           <div style="min-width:100%;flex-shrink:0">
-            <img src="${escHtml(s)}" alt="" style="width:100%;display:block;max-height:420px;object-fit:contain">
+            <img src="${escHtml(s)}" alt="" style="width:100%;display:block;max-height:380px;object-fit:cover">
           </div>`).join('')}
       </div>
       ${screens.length > 1 ? `
@@ -1284,7 +1284,7 @@ function openAppModal(appId) {
         <button onclick="closeAppModal()" style="background:rgba(91,63,191,.08);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:20px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:12px">×</button>
       </div>
       ${screensHtml}
-      ${desc ? `<div style="padding:20px 24px 24px"><p style="font-size:15px;color:var(--ink-soft);line-height:1.7;margin:0">${escHtml(desc)}</p></div>` : '<div style="height:8px"></div>'}
+      ${desc ? `<div style="padding:16px 24px 28px"><p style="font-size:15px;color:var(--ink-soft);line-height:1.7;margin:0">${escHtml(desc)}</p></div>` : '<div style="height:16px"></div>'}
     </div>`;
 
   document.body.appendChild(modal);
