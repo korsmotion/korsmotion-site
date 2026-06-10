@@ -75,6 +75,7 @@ let projectsData = { projects: [] };
 let settingsData = { show_dev_section: false, apps: [] };
 const expandedCats = new Set(CATEGORIES.map(c => c.id));
 let activeLangTab = {}; // per project id
+let activeAppLangTab = {}; // per app index
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function u() { return adminLang ? UI[adminLang] || UI.en : UI.en; }
@@ -491,6 +492,11 @@ window.addProject = function(catId) {
   renderProjects();
 };
 
+window.setAppLangTab = function(idx, lang) {
+  activeAppLangTab[idx] = lang;
+  renderApps();
+};
+
 window.setProjectLangTab = function(id, lang) {
   activeLangTab[id] = lang;
   renderProjects();
@@ -498,10 +504,11 @@ window.setProjectLangTab = function(id, lang) {
 
 // ── Dev Apps ──────────────────────────────────────────────────────────────────
 function renderAppScreensAdmin(a, i) {
-  const screens = a.screens || ['', '', '', ''];
+  const screens = (a.screens || ['','','','','']).concat(['','','','','']).slice(0,5);
+  const labels = ['Скриншот 1','Скриншот 2','Скриншот 3','Скриншот 4','Скриншот 5'];
   return screens.map((s, si) => `
     <div class="form-group">
-      <label class="form-label">Скриншот ${si + 1}</label>
+      <label class="form-label">${labels[si]}</label>
       <input class="form-input app-field" data-index="${i}" data-field="screens" data-screen="${si}"
         value="${esc(s)}" placeholder="images/apps/appname/screen${si+1}.png">
     </div>`).join('');
@@ -549,9 +556,22 @@ function renderApps() {
             <label class="form-label">Иконка (путь)</label>
             <input class="form-input app-field" data-index="${i}" data-field="icon" value="${esc(a.icon||'')}" placeholder="images/apps/appname/icon.png">
           </div>
-          <div class="form-group" style="grid-column:1/-1">
-            <label class="form-label">Описание</label>
-            <textarea class="form-textarea app-field" data-index="${i}" data-field="description">${esc(a.description)}</textarea>
+        </div>
+      </div>
+
+      <!-- Описание на языках -->
+      <div class="lang-section" style="margin-top:12px">
+        <div class="lang-section-label">Описание на языках:</div>
+        <div class="lang-tabs">
+          ${SITE_LANGS.map(lang => `
+            <button class="lang-tab ${(activeAppLangTab[i] || 'en') === lang ? 'active' : ''}"
+              onclick="setAppLangTab(${i},'${lang}')">${SITE_LANG_LABELS[lang]}</button>
+          `).join('')}
+        </div>
+        <div class="lang-fields">
+          <div class="form-group">
+            <textarea class="form-textarea app-field" data-index="${i}" data-field="descriptions" data-lang="${activeAppLangTab[i] || 'en'}"
+              placeholder="Описание приложения...">${esc((a.descriptions && a.descriptions[activeAppLangTab[i] || 'en']) || '')}</textarea>
           </div>
         </div>
       </div>
@@ -595,13 +615,16 @@ function renderApps() {
       const idx = +e.target.dataset.index;
       const field = e.target.dataset.field;
       const screenIdx = e.target.dataset.screen;
+      const lang = e.target.dataset.lang;
       if (screenIdx !== undefined) {
-        if (!settingsData.apps[idx].screens) settingsData.apps[idx].screens = ['','','',''];
+        if (!settingsData.apps[idx].screens) settingsData.apps[idx].screens = ['','','','',''];
         settingsData.apps[idx].screens[+screenIdx] = e.target.value;
+      } else if (lang) {
+        if (!settingsData.apps[idx].descriptions) settingsData.apps[idx].descriptions = {};
+        settingsData.apps[idx].descriptions[lang] = e.target.value;
       } else {
         settingsData.apps[idx][field] = e.target.value;
         if (field === 'title') e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
-        if (field === 'icon') renderApps();
       }
     });
   });
@@ -629,8 +652,8 @@ function renderApps() {
 
 document.getElementById('addAppBtn').addEventListener('click', () => {
   settingsData.apps.push({
-    id: uid(), title: 'New App', description: '', platform: 'Android TV',
-    icon: '', screens: ['','','',''],
+    id: uid(), title: 'New App', descriptions: {}, platform: 'Android TV',
+    icon: '', screens: ['','','','',''],
     showGooglePlay: false, googlePlayUrl: '',
     showAppStore: false, appStoreUrl: '',
     visible: true
