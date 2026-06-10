@@ -321,27 +321,16 @@ function renderVideoPreviewBlock(p) {
 
 function renderCardTypePreview(p) {
   const isFullVideo = p.cardType === 'full';
+  const ytId = getYouTubeIdAdmin(p.videoUrl || '');
+  const thumbUrl = ytId ? 'https://img.youtube.com/vi/' + ytId + '/mqdefault.jpg' : '';
+  const mediaBg = thumbUrl ? 'background:url(' + thumbUrl + ') center/cover no-repeat;' : 'background:linear-gradient(135deg,#1a1a2e,#0f3460);';
+  const titleVal = (p.titles && (p.titles['de'] || p.titles['en'] || p.titles['ru'])) || p.title || 'Название';
+  const descVal = (p.descriptions && (p.descriptions['de'] || p.descriptions['en'] || p.descriptions['ru'])) || '';
+
   if (isFullVideo) {
-    return `
-      <div class="card-preview" title="Только видео — карточка во всю ширину">
-        <div class="cp-label">Предпросмотр:</div>
-        <div class="cp-full">
-          <div class="cp-media cp-media-full">▶</div>
-        </div>
-      </div>`;
+    return '<div class="card-preview"><div class="cp-label">Предпросмотр — только видео:</div><div class="cp-full-wrap"><div class="cp-media-full" style="' + mediaBg + '"><div class="cp-play-icon">▶</div><div class="cp-dots-row"><span class="cp-dot cp-dot-active"></span><span class="cp-dot"></span></div></div></div></div>';
   }
-  return `
-    <div class="card-preview" title="Видео слева, текст справа">
-      <div class="cp-label">Предпросмотр:</div>
-      <div class="cp-split">
-        <div class="cp-media">▶</div>
-        <div class="cp-text">
-          <div class="cp-text-title">Заголовок</div>
-          <div class="cp-text-desc">Описание проекта</div>
-          <div class="cp-text-btn">Подробнее →</div>
-        </div>
-      </div>
-    </div>`;
+  return '<div class="card-preview"><div class="cp-label">Предпросмотр — видео + текст:</div><div class="cp-split-wrap"><div class="cp-media-left" style="' + mediaBg + '"><div class="cp-play-icon">▶</div><div class="cp-dots-row"><span class="cp-dot cp-dot-active"></span><span class="cp-dot"></span></div></div><div class="cp-text-right"><div class="cp-text-cat">MOTION DESIGN</div><div class="cp-text-title">' + esc(titleVal) + '</div><div class="cp-text-btn">Details ansehen →</div></div></div></div>';
 }
 
 function renderProjectCard(p) {
