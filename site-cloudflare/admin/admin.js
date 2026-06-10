@@ -14,7 +14,7 @@ const UI = {
     loadedServer: 'Загружено с сервера ✓', loadedFiles: 'Загружено из файлов (KV недоступен)',
     saveError: 'Ошибка сохранения', noProjects: 'Нет проектов. Нажми + Добавить.',
     noApps: 'Нет приложений. Нажми + Добавить.',
-    fieldTitle: 'Название', fieldThumb: 'Ссылка на картинку', fieldVideo: 'Ссылка на видео (YouTube)',
+    fieldTitle: 'Название', fieldThumb: 'Ссылка на картинку', fieldVideo: 'Видео',
     fieldPlatform: 'Платформа', fieldLink: 'Ссылка', fieldDesc: 'Описание',
     fieldClient: 'Клиент', fieldYear: 'Год', fieldDuration: 'Длительность',
     langLabel: 'Контент на языках', noImage: 'Нет картинки',
@@ -31,7 +31,7 @@ const UI = {
     loadedServer: 'Vom Server geladen ✓', loadedFiles: 'Aus Dateien geladen (KV nicht verfügbar)',
     saveError: 'Fehler beim Speichern', noProjects: 'Keine Projekte. + Hinzufügen klicken.',
     noApps: 'Keine Apps. + Hinzufügen klicken.',
-    fieldTitle: 'Titel', fieldThumb: 'Bild-URL', fieldVideo: 'Video-URL (YouTube)',
+    fieldTitle: 'Titel', fieldThumb: 'Bild-URL', fieldVideo: 'Video',
     fieldPlatform: 'Plattform', fieldLink: 'Link', fieldDesc: 'Beschreibung',
     fieldClient: 'Kunde', fieldYear: 'Jahr', fieldDuration: 'Dauer',
     langLabel: 'Inhalte in Sprachen', noImage: 'Kein Bild',
@@ -48,7 +48,7 @@ const UI = {
     loadedServer: 'Loaded from server ✓', loadedFiles: 'Loaded from files (KV not available)',
     saveError: 'Save error', noProjects: 'No projects yet. Click + Add.',
     noApps: 'No apps yet. Click + Add.',
-    fieldTitle: 'Title', fieldThumb: 'Thumbnail URL', fieldVideo: 'Video URL (YouTube)',
+    fieldTitle: 'Title', fieldThumb: 'Thumbnail URL', fieldVideo: 'Video',
     fieldPlatform: 'Platform', fieldLink: 'Link', fieldDesc: 'Description',
     fieldClient: 'Client', fieldYear: 'Year', fieldDuration: 'Duration',
     langLabel: 'Content by language', noImage: 'No image',
@@ -274,9 +274,80 @@ function renderProjects() {
   });
 }
 
+// ── Video source helpers ──────────────────────────────────────────────────────
+const VIDEO_TYPES = ['youtube', 'stream', 'mp4'];
+const VIDEO_TYPE_LABELS = { youtube: '▶ YouTube', stream: '☁ CF Stream', mp4: '🎞 MP4' };
+const VIDEO_TYPE_PH = {
+  youtube: 'https://youtube.com/watch?v=...',
+  stream:  'https://customer-xxx.cloudflarestream.com/VIDEO_ID/iframe',
+  mp4:     'https://example.com/video.mp4'
+};
+
+function getVideoType(p) {
+  return p.videoType || 'youtube';
+}
+
+function renderVideoPreviewBlock(p) {
+  const vtype = getVideoType(p);
+  const url = p.videoUrl || '';
+  if (!url) return '';
+
+  if (vtype === 'youtube') {
+    const ytId = getYouTubeIdAdmin(url);
+    if (!ytId) return '';
+    return `
+      <div class="video-thumb-wrap" id="vthumb-${p.id}">
+        <img class="video-thumb-img" src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="">
+        <button class="video-play-btn" onclick="toggleVideoPreview('${p.id}','${esc(url)}','youtube')">▶ Play</button>
+      </div>`;
+  }
+  if (vtype === 'stream') {
+    // CF Stream iframe URL — show thumbnail via oEmbed or just show play button
+    return `
+      <div class="video-thumb-wrap" id="vthumb-${p.id}" style="background:#0f3460;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
+        <div style="color:#fff;font-size:13px;font-weight:600;opacity:.7">Cloudflare Stream</div>
+        <button class="video-play-btn" onclick="toggleVideoPreview('${p.id}','${esc(url)}','stream')">▶ Play</button>
+      </div>`;
+  }
+  if (vtype === 'mp4') {
+    return `
+      <div class="video-thumb-wrap" id="vthumb-${p.id}" style="background:#1a1530;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
+        <div style="color:#fff;font-size:13px;font-weight:600;opacity:.7">MP4 Video</div>
+        <button class="video-play-btn" onclick="toggleVideoPreview('${p.id}','${esc(url)}','mp4')">▶ Play</button>
+      </div>`;
+  }
+  return '';
+}
+
+function renderCardTypePreview(p) {
+  const isFullVideo = p.cardType === 'full';
+  if (isFullVideo) {
+    return `
+      <div class="card-preview" title="Только видео — карточка во всю ширину">
+        <div class="cp-label">Предпросмотр:</div>
+        <div class="cp-full">
+          <div class="cp-media cp-media-full">▶</div>
+        </div>
+      </div>`;
+  }
+  return `
+    <div class="card-preview" title="Видео слева, текст справа">
+      <div class="cp-label">Предпросмотр:</div>
+      <div class="cp-split">
+        <div class="cp-media">▶</div>
+        <div class="cp-text">
+          <div class="cp-text-title">Заголовок</div>
+          <div class="cp-text-desc">Описание проекта</div>
+          <div class="cp-text-btn">Подробнее →</div>
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderProjectCard(p) {
   const t = u();
   const activeLang = activeLangTab[p.id] || 'en';
+  const vtype = getVideoType(p);
   const thumb = p.thumbnail
     ? `<img class="thumb-preview" id="thumb-${p.id}" src="${esc(p.thumbnail)}" alt="" onerror="this.style.display='none'">`
     : `<div class="thumb-placeholder" id="thumb-${p.id}">${t.noImage}</div>`;
@@ -288,6 +359,16 @@ function renderProjectCard(p) {
 
   const titleVal = (p.titles && p.titles[activeLang]) || '';
   const descVal = (p.descriptions && p.descriptions[activeLang]) || '';
+
+  // Video source tabs
+  const videoSourceTabs = VIDEO_TYPES.map(vt => `
+    <button class="vsrc-tab ${vtype === vt ? 'active' : ''}"
+      onclick="setVideoType('${p.id}','${vt}')">${VIDEO_TYPE_LABELS[vt]}</button>
+  `).join('');
+
+  const videoPh = VIDEO_TYPE_PH[vtype] || '';
+  const videoPreview = renderVideoPreviewBlock(p);
+  const cardTypePreview = renderCardTypePreview(p);
 
   return `
     <div class="item-card ${p.visible ? '' : 'hidden-item'}" data-id="${p.id}">
@@ -310,16 +391,15 @@ function renderProjectCard(p) {
               <label class="form-label">${t.fieldThumb}</label>
               <input class="form-input proj-field" data-id="${p.id}" data-field="thumbnail" value="${esc(p.thumbnail)}" placeholder="https://...">
             </div>
+
             <div class="form-group full">
               <label class="form-label">${t.fieldVideo}</label>
-              <input class="form-input proj-field" data-id="${p.id}" data-field="videoUrl" value="${esc(p.videoUrl)}" placeholder="https://youtube.com/watch?v=...">
-              ${p.videoUrl && getYouTubeIdAdmin(p.videoUrl) ? `
-                <div class="video-thumb-wrap" id="vthumb-${p.id}">
-                  <img class="video-thumb-img" src="https://img.youtube.com/vi/${getYouTubeIdAdmin(p.videoUrl)}/mqdefault.jpg" alt="">
-                  <button class="video-play-btn" onclick="toggleVideoPreview('${p.id}','${esc(p.videoUrl)}')">▶ Play</button>
-                </div>
-              ` : ''}
+              <div class="vsrc-tabs">${videoSourceTabs}</div>
+              <input class="form-input proj-field" data-id="${p.id}" data-field="videoUrl"
+                value="${esc(p.videoUrl)}" placeholder="${videoPh}" style="margin-top:6px">
+              ${videoPreview}
             </div>
+
             <div class="form-group">
               <label class="form-label">${t.fieldClient}</label>
               <input class="form-input proj-field" data-id="${p.id}" data-field="client" value="${esc(p.client)}">
@@ -340,6 +420,7 @@ function renderProjectCard(p) {
                   🎬 Только видео
                 </button>
               </div>
+              ${cardTypePreview}
             </div>
           </div>
 
@@ -477,22 +558,45 @@ function getYouTubeIdAdmin(url) {
   return m ? m[1] : null;
 }
 
-window.toggleVideoPreview = function(id, url) {
-  const ytId = getYouTubeIdAdmin(url);
-  if (!ytId) return;
+window.toggleVideoPreview = function(id, url, vtype) {
   const wrap = document.getElementById('vthumb-' + id);
   if (!wrap) return;
-  if (wrap.querySelector('iframe')) {
-    wrap.innerHTML = `
-      <img class="video-thumb-img" src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="">
-      <button class="video-play-btn" onclick="toggleVideoPreview('${id}','${url}')">▶ Play</button>`;
+
+  // If already playing — stop
+  if (wrap.querySelector('iframe') || wrap.querySelector('video')) {
+    const p = projectsData.projects.find(x => x.id === id);
+    wrap.outerHTML = renderVideoPreviewBlock(p);
     return;
   }
-  wrap.innerHTML = `
-    <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" frameborder="0"
-      allow="autoplay; encrypted-media" allowfullscreen 
-      style="width:100%;height:100%;border-radius:8px;border:none"></iframe>
-    <button class="video-play-btn stop" onclick="toggleVideoPreview('${id}','${url}')">■ Stop</button>`;
+
+  if (vtype === 'youtube') {
+    const ytId = getYouTubeIdAdmin(url);
+    if (!ytId) return;
+    wrap.innerHTML = `
+      <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" frameborder="0"
+        allow="autoplay; encrypted-media" allowfullscreen
+        style="width:100%;height:100%;border-radius:8px;border:none"></iframe>
+      <button class="video-play-btn stop" onclick="toggleVideoPreview('${id}','${url}','youtube')">■ Stop</button>`;
+  } else if (vtype === 'stream') {
+    // Cloudflare Stream iframe — чистый плеер без брендинга
+    const cfSrc = url.includes('?') ? url + '&autoplay=true' : url + '?autoplay=true';
+    wrap.innerHTML = `
+      <iframe src="${esc(cfSrc)}" frameborder="0"
+        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+        allowfullscreen
+        style="width:100%;height:100%;border-radius:8px;border:none"></iframe>
+      <button class="video-play-btn stop" onclick="toggleVideoPreview('${id}','${url}','stream')">■ Stop</button>`;
+  } else if (vtype === 'mp4') {
+    wrap.innerHTML = `
+      <video src="${esc(url)}" autoplay controls
+        style="width:100%;height:100%;border-radius:8px;object-fit:cover"></video>
+      <button class="video-play-btn stop" onclick="toggleVideoPreview('${id}','${url}','mp4')">■ Stop</button>`;
+  }
+};
+
+window.setVideoType = function(id, vtype) {
+  const p = projectsData.projects.find(x => x.id === id);
+  if (p) { p.videoType = vtype; p.videoUrl = ''; renderProjects(); }
 };
 
 window.setCardType = function(id, type) {

@@ -927,16 +927,23 @@ function renderCategoryCarousel(cat, lang, t) {
   const displayTitle = (p.titles && p.titles[lang]) || p.title || '';
   const displayDesc = (p.descriptions && p.descriptions[lang]) || p.description || '';
   const ytId = getYouTubeId(p.videoUrl);
+  const vtype = p.videoType || 'youtube';
   const isFullVideo = p.cardType === 'full';
 
   let mediaHtml = '';
-  if (ytId) {
+
+  if (vtype === 'stream' && p.videoUrl) {
+    // Cloudflare Stream — чистый плеер без кнопок и брендинга
+    const cfSrc = p.videoUrl
+      + (p.videoUrl.includes('?') ? '&' : '?')
+      + 'autoplay=true&muted=true&loop=true&controls=false&preload=auto';
     mediaHtml = `
       <div class="pf-media" onclick="openPortfolioDetail('${escHtml(p.id)}')">
         <iframe class="pf-iframe"
-          src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1"
-          frameborder="0" allow="autoplay; encrypted-media" allowfullscreen
-          id="yt-${escHtml(p.id)}"></iframe>
+          src="${escHtml(cfSrc)}"
+          style="pointer-events:none"
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+          allowfullscreen id="cf-${escHtml(p.id)}"></iframe>
         <div class="pf-media-overlay">
           <svg width="44" height="44" viewBox="0 0 24 24" fill="white">
             <circle cx="12" cy="12" r="11" fill="rgba(0,0,0,.45)"/>
@@ -944,6 +951,40 @@ function renderCategoryCarousel(cat, lang, t) {
           </svg>
         </div>
       </div>`;
+
+  } else if (vtype === 'mp4' && p.videoUrl) {
+    // Прямой MP4
+    const vidId = 'mpv-' + escHtml(p.id);
+    mediaHtml = `
+      <div class="pf-media" onclick="openPortfolioDetail('${escHtml(p.id)}')">
+        <video class="pf-iframe" id="${vidId}" src="${escHtml(p.videoUrl)}"
+          autoplay muted loop playsinline style="object-fit:cover;pointer-events:none"></video>
+        <div class="pf-media-overlay">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="white">
+            <circle cx="12" cy="12" r="11" fill="rgba(0,0,0,.45)"/>
+            <polygon points="10,8 16,12 10,16" fill="white"/>
+          </svg>
+        </div>
+      </div>`;
+
+  } else if (ytId) {
+    // YouTube — IFrame API для автопереключения + overlay блокирует кнопки
+    const iframeId = 'yt-' + escHtml(p.id) + '-' + cat.id;
+    mediaHtml = `
+      <div class="pf-media" style="position:relative">
+        <iframe class="pf-iframe"
+          src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}"
+          frameborder="0" allow="autoplay; encrypted-media" allowfullscreen
+          id="${iframeId}"></iframe>
+        <!-- Полный overlay — блокирует ВСЕ кнопки YouTube, клик открывает детали -->
+        <div class="pf-yt-overlay" onclick="openPortfolioDetail('${escHtml(p.id)}')">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="white">
+            <circle cx="12" cy="12" r="11" fill="rgba(0,0,0,.45)"/>
+            <polygon points="10,8 16,12 10,16" fill="white"/>
+          </svg>
+        </div>
+      </div>`;
+
   } else if (p.thumbnail) {
     mediaHtml = `
       <div class="pf-media" onclick="openPortfolioDetail('${escHtml(p.id)}')">
@@ -1039,21 +1080,91 @@ function refreshCarousel(catId) {
   }
 }
 
+// ── YouTube IFrame API ────────────────────────────────────────────────────────
+// Глобальный реестр: iframeId → { catId, total }
+const ytPlayerRegistry = {};
+let ytApiReady = false;
+const ytPlayerInstances = {}; // iframeId → YT.Player
+
+// Callback вызывается YouTube API когда он загрузится
+window.onYouTubeIframeAPIReady = function() {
+  ytApiReady = true;
+  // Инициализируем все уже зарегистрированные плееры
+  Object.entries(ytPlayerRegistry).forEach(([iframeId, info]) => {
+    initYTPlayer(iframeId, info.catId, info.total);
+  });
+};
+
+function initYTPlayer(iframeId, catId, total) {
+  if (!ytApiReady || !window.YT || !window.YT.Player) return;
+  if (ytPlayerInstances[iframeId]) return; // уже создан
+  const el = document.getElementById(iframeId);
+  if (!el) return;
+
+  ytPlayerInstances[iframeId] = new YT.Player(iframeId, {
+    events: {
+      onStateChange(event) {
+        // YT.PlayerState.ENDED = 0
+        if (event.data === 0) {
+          carouselState[catId] = ((carouselState[catId] || 0) + 1) % total;
+          refreshCarousel(catId);
+          // Новый iframe — заново регистрируем после рендера
+          startAutoplay(catId, total);
+        }
+      }
+    }
+  });
+}
+
+function loadYTApiIfNeeded() {
+  if (window.YT || document.querySelector('script[src*="youtube.com/iframe_api"]')) return;
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+}
+
 function startAutoplay(catId, total) {
   if (total <= 1) return;
   clearInterval(carouselTimers[catId]);
-  const current = carouselState[catId] || 0;
+
   const items = siteProjects.filter(p => (p.categoryId || 'motion') === catId);
+  const current = carouselState[catId] || 0;
   const p = items[current];
-  if (p && getYouTubeId(p.videoUrl)) return;
+  if (!p) return;
+
+  const vtype = p.videoType || 'youtube';
+  const ytId = getYouTubeId(p.videoUrl);
+
+  if (vtype === 'youtube' && ytId) {
+    // Используем IFrame API — переключение по окончании видео
+    const iframeId = 'yt-' + p.id + '-' + catId;
+    ytPlayerRegistry[iframeId] = { catId, total };
+    loadYTApiIfNeeded();
+    if (ytApiReady) {
+      // небольшая задержка чтобы iframe успел загрузиться в DOM
+      setTimeout(() => initYTPlayer(iframeId, catId, total), 800);
+    }
+    // Fallback: если видео длиннее 10 мин — переключаем через 8 мин
+    carouselTimers[catId] = setTimeout(() => {
+      // Только если плеер не сработал сам
+      carouselState[catId] = ((carouselState[catId] || 0) + 1) % total;
+      refreshCarousel(catId);
+      startAutoplay(catId, total);
+    }, 8 * 60 * 1000);
+    return;
+  }
+
+  // Для CF Stream и MP4 — таймер 8 секунд (или убрать если не нужен)
   carouselTimers[catId] = setInterval(() => {
     carouselState[catId] = ((carouselState[catId] || 0) + 1) % total;
     refreshCarousel(catId);
-  }, 6000);
+  }, 8000);
 }
+
 
 function resetAutoplay(catId, total) {
   clearInterval(carouselTimers[catId]);
+  clearTimeout(carouselTimers[catId]);
   startAutoplay(catId, total);
 }
 
@@ -1163,18 +1274,36 @@ function getProjectById(id) {
   return allProjects.find(p => p.id === id);
 }
 
-function embedVideo(url) {
+function embedVideo(url, videoType) {
   if (!url) return '';
-  let embed = '';
-  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
-  if (ytMatch) {
-    embed = `https://www.youtube.com/embed/${ytMatch[1]}`;
-  } else if (url.match(/\.(mp4|webm|ogg)(\?|$)/i)) {
+  const vtype = videoType || 'youtube';
+
+  if (vtype === 'stream') {
+    // Cloudflare Stream — чистый плеер, без логотипа и бренда
+    const cfSrc = url.includes('?') ? url : url;
+    return `<div style="position:relative;padding-top:56.25%;margin-bottom:16px">
+      <iframe src="${escHtml(cfSrc)}"
+        style="border:none;position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px"
+        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+        allowfullscreen></iframe>
+    </div>`;
+  }
+
+  if (vtype === 'mp4' || url.match(/\.(mp4|webm|ogg)(\?|$)/i)) {
     return `<video class="portfolio-video" controls src="${escHtml(url)}"></video>`;
   }
-  if (embed) {
-    return `<iframe class="portfolio-video" src="${escHtml(embed)}" frameborder="0" allowfullscreen></iframe>`;
+
+  // YouTube
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+  if (ytMatch) {
+    const ytId = ytMatch[1];
+    return `<div style="position:relative;padding-top:56.25%;margin-bottom:16px">
+      <iframe src="https://www.youtube.com/embed/${ytId}?modestbranding=1&rel=0"
+        style="border:none;position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px"
+        frameborder="0" allowfullscreen></iframe>
+    </div>`;
   }
+
   return `<a href="${escHtml(url)}" class="btn-primary" style="display:inline-flex;margin-bottom:20px" target="_blank" rel="noopener">Watch video →</a>`;
 }
 
@@ -1198,7 +1327,7 @@ function openPortfolioDetail(id) {
     <div class="portfolio-detail-body">
       <div class="portfolio-detail-cat">${escHtml(project.category || '')}</div>
       <h2 class="portfolio-detail-title">${escHtml(displayTitle)}</h2>
-      ${project.videoUrl ? embedVideo(project.videoUrl) : ''}
+      ${project.videoUrl ? embedVideo(project.videoUrl, project.videoType) : ''}
       <p class="portfolio-detail-text">${escHtml(displayDesc)}</p>
       <div class="portfolio-detail-meta">
         <div><div class="meta-item-label">${t['pd.client']}</div><div class="meta-item-value">${escHtml(project.client || '—')}</div></div>
