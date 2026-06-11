@@ -1,5 +1,8 @@
 const ADMIN_PASSWORD = 'korsmotion2026';
 const SESSION_KEY = 'korsmotion_admin_session';
+const GITHUB_TOKEN_KEY = 'korsmotion_github_token';
+const GITHUB_REPO = 'korsmotion/korsmotion-site';
+const GITHUB_BRANCH = 'main';
 const API_DATA = '/api/data';
 const API_SAVE = '/api/save';
 
@@ -97,6 +100,109 @@ function adminAssetUrl(path) {
   if (!path) return '';
   if (/^(https?:\/\/|\/|data:)/i.test(path)) return path;
   return '../' + path.replace(/^\.\//, '');
+}
+function getGithubToken() {
+  return localStorage.getItem(GITHUB_TOKEN_KEY) || '';
+}
+function initGithubTokenField() {
+  const input = document.getElementById('githubTokenInput');
+  if (!input) return;
+  const token = getGithubToken();
+  if (token) {
+    input.value = token.slice(0, 8) + '...';
+    input.dataset.masked = '1';
+  }
+}
+function saveGithubToken() {
+  const input = document.getElementById('githubTokenInput');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val || (val.endsWith('...') && val.length <= 12)) {
+    showToast('Введите полный токен', 'error');
+    return;
+  }
+  localStorage.setItem(GITHUB_TOKEN_KEY, val);
+  input.value = val.slice(0, 8) + '...';
+  input.dataset.masked = '1';
+  showToast('Токен сохранён ✓', 'success');
+}
+function openSettingsModal() {
+  initGithubTokenField();
+  const modal = document.getElementById('settingsModal');
+  if (modal) modal.classList.add('open');
+}
+function closeSettingsModal() {
+  const modal = document.getElementById('settingsModal');
+  if (modal) modal.classList.remove('open');
+}
+function sanitizeAppFolder(title) {
+  return (title || 'app').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+}
+function githubApiPath(targetPath) {
+  return targetPath.split('/').map(encodeURIComponent).join('/');
+}
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+const MEDIA_FILE_ACCEPT = 'image/*,video/mp4,.gif';
+function isVideoMp4(file) {
+  return file.type === 'video/mp4' || /\.mp4$/i.test(file.name);
+}
+function pickMediaFile(onSelect) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = MEDIA_FILE_ACCEPT;
+  input.style.display = 'none';
+  input.onchange = () => {
+    const file = input.files && input.files[0];
+    if (file) onSelect(file);
+    input.remove();
+  };
+  document.body.appendChild(input);
+  input.click();
+}
+async function uploadImageToGitHub(file, targetPath) {
+  const githubToken = getGithubToken();
+  if (!githubToken) {
+    showToast('Сначала укажи GitHub Token в настройках', 'error');
+    throw new Error('No token');
+  }
+  showToast('Загрузка...', '');
+  try {
+    const content = await readFileAsBase64(file);
+    const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${githubApiPath(targetPath)}`;
+    const headers = {
+      'Authorization': 'token ' + githubToken,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github+json'
+    };
+    const putFile = async (sha) => {
+      const body = { message: 'Upload image via admin', content, branch: GITHUB_BRANCH };
+      if (sha) body.sha = sha;
+      return fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    };
+    let resp = await putFile();
+    if (resp.status === 409) {
+      const getResp = await fetch(apiUrl + `?ref=${GITHUB_BRANCH}`, { headers });
+      if (!getResp.ok) throw new Error('Failed to get file SHA');
+      const meta = await getResp.json();
+      resp = await putFile(meta.sha);
+    }
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.message || 'Upload failed');
+    }
+    showToast('Загружено ✓', 'success');
+    return `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/${targetPath}`;
+  } catch (e) {
+    if (e.message !== 'No token') showToast('Ошибка загрузки', 'error');
+    throw e;
+  }
 }
 function showToast(msg, type) {
   const toast = document.getElementById('toast');
@@ -211,6 +317,7 @@ function showAdmin() {
   document.getElementById('adminApp').style.display = 'block';
   document.getElementById('saveBar').style.display = 'flex';
   initSaveBtn();
+  initGithubTokenField();
   applyAdminLang();
   loadData();
 }
@@ -418,6 +525,7 @@ function renderProjects() {
           if (card) card.querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
         }
         if (field === 'thumbnail') updateThumbPreview(id, e.target.value);
+        if (field === 'videoUrl') updateVideoPreview(id, e.target.value);
       }
       markUnsaved();
     });
@@ -475,17 +583,15 @@ function renderProjectCard(p) {
             </div>
             <div class="form-group">
               <label class="form-label">${t.fieldThumb}</label>
-              <input class="form-input proj-field" data-id="${p.id}" data-field="thumbnail" value="${esc(p.thumbnail)}" placeholder="https://...">
+              <div class="input-with-upload">
+                <input class="form-input proj-field" data-id="${p.id}" data-field="thumbnail" value="${esc(p.thumbnail)}" placeholder="https://...">
+                <button type="button" class="upload-btn" onclick="uploadProjectThumb('${p.id}')">📁 Загрузить</button>
+              </div>
             </div>
             <div class="form-group full">
               <label class="form-label">${t.fieldVideo}</label>
               <input class="form-input proj-field" data-id="${p.id}" data-field="videoUrl" value="${esc(p.videoUrl)}" placeholder="https://youtube.com/watch?v=...">
-              ${p.videoUrl && getYouTubeIdAdmin(p.videoUrl) ? `
-                <div class="video-thumb-wrap" id="vthumb-${p.id}">
-                  <img class="video-thumb-img" src="https://img.youtube.com/vi/${getYouTubeIdAdmin(p.videoUrl)}/mqdefault.jpg" alt="">
-                  <button class="video-play-btn" onclick="toggleVideoPreview('${p.id}','${esc(p.videoUrl)}')">▶ Play</button>
-                </div>
-              ` : ''}
+              ${buildVideoPreviewHtml(p.id, p.videoUrl)}
             </div>
             <div class="form-group">
               <label class="form-label">${t.fieldClient}</label>
@@ -538,6 +644,45 @@ function updateThumbPreview(id, url) {
     : `<div class="thumb-placeholder" id="thumb-${id}">${t.noImage}</div>`;
 }
 
+function isRawGithubMp4(url) {
+  return !!url && url.startsWith('https://raw.githubusercontent.com') && /\.mp4$/i.test(url);
+}
+
+function buildVideoPreviewHtml(id, url) {
+  if (!url) return '';
+  const ytId = getYouTubeIdAdmin(url);
+  if (ytId) {
+    return `
+      <div class="video-thumb-wrap" id="vthumb-${id}">
+        <img class="video-thumb-img" src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="">
+        <button class="video-play-btn" onclick="toggleVideoPreview('${id}','${esc(url)}')">▶ Play</button>
+      </div>`;
+  }
+  if (isRawGithubMp4(url)) {
+    return `
+      <div class="video-thumb-wrap" id="vthumb-${id}">
+        <video src="${esc(url)}" style="width:100%;border-radius:8px;max-height:180px;object-fit:cover" controls muted preload="metadata"></video>
+      </div>`;
+  }
+  return '';
+}
+
+function updateVideoPreview(id, url) {
+  const input = document.querySelector(`.proj-field[data-id="${id}"][data-field="videoUrl"]`);
+  if (!input) return;
+  const html = buildVideoPreviewHtml(id, url);
+  const wrap = document.getElementById('vthumb-' + id);
+  if (!html) {
+    if (wrap) wrap.remove();
+    return;
+  }
+  if (wrap) {
+    wrap.outerHTML = html;
+  } else {
+    input.insertAdjacentHTML('afterend', html);
+  }
+}
+
 window.toggleCat = function(catId) {
   expandedCats.has(catId) ? expandedCats.delete(catId) : expandedCats.add(catId);
   renderProjects();
@@ -577,8 +722,11 @@ function renderAppScreensAdmin(a, i) {
   return screens.map((s, si) => `
     <div class="form-group">
       <label class="form-label">${labels[si]}</label>
-      <input class="form-input app-field" data-index="${i}" data-field="screens" data-screen="${si}"
-        value="${esc(s)}" placeholder="images/apps/appname/screen${si+1}.png">
+      <div class="input-with-upload">
+        <input class="form-input app-field" data-index="${i}" data-field="screens" data-screen="${si}"
+          value="${esc(s)}" placeholder="images/apps/appname/screen${si+1}.png">
+        <button type="button" class="upload-btn" onclick="uploadAppScreen(${i}, ${si})" title="Загрузить">📁</button>
+      </div>
     </div>`).join('');
 }
 
@@ -622,7 +770,10 @@ function renderApps() {
           </div>
           <div class="form-group" style="grid-column:1/-1">
             <label class="form-label">Иконка (путь)</label>
-            <input class="form-input app-field" data-index="${i}" data-field="icon" value="${esc(a.icon||'')}" placeholder="images/apps/appname/icon.png">
+            <div class="input-with-upload">
+              <input class="form-input app-field" data-index="${i}" data-field="icon" value="${esc(a.icon||'')}" placeholder="images/apps/appname/icon.png">
+              <button type="button" class="upload-btn" onclick="uploadAppIcon(${i})">📁 Загрузить</button>
+            </div>
           </div>
         </div>
       </div>
@@ -743,11 +894,86 @@ document.getElementById('addAppBtn').addEventListener('click', () => {
   markUnsaved();
 });
 
+// ── GitHub image upload handlers ──────────────────────────────────────────────
+window.uploadProjectThumb = function(projectId) {
+  pickMediaFile(async (file) => {
+    try {
+      const isVideo = isVideoMp4(file);
+      const path = isVideo
+        ? `site-cloudflare/images/portfolio/${projectId}_preview.mp4`
+        : `site-cloudflare/images/portfolio/${projectId}_${file.name}`;
+      const url = await uploadImageToGitHub(file, path);
+      const field = isVideo ? 'videoUrl' : 'thumbnail';
+      const inp = document.querySelector(`.proj-field[data-id="${projectId}"][data-field="${field}"]`);
+      if (inp) {
+        inp.value = url;
+        inp.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    } catch (_) {}
+  });
+};
+
+window.uploadAppIcon = function(appIndex) {
+  const app = settingsData.apps[appIndex];
+  const folder = sanitizeAppFolder(app && app.title);
+  pickMediaFile(async (file) => {
+    try {
+      const path = `site-cloudflare/images/apps/${folder}/icon.png`;
+      const url = await uploadImageToGitHub(file, path);
+      const inp = document.querySelector(`.app-field[data-index="${appIndex}"][data-field="icon"]`);
+      if (inp) {
+        inp.value = url;
+        inp.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    } catch (_) {}
+  });
+};
+
+window.uploadAppScreen = function(appIndex, screenIndex) {
+  const app = settingsData.apps[appIndex];
+  const folder = sanitizeAppFolder(app && app.title);
+  pickMediaFile(async (file) => {
+    try {
+      const path = `site-cloudflare/images/apps/${folder}/screen${screenIndex + 1}.png`;
+      const url = await uploadImageToGitHub(file, path);
+      const inp = document.querySelector(`.app-field[data-index="${appIndex}"][data-field="screens"][data-screen="${screenIndex}"]`);
+      if (inp) {
+        inp.value = url;
+        inp.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    } catch (_) {}
+  });
+};
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 // Admin lang switcher buttons
 document.querySelectorAll('.admin-lang-btn').forEach(btn => {
   btn.addEventListener('click', () => setAdminLang(btn.dataset.lang));
 });
+
+const githubTokenInput = document.getElementById('githubTokenInput');
+if (githubTokenInput) {
+  githubTokenInput.addEventListener('focus', () => {
+    if (githubTokenInput.dataset.masked === '1') {
+      githubTokenInput.value = '';
+      githubTokenInput.dataset.masked = '0';
+    }
+  });
+}
+const saveGithubTokenBtn = document.getElementById('saveGithubTokenBtn');
+if (saveGithubTokenBtn) saveGithubTokenBtn.addEventListener('click', saveGithubToken);
+const openSettingsModalBtn = document.getElementById('openSettingsModal');
+if (openSettingsModalBtn) openSettingsModalBtn.addEventListener('click', openSettingsModal);
+['closeSettingsModalX', 'closeSettingsModalBtn'].forEach(id => {
+  const btn = document.getElementById(id);
+  if (btn) btn.addEventListener('click', closeSettingsModal);
+});
+const settingsModal = document.getElementById('settingsModal');
+if (settingsModal) {
+  settingsModal.addEventListener('click', e => {
+    if (e.target === settingsModal) closeSettingsModal();
+  });
+}
 
 if (isLoggedIn()) showAdmin(); else showLogin();
 

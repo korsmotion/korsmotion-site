@@ -162,6 +162,11 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .toast.error{border-color:rgba(220,38,38,.4);color:var(--danger)}
 
 .empty-state{text-align:center;padding:24px;color:var(--text-muted);font-size:13px}
+
+.upload-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:7px;font-size:12px;font-weight:600;background:var(--bg-input);border:2px solid var(--border);color:var(--text-muted);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit}
+.upload-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.input-with-upload{display:flex;gap:8px;align-items:center}
+.input-with-upload .form-input{flex:1;min-width:0}
 .card-type-toggle{display:flex;gap:6px;margin-top:8px}
 .card-type-btn{flex:1;padding:8px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;border:2px solid var(--border);background:#fff;color:var(--text-muted);cursor:pointer;transition:all .15s}
 .card-type-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -209,6 +214,15 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .cp-full-wrap{border-radius:10px;overflow:hidden;border:2px solid var(--border);height:100px}
 .cp-media-full{width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e,#0f3460);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative}
 
+/* Settings modal */
+.modal-overlay{position:fixed;inset:0;z-index:300;background:rgba(26,16,64,.55);display:none;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal-card{position:relative;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:400px;width:100%;box-shadow:var(--shadow-card)}
+.modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--bg-input);border:2px solid var(--border);border-radius:8px;font-size:14px;cursor:pointer;color:var(--text-muted);font-family:inherit;transition:all .15s}
+.modal-close:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:20px;padding-right:36px}
+.modal-actions{display:flex;gap:8px;margin-top:16px}
+
 @media(max-width:640px){
   .item-card-body{grid-template-columns:1fr}
   .item-fields{grid-template-columns:1fr}
@@ -250,6 +264,7 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
         <button class="admin-lang-btn" data-lang="de">DE</button>
         <button class="admin-lang-btn active" data-lang="en">EN</button>
       </div>
+      <button type="button" class="btn btn-ghost btn-sm" id="openSettingsModal" title="Настройки">⚙️</button>
     </div>
     <div class="header-actions">
       <a href="../index.html" class="btn btn-ghost btn-sm" target="_blank" data-ui="viewSite">View site ↗</a>
@@ -303,6 +318,23 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Settings modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-card">
+    <button type="button" class="modal-close" id="closeSettingsModalX" aria-label="Закрыть">✕</button>
+    <div class="modal-title">⚙️ Настройки</div>
+    <div class="form-group">
+      <label class="form-label" for="githubTokenInput">GitHub Token</label>
+      <input class="form-input" type="password" id="githubTokenInput" placeholder="ghp_..." autocomplete="off">
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-primary" id="saveGithubTokenBtn">Сохранить токен</button>
+      <button type="button" class="btn btn-ghost" id="closeSettingsModalBtn">Закрыть</button>
+    </div>
+  </div>
+</div>
+
 <script src="admin.js"></script>
 </body>
 </html>
