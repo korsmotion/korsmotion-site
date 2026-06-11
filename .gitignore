@@ -1,3 +1,6 @@
 node_modules/
 .DS_Store
 *.zip
+
+# Local secrets and notes (tokens, credentials) — never commit
+Diverse materialien/
