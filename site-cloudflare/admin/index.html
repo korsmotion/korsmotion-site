@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kors Motion — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 <style>
 :root {
   --bg: #E8E4F4;
@@ -48,7 +49,7 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .header-actions{display:flex;gap:8px;align-items:center}
 
 /* Admin lang switcher */
-.flag-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;flex-shrink:0}
+.admin-lang-btn .fi,.lang-tab .fi{width:20px;line-height:15px;border-radius:2px;flex-shrink:0}
 .admin-lang-switcher{display:flex;gap:4px;background:var(--bg-input);border:2px solid var(--border);
   border-radius:9px;padding:3px}
 .admin-lang-btn{display:inline-flex;align-items:center;padding:5px 12px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;
@@ -302,9 +303,9 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
       </div>
       <!-- Admin UI language switcher -->
       <div class="admin-lang-switcher">
-        <button class="admin-lang-btn" data-lang="ru"><span class="flag-dot" style="background:#CC0000"></span> RU</button>
-        <button class="admin-lang-btn" data-lang="de"><span class="flag-dot" style="background:#000000"></span> DE</button>
-        <button class="admin-lang-btn active" data-lang="en"><span class="flag-dot" style="background:#012169"></span> EN</button>
+        <button class="admin-lang-btn" data-lang="ru"><span class="fi fi-ru"></span> RU</button>
+        <button class="admin-lang-btn" data-lang="de"><span class="fi fi-de"></span> DE</button>
+        <button class="admin-lang-btn active" data-lang="en"><span class="fi fi-gb"></span> EN</button>
       </div>
       <button type="button" class="btn btn-ghost btn-sm" id="openSettingsModal" data-ui-title="settingsBtnTitle" title="Settings">⚙️</button>
     </div>

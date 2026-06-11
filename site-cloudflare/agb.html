@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 <style>
 :root{--violet-deep:#5B3FBF;--violet-mid:#8B6FE8;--violet-soft:#C9B8F5;--violet-mist:#E8DFFB;--ink:#1A1530;--ink-soft:#4A4566;--ink-mute:#8A85A6}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -35,7 +36,7 @@ nav a.nav-link:hover{color:var(--violet-deep)}
 .lang-option{width:100%;background:none;border:none;padding:10px 14px;text-align:left;border-radius:10px;font-family:'Manrope',sans-serif;font-size:14px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:10px;transition:background .2s}
 .lang-option:hover{background:var(--violet-mist)}
 .lang-option.active{background:var(--violet-mist);color:var(--violet-deep);font-weight:600}
-.flag-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;flex-shrink:0}
+.lang-switcher .fi,.lang-option .fi{width:20px;line-height:15px;border-radius:2px;flex-shrink:0}
 .nav-cta{background:var(--ink);color:white !important;padding:10px 20px;border-radius:100px;transition:all .3s;font-weight:500;font-size:14px;text-decoration:none;border:none;cursor:pointer;display:inline-flex;align-items:center}
 .nav-cta:hover{background:var(--violet-deep);transform:translateY(-1px)}
 .nav-hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:28px;height:28px;background:none;border:none;cursor:pointer;padding:0;flex-shrink:0;z-index:1000;position:relative}
@@ -106,17 +107,17 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:4
   </div>
   <div class="lang-switcher" id="langSwitcher">
     <button class="lang-button" id="langButton" type="button">
-      <span class="flag-dot" id="currentFlag" style="background:#000000"></span>
+      <span class="fi fi-de" id="currentFlag"></span>
       <span id="currentLang">DE</span>
       <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
     </button>
     <div class="lang-dropdown" id="langDropdown">
-      <button class="lang-option" type="button" data-lang="ru"><span class="flag-dot" style="background:#CC0000"></span> RU</button>
-      <button class="lang-option" type="button" data-lang="de"><span class="flag-dot" style="background:#000000"></span> DE</button>
-      <button class="lang-option" type="button" data-lang="en"><span class="flag-dot" style="background:#012169"></span> EN</button>
-      <button class="lang-option" type="button" data-lang="it"><span class="flag-dot" style="background:#009246"></span> IT</button>
-      <button class="lang-option" type="button" data-lang="fr"><span class="flag-dot" style="background:#002395"></span> FR</button>
-      <button class="lang-option" type="button" data-lang="es"><span class="flag-dot" style="background:#AA151B"></span> ES</button>
+      <button class="lang-option" type="button" data-lang="ru"><span class="fi fi-ru"></span> RU</button>
+      <button class="lang-option" type="button" data-lang="de"><span class="fi fi-de"></span> DE</button>
+      <button class="lang-option" type="button" data-lang="en"><span class="fi fi-gb"></span> EN</button>
+      <button class="lang-option" type="button" data-lang="it"><span class="fi fi-it"></span> IT</button>
+      <button class="lang-option" type="button" data-lang="fr"><span class="fi fi-fr"></span> FR</button>
+      <button class="lang-option" type="button" data-lang="es"><span class="fi fi-es"></span> ES</button>
     </div>
   </div>
   <a href="index.html" class="nav-cta" data-i18n="nav.cta">Kontakt</a>
@@ -149,13 +150,13 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:4
 <script>
 const LANG_KEY = 'lang';
 const codes = { ru:'RU', de:'DE', en:'EN', it:'IT', fr:'FR', es:'ES' };
-const FLAG_COLORS = { ru:'#CC0000', de:'#000000', en:'#012169', it:'#009246', fr:'#002395', es:'#AA151B' };
+const FLAG_ICONS = { ru:'ru', de:'de', en:'gb', it:'it', fr:'fr', es:'es' };
 
 function setCurrentFlag(lang) {
   const flagEl = document.getElementById('currentFlag');
   if (!flagEl) return;
-  flagEl.className = 'flag-dot';
-  flagEl.style.background = FLAG_COLORS[lang] || FLAG_COLORS.de;
+  const code = FLAG_ICONS[lang] || FLAG_ICONS.de;
+  flagEl.className = 'fi fi-' + code;
 }
 
 const uiTranslations = {
