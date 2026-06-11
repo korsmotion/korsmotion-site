@@ -1574,3 +1574,37 @@ window.carouselPrev = carouselPrev;
 window.carouselGo = carouselGo;
 window.openCategoryModal = openCategoryModal;
 window.closeCategoryModal = closeCategoryModal;
+
+// MOBILE NAV MENU
+function setNavMenu(open) {
+  const nav = document.querySelector('nav');
+  const btn = document.getElementById('navHamburger');
+  const backdrop = document.getElementById('navBackdrop');
+  if (!nav) return;
+  nav.classList.toggle('menu-open', open);
+  if (btn) {
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  if (backdrop) backdrop.classList.toggle('open', open);
+  document.body.classList.toggle('modal-open', open);
+}
+
+function toggleNavMenu() {
+  const nav = document.querySelector('nav');
+  setNavMenu(!nav.classList.contains('menu-open'));
+}
+
+function closeNavMenu() {
+  setNavMenu(false);
+}
+
+document.querySelectorAll('.nav-links-wrap .nav-link').forEach(link => {
+  link.addEventListener('click', closeNavMenu);
+});
+
+const navBackdrop = document.getElementById('navBackdrop');
+if (navBackdrop) navBackdrop.addEventListener('click', closeNavMenu);
+
+window.toggleNavMenu = toggleNavMenu;
+window.closeNavMenu = closeNavMenu;

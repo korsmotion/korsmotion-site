@@ -231,6 +231,10 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .settings-row-desc{font-size:12px;color:var(--text-muted);margin-top:2px}
 .settings-row-input{width:280px;flex-shrink:0}
 .settings-row-action{flex-shrink:0}
+.settings-inner .section{overflow:hidden}
+.settings-section-body{padding:0 4px}
+.settings-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:none}
+.settings-toggle-row .settings-row-action,.settings-toggle-row .toggle{flex-shrink:0}
 
 @media(max-width:640px){
   .item-card-body{grid-template-columns:1fr}
@@ -335,17 +339,19 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
       <div class="section-head">
         <div class="section-title">🔗 Интеграции</div>
       </div>
-      <div class="settings-row">
-        <div class="settings-row-label">
-          <div class="settings-row-title">GitHub Token</div>
-          <div class="settings-row-desc">Для загрузки файлов в репозиторий</div>
-        </div>
-        <div class="settings-row-input pw-wrap">
-          <input class="form-input" type="password" id="githubTokenInput" placeholder="ghp_..." autocomplete="off">
-          <button type="button" class="pw-toggle" data-target="githubTokenInput" aria-label="Показать">👁</button>
-        </div>
-        <div class="settings-row-action">
-          <button type="button" class="btn btn-primary btn-sm" id="saveGithubTokenBtn">Сохранить</button>
+      <div class="settings-section-body">
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <div class="settings-row-title">GitHub Token</div>
+            <div class="settings-row-desc">Для загрузки файлов в репозиторий</div>
+          </div>
+          <div class="settings-row-input pw-wrap">
+            <input class="form-input" type="password" id="githubTokenInput" placeholder="ghp_..." autocomplete="off">
+            <button type="button" class="pw-toggle" data-target="githubTokenInput" aria-label="Показать">👁</button>
+          </div>
+          <div class="settings-row-action">
+            <button type="button" class="btn btn-primary btn-sm" id="saveGithubTokenBtn">Сохранить</button>
+          </div>
         </div>
       </div>
     </div>
@@ -354,16 +360,18 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
       <div class="section-head">
         <div class="section-title">⚙️ Основные</div>
       </div>
-      <div class="settings-row">
-        <div class="settings-row-label">
-          <div class="toggle-label" data-ui="showDev">Показать раздел «Разработка»</div>
-          <div class="toggle-desc" data-ui="showDevDesc">Показывает ссылку Dev Apps в навигации</div>
-        </div>
-        <div class="settings-row-action">
-          <label class="toggle">
-            <input type="checkbox" id="showDevSection">
-            <span class="toggle-slider"></span>
-          </label>
+      <div class="settings-section-body">
+        <div class="settings-row settings-toggle-row">
+          <div class="settings-row-label">
+            <div class="toggle-label" data-ui="showDev">Показать раздел «Разработка»</div>
+            <div class="toggle-desc" data-ui="showDevDesc">Показывает ссылку Dev Apps в навигации</div>
+          </div>
+          <div class="settings-row-action">
+            <label class="toggle">
+              <input type="checkbox" id="showDevSection">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
         </div>
       </div>
     </div>

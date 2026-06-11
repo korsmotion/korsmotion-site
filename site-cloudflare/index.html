@@ -45,22 +45,27 @@ nav a.nav-link:hover{color:var(--violet-deep)}
 .flag-fr{background:linear-gradient(90deg,#0055A4 0%,#0055A4 33.3%,#fff 33.3%,#fff 66.6%,#EF4135 66.6%,#EF4135 100%)}
 .nav-cta{background:var(--ink);color:white !important;padding:10px 20px;border-radius:100px;transition:all .3s;font-weight:500;font-size:14px;text-decoration:none;cursor:pointer;border:none}
 .nav-cta:hover{background:var(--violet-deep);transform:translateY(-1px)}
-.nav-hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:28px;height:28px;background:none;border:none;cursor:pointer;padding:0;flex-shrink:0}
+.nav-hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:28px;height:28px;background:none;border:none;cursor:pointer;padding:0;flex-shrink:0;z-index:1000;position:relative}
 .nav-hamburger span{display:block;width:28px;height:2px;background:var(--ink);border-radius:2px;transition:transform .3s ease,opacity .3s ease}
 .nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .nav-hamburger.open span:nth-child(2){opacity:0}
 .nav-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 .nav-links-wrap{display:contents}
+.nav-cta-mobile{display:none}
+.nav-backdrop{display:none}
 @media (max-width:768px){
-  nav{flex-wrap:wrap;border-radius:16px;padding:10px 16px;width:calc(100% - 32px);gap:8px}
+  nav{flex-wrap:nowrap;border-radius:16px;padding:10px 16px;width:calc(100% - 32px);gap:12px}
+  nav>.nav-cta{display:none}
   .nav-hamburger{display:flex;margin-left:auto}
-  .nav-links-wrap{display:none;width:100%;order:10;background:#fff;padding:16px 0;margin-top:8px;border-top:1px solid rgba(91,63,191,.12);animation:navDropIn .3s ease}
-  nav.menu-open .nav-links-wrap{display:block}
-  .nav-links-wrap ul{flex-direction:column;gap:0;width:100%}
-  .nav-links-wrap li{width:100%}
-  .nav-links-wrap .nav-link{display:block;padding:12px 24px;width:100%}
+  .nav-backdrop{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:998;opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s ease;pointer-events:none}
+  .nav-backdrop.open{opacity:1;visibility:visible;pointer-events:auto}
+  .nav-links-wrap{display:flex;flex-direction:column;position:fixed;inset:0;z-index:999;background:#fff;transform:translateX(100%);transition:transform .3s ease;pointer-events:none;padding:100px 32px 40px}
+  nav.menu-open .nav-links-wrap{transform:translateX(0);pointer-events:auto}
+  .nav-links-wrap ul{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;width:100%;list-style:none}
+  .nav-links-wrap li{width:100%;text-align:center}
+  .nav-links-wrap .nav-link{display:block;padding:16px 24px;width:100%;font-size:20px;font-weight:600;color:var(--ink)}
+  .nav-cta-mobile{display:inline-flex;justify-content:center;width:100%;padding:16px 28px;font-size:16px;margin-top:auto;flex-shrink:0}
 }
-@keyframes navDropIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .container{max-width:1280px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
 .hero{min-height:100vh;display:flex;align-items:center;padding:140px 0 80px}
 .hero-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:80px;align-items:center;width:100%}
@@ -465,6 +470,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   <button class="nav-hamburger" id="navHamburger" type="button" aria-label="Menu" aria-expanded="false" onclick="toggleNavMenu()">
     <span></span><span></span><span></span>
   </button>
+  <div class="nav-backdrop" id="navBackdrop"></div>
   <div class="nav-links-wrap" id="navMenu">
     <ul>
       <li><a href="#services" class="nav-link" data-i18n="nav.services">Услуги</a></li>
@@ -472,6 +478,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
       <li id="navDevItem" style="display:none"><a href="#development" class="nav-link" data-i18n="nav.development">Разработка</a></li>
       <li><a href="#reviews" class="nav-link" data-i18n="nav.reviews">Отзывы</a></li>
     </ul>
+    <button type="button" class="nav-cta nav-cta-mobile" onclick="openModal('contactModal');closeNavMenu();" data-i18n="nav.cta">Связаться</button>
   </div>
   <div class="lang-switcher" id="langSwitcher">
     <button class="lang-button" id="langButton">
@@ -784,23 +791,6 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   </div>
 </div>
 
-<script>
-function toggleNavMenu() {
-  const nav = document.querySelector('nav');
-  const btn = document.getElementById('navHamburger');
-  const open = nav.classList.toggle('menu-open');
-  btn.classList.toggle('open', open);
-  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-}
-document.querySelectorAll('.nav-links-wrap .nav-link').forEach(function(link) {
-  link.addEventListener('click', function() {
-    document.querySelector('nav').classList.remove('menu-open');
-    const btn = document.getElementById('navHamburger');
-    btn.classList.remove('open');
-    btn.setAttribute('aria-expanded', 'false');
-  });
-});
-</script>
 <script src="script.js"></script>
 <script src="script-patch.js"></script>
 </body>
