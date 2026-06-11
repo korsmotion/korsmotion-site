@@ -95,10 +95,68 @@ function showToast(msg, type) {
   toast.className = 'toast show' + (type ? ' ' + type : '');
   setTimeout(() => toast.classList.remove('show'), 3500);
 }
+let saveBtnState = 'idle';
+
 function setStatus(msg, type) {
   const el = document.getElementById('saveStatus');
   el.textContent = msg;
   el.className = 'save-status' + (type ? ' ' + type : '');
+}
+
+function markUnsaved() {
+  const btn = document.getElementById('saveBtn');
+  const status = document.getElementById('saveStatus');
+  if (!btn) return;
+  saveBtnState = 'unsaved';
+  btn.style.background = '#F59E0B';
+  btn.textContent = u().saveChanges;
+  btn.disabled = false;
+  if (status) {
+    status.textContent = '● Несохранённые изменения';
+    status.className = 'save-status warning';
+  }
+}
+
+function markSaving() {
+  const btn = document.getElementById('saveBtn');
+  const status = document.getElementById('saveStatus');
+  if (!btn) return;
+  saveBtnState = 'saving';
+  btn.style.background = '#3B82F6';
+  btn.textContent = 'Сохраняю...';
+  btn.disabled = true;
+  if (status) {
+    status.textContent = '';
+    status.className = 'save-status';
+  }
+}
+
+function markSaved() {
+  const btn = document.getElementById('saveBtn');
+  const status = document.getElementById('saveStatus');
+  if (!btn) return;
+  saveBtnState = 'saved';
+  btn.style.background = '#16A34A';
+  btn.textContent = '✓✓ Загружено с сервера';
+  btn.disabled = false;
+  if (status) {
+    status.textContent = '✓✓ Загружено с сервера';
+    status.className = 'save-status success';
+  }
+}
+
+function markSaveError(msg) {
+  const btn = document.getElementById('saveBtn');
+  const status = document.getElementById('saveStatus');
+  if (!btn) return;
+  saveBtnState = 'error';
+  btn.style.background = '#DC2626';
+  btn.textContent = 'Ошибка сохранения';
+  btn.disabled = false;
+  if (status) {
+    status.textContent = msg ? 'Ошибка сохранения: ' + msg : 'Ошибка сохранения';
+    status.className = 'save-status error';
+  }
 }
 
 // ── Admin language switcher ───────────────────────────────────────────────────
@@ -114,7 +172,10 @@ function applyAdminLang() {
   // Update static UI labels
   document.querySelectorAll('[data-ui]').forEach(el => {
     const key = el.getAttribute('data-ui');
-    if (t[key] !== undefined) el.textContent = t[key];
+    if (t[key] !== undefined) {
+      if (el.id === 'saveBtn' && saveBtnState !== 'unsaved' && saveBtnState !== 'idle') return;
+      el.textContent = t[key];
+    }
   });
   document.querySelectorAll('[data-ui-placeholder]').forEach(el => {
     const key = el.getAttribute('data-ui-placeholder');
@@ -168,21 +229,24 @@ async function loadData() {
     const data = await res.json();
     projectsData = data.projects || { projects: [] };
     settingsData = data.settings || { show_dev_section: false, apps: [] };
-    setStatus(u().loadedServer, 'success');
+    markSaved();
   } catch {
     try {
       const [pRes, sRes] = await Promise.all([fetch('../data/projects.json'), fetch('../data/settings.json')]);
       if (pRes.ok) projectsData = await pRes.json();
       if (sRes.ok) settingsData = await sRes.json();
       setStatus(u().loadedFiles, 'warning');
-    } catch { setStatus('Error', 'error'); }
+      saveBtnState = 'idle';
+    } catch {
+      markSaveError('');
+    }
   }
   document.getElementById('showDevSection').checked = !!settingsData.show_dev_section;
   renderAll();
 }
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
-  setStatus(u().saving, '');
+  markSaving();
   try {
     const res = await fetch(API_SAVE, {
       method: 'POST',
@@ -190,20 +254,21 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
       body: JSON.stringify({ password: ADMIN_PASSWORD, projects: projectsData, settings: settingsData }),
     });
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
-    setStatus(u().saved, 'success');
+    markSaved();
     showToast(u().saved, 'success');
     const now = new Date();
     localStorage.setItem('korsmotion_last_saved',
       now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}));
     renderDashboard();
   } catch (err) {
-    setStatus(u().saveError + ': ' + err.message, 'error');
+    markSaveError(err.message);
     showToast(u().saveError, 'error');
   }
 });
 
 document.getElementById('showDevSection').addEventListener('change', e => {
   settingsData.show_dev_section = e.target.checked;
+  markUnsaved();
 });
 
 function renderAll() {
@@ -335,13 +400,14 @@ function renderProjects() {
         }
         if (field === 'thumbnail') updateThumbPreview(id, e.target.value);
       }
+      markUnsaved();
     });
   });
 
   container.querySelectorAll('.vis-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const p = projectsData.projects.find(x => x.id === btn.dataset.id);
-      if (p) { p.visible = !p.visible; renderProjects(); }
+      if (p) { p.visible = !p.visible; renderProjects(); markUnsaved(); }
     });
   });
 
@@ -350,6 +416,7 @@ function renderProjects() {
       if (confirm(u().deleteConfirm)) {
         projectsData.projects = projectsData.projects.filter(x => x.id !== btn.dataset.id);
         renderProjects();
+        markUnsaved();
       }
     });
   });
@@ -471,6 +538,7 @@ window.addProject = function(catId) {
   });
   expandedCats.add(catId);
   renderProjects();
+  markUnsaved();
 };
 
 window.setAppLangTab = function(idx, lang) {
@@ -617,6 +685,7 @@ function renderApps() {
           }
         }
       }
+      markUnsaved();
     });
   });
 
@@ -625,6 +694,7 @@ function renderApps() {
     el.addEventListener('change', e => {
       const idx = +e.target.dataset.index;
       settingsData.apps[idx][e.target.dataset.field] = e.target.checked;
+      markUnsaved();
     });
   });
 
@@ -632,11 +702,12 @@ function renderApps() {
     btn.addEventListener('click', () => {
       settingsData.apps[+btn.dataset.index].visible = !settingsData.apps[+btn.dataset.index].visible;
       renderApps();
+      markUnsaved();
     });
   });
   container.querySelectorAll('.app-del-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (confirm(u().deleteAppConfirm)) { settingsData.apps.splice(+btn.dataset.index, 1); renderApps(); }
+      if (confirm(u().deleteAppConfirm)) { settingsData.apps.splice(+btn.dataset.index, 1); renderApps(); markUnsaved(); }
     });
   });
 }
@@ -650,6 +721,7 @@ document.getElementById('addAppBtn').addEventListener('click', () => {
     visible: true
   });
   renderApps();
+  markUnsaved();
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -686,5 +758,5 @@ window.toggleVideoPreview = function(id, url) {
 
 window.setCardType = function(id, type) {
   const p = projectsData.projects.find(x => x.id === id);
-  if (p) { p.cardType = type; renderProjects(); }
+  if (p) { p.cardType = type; renderProjects(); markUnsaved(); }
 };
