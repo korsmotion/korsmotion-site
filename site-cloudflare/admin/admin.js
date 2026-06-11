@@ -104,14 +104,21 @@ function adminAssetUrl(path) {
 function getGithubToken() {
   return localStorage.getItem(GITHUB_TOKEN_KEY) || '';
 }
+function maskGithubToken(token) {
+  return token ? token.slice(0, 8) + '...' : '';
+}
 function initGithubTokenField() {
   const input = document.getElementById('githubTokenInput');
   if (!input) return;
   const token = getGithubToken();
   if (token) {
-    input.value = token.slice(0, 8) + '...';
+    input.value = maskGithubToken(token);
     input.dataset.masked = '1';
+  } else {
+    input.value = '';
+    input.dataset.masked = '0';
   }
+  delete input.dataset.focusValue;
 }
 function saveGithubToken() {
   const input = document.getElementById('githubTokenInput');
@@ -122,8 +129,9 @@ function saveGithubToken() {
     return;
   }
   localStorage.setItem(GITHUB_TOKEN_KEY, val);
-  input.value = val.slice(0, 8) + '...';
+  input.value = maskGithubToken(val);
   input.dataset.masked = '1';
+  delete input.dataset.focusValue;
   showToast('Токен сохранён ✓', 'success');
 }
 function openSettingsModal() {
@@ -372,6 +380,7 @@ async function loadData() {
     }
   }
   document.getElementById('showDevSection').checked = !!settingsData.show_dev_section;
+  syncPremiumToggle('showDevSection');
   renderAll();
 }
 
@@ -951,6 +960,36 @@ window.uploadAppScreen = function(appIndex, screenIndex) {
   });
 };
 
+function syncPremiumToggle(inputId) {
+  const input = document.getElementById(inputId);
+  const track = document.getElementById(inputId + 'Track');
+  if (!input || !track) return;
+  track.classList.toggle('is-on', input.checked);
+  track.setAttribute('aria-checked', input.checked ? 'true' : 'false');
+}
+
+function initPremiumToggles() {
+  document.querySelectorAll('.premium-toggle-track').forEach(track => {
+    const inputId = track.dataset.for;
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    track.addEventListener('click', () => {
+      input.checked = !input.checked;
+      syncPremiumToggle(inputId);
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    track.addEventListener('keydown', e => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        input.checked = !input.checked;
+        syncPremiumToggle(inputId);
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+    syncPremiumToggle(inputId);
+  });
+}
+
 function initPasswordToggles() {
   document.querySelectorAll('.pw-toggle').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -970,6 +1009,7 @@ function initPasswordToggles() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+initPremiumToggles();
 initPasswordToggles();
 
 // Admin lang switcher buttons
@@ -981,9 +1021,25 @@ const githubTokenInput = document.getElementById('githubTokenInput');
 if (githubTokenInput) {
   githubTokenInput.addEventListener('focus', () => {
     if (githubTokenInput.dataset.masked === '1') {
-      githubTokenInput.value = '';
-      githubTokenInput.dataset.masked = '0';
+      const token = getGithubToken();
+      if (token) {
+        githubTokenInput.value = token;
+        githubTokenInput.dataset.masked = '0';
+        githubTokenInput.dataset.focusValue = token;
+      }
+    } else {
+      githubTokenInput.dataset.focusValue = githubTokenInput.value;
     }
+  });
+  githubTokenInput.addEventListener('blur', () => {
+    const stored = getGithubToken();
+    const current = githubTokenInput.value.trim();
+    const focusValue = githubTokenInput.dataset.focusValue || '';
+    if (focusValue && current === focusValue && stored) {
+      githubTokenInput.value = maskGithubToken(stored);
+      githubTokenInput.dataset.masked = '1';
+    }
+    delete githubTokenInput.dataset.focusValue;
   });
 }
 const saveGithubTokenBtn = document.getElementById('saveGithubTokenBtn');
