@@ -305,7 +305,7 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
         <button class="admin-lang-btn" data-lang="de">DE</button>
         <button class="admin-lang-btn active" data-lang="en">EN</button>
       </div>
-      <button type="button" class="btn btn-ghost btn-sm" id="openSettingsModal" title="Настройки">⚙️</button>
+      <button type="button" class="btn btn-ghost btn-sm" id="openSettingsModal" data-ui-title="settingsBtnTitle" title="Settings">⚙️</button>
     </div>
     <div class="header-actions">
       <a href="../index.html" class="btn btn-ghost btn-sm" target="_blank" data-ui="viewSite">View site ↗</a>
@@ -352,30 +352,30 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
     <div class="header">
       <div class="header-left">
         <div class="header-logo">
-          <h1>⚙️ Настройки</h1>
+          <h1 data-ui="settingsTitle">Settings</h1>
         </div>
       </div>
       <div class="header-actions">
-        <button type="button" class="btn btn-ghost btn-sm" id="closeSettingsModalBtn">Закрыть ✕</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="closeSettingsModalBtn" data-ui="settingsClose">Close ✕</button>
       </div>
     </div>
 
     <div class="section">
       <div class="section-head">
-        <div class="section-title">🔗 Интеграции</div>
+        <div class="section-title" data-ui="integrationsTitle">Integrations</div>
       </div>
       <div class="settings-section-body">
         <div class="settings-row">
           <div class="settings-row-label">
-            <div class="settings-row-title">GitHub Token</div>
-            <div class="settings-row-desc">Для загрузки файлов в репозиторий</div>
+            <div class="settings-row-title" data-ui="githubToken">GitHub Token</div>
+            <div class="settings-row-desc" data-ui="githubDesc">For file upload to repository</div>
           </div>
           <div class="settings-row-input pw-wrap">
             <input class="form-input" type="password" id="githubTokenInput" placeholder="ghp_..." autocomplete="off">
             <button type="button" class="pw-toggle" data-target="githubTokenInput" aria-label="Показать">👁</button>
           </div>
           <div class="settings-row-action">
-            <button type="button" class="btn btn-primary btn-sm" id="saveGithubTokenBtn">Сохранить</button>
+            <button type="button" class="btn btn-primary btn-sm" id="saveGithubTokenBtn" data-ui="saveBtn">Save</button>
           </div>
         </div>
       </div>
@@ -383,24 +383,24 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 
     <div class="section">
       <div class="section-head">
-        <div class="section-title">🌤 Погода</div>
+        <div class="section-title" data-ui="weatherTitle">Weather</div>
       </div>
       <div class="settings-section-body">
         <div class="settings-row">
           <div class="settings-row-label">
-            <div class="settings-row-title">OpenWeatherMap API Key</div>
-            <div class="settings-row-desc">Для виджета погоды в Dashboard</div>
+            <div class="settings-row-title" data-ui="weatherApiKey">OpenWeatherMap API Key</div>
+            <div class="settings-row-desc" data-ui="weatherDesc">For the weather widget in Dashboard</div>
           </div>
           <div class="settings-row-input pw-wrap">
             <input class="form-input" type="password" id="weatherKeyInput" placeholder="API key..." autocomplete="off">
             <button type="button" class="pw-toggle" data-target="weatherKeyInput" aria-label="Показать">👁</button>
           </div>
           <div class="settings-row-action">
-            <button type="button" class="btn btn-primary btn-sm" id="saveWeatherKeyBtn">Сохранить</button>
+            <button type="button" class="btn btn-primary btn-sm" id="saveWeatherKeyBtn" data-ui="saveBtn">Save</button>
           </div>
         </div>
         <div class="weather-images-block">
-          <div class="weather-images-title">Фоновые картинки погоды</div>
+          <div class="weather-images-title" data-ui="weatherImages">Weather background images</div>
           <div class="weather-images-grid" id="weatherImagesGrid"></div>
         </div>
       </div>
@@ -408,7 +408,7 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 
     <div class="section">
       <div class="section-head">
-        <div class="section-title">⚙️ Основные</div>
+        <div class="section-title" data-ui="generalTitle">General</div>
       </div>
       <div class="settings-section-body">
         <div class="settings-row settings-toggle-row">

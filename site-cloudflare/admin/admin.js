@@ -39,7 +39,14 @@ const UI = {
     catLabel: 'Категория контента',
     dashboardTitle: 'Дашборд', dashProjects: 'Проектов', dashApps: 'Приложений',
     dashLastSaved: 'Последнее сохранение', dashViewsToday: 'Просмотров сегодня',
-    dashWeek: 'За 7 дней', dashMonth: 'За 30 дней'
+    dashWeek: 'За 7 дней', dashMonth: 'За 30 дней',
+    settingsTitle: 'Настройки', settingsClose: 'Закрыть', settingsBtnTitle: 'Настройки',
+    integrationsTitle: 'Интеграции', githubToken: 'GitHub Token', githubDesc: 'Для загрузки файлов в репозиторий',
+    weatherTitle: 'Погода', weatherApiKey: 'OpenWeatherMap API Key',
+    weatherDesc: 'Для виджета погоды в Dashboard', weatherImages: 'Фоновые картинки погоды',
+    generalTitle: 'Основные', saveBtn: 'Сохранить', uploadBtn: '📁 Загрузить',
+    weatherNoApiKey: '⚙️ API ключ не указан', weatherLoading: 'Загрузка погоды…',
+    weatherError: 'Не удалось загрузить погоду'
   },
   de: {
     adminTitle: 'Admin-Panel', viewSite: 'Website ansehen', logout: 'Abmelden',
@@ -59,7 +66,14 @@ const UI = {
     catLabel: 'Inhaltskategorie',
     dashboardTitle: 'Dashboard', dashProjects: 'Projekte', dashApps: 'Apps',
     dashLastSaved: 'Letzte Speicherung', dashViewsToday: 'Aufrufe heute',
-    dashWeek: '7 Tage', dashMonth: '30 Tage'
+    dashWeek: '7 Tage', dashMonth: '30 Tage',
+    settingsTitle: 'Einstellungen', settingsClose: 'Schließen', settingsBtnTitle: 'Einstellungen',
+    integrationsTitle: 'Integrationen', githubToken: 'GitHub Token', githubDesc: 'Für Datei-Upload ins Repository',
+    weatherTitle: 'Wetter', weatherApiKey: 'OpenWeatherMap API Key',
+    weatherDesc: 'Für das Wetter-Widget im Dashboard', weatherImages: 'Wetter-Hintergrundbilder',
+    generalTitle: 'Allgemein', saveBtn: 'Speichern', uploadBtn: '📁 Hochladen',
+    weatherNoApiKey: '⚙️ API-Schlüssel nicht angegeben', weatherLoading: 'Wetter wird geladen…',
+    weatherError: 'Wetter konnte nicht geladen werden'
   },
   en: {
     adminTitle: 'Admin Panel', viewSite: 'View site', logout: 'Logout',
@@ -79,8 +93,22 @@ const UI = {
     catLabel: 'Content category',
     dashboardTitle: 'Dashboard', dashProjects: 'Projects', dashApps: 'Apps',
     dashLastSaved: 'Last saved', dashViewsToday: 'Views today',
-    dashWeek: '7 days', dashMonth: '30 days'
+    dashWeek: '7 days', dashMonth: '30 days',
+    settingsTitle: 'Settings', settingsClose: 'Close', settingsBtnTitle: 'Settings',
+    integrationsTitle: 'Integrations', githubToken: 'GitHub Token', githubDesc: 'For file upload to repository',
+    weatherTitle: 'Weather', weatherApiKey: 'OpenWeatherMap API Key',
+    weatherDesc: 'For the weather widget in Dashboard', weatherImages: 'Weather background images',
+    generalTitle: 'General', saveBtn: 'Save', uploadBtn: '📁 Upload',
+    weatherNoApiKey: '⚙️ API key not set', weatherLoading: 'Loading weather…',
+    weatherError: 'Failed to load weather'
   }
+};
+
+const UI_PREFIX = {
+  settingsTitle: '⚙️ ',
+  integrationsTitle: '🔗 ',
+  weatherTitle: '🌤 ',
+  generalTitle: '⚙️ ',
 };
 
 const SITE_LANGS = ['de', 'en', 'fr', 'it', 'ru'];
@@ -220,7 +248,7 @@ function renderWeatherGrid() {
     <div class="weather-slot" data-weather="${slot.id}">
       <div class="weather-slot-label">${esc(slot.label)}</div>
       <div class="weather-slot-preview" id="weather-preview-${slot.id}">${weatherPreviewPlaceholder(slot)}</div>
-      <button type="button" class="upload-btn" onclick="uploadWeatherImage('${slot.id}')">📁 Загрузить</button>
+      <button type="button" class="upload-btn" onclick="uploadWeatherImage('${slot.id}')">${esc(u().uploadBtn)}</button>
     </div>`).join('');
   initWeatherPreviews();
 }
@@ -394,22 +422,30 @@ function setAdminLang(lang) {
   localStorage.setItem('korsmotion_admin_lang', lang);
   applyAdminLang();
   renderAll();
+  loadWeatherWidget();
+  if (document.getElementById('settingsModal')?.classList.contains('open')) {
+    renderWeatherGrid();
+  }
 }
 
 function applyAdminLang() {
   const t = u();
-  // Update static UI labels
   document.querySelectorAll('[data-ui]').forEach(el => {
     if (el.id === 'saveBtn') return;
     const key = el.getAttribute('data-ui');
-    if (t[key] !== undefined) el.textContent = t[key];
+    if (t[key] === undefined) return;
+    if (key === 'settingsClose') el.textContent = t[key] + ' ✕';
+    else el.textContent = (UI_PREFIX[key] || '') + t[key];
   });
   initSaveBtn();
   document.querySelectorAll('[data-ui-placeholder]').forEach(el => {
     const key = el.getAttribute('data-ui-placeholder');
     if (t[key] !== undefined) el.placeholder = t[key];
   });
-  // Active lang button
+  document.querySelectorAll('[data-ui-title]').forEach(el => {
+    const key = el.getAttribute('data-ui-title');
+    if (t[key] !== undefined) el.title = t[key];
+  });
   document.querySelectorAll('.admin-lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === adminLang);
   });
@@ -545,7 +581,7 @@ function build5DayForecast(forecastData) {
     seen.add(key);
     const w = item.weather[0];
     days.push({
-      day: d.toLocaleDateString('ru-RU', { weekday: 'short' }),
+      day: d.toLocaleDateString(adminLang === 'de' ? 'de-DE' : adminLang === 'en' ? 'en-GB' : 'ru-RU', { weekday: 'short' }),
       temp: Math.round(item.main.temp),
       emoji: weatherEmojiFromId(w.id, w.icon),
     });
@@ -562,19 +598,21 @@ async function loadWeatherWidget() {
   const widget = document.getElementById('weather-widget');
   if (!widget) return;
 
+  const t = u();
   const apiKey = getWeatherKey();
+  const owmLang = adminLang === 'ru' ? 'ru' : adminLang === 'de' ? 'de' : 'en';
   if (!apiKey) {
-    widget.innerHTML = '<div class="weather-widget-placeholder">⚙️ API ключ не указан</div>';
+    widget.innerHTML = `<div class="weather-widget-placeholder">${esc(t.weatherNoApiKey)}</div>`;
     return;
   }
 
-  widget.innerHTML = '<div class="weather-widget-placeholder">Загрузка погоды…</div>';
+  widget.innerHTML = `<div class="weather-widget-placeholder">${esc(t.weatherLoading)}</div>`;
 
   try {
     const q = encodeURIComponent(WEATHER_CITY);
     const [currentRes, forecastRes] = await Promise.all([
-      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${q}&appid=${apiKey}&units=metric&lang=ru`),
-      fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${q}&appid=${apiKey}&units=metric&lang=ru`),
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${q}&appid=${apiKey}&units=metric&lang=${owmLang}`),
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${q}&appid=${apiKey}&units=metric&lang=${owmLang}`),
     ]);
     if (!currentRes.ok) throw new Error('weather');
     const current = await currentRes.json();
@@ -605,7 +643,7 @@ async function loadWeatherWidget() {
         ${forecastHtml ? `<div class="weather-widget-forecast">${forecastHtml}</div>` : ''}
       </div>`;
   } catch (_) {
-    widget.innerHTML = '<div class="weather-widget-placeholder">Не удалось загрузить погоду</div>';
+    widget.innerHTML = `<div class="weather-widget-placeholder">${esc(u().weatherError)}</div>`;
   }
 }
 
