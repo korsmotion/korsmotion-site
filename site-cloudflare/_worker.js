@@ -83,17 +83,17 @@ export default {
           viewer {
             accounts(filter: {accountTag: "${ACCOUNT_ID}"}) {
               total: httpRequestsAdaptiveGroups(
-                filter: {date_geq: "${day30}", date_leq: "${today}"},
+                filter: {date_geq: "${day30}", date_leq: "${today}", botScore_gt: 30},
                 limit: 1
-              ) { sum { visits } }
+              ) { sum { pageViews } }
               week: httpRequestsAdaptiveGroups(
-                filter: {date_geq: "${day7}", date_leq: "${today}"},
+                filter: {date_geq: "${day7}", date_leq: "${today}", botScore_gt: 30},
                 limit: 1
-              ) { sum { visits } }
+              ) { sum { pageViews } }
               today: httpRequestsAdaptiveGroups(
-                filter: {date_geq: "${today}", date_leq: "${today}"},
+                filter: {date_geq: "${today}", date_leq: "${today}", botScore_gt: 30},
                 limit: 1
-              ) { sum { visits } }
+              ) { sum { pageViews } }
             }
           }
         }`;
