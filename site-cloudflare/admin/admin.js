@@ -264,9 +264,9 @@ async function renderDashboard() {
     const data = await resp.json();
     const acc = data?.data?.viewer?.accounts?.[0];
     if (acc) {
-      const todayViews = acc.todayViews?.[0]?.sum?.pageViews ?? '—';
-      const weekViews  = acc.week?.[0]?.sum?.pageViews ?? '—';
-      const monthViews = acc.total?.[0]?.sum?.pageViews ?? '—';
+      const todayViews = acc.today?.[0]?.sum?.visits ?? '—';
+      const weekViews  = acc.week?.[0]?.sum?.visits ?? '—';
+      const monthViews = acc.total?.[0]?.sum?.visits ?? '—';
       document.getElementById('dash-today').querySelector('.dash-val').textContent = todayViews;
       document.getElementById('dash-week').querySelector('.dash-val').textContent = weekViews;
       document.getElementById('dash-month').querySelector('.dash-val').textContent = monthViews;
