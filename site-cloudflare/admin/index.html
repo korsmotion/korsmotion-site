@@ -239,6 +239,14 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .premium-toggle-track.is-on{background:var(--accent)}
 .premium-toggle-knob{position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;left:3px;top:3px;transition:all .25s ease;box-shadow:0 2px 4px rgba(0,0,0,.2)}
 .premium-toggle-track.is-on .premium-toggle-knob{left:25px}
+.weather-images-block{margin-top:20px;padding-top:20px;border-top:2px solid var(--border)}
+.weather-images-title{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.weather-images-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.weather-slot{background:var(--bg-input);border:2px solid var(--border);border-radius:12px;padding:12px;text-align:center}
+.weather-slot-label{font-size:12px;font-weight:700;margin-bottom:8px}
+.weather-slot-preview{margin:0 auto 10px;width:120px;height:80px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff;border:2px solid var(--border)}
+.weather-slot-img{width:120px;height:80px;border-radius:8px;object-fit:cover;display:block}
+.weather-slot-placeholder{font-size:11px;color:var(--text-muted);line-height:1.4;padding:8px}
 
 @media(max-width:640px){
   .item-card-body{grid-template-columns:1fr}
@@ -356,6 +364,31 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
           <div class="settings-row-action">
             <button type="button" class="btn btn-primary btn-sm" id="saveGithubTokenBtn">Сохранить</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">🌤 Погода</div>
+      </div>
+      <div class="settings-section-body">
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <div class="settings-row-title">OpenWeatherMap API Key</div>
+            <div class="settings-row-desc">Для виджета погоды в Dashboard</div>
+          </div>
+          <div class="settings-row-input pw-wrap">
+            <input class="form-input" type="password" id="weatherKeyInput" placeholder="API key..." autocomplete="off">
+            <button type="button" class="pw-toggle" data-target="weatherKeyInput" aria-label="Показать">👁</button>
+          </div>
+          <div class="settings-row-action">
+            <button type="button" class="btn btn-primary btn-sm" id="saveWeatherKeyBtn">Сохранить</button>
+          </div>
+        </div>
+        <div class="weather-images-block">
+          <div class="weather-images-title">Фоновые картинки погоды</div>
+          <div class="weather-images-grid" id="weatherImagesGrid"></div>
         </div>
       </div>
     </div>

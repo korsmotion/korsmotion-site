@@ -1,6 +1,19 @@
 const ADMIN_PASSWORD = 'korsmotion2026';
 const SESSION_KEY = 'korsmotion_admin_session';
 const GITHUB_TOKEN_KEY = 'korsmotion_github_token';
+const WEATHER_KEY = 'korsmotion_weather_key';
+const WEATHER_IMAGE_ACCEPT = 'image/*,.gif';
+const WEATHER_SLOTS = [
+  { id: 'sunny', label: 'Sunny', emoji: '☀️' },
+  { id: 'night', label: 'Night', emoji: '🌙' },
+  { id: 'cloudy', label: 'Cloudy', emoji: '☁️' },
+  { id: 'rain', label: 'Rain', emoji: '🌧️' },
+  { id: 'snow', label: 'Snow', emoji: '❄️' },
+  { id: 'thunderstorm', label: 'Thunderstorm', emoji: '⛈️' },
+  { id: 'fog', label: 'Fog', emoji: '🌫️' },
+  { id: 'sun_up', label: 'Sun_up_Рассвет', emoji: '🌅' },
+  { id: 'sunset', label: 'Закат', emoji: '🌇' },
+];
 const GITHUB_REPO = 'korsmotion/korsmotion-site';
 const GITHUB_BRANCH = 'main';
 const API_DATA = '/api/data';
@@ -104,15 +117,25 @@ function adminAssetUrl(path) {
 function getGithubToken() {
   return localStorage.getItem(GITHUB_TOKEN_KEY) || '';
 }
-function maskGithubToken(token) {
+function maskSecretKey(token) {
   return token ? token.slice(0, 8) + '...' : '';
 }
-function initGithubTokenField() {
-  const input = document.getElementById('githubTokenInput');
+function maskGithubToken(token) { return maskSecretKey(token); }
+function getWeatherKey() {
+  return localStorage.getItem(WEATHER_KEY) || '';
+}
+function initWeatherKeyField() {
+  initMaskedSecretField('weatherKeyInput', WEATHER_KEY);
+}
+function saveWeatherKey() {
+  saveMaskedSecretField('weatherKeyInput', WEATHER_KEY, 'API ключ сохранён ✓');
+}
+function initMaskedSecretField(inputId, storageKey) {
+  const input = document.getElementById(inputId);
   if (!input) return;
-  const token = getGithubToken();
-  if (token) {
-    input.value = maskGithubToken(token);
+  const val = localStorage.getItem(storageKey) || '';
+  if (val) {
+    input.value = maskSecretKey(val);
     input.dataset.masked = '1';
   } else {
     input.value = '';
@@ -120,22 +143,91 @@ function initGithubTokenField() {
   }
   delete input.dataset.focusValue;
 }
-function saveGithubToken() {
-  const input = document.getElementById('githubTokenInput');
+function saveMaskedSecretField(inputId, storageKey, successMsg) {
+  const input = document.getElementById(inputId);
   if (!input) return;
   const val = input.value.trim();
   if (!val || (val.endsWith('...') && val.length <= 12)) {
-    showToast('Введите полный токен', 'error');
+    showToast('Введите полный ключ', 'error');
     return;
   }
-  localStorage.setItem(GITHUB_TOKEN_KEY, val);
-  input.value = maskGithubToken(val);
+  localStorage.setItem(storageKey, val);
+  input.value = maskSecretKey(val);
   input.dataset.masked = '1';
   delete input.dataset.focusValue;
-  showToast('Токен сохранён ✓', 'success');
+  showToast(successMsg, 'success');
+}
+function bindMaskedSecretField(inputId, getValue, storageKey) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.addEventListener('focus', () => {
+    if (input.dataset.masked === '1') {
+      const stored = getValue();
+      if (stored) {
+        input.value = stored;
+        input.dataset.masked = '0';
+        input.dataset.focusValue = stored;
+      }
+    } else {
+      input.dataset.focusValue = input.value;
+    }
+  });
+  input.addEventListener('blur', () => {
+    const stored = getValue();
+    const current = input.value.trim();
+    const focusValue = input.dataset.focusValue || '';
+    if (focusValue && current === focusValue && stored) {
+      input.value = maskSecretKey(stored);
+      input.dataset.masked = '1';
+    }
+    delete input.dataset.focusValue;
+  });
+}
+function initGithubTokenField() {
+  initMaskedSecretField('githubTokenInput', GITHUB_TOKEN_KEY);
+}
+function saveGithubToken() {
+  saveMaskedSecretField('githubTokenInput', GITHUB_TOKEN_KEY, 'Токен сохранён ✓');
+}
+function weatherPreviewPlaceholder(slot) {
+  return `<div class="weather-slot-placeholder">${slot.emoji}<br>${esc(slot.label)}</div>`;
+}
+function weatherPreviewImg(url, weatherId, label) {
+  return `<img class="weather-slot-img" src="${esc(url)}" alt="${esc(label)}" data-weather-id="${esc(weatherId)}" onerror="showWeatherPlaceholder(this)">`;
+}
+window.showWeatherPlaceholder = function(img) {
+  const slot = WEATHER_SLOTS.find(s => s.id === img.dataset.weatherId);
+  if (slot) img.outerHTML = weatherPreviewPlaceholder(slot);
+};
+function updateWeatherPreview(weatherId, url) {
+  const el = document.getElementById('weather-preview-' + weatherId);
+  const slot = WEATHER_SLOTS.find(s => s.id === weatherId);
+  if (!el || !slot) return;
+  el.innerHTML = url ? weatherPreviewImg(url, weatherId, slot.label) : weatherPreviewPlaceholder(slot);
+}
+function initWeatherPreviews() {
+  WEATHER_SLOTS.forEach(slot => {
+    const el = document.getElementById('weather-preview-' + slot.id);
+    if (!el) return;
+    const localUrl = adminAssetUrl('images/weather/' + slot.id + '.png');
+    el.innerHTML = weatherPreviewImg(localUrl, slot.id, slot.label);
+  });
+}
+function renderWeatherGrid() {
+  const grid = document.getElementById('weatherImagesGrid');
+  if (!grid) return;
+  grid.innerHTML = WEATHER_SLOTS.map(slot => `
+    <div class="weather-slot" data-weather="${slot.id}">
+      <div class="weather-slot-label">${esc(slot.label)}</div>
+      <div class="weather-slot-preview" id="weather-preview-${slot.id}">${weatherPreviewPlaceholder(slot)}</div>
+      <button type="button" class="upload-btn" onclick="uploadWeatherImage('${slot.id}')">📁 Загрузить</button>
+    </div>`).join('');
+  initWeatherPreviews();
 }
 function openSettingsModal() {
   initGithubTokenField();
+  initWeatherKeyField();
+  initWeatherPreviews();
   const overlay = document.getElementById('settingsModal');
   if (overlay) {
     overlay.classList.add('open');
@@ -167,10 +259,10 @@ const MEDIA_FILE_ACCEPT = 'image/*,video/mp4,.gif';
 function isVideoMp4(file) {
   return file.type === 'video/mp4' || /\.mp4$/i.test(file.name);
 }
-function pickMediaFile(onSelect) {
+function pickMediaFile(onSelect, accept) {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = MEDIA_FILE_ACCEPT;
+  input.accept = accept || MEDIA_FILE_ACCEPT;
   input.style.display = 'none';
   input.onchange = () => {
     const file = input.files && input.files[0];
@@ -944,6 +1036,16 @@ window.uploadAppIcon = function(appIndex) {
   });
 };
 
+window.uploadWeatherImage = function(weatherId) {
+  pickMediaFile(async (file) => {
+    try {
+      const path = `site-cloudflare/images/weather/${weatherId}.png`;
+      const url = await uploadImageToGitHub(file, path);
+      updateWeatherPreview(weatherId, url);
+    } catch (_) {}
+  }, WEATHER_IMAGE_ACCEPT);
+};
+
 window.uploadAppScreen = function(appIndex, screenIndex) {
   const app = settingsData.apps[appIndex];
   const folder = sanitizeAppFolder(app && app.title);
@@ -1009,41 +1111,21 @@ function initPasswordToggles() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+renderWeatherGrid();
 initPremiumToggles();
 initPasswordToggles();
+bindMaskedSecretField('githubTokenInput', getGithubToken, GITHUB_TOKEN_KEY);
+bindMaskedSecretField('weatherKeyInput', getWeatherKey, WEATHER_KEY);
 
 // Admin lang switcher buttons
 document.querySelectorAll('.admin-lang-btn').forEach(btn => {
   btn.addEventListener('click', () => setAdminLang(btn.dataset.lang));
 });
 
-const githubTokenInput = document.getElementById('githubTokenInput');
-if (githubTokenInput) {
-  githubTokenInput.addEventListener('focus', () => {
-    if (githubTokenInput.dataset.masked === '1') {
-      const token = getGithubToken();
-      if (token) {
-        githubTokenInput.value = token;
-        githubTokenInput.dataset.masked = '0';
-        githubTokenInput.dataset.focusValue = token;
-      }
-    } else {
-      githubTokenInput.dataset.focusValue = githubTokenInput.value;
-    }
-  });
-  githubTokenInput.addEventListener('blur', () => {
-    const stored = getGithubToken();
-    const current = githubTokenInput.value.trim();
-    const focusValue = githubTokenInput.dataset.focusValue || '';
-    if (focusValue && current === focusValue && stored) {
-      githubTokenInput.value = maskGithubToken(stored);
-      githubTokenInput.dataset.masked = '1';
-    }
-    delete githubTokenInput.dataset.focusValue;
-  });
-}
 const saveGithubTokenBtn = document.getElementById('saveGithubTokenBtn');
 if (saveGithubTokenBtn) saveGithubTokenBtn.addEventListener('click', saveGithubToken);
+const saveWeatherKeyBtn = document.getElementById('saveWeatherKeyBtn');
+if (saveWeatherKeyBtn) saveWeatherKeyBtn.addEventListener('click', saveWeatherKey);
 const openSettingsModalBtn = document.getElementById('openSettingsModal');
 if (openSettingsModalBtn) openSettingsModalBtn.addEventListener('click', openSettingsModal);
 const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
