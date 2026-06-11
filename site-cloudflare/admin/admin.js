@@ -20,7 +20,10 @@ const UI = {
     langLabel: 'Контент на языках', noImage: 'Нет картинки',
     deleteConfirm: 'Удалить этот проект?', deleteAppConfirm: 'Удалить это приложение?',
     password: 'Пароль', signIn: 'Войти', wrongPassword: 'Неверный пароль',
-    catLabel: 'Категория контента'
+    catLabel: 'Категория контента',
+    dashboardTitle: 'Дашборд', dashProjects: 'Проектов', dashApps: 'Приложений',
+    dashLastSaved: 'Последнее сохранение', dashViewsToday: 'Просмотров сегодня',
+    dashWeek: 'За 7 дней', dashMonth: 'За 30 дней'
   },
   de: {
     adminTitle: 'Admin-Panel', viewSite: 'Website ansehen', logout: 'Abmelden',
@@ -37,7 +40,10 @@ const UI = {
     langLabel: 'Inhalte in Sprachen', noImage: 'Kein Bild',
     deleteConfirm: 'Dieses Projekt löschen?', deleteAppConfirm: 'Diese App löschen?',
     password: 'Passwort', signIn: 'Anmelden', wrongPassword: 'Falsches Passwort',
-    catLabel: 'Inhaltskategorie'
+    catLabel: 'Inhaltskategorie',
+    dashboardTitle: 'Dashboard', dashProjects: 'Projekte', dashApps: 'Apps',
+    dashLastSaved: 'Letzte Speicherung', dashViewsToday: 'Aufrufe heute',
+    dashWeek: '7 Tage', dashMonth: '30 Tage'
   },
   en: {
     adminTitle: 'Admin Panel', viewSite: 'View site', logout: 'Logout',
@@ -54,7 +60,10 @@ const UI = {
     langLabel: 'Content by language', noImage: 'No image',
     deleteConfirm: 'Delete this project?', deleteAppConfirm: 'Delete this app?',
     password: 'Password', signIn: 'Sign in', wrongPassword: 'Incorrect password',
-    catLabel: 'Content category'
+    catLabel: 'Content category',
+    dashboardTitle: 'Dashboard', dashProjects: 'Projects', dashApps: 'Apps',
+    dashLastSaved: 'Last saved', dashViewsToday: 'Views today',
+    dashWeek: '7 days', dashMonth: '30 days'
   }
 };
 
@@ -290,42 +299,44 @@ async function renderDashboard() {
   const el = document.getElementById('dashboardSection');
   if (!el) return;
 
+  const t = u();
   const projects = (projectsData.projects || []).length;
   const apps = (settingsData.apps || []).length;
   const lastSaved = localStorage.getItem('korsmotion_last_saved') || '—';
 
   // Render skeleton first
   el.innerHTML = `
+    <h2 class="section-title" style="margin-bottom:14px">${t.dashboardTitle}</h2>
     <div class="dash-grid">
       <div class="dash-card">
         <div class="dash-icon">📁</div>
         <div class="dash-val">${projects}</div>
-        <div class="dash-label">Проектов</div>
+        <div class="dash-label">${t.dashProjects}</div>
       </div>
       <div class="dash-card">
         <div class="dash-icon">📱</div>
         <div class="dash-val">${apps}</div>
-        <div class="dash-label">Приложений</div>
+        <div class="dash-label">${t.dashApps}</div>
       </div>
       <div class="dash-card">
         <div class="dash-icon">💾</div>
         <div class="dash-val dash-val-sm">${lastSaved}</div>
-        <div class="dash-label">Последнее сохранение</div>
+        <div class="dash-label">${t.dashLastSaved}</div>
       </div>
       <div class="dash-card" id="dash-today">
         <div class="dash-icon">👁</div>
         <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">Просмотров сегодня</div>
+        <div class="dash-label">${t.dashViewsToday}</div>
       </div>
       <div class="dash-card" id="dash-week">
         <div class="dash-icon">📈</div>
         <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">За 7 дней</div>
+        <div class="dash-label">${t.dashWeek}</div>
       </div>
       <div class="dash-card" id="dash-month">
         <div class="dash-icon">🗓</div>
         <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">За 30 дней</div>
+        <div class="dash-label">${t.dashMonth}</div>
       </div>
     </div>`;
 
