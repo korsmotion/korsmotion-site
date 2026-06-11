@@ -678,6 +678,14 @@ const translations = {
 };
 
 const codes = { ru:'RU', de:'DE', en:'EN', it:'IT', fr:'FR' };
+const FLAG_COLORS = { ru:'#CC0000', de:'#000000', en:'#012169', it:'#009246', fr:'#002395', es:'#AA151B' };
+
+function setCurrentFlag(lang) {
+  const flagEl = document.getElementById('currentFlag');
+  if (!flagEl) return;
+  flagEl.className = 'flag-dot';
+  flagEl.style.background = FLAG_COLORS[lang] || FLAG_COLORS.de;
+}
 let currentLanguage = 'ru';
 
 let allProjects = [];
@@ -710,8 +718,7 @@ function applyLang(lang) {
     if (t[key]) el.placeholder = t[key];
   });
   document.getElementById('currentLang').textContent = codes[lang];
-  const flagEl = document.getElementById('currentFlag');
-  flagEl.className = 'lang-flag flag-' + lang;
+  setCurrentFlag(lang);
   document.querySelectorAll('.lang-option').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
   });

@@ -112,9 +112,14 @@ const UI_PREFIX = {
 };
 
 const SITE_LANGS = ['de', 'en', 'fr', 'it', 'ru'];
-const SITE_LANG_LABELS = { de: '🇩🇪 DE', en: '🇬🇧 EN', fr: '🇫🇷 FR', it: '🇮🇹 IT', ru: '🇷🇺 RU' };
+const FLAG_COLORS = { ru: '#CC0000', de: '#000000', en: '#012169', it: '#009246', fr: '#002395', es: '#AA151B' };
+const SITE_LANG_LABELS = Object.fromEntries(
+  SITE_LANGS.map(lang => [lang, `<span class="flag-dot" style="background:${FLAG_COLORS[lang]}"></span> ${lang.toUpperCase()}`])
+);
 const ADMIN_LANGS = ['ru', 'de', 'en'];
-const ADMIN_LANG_LABELS = { ru: 'RU', de: 'DE', en: 'EN' };
+const ADMIN_LANG_LABELS = Object.fromEntries(
+  ADMIN_LANGS.map(lang => [lang, `<span class="flag-dot" style="background:${FLAG_COLORS[lang]}"></span> ${lang.toUpperCase()}`])
+);
 
 const CATEGORIES = [
   { id: 'motion', label: { ru: 'Моушн-дизайн', de: 'Motion Design', en: 'Motion Design' }, icon: '🎬' },
