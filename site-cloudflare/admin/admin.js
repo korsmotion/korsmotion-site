@@ -14,7 +14,7 @@ const UI = {
     loadedServer: 'Загружено с сервера ✓', loadedFiles: 'Загружено из файлов (KV недоступен)',
     saveError: 'Ошибка сохранения', noProjects: 'Нет проектов. Нажми + Добавить.',
     noApps: 'Нет приложений. Нажми + Добавить.',
-    fieldTitle: 'Название', fieldThumb: 'Ссылка на картинку', fieldVideo: 'Видео',
+    fieldTitle: 'Название', fieldThumb: 'Ссылка на картинку', fieldVideo: 'Ссылка на видео (YouTube)',
     fieldPlatform: 'Платформа', fieldLink: 'Ссылка', fieldDesc: 'Описание',
     fieldClient: 'Клиент', fieldYear: 'Год', fieldDuration: 'Длительность',
     langLabel: 'Контент на языках', noImage: 'Нет картинки',
@@ -31,7 +31,7 @@ const UI = {
     loadedServer: 'Vom Server geladen ✓', loadedFiles: 'Aus Dateien geladen (KV nicht verfügbar)',
     saveError: 'Fehler beim Speichern', noProjects: 'Keine Projekte. + Hinzufügen klicken.',
     noApps: 'Keine Apps. + Hinzufügen klicken.',
-    fieldTitle: 'Titel', fieldThumb: 'Bild-URL', fieldVideo: 'Video',
+    fieldTitle: 'Titel', fieldThumb: 'Bild-URL', fieldVideo: 'Video-URL (YouTube)',
     fieldPlatform: 'Plattform', fieldLink: 'Link', fieldDesc: 'Beschreibung',
     fieldClient: 'Kunde', fieldYear: 'Jahr', fieldDuration: 'Dauer',
     langLabel: 'Inhalte in Sprachen', noImage: 'Kein Bild',
@@ -48,7 +48,7 @@ const UI = {
     loadedServer: 'Loaded from server ✓', loadedFiles: 'Loaded from files (KV not available)',
     saveError: 'Save error', noProjects: 'No projects yet. Click + Add.',
     noApps: 'No apps yet. Click + Add.',
-    fieldTitle: 'Title', fieldThumb: 'Thumbnail URL', fieldVideo: 'Video',
+    fieldTitle: 'Title', fieldThumb: 'Thumbnail URL', fieldVideo: 'Video URL (YouTube)',
     fieldPlatform: 'Platform', fieldLink: 'Link', fieldDesc: 'Description',
     fieldClient: 'Client', fieldYear: 'Year', fieldDuration: 'Duration',
     langLabel: 'Content by language', noImage: 'No image',
@@ -75,7 +75,6 @@ let projectsData = { projects: [] };
 let settingsData = { show_dev_section: false, apps: [] };
 const expandedCats = new Set(CATEGORIES.map(c => c.id));
 let activeLangTab = {}; // per project id
-let activeAppLangTab = {}; // per app index
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function u() { return adminLang ? UI[adminLang] || UI.en : UI.en; }
@@ -187,6 +186,10 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
     setStatus(u().saved, 'success');
     showToast(u().saved, 'success');
+    const now = new Date();
+    localStorage.setItem('korsmotion_last_saved',
+      now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}));
+    renderDashboard();
   } catch (err) {
     setStatus(u().saveError + ': ' + err.message, 'error');
     showToast(u().saveError, 'error');
@@ -198,8 +201,79 @@ document.getElementById('showDevSection').addEventListener('change', e => {
 });
 
 function renderAll() {
+  renderDashboard();
   renderProjects();
   renderApps();
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+async function renderDashboard() {
+  const el = document.getElementById('dashboardSection');
+  if (!el) return;
+
+  const projects = (projectsData.projects || []).length;
+  const apps = (settingsData.apps || []).length;
+  const lastSaved = localStorage.getItem('korsmotion_last_saved') || '—';
+
+  // Render skeleton first
+  el.innerHTML = `
+    <div class="dash-grid">
+      <div class="dash-card">
+        <div class="dash-icon">📁</div>
+        <div class="dash-val">${projects}</div>
+        <div class="dash-label">Проектов</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">📱</div>
+        <div class="dash-val">${apps}</div>
+        <div class="dash-label">Приложений</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">💾</div>
+        <div class="dash-val dash-val-sm">${lastSaved}</div>
+        <div class="dash-label">Последнее сохранение</div>
+      </div>
+      <div class="dash-card" id="dash-today">
+        <div class="dash-icon">👁</div>
+        <div class="dash-val dash-loading">…</div>
+        <div class="dash-label">Просмотров сегодня</div>
+      </div>
+      <div class="dash-card" id="dash-week">
+        <div class="dash-icon">📈</div>
+        <div class="dash-val dash-loading">…</div>
+        <div class="dash-label">За 7 дней</div>
+      </div>
+      <div class="dash-card" id="dash-month">
+        <div class="dash-icon">🗓</div>
+        <div class="dash-val dash-loading">…</div>
+        <div class="dash-label">За 30 дней</div>
+      </div>
+    </div>`;
+
+  // Load analytics async
+  try {
+    const resp = await fetch('/api/analytics', {
+      headers: { 'X-Admin-Password': ADMIN_PASSWORD }
+    });
+    const data = await resp.json();
+    const acc = data?.data?.viewer?.accounts?.[0];
+    if (acc) {
+      const todayViews = acc.todayViews?.[0]?.sum?.pageViews ?? '—';
+      const weekViews  = acc.week?.[0]?.sum?.pageViews ?? '—';
+      const monthViews = acc.total?.[0]?.sum?.pageViews ?? '—';
+      document.getElementById('dash-today').querySelector('.dash-val').textContent = todayViews;
+      document.getElementById('dash-week').querySelector('.dash-val').textContent = weekViews;
+      document.getElementById('dash-month').querySelector('.dash-val').textContent = monthViews;
+      document.getElementById('dash-today').querySelector('.dash-val').classList.remove('dash-loading');
+      document.getElementById('dash-week').querySelector('.dash-val').classList.remove('dash-loading');
+      document.getElementById('dash-month').querySelector('.dash-val').classList.remove('dash-loading');
+    }
+  } catch(e) {
+    ['dash-today','dash-week','dash-month'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.querySelector('.dash-val').textContent = '—';
+    });
+  }
 }
 
 // ── Portfolio ─────────────────────────────────────────────────────────────────
@@ -275,98 +349,9 @@ function renderProjects() {
   });
 }
 
-// ── Video source helpers ──────────────────────────────────────────────────────
-const VIDEO_TYPES = ['youtube', 'stream', 'mp4'];
-const VIDEO_TYPE_LABELS = { youtube: '▶ YouTube', stream: '☁ CF Stream', mp4: '🎞 MP4' };
-const VIDEO_TYPE_PH = {
-  youtube: 'https://youtube.com/watch?v=...',
-  stream:  'https://customer-xxx.cloudflarestream.com/VIDEO_ID/iframe',
-  mp4:     'https://example.com/video.mp4'
-};
-
-function getVideoType(p) {
-  return p.videoType || 'youtube';
-}
-
-function renderVideoPreviewBlock(p) {
-  const vtype = getVideoType(p);
-  const url = p.videoUrl || '';
-  if (!url) return '';
-
-  if (vtype === 'youtube') {
-    const ytId = getYouTubeIdAdmin(url);
-    if (!ytId) return '';
-    return `
-      <div class="video-thumb-wrap" id="vthumb-${p.id}">
-        <img class="video-thumb-img" src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="">
-        <button class="video-play-btn" onclick="toggleVideoPreview('${p.id}','${esc(url)}','youtube')">▶ Play</button>
-      </div>`;
-  }
-  if (vtype === 'stream') {
-    // CF Stream iframe URL — show thumbnail via oEmbed or just show play button
-    return `
-      <div class="video-thumb-wrap" id="vthumb-${p.id}" style="background:#0f3460;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
-        <div style="color:#fff;font-size:13px;font-weight:600;opacity:.7">Cloudflare Stream</div>
-        <button class="video-play-btn" onclick="toggleVideoPreview('${p.id}','${esc(url)}','stream')">▶ Play</button>
-      </div>`;
-  }
-  if (vtype === 'mp4') {
-    return `
-      <div class="video-thumb-wrap" id="vthumb-${p.id}" style="background:#1a1530;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
-        <div style="color:#fff;font-size:13px;font-weight:600;opacity:.7">MP4 Video</div>
-        <button class="video-play-btn" onclick="toggleVideoPreview('${p.id}','${esc(url)}','mp4')">▶ Play</button>
-      </div>`;
-  }
-  return '';
-}
-
-function renderCardTypePreview(p) {
-  const isFullVideo = p.cardType === 'full';
-  const ytId = getYouTubeIdAdmin(p.videoUrl || '');
-  const thumbUrl = ytId
-    ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`
-    : '';
-  const mediaBg = thumbUrl
-    ? `background:url('${thumbUrl}') center/cover no-repeat;`
-    : 'background:linear-gradient(135deg,#1a1a2e,#0f3460);';
-
-  const titleVal = (p.titles && (p.titles['de'] || p.titles['en'] || p.titles['ru'])) || p.title || 'Название';
-  const descVal = (p.descriptions && (p.descriptions['de'] || p.descriptions['en'] || p.descriptions['ru'])) || '';
-
-  if (isFullVideo) {
-    return `
-      <div class="card-preview">
-        <div class="cp-label">Предпросмотр — только видео:</div>
-        <div class="cp-full-wrap">
-          <div class="cp-media-full" style="${mediaBg}">
-            <div class="cp-play-icon">▶</div>
-            <div class="cp-dots-row"><span class="cp-dot cp-dot-active"></span><span class="cp-dot"></span></div>
-          </div>
-        </div>
-      </div>`;
-  }
-  return `
-    <div class="card-preview">
-      <div class="cp-label">Предпросмотр — видео + текст:</div>
-      <div class="cp-split-wrap">
-        <div class="cp-media-left" style="${mediaBg}">
-          <div class="cp-play-icon">▶</div>
-          <div class="cp-dots-row"><span class="cp-dot cp-dot-active"></span><span class="cp-dot"></span></div>
-        </div>
-        <div class="cp-text-right">
-          <div class="cp-text-cat">MOTION DESIGN</div>
-          <div class="cp-text-title">${esc(titleVal)}</div>
-          ${descVal ? `<div class="cp-text-desc">${esc(descVal.slice(0,60))}${descVal.length>60?'…':''}</div>` : ''}
-          <div class="cp-text-btn">Details ansehen →</div>
-        </div>
-      </div>
-    </div>`;
-}
-
 function renderProjectCard(p) {
   const t = u();
   const activeLang = activeLangTab[p.id] || 'en';
-  const vtype = getVideoType(p);
   const thumb = p.thumbnail
     ? `<img class="thumb-preview" id="thumb-${p.id}" src="${esc(p.thumbnail)}" alt="" onerror="this.style.display='none'">`
     : `<div class="thumb-placeholder" id="thumb-${p.id}">${t.noImage}</div>`;
@@ -378,16 +363,6 @@ function renderProjectCard(p) {
 
   const titleVal = (p.titles && p.titles[activeLang]) || '';
   const descVal = (p.descriptions && p.descriptions[activeLang]) || '';
-
-  // Video source tabs
-  const videoSourceTabs = VIDEO_TYPES.map(vt => `
-    <button class="vsrc-tab ${vtype === vt ? 'active' : ''}"
-      onclick="setVideoType('${p.id}','${vt}')">${VIDEO_TYPE_LABELS[vt]}</button>
-  `).join('');
-
-  const videoPh = VIDEO_TYPE_PH[vtype] || '';
-  const videoPreview = renderVideoPreviewBlock(p);
-  const cardTypePreview = renderCardTypePreview(p);
 
   return `
     <div class="item-card ${p.visible ? '' : 'hidden-item'}" data-id="${p.id}">
@@ -410,15 +385,16 @@ function renderProjectCard(p) {
               <label class="form-label">${t.fieldThumb}</label>
               <input class="form-input proj-field" data-id="${p.id}" data-field="thumbnail" value="${esc(p.thumbnail)}" placeholder="https://...">
             </div>
-
             <div class="form-group full">
               <label class="form-label">${t.fieldVideo}</label>
-              <div class="vsrc-tabs">${videoSourceTabs}</div>
-              <input class="form-input proj-field" data-id="${p.id}" data-field="videoUrl"
-                value="${esc(p.videoUrl)}" placeholder="${videoPh}" style="margin-top:6px">
-              ${videoPreview}
+              <input class="form-input proj-field" data-id="${p.id}" data-field="videoUrl" value="${esc(p.videoUrl)}" placeholder="https://youtube.com/watch?v=...">
+              ${p.videoUrl && getYouTubeIdAdmin(p.videoUrl) ? `
+                <div class="video-thumb-wrap" id="vthumb-${p.id}">
+                  <img class="video-thumb-img" src="https://img.youtube.com/vi/${getYouTubeIdAdmin(p.videoUrl)}/mqdefault.jpg" alt="">
+                  <button class="video-play-btn" onclick="toggleVideoPreview('${p.id}','${esc(p.videoUrl)}')">▶ Play</button>
+                </div>
+              ` : ''}
             </div>
-
             <div class="form-group">
               <label class="form-label">${t.fieldClient}</label>
               <input class="form-input proj-field" data-id="${p.id}" data-field="client" value="${esc(p.client)}">
@@ -439,7 +415,6 @@ function renderProjectCard(p) {
                   🎬 Только видео
                 </button>
               </div>
-              ${cardTypePreview}
             </div>
           </div>
 
@@ -492,28 +467,12 @@ window.addProject = function(catId) {
   renderProjects();
 };
 
-window.setAppLangTab = function(idx, lang) {
-  activeAppLangTab[idx] = lang;
-  renderApps();
-};
-
 window.setProjectLangTab = function(id, lang) {
   activeLangTab[id] = lang;
   renderProjects();
 };
 
 // ── Dev Apps ──────────────────────────────────────────────────────────────────
-function renderAppScreensAdmin(a, i) {
-  const screens = (a.screens || ['','','','','']).concat(['','','','','']).slice(0,5);
-  const labels = ['Скриншот 1','Скриншот 2','Скриншот 3','Скриншот 4','Скриншот 5'];
-  return screens.map((s, si) => `
-    <div class="form-group">
-      <label class="form-label">${labels[si]}</label>
-      <input class="form-input app-field" data-index="${i}" data-field="screens" data-screen="${si}"
-        value="${esc(s)}" placeholder="images/apps/appname/screen${si+1}.png">
-    </div>`).join('');
-}
-
 function renderApps() {
   const t = u();
   const items = settingsData.apps || [];
@@ -525,13 +484,7 @@ function renderApps() {
     return;
   }
 
-  container.innerHTML = items.map((a, i) => {
-    const iconUrl = a.icon || '';
-    const iconHtml = iconUrl
-      ? `<img id="app-icon-${i}" src="${esc(iconUrl)}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)" onerror="this.outerHTML='<div id=app-icon-${i} style=width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px>📱</div>'">`
-      : `<div id="app-icon-${i}" style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
-
-    return `
+  container.innerHTML = items.map((a, i) => `
     <div class="item-card ${a.visible ? '' : 'hidden-item'}">
       <div class="item-card-head">
         <span class="item-card-title">${esc(a.title || 'Untitled')}</span>
@@ -540,113 +493,33 @@ function renderApps() {
           <button class="btn btn-danger btn-sm app-del-btn" data-index="${i}">${t.delete}</button>
         </div>
       </div>
-
-      <div style="display:flex;gap:16px;margin-top:14px;align-items:flex-start">
-        <div>${iconHtml}</div>
-        <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="form-group">
-            <label class="form-label">Название</label>
-            <input class="form-input app-field" data-index="${i}" data-field="title" value="${esc(a.title)}">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Платформа</label>
-            <input class="form-input app-field" data-index="${i}" data-field="platform" value="${esc(a.platform)}" placeholder="Android TV">
-          </div>
-          <div class="form-group" style="grid-column:1/-1">
-            <label class="form-label">Иконка (путь)</label>
-            <input class="form-input app-field" data-index="${i}" data-field="icon" value="${esc(a.icon||'')}" placeholder="images/apps/appname/icon.png">
-          </div>
+      <div class="item-fields" style="margin-top:14px">
+        <div class="form-group">
+          <label class="form-label">${t.fieldTitle}</label>
+          <input class="form-input app-field" data-index="${i}" data-field="title" value="${esc(a.title)}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">${t.fieldPlatform}</label>
+          <input class="form-input app-field" data-index="${i}" data-field="platform" value="${esc(a.platform)}" placeholder="Android TV">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">${t.fieldDesc}</label>
+          <textarea class="form-textarea app-field" data-index="${i}" data-field="description">${esc(a.description)}</textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">${t.fieldLink}</label>
+          <input class="form-input app-field" data-index="${i}" data-field="link" value="${esc(a.link)}" placeholder="https://...">
         </div>
       </div>
+    </div>`).join('');
 
-      <!-- Описание на языках -->
-      <div class="lang-section" style="margin-top:12px">
-        <div class="lang-section-label">Описание на языках:</div>
-        <div class="lang-tabs">
-          ${SITE_LANGS.map(lang => `
-            <button class="lang-tab ${(activeAppLangTab[i] || 'en') === lang ? 'active' : ''}"
-              onclick="setAppLangTab(${i},'${lang}')">${SITE_LANG_LABELS[lang]}</button>
-          `).join('')}
-        </div>
-        <div class="lang-fields">
-          <div class="form-group">
-            <textarea class="form-textarea app-field" data-index="${i}" data-field="descriptions" data-lang="${activeAppLangTab[i] || 'en'}"
-              placeholder="Описание приложения...">${esc((a.descriptions && a.descriptions[activeAppLangTab[i] || 'en']) || '')}</textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- Скриншоты -->
-      <div style="margin-top:12px;padding:12px;background:var(--bg-input);border-radius:10px;border:2px solid var(--border)">
-        <div class="form-label" style="margin-bottom:10px">🖼 Скриншоты (images/apps/appname/)</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          ${renderAppScreensAdmin(a, i)}
-        </div>
-      </div>
-
-      <!-- Кнопки магазинов -->
-      <div style="margin-top:12px;padding:12px;background:var(--bg-input);border-radius:10px;border:2px solid var(--border)">
-        <div class="form-label" style="margin-bottom:10px">🏪 Магазины</div>
-        <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center">
-
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap">
-            <input type="checkbox" class="app-check" data-index="${i}" data-field="showGooglePlay" ${a.showGooglePlay ? 'checked' : ''}>
-            Google Play
-          </label>
-          <input class="form-input app-field" data-index="${i}" data-field="googlePlayUrl"
-            value="${esc(a.googlePlayUrl||'')}" placeholder="https://play.google.com/store/apps/details?id=...">
-
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap">
-            <input type="checkbox" class="app-check" data-index="${i}" data-field="showAppStore" ${a.showAppStore ? 'checked' : ''}>
-            App Store
-          </label>
-          <input class="form-input app-field" data-index="${i}" data-field="appStoreUrl"
-            value="${esc(a.appStoreUrl||'')}" placeholder="https://apps.apple.com/app/...">
-
-        </div>
-      </div>
-
-    </div>`;
-  }).join('');
-
-  // Bind inputs
   container.querySelectorAll('.app-field').forEach(el => {
     el.addEventListener('input', e => {
-      const idx = +e.target.dataset.index;
-      const field = e.target.dataset.field;
-      const screenIdx = e.target.dataset.screen;
-      const lang = e.target.dataset.lang;
-      if (screenIdx !== undefined) {
-        if (!settingsData.apps[idx].screens) settingsData.apps[idx].screens = ['','','','',''];
-        settingsData.apps[idx].screens[+screenIdx] = e.target.value;
-      } else if (lang) {
-        if (!settingsData.apps[idx].descriptions) settingsData.apps[idx].descriptions = {};
-        settingsData.apps[idx].descriptions[lang] = e.target.value;
-      } else {
-        settingsData.apps[idx][field] = e.target.value;
-        if (field === 'title') e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
-        if (field === 'icon') {
-          const iconEl = document.getElementById('app-icon-' + idx);
-          if (iconEl) {
-            if (e.target.value) {
-              iconEl.outerHTML = `<img id="app-icon-${idx}" src="${esc(e.target.value)}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)" onerror="this.style.display='none'">`;
-            } else {
-              iconEl.outerHTML = `<div id="app-icon-${idx}" style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
-            }
-          }
-        }
-      }
+      const idx = +e.target.dataset.index, field = e.target.dataset.field;
+      settingsData.apps[idx][field] = e.target.value;
+      if (field === 'title') e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
     });
   });
-
-  // Bind checkboxes
-  container.querySelectorAll('.app-check').forEach(el => {
-    el.addEventListener('change', e => {
-      const idx = +e.target.dataset.index;
-      settingsData.apps[idx][e.target.dataset.field] = e.target.checked;
-    });
-  });
-
   container.querySelectorAll('.app-vis-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       settingsData.apps[+btn.dataset.index].visible = !settingsData.apps[+btn.dataset.index].visible;
@@ -661,13 +534,7 @@ function renderApps() {
 }
 
 document.getElementById('addAppBtn').addEventListener('click', () => {
-  settingsData.apps.push({
-    id: uid(), title: 'New App', descriptions: {}, platform: 'Android TV',
-    icon: '', screens: ['','','','',''],
-    showGooglePlay: false, googlePlayUrl: '',
-    showAppStore: false, appStoreUrl: '',
-    visible: true
-  });
+  settingsData.apps.push({ id: uid(), title: 'New App', description: '', platform: 'Android TV', link: '', visible: true });
   renderApps();
 });
 
@@ -685,45 +552,22 @@ function getYouTubeIdAdmin(url) {
   return m ? m[1] : null;
 }
 
-window.toggleVideoPreview = function(id, url, vtype) {
+window.toggleVideoPreview = function(id, url) {
+  const ytId = getYouTubeIdAdmin(url);
+  if (!ytId) return;
   const wrap = document.getElementById('vthumb-' + id);
   if (!wrap) return;
-
-  // If already playing — stop
-  if (wrap.querySelector('iframe') || wrap.querySelector('video')) {
-    const p = projectsData.projects.find(x => x.id === id);
-    wrap.outerHTML = renderVideoPreviewBlock(p);
+  if (wrap.querySelector('iframe')) {
+    wrap.innerHTML = `
+      <img class="video-thumb-img" src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="">
+      <button class="video-play-btn" onclick="toggleVideoPreview('${id}','${url}')">▶ Play</button>`;
     return;
   }
-
-  if (vtype === 'youtube') {
-    const ytId = getYouTubeIdAdmin(url);
-    if (!ytId) return;
-    wrap.innerHTML = `
-      <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" frameborder="0"
-        allow="autoplay; encrypted-media" allowfullscreen
-        style="width:100%;height:100%;border-radius:8px;border:none"></iframe>
-      <button class="video-play-btn stop" onclick="toggleVideoPreview('${id}','${url}','youtube')">■ Stop</button>`;
-  } else if (vtype === 'stream') {
-    // Cloudflare Stream iframe — чистый плеер без брендинга
-    const cfSrc = url.includes('?') ? url + '&autoplay=true' : url + '?autoplay=true';
-    wrap.innerHTML = `
-      <iframe src="${esc(cfSrc)}" frameborder="0"
-        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-        allowfullscreen
-        style="width:100%;height:100%;border-radius:8px;border:none"></iframe>
-      <button class="video-play-btn stop" onclick="toggleVideoPreview('${id}','${url}','stream')">■ Stop</button>`;
-  } else if (vtype === 'mp4') {
-    wrap.innerHTML = `
-      <video src="${esc(url)}" autoplay controls
-        style="width:100%;height:100%;border-radius:8px;object-fit:cover"></video>
-      <button class="video-play-btn stop" onclick="toggleVideoPreview('${id}','${url}','mp4')">■ Stop</button>`;
-  }
-};
-
-window.setVideoType = function(id, vtype) {
-  const p = projectsData.projects.find(x => x.id === id);
-  if (p) { p.videoType = vtype; p.videoUrl = ''; renderProjects(); }
+  wrap.innerHTML = `
+    <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" frameborder="0"
+      allow="autoplay; encrypted-media" allowfullscreen 
+      style="width:100%;height:100%;border-radius:8px;border:none"></iframe>
+    <button class="video-play-btn stop" onclick="toggleVideoPreview('${id}','${url}')">■ Stop</button>`;
 };
 
 window.setCardType = function(id, type) {

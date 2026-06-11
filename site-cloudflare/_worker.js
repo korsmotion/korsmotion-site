@@ -1,4 +1,9 @@
+// Kors Motion CMS Worker
+// Handles /api/data (GET) and /api/save (POST)
+// KV binding: KORSMOTION_DATA
+
 const ADMIN_PASSWORD = 'korsmotion2026';
+const CF_ACCOUNT_ID = '0bb844a6ae45ef8dd4157eb97bac9de2';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -19,8 +24,13 @@ const DEFAULT_SETTINGS = { show_dev_section: false, apps: [] };
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
 
+    // Preflight
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: CORS });
+    }
+
+    // GET /api/data — load projects + settings from KV
     if (url.pathname === '/api/data' && request.method === 'GET') {
       const [pRaw, sRaw] = await Promise.all([
         env.KORSMOTION_DATA.get('projects'),
@@ -31,17 +41,85 @@ export default {
       return json({ projects, settings });
     }
 
+    // POST /api/save — save projects + settings to KV
     if (url.pathname === '/api/save' && request.method === 'POST') {
       let body;
-      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
-      if (body.password !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
+      try {
+        body = await request.json();
+      } catch {
+        return json({ error: 'Invalid JSON' }, 400);
+      }
+
+      if (body.password !== ADMIN_PASSWORD) {
+        return json({ error: 'Unauthorized' }, 401);
+      }
+
       await Promise.all([
         env.KORSMOTION_DATA.put('projects', JSON.stringify(body.projects)),
         env.KORSMOTION_DATA.put('settings', JSON.stringify(body.settings)),
       ]);
+
       return json({ ok: true });
     }
 
+    // GET /api/analytics — proxy to Cloudflare Analytics API
+    if (url.pathname === '/api/analytics' && request.method === 'GET') {
+      // Verify admin password from header
+      const auth = request.headers.get('X-Admin-Password');
+      if (auth !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
+
+      const now = new Date();
+      const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const since7  = new Date(now - 7  * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const today   = now.toISOString().split('T')[0];
+
+      const query = `{
+        viewer {
+          accounts(filter: { accountTag: "${CF_ACCOUNT_ID}" }) {
+            total: pageviewsAdaptiveGroups(
+              filter: { date_geq: "${since30}", date_leq: "${today}" }
+              limit: 1
+            ) { sum { pageViews } }
+            week: pageviewsAdaptiveGroups(
+              filter: { date_geq: "${since7}", date_leq: "${today}" }
+              limit: 1
+            ) { sum { pageViews } }
+            todayViews: pageviewsAdaptiveGroups(
+              filter: { date_geq: "${today}", date_leq: "${today}" }
+              limit: 1
+            ) { sum { pageViews } }
+            visitors30: visitorsAdaptiveGroups(
+              filter: { date_geq: "${since30}", date_leq: "${today}" }
+              limit: 1
+            ) { sum { visits } }
+            visitors7: visitorsAdaptiveGroups(
+              filter: { date_geq: "${since7}", date_leq: "${today}" }
+              limit: 1
+            ) { sum { visits } }
+          }
+        }
+      }`;
+
+      const apiToken = env.CF_API_TOKEN;
+      if (!apiToken) return json({ error: 'Analytics not configured' }, 503);
+
+      try {
+        const resp = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query }),
+        });
+        const data = await resp.json();
+        return json(data);
+      } catch (e) {
+        return json({ error: e.message }, 500);
+      }
+    }
+
+    // Everything else — serve static assets from Pages
     return env.ASSETS.fetch(request);
   },
 };
