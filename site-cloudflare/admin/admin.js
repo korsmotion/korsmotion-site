@@ -509,6 +509,106 @@ function renderAll() {
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
+const WEATHER_CITY = 'Bischofszell,CH';
+
+function pickWeatherImageId(weather, icon) {
+  const id = weather?.id || 800;
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 8) return 'sun_up';
+  if (hour >= 17 && hour < 21) return 'sunset';
+  if (icon && icon.endsWith('n')) return 'night';
+  if (id >= 200 && id < 300) return 'thunderstorm';
+  if (id >= 300 && id < 600) return 'rain';
+  if (id >= 600 && id < 700) return 'snow';
+  if (id >= 700 && id < 800) return 'fog';
+  if (id === 800) return 'sunny';
+  return 'cloudy';
+}
+
+function weatherEmojiFromId(id, icon) {
+  if (id >= 200 && id < 300) return '⛈️';
+  if (id >= 300 && id < 600) return '🌧️';
+  if (id >= 600 && id < 700) return '❄️';
+  if (id >= 700 && id < 800) return '🌫️';
+  if (id === 800) return icon && icon.endsWith('n') ? '🌙' : '☀️';
+  return '☁️';
+}
+
+function build5DayForecast(forecastData) {
+  if (!forecastData?.list?.length) return [];
+  const days = [];
+  const seen = new Set();
+  for (const item of forecastData.list) {
+    const d = new Date(item.dt * 1000);
+    const key = d.toDateString();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const w = item.weather[0];
+    days.push({
+      day: d.toLocaleDateString('ru-RU', { weekday: 'short' }),
+      temp: Math.round(item.main.temp),
+      emoji: weatherEmojiFromId(w.id, w.icon),
+    });
+    if (days.length >= 5) break;
+  }
+  return days;
+}
+
+function getWeatherBgUrl(imageId) {
+  return adminAssetUrl('images/weather/' + imageId + '.png');
+}
+
+async function loadWeatherWidget() {
+  const widget = document.getElementById('weather-widget');
+  if (!widget) return;
+
+  const apiKey = getWeatherKey();
+  if (!apiKey) {
+    widget.innerHTML = '<div class="weather-widget-placeholder">⚙️ API ключ не указан</div>';
+    return;
+  }
+
+  widget.innerHTML = '<div class="weather-widget-placeholder">Загрузка погоды…</div>';
+
+  try {
+    const q = encodeURIComponent(WEATHER_CITY);
+    const [currentRes, forecastRes] = await Promise.all([
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${q}&appid=${apiKey}&units=metric&lang=ru`),
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${q}&appid=${apiKey}&units=metric&lang=ru`),
+    ]);
+    if (!currentRes.ok) throw new Error('weather');
+    const current = await currentRes.json();
+    const forecast = forecastRes.ok ? await forecastRes.json() : null;
+
+    const w = current.weather[0];
+    const bgUrl = getWeatherBgUrl(pickWeatherImageId(w, w.icon));
+    const temp = Math.round(current.main.temp);
+    const humidity = current.main.humidity;
+    const wind = Math.round((current.wind?.speed || 0) * 3.6);
+    const forecastDays = build5DayForecast(forecast);
+    const forecastHtml = forecastDays.length
+      ? forecastDays.map(d => `
+          <div class="weather-forecast-day">
+            <div>${esc(d.day)}</div>
+            <span class="wf-emoji">${d.emoji}</span>
+            <div class="wf-temp">${d.temp}°</div>
+          </div>`).join('')
+      : '';
+
+    widget.innerHTML = `
+      <div class="weather-widget-bg" style="background-image:url('${esc(bgUrl)}')"></div>
+      <div class="weather-widget-overlay">
+        <div class="weather-widget-location">📍 Bischofszell</div>
+        <div class="weather-widget-temp">${temp}°</div>
+        <div class="weather-widget-desc">${esc(w.description)}</div>
+        <div class="weather-widget-meta">💧 ${humidity}% · 💨 ${wind} km/h</div>
+        ${forecastHtml ? `<div class="weather-widget-forecast">${forecastHtml}</div>` : ''}
+      </div>`;
+  } catch (_) {
+    widget.innerHTML = '<div class="weather-widget-placeholder">Не удалось загрузить погоду</div>';
+  }
+}
+
 async function renderDashboard() {
   const el = document.getElementById('dashboardSection');
   if (!el) return;
@@ -518,43 +618,46 @@ async function renderDashboard() {
   const apps = (settingsData.apps || []).length;
   const lastSaved = localStorage.getItem('korsmotion_last_saved') || '—';
 
-  // Render skeleton first
   el.innerHTML = `
-    <h2 class="section-title" style="margin-bottom:14px">${t.dashboardTitle}</h2>
-    <div class="dash-grid">
-      <div class="dash-card">
-        <div class="dash-icon">📁</div>
-        <div class="dash-val">${projects}</div>
-        <div class="dash-label">${t.dashProjects}</div>
+    <h2 class="section-title">${t.dashboardTitle}</h2>
+    <div class="dash-layout">
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-icon">📁</div>
+          <div class="dash-val">${projects}</div>
+          <div class="dash-label">${t.dashProjects}</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-icon">📱</div>
+          <div class="dash-val">${apps}</div>
+          <div class="dash-label">${t.dashApps}</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-icon">💾</div>
+          <div class="dash-val dash-val-sm">${esc(lastSaved)}</div>
+          <div class="dash-label">${t.dashLastSaved}</div>
+        </div>
+        <div class="dash-card" id="dash-today">
+          <div class="dash-icon">👁</div>
+          <div class="dash-val dash-loading">…</div>
+          <div class="dash-label">${t.dashViewsToday}</div>
+        </div>
+        <div class="dash-card" id="dash-week">
+          <div class="dash-icon">📈</div>
+          <div class="dash-val dash-loading">…</div>
+          <div class="dash-label">${t.dashWeek}</div>
+        </div>
+        <div class="dash-card" id="dash-month">
+          <div class="dash-icon">🗓</div>
+          <div class="dash-val dash-loading">…</div>
+          <div class="dash-label">${t.dashMonth}</div>
+        </div>
       </div>
-      <div class="dash-card">
-        <div class="dash-icon">📱</div>
-        <div class="dash-val">${apps}</div>
-        <div class="dash-label">${t.dashApps}</div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-icon">💾</div>
-        <div class="dash-val dash-val-sm">${lastSaved}</div>
-        <div class="dash-label">${t.dashLastSaved}</div>
-      </div>
-      <div class="dash-card" id="dash-today">
-        <div class="dash-icon">👁</div>
-        <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">${t.dashViewsToday}</div>
-      </div>
-      <div class="dash-card" id="dash-week">
-        <div class="dash-icon">📈</div>
-        <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">${t.dashWeek}</div>
-      </div>
-      <div class="dash-card" id="dash-month">
-        <div class="dash-icon">🗓</div>
-        <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">${t.dashMonth}</div>
-      </div>
+      <div id="weather-widget"></div>
     </div>`;
 
-  // Load analytics async
+  loadWeatherWidget();
+
   try {
     const resp = await fetch('/api/analytics', {
       headers: { 'X-Admin-Password': ADMIN_PASSWORD }
@@ -572,10 +675,16 @@ async function renderDashboard() {
       document.getElementById('dash-week').querySelector('.dash-val').classList.remove('dash-loading');
       document.getElementById('dash-month').querySelector('.dash-val').classList.remove('dash-loading');
     }
-  } catch(e) {
-    ['dash-today','dash-week','dash-month'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.querySelector('.dash-val').textContent = '—';
+  } catch (e) {
+    ['dash-today', 'dash-week', 'dash-month'].forEach(id => {
+      const card = document.getElementById(id);
+      if (card) {
+        const val = card.querySelector('.dash-val');
+        if (val) {
+          val.textContent = '—';
+          val.classList.remove('dash-loading');
+        }
+      }
     });
   }
 }
