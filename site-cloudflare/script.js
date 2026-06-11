@@ -273,7 +273,7 @@ const translations = {
   de: {
     'nav.services':'Services','nav.portfolio':'Portfolio','nav.development':'Entwicklung','nav.reviews':'Referenzen','nav.cta':'Kontakt',
     'hero.badge':'Motion Design Studio · Schweiz',
-    'hero.title':'Bewegung, die<br><em>eindruckt</em>',
+    'hero.title':'Bewegung, die<br><em>beeindruckt</em>',
     'hero.text':'Kors Motion ist Ihr Spezialist für Motion Design. Ich erstelle Logo-Animationen, Markengrafiken und Websites mit messbarem Erfolg.',
     'hero.btn1':'Projekt anfragen','hero.btn2':'Portfolio ansehen',
     'services.label':'— Mein Angebot','services.title':'Services, bis zur<br><em>Perfektion</em> veredelt',
