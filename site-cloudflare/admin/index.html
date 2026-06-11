@@ -64,6 +64,10 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
   outline:none;transition:border-color .2s,box-shadow .2s}
 .form-input:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim);background:#fff}
 .form-textarea{resize:vertical;min-height:68px}
+.pw-wrap{position:relative}
+.pw-wrap .form-input{padding-right:40px}
+.pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:16px;padding:4px;line-height:1}
+.pw-toggle:hover{color:var(--accent)}
 
 /* Buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 18px;
@@ -214,14 +218,19 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .cp-full-wrap{border-radius:10px;overflow:hidden;border:2px solid var(--border);height:100px}
 .cp-media-full{width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e,#0f3460);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative}
 
-/* Settings modal */
-.modal-overlay{position:fixed;inset:0;z-index:300;background:rgba(26,16,64,.55);display:none;align-items:center;justify-content:center;padding:24px}
-.modal-overlay.open{display:flex}
-.modal-card{position:relative;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:400px;width:100%;box-shadow:var(--shadow-card)}
-.modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--bg-input);border:2px solid var(--border);border-radius:8px;font-size:14px;cursor:pointer;color:var(--text-muted);font-family:inherit;transition:all .15s}
-.modal-close:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
-.modal-title{font-size:18px;font-weight:700;margin-bottom:20px;padding-right:36px}
-.modal-actions{display:flex;gap:8px;margin-top:16px}
+/* Settings full-screen overlay */
+.settings-overlay{position:fixed;inset:0;z-index:1000;background:var(--bg);overflow-y:auto;
+  transform:translateX(100%);transition:transform .25s ease;pointer-events:none}
+.settings-overlay.open{transform:translateX(0);pointer-events:auto}
+.settings-inner{max-width:800px;margin:0 auto;padding:28px 24px 100px;width:100%}
+.settings-row{display:flex;align-items:center;gap:16px;padding:16px 0;border-bottom:2px solid var(--border)}
+.settings-row:last-child{border-bottom:none;padding-bottom:0}
+.settings-row:first-child{padding-top:0}
+.settings-row-label{flex:1;min-width:0}
+.settings-row-title{font-size:14px;font-weight:600}
+.settings-row-desc{font-size:12px;color:var(--text-muted);margin-top:2px}
+.settings-row-input{width:280px;flex-shrink:0}
+.settings-row-action{flex-shrink:0}
 
 @media(max-width:640px){
   .item-card-body{grid-template-columns:1fr}
@@ -242,7 +251,10 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
     <form id="loginForm">
       <div class="form-group">
         <label class="form-label" for="password" data-ui="password">Password</label>
-        <input type="password" id="password" class="form-input" placeholder="Enter password" autocomplete="current-password" required>
+        <div class="pw-wrap">
+          <input type="password" id="password" class="form-input" placeholder="Enter password" autocomplete="current-password" required>
+          <button type="button" class="pw-toggle" data-target="password" aria-label="Показать">👁</button>
+        </div>
       </div>
       <button type="submit" class="btn btn-primary" style="width:100%" data-ui="signIn">Sign in</button>
       <p class="login-error" id="loginError" data-ui="wrongPassword">Incorrect password</p>
@@ -275,20 +287,6 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
   <!-- Dashboard -->
   <div class="section" id="dashboardSection"></div>
 
-  <!-- Settings -->
-  <div class="section">
-    <div class="toggle-row">
-      <div>
-        <div class="toggle-label" data-ui="showDev">Show Development section</div>
-        <div class="toggle-desc" data-ui="showDevDesc">Shows Dev Apps link in navigation</div>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="showDevSection">
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-  </div>
-
   <!-- Portfolio -->
   <div class="section">
     <div class="section-head">
@@ -319,18 +317,55 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 
 <div class="toast" id="toast"></div>
 
-<!-- Settings modal -->
-<div class="modal-overlay" id="settingsModal">
-  <div class="modal-card">
-    <button type="button" class="modal-close" id="closeSettingsModalX" aria-label="Закрыть">✕</button>
-    <div class="modal-title">⚙️ Настройки</div>
-    <div class="form-group">
-      <label class="form-label" for="githubTokenInput">GitHub Token</label>
-      <input class="form-input" type="password" id="githubTokenInput" placeholder="ghp_..." autocomplete="off">
+<!-- Settings full-screen overlay -->
+<div class="settings-overlay" id="settingsModal">
+  <div class="settings-inner">
+    <div class="header">
+      <div class="header-left">
+        <div class="header-logo">
+          <h1>⚙️ Настройки</h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn btn-ghost btn-sm" id="closeSettingsModalBtn">Закрыть ✕</button>
+      </div>
     </div>
-    <div class="modal-actions">
-      <button type="button" class="btn btn-primary" id="saveGithubTokenBtn">Сохранить токен</button>
-      <button type="button" class="btn btn-ghost" id="closeSettingsModalBtn">Закрыть</button>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">🔗 Интеграции</div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-label">
+          <div class="settings-row-title">GitHub Token</div>
+          <div class="settings-row-desc">Для загрузки файлов в репозиторий</div>
+        </div>
+        <div class="settings-row-input pw-wrap">
+          <input class="form-input" type="password" id="githubTokenInput" placeholder="ghp_..." autocomplete="off">
+          <button type="button" class="pw-toggle" data-target="githubTokenInput" aria-label="Показать">👁</button>
+        </div>
+        <div class="settings-row-action">
+          <button type="button" class="btn btn-primary btn-sm" id="saveGithubTokenBtn">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">⚙️ Основные</div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-label">
+          <div class="toggle-label" data-ui="showDev">Показать раздел «Разработка»</div>
+          <div class="toggle-desc" data-ui="showDevDesc">Показывает ссылку Dev Apps в навигации</div>
+        </div>
+        <div class="settings-row-action">
+          <label class="toggle">
+            <input type="checkbox" id="showDevSection">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
     </div>
   </div>
 </div>

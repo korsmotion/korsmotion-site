@@ -128,12 +128,18 @@ function saveGithubToken() {
 }
 function openSettingsModal() {
   initGithubTokenField();
-  const modal = document.getElementById('settingsModal');
-  if (modal) modal.classList.add('open');
+  const overlay = document.getElementById('settingsModal');
+  if (overlay) {
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 }
 function closeSettingsModal() {
-  const modal = document.getElementById('settingsModal');
-  if (modal) modal.classList.remove('open');
+  const overlay = document.getElementById('settingsModal');
+  if (overlay) {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
 }
 function sanitizeAppFolder(title) {
   return (title || 'app').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -945,7 +951,27 @@ window.uploadAppScreen = function(appIndex, screenIndex) {
   });
 };
 
+function initPasswordToggles() {
+  document.querySelectorAll('.pw-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+        btn.setAttribute('aria-label', 'Скрыть');
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁';
+        btn.setAttribute('aria-label', 'Показать');
+      }
+    });
+  });
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
+initPasswordToggles();
+
 // Admin lang switcher buttons
 document.querySelectorAll('.admin-lang-btn').forEach(btn => {
   btn.addEventListener('click', () => setAdminLang(btn.dataset.lang));
@@ -964,16 +990,8 @@ const saveGithubTokenBtn = document.getElementById('saveGithubTokenBtn');
 if (saveGithubTokenBtn) saveGithubTokenBtn.addEventListener('click', saveGithubToken);
 const openSettingsModalBtn = document.getElementById('openSettingsModal');
 if (openSettingsModalBtn) openSettingsModalBtn.addEventListener('click', openSettingsModal);
-['closeSettingsModalX', 'closeSettingsModalBtn'].forEach(id => {
-  const btn = document.getElementById(id);
-  if (btn) btn.addEventListener('click', closeSettingsModal);
-});
-const settingsModal = document.getElementById('settingsModal');
-if (settingsModal) {
-  settingsModal.addEventListener('click', e => {
-    if (e.target === settingsModal) closeSettingsModal();
-  });
-}
+const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
+if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
 
 if (isLoggedIn()) showAdmin(); else showLogin();
 
