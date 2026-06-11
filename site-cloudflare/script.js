@@ -693,7 +693,7 @@ let siteProjects = [];
 let siteSettings = { show_dev_section: false, apps: [] };
 
 function detectLang() {
-  const saved = localStorage.getItem('korsmotion_lang');
+  const saved = localStorage.getItem('korsmotion_lang') || localStorage.getItem('lang');
   if (saved && translations[saved]) return saved;
   const browserLang = (navigator.language || 'ru').toLowerCase().split('-')[0];
   if (translations[browserLang]) return browserLang;
@@ -717,14 +717,20 @@ function applyLang(lang) {
     const key = el.getAttribute('data-i18n-placeholder');
     if (t[key]) el.placeholder = t[key];
   });
-  document.getElementById('currentLang').textContent = codes[lang];
+  updateLangSwitcher(lang);
+  localStorage.setItem('korsmotion_lang', lang);
+  localStorage.setItem('lang', lang);
+  renderPortfolio();
+  renderDevSection();
+}
+
+function updateLangSwitcher(lang) {
+  const langEl = document.getElementById('currentLang');
+  if (langEl) langEl.textContent = codes[lang] || lang.toUpperCase();
   setCurrentFlag(lang);
   document.querySelectorAll('.lang-option').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
   });
-  localStorage.setItem('korsmotion_lang', lang);
-  renderPortfolio();
-  renderDevSection();
 }
 
 const switcher = document.getElementById('langSwitcher');

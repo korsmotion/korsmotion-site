@@ -36,7 +36,7 @@ nav a.nav-link:hover{color:var(--violet-deep)}
 .lang-option{width:100%;background:none;border:none;padding:10px 14px;text-align:left;border-radius:10px;font-family:'Manrope',sans-serif;font-size:14px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:10px;transition:background .2s}
 .lang-option:hover{background:var(--violet-mist)}
 .lang-option.active{background:var(--violet-mist);color:var(--violet-deep);font-weight:600}
-.lang-switcher .fi,.lang-option .fi{width:20px;line-height:15px;border-radius:2px;flex-shrink:0}
+#currentFlag,.lang-button .fi,.lang-switcher .fi,.lang-option .fi{display:inline-block;width:20px;height:15px;line-height:15px;border-radius:2px;flex-shrink:0;background-size:cover}
 .nav-cta{background:var(--ink);color:white !important;padding:10px 20px;border-radius:100px;transition:all .3s;font-weight:500;font-size:14px;text-decoration:none;cursor:pointer;border:none}
 .nav-cta:hover{background:var(--violet-deep);transform:translateY(-1px)}
 .nav-hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:28px;height:28px;background:none;border:none;cursor:pointer;padding:0;flex-shrink:0;z-index:1000;position:relative}
@@ -475,7 +475,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
     <button type="button" class="nav-cta nav-cta-mobile" onclick="openModal('contactModal');closeNavMenu();" data-i18n="nav.cta">Связаться</button>
   </div>
   <div class="lang-switcher" id="langSwitcher">
-    <button class="lang-button" id="langButton">
+    <button class="lang-button" id="langButton" type="button">
       <span class="fi fi-ru" id="currentFlag"></span>
       <span id="currentLang">RU</span>
       <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
