@@ -97,10 +97,18 @@ function showToast(msg, type) {
 }
 let saveBtnState = 'idle';
 
+function initSaveBtn() {
+  const btn = document.getElementById('saveBtn');
+  if (!btn) return;
+  btn.style.background = '#16A34A';
+  btn.textContent = 'Сохранить';
+}
+
 function setStatus(msg, type) {
   const el = document.getElementById('saveStatus');
   el.textContent = msg;
   el.className = 'save-status' + (type ? ' ' + type : '');
+  el.style.color = '';
 }
 
 function markUnsaved() {
@@ -108,12 +116,12 @@ function markUnsaved() {
   const status = document.getElementById('saveStatus');
   if (!btn) return;
   saveBtnState = 'unsaved';
-  btn.style.background = '#F59E0B';
-  btn.textContent = u().saveChanges;
   btn.disabled = false;
+  initSaveBtn();
   if (status) {
     status.textContent = '● Несохранённые изменения';
-    status.className = 'save-status warning';
+    status.style.color = '#F59E0B';
+    status.className = 'save-status';
   }
 }
 
@@ -122,11 +130,11 @@ function markSaving() {
   const status = document.getElementById('saveStatus');
   if (!btn) return;
   saveBtnState = 'saving';
-  btn.style.background = '#3B82F6';
-  btn.textContent = 'Сохраняю...';
   btn.disabled = true;
+  initSaveBtn();
   if (status) {
-    status.textContent = '';
+    status.textContent = 'Сохраняю...';
+    status.style.color = '#9CA3AF';
     status.className = 'save-status';
   }
 }
@@ -136,12 +144,12 @@ function markSaved() {
   const status = document.getElementById('saveStatus');
   if (!btn) return;
   saveBtnState = 'saved';
-  btn.style.background = '#16A34A';
-  btn.textContent = '✓✓ Загружено с сервера';
   btn.disabled = false;
+  initSaveBtn();
   if (status) {
     status.textContent = '✓✓ Загружено с сервера';
-    status.className = 'save-status success';
+    status.style.color = '#16A34A';
+    status.className = 'save-status';
   }
 }
 
@@ -150,12 +158,12 @@ function markSaveError(msg) {
   const status = document.getElementById('saveStatus');
   if (!btn) return;
   saveBtnState = 'error';
-  btn.style.background = '#DC2626';
-  btn.textContent = 'Ошибка сохранения';
   btn.disabled = false;
+  initSaveBtn();
   if (status) {
     status.textContent = msg ? 'Ошибка сохранения: ' + msg : 'Ошибка сохранения';
-    status.className = 'save-status error';
+    status.style.color = '#DC2626';
+    status.className = 'save-status';
   }
 }
 
@@ -171,12 +179,11 @@ function applyAdminLang() {
   const t = u();
   // Update static UI labels
   document.querySelectorAll('[data-ui]').forEach(el => {
+    if (el.id === 'saveBtn') return;
     const key = el.getAttribute('data-ui');
-    if (t[key] !== undefined) {
-      if (el.id === 'saveBtn' && saveBtnState !== 'unsaved' && saveBtnState !== 'idle') return;
-      el.textContent = t[key];
-    }
+    if (t[key] !== undefined) el.textContent = t[key];
   });
+  initSaveBtn();
   document.querySelectorAll('[data-ui-placeholder]').forEach(el => {
     const key = el.getAttribute('data-ui-placeholder');
     if (t[key] !== undefined) el.placeholder = t[key];
@@ -194,6 +201,7 @@ function showAdmin() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('adminApp').style.display = 'block';
   document.getElementById('saveBar').style.display = 'flex';
+  initSaveBtn();
   applyAdminLang();
   loadData();
 }
