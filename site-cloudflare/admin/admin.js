@@ -177,6 +177,7 @@ let settingsData = { show_dev_section: false, apps: [] };
 let servicesData = { services: [] };
 let serviceActiveLang = 'de'; // активный язык в редакторе услуг
 let activeLangTab = {}; // per project id
+let activeAppLangTab = {}; // per app index
 let weatherRefreshTimer = null;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -1149,7 +1150,23 @@ window.setProjectLangTab = function(id, lang) {
   renderProjects();
 };
 
+window.setAppLangTab = function(idx, lang) {
+  activeAppLangTab[idx] = lang;
+  renderApps();
+};
+
 // ── Dev Apps ──────────────────────────────────────────────────────────────────
+function renderAppScreensAdmin(a, i) {
+  const screens = (a.screens || ['', '', '', '', '']).concat(['', '', '', '', '']).slice(0, 5);
+  const labels = ['Скриншот 1', 'Скриншот 2', 'Скриншот 3', 'Скриншот 4', 'Скриншот 5'];
+  return screens.map((s, si) => `
+    <div class="form-group">
+      <label class="form-label">${labels[si]}</label>
+      <input class="form-input app-field" data-index="${i}" data-field="screens" data-screen="${si}"
+        value="${esc(s)}" placeholder="images/apps/appname/screen${si + 1}.png">
+    </div>`).join('');
+}
+
 function renderApps() {
   const t = u();
   const items = settingsData.apps || [];
@@ -1164,6 +1181,12 @@ function renderApps() {
   container.innerHTML = items.map((a, i) => {
     const appId = a.id || `app_${i}`;
     const collapsed = isAppCardCollapsed(appId);
+    const appLang = activeAppLangTab[i] || 'en';
+    const iconUrl = a.icon || '';
+    const iconHtml = iconUrl
+      ? `<img src="${esc(iconUrl)}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)">`
+      : `<div style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
+
     return `
     <div class="item-card ${a.visible ? '' : 'hidden-item'}${collapsed ? ' collapsed' : ''}" data-app-id="${esc(appId)}">
       <div class="item-card-head">
@@ -1175,33 +1198,93 @@ function renderApps() {
         </div>
       </div>
       <div class="item-card-body item-card-body--plain">
-      <div class="item-fields">
-        <div class="form-group">
-          <label class="form-label">${t.fieldTitle}</label>
-          <input class="form-input app-field" data-index="${i}" data-field="title" value="${esc(a.title)}">
+        <div style="display:flex;gap:16px;margin-top:4px;align-items:flex-start">
+          <div>${iconHtml}</div>
+          <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-group">
+              <label class="form-label">${t.fieldTitle}</label>
+              <input class="form-input app-field" data-index="${i}" data-field="title" value="${esc(a.title)}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">${t.fieldPlatform}</label>
+              <input class="form-input app-field" data-index="${i}" data-field="platform" value="${esc(a.platform)}" placeholder="Android TV">
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label class="form-label">Иконка (путь)</label>
+              <input class="form-input app-field" data-index="${i}" data-field="icon" value="${esc(a.icon || '')}" placeholder="images/apps/appname/icon.png">
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">${t.fieldPlatform}</label>
-          <input class="form-input app-field" data-index="${i}" data-field="platform" value="${esc(a.platform)}" placeholder="Android TV">
+
+        <div class="lang-section" style="margin-top:12px">
+          <div class="lang-section-label">${t.langLabel}:</div>
+          <div class="lang-tabs">
+            ${SITE_LANGS.map(lang => `
+              <button type="button" class="lang-tab ${appLang === lang ? 'active' : ''}"
+                onclick="setAppLangTab(${i},'${lang}')">${SITE_LANG_LABELS[lang]}</button>
+            `).join('')}
+          </div>
+          <div class="lang-fields">
+            <div class="form-group">
+              <textarea class="form-textarea app-field" data-index="${i}" data-field="descriptions" data-lang="${appLang}"
+                placeholder="${t.fieldDesc}...">${esc((a.descriptions && a.descriptions[appLang]) || '')}</textarea>
+            </div>
+          </div>
         </div>
-        <div class="form-group full">
-          <label class="form-label">${t.fieldDesc}</label>
-          <textarea class="form-textarea app-field" data-index="${i}" data-field="description">${esc(a.description)}</textarea>
+
+        <div style="margin-top:12px;padding:12px;background:var(--bg-input);border-radius:10px;border:2px solid var(--border)">
+          <div class="form-label" style="margin-bottom:10px">🖼 Скриншоты (images/apps/appname/)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            ${renderAppScreensAdmin(a, i)}
+          </div>
         </div>
-        <div class="form-group full">
-          <label class="form-label">${t.fieldLink}</label>
-          <input class="form-input app-field" data-index="${i}" data-field="link" value="${esc(a.link)}" placeholder="https://...">
+
+        <div style="margin-top:12px;padding:12px;background:var(--bg-input);border-radius:10px;border:2px solid var(--border)">
+          <div class="form-label" style="margin-bottom:10px">🏪 Магазины</div>
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap">
+              <input type="checkbox" class="app-check" data-index="${i}" data-field="showGooglePlay" ${a.showGooglePlay ? 'checked' : ''}>
+              Google Play
+            </label>
+            <input class="form-input app-field" data-index="${i}" data-field="googlePlayUrl"
+              value="${esc(a.googlePlayUrl || '')}" placeholder="https://play.google.com/store/apps/details?id=...">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap">
+              <input type="checkbox" class="app-check" data-index="${i}" data-field="showAppStore" ${a.showAppStore ? 'checked' : ''}>
+              App Store
+            </label>
+            <input class="form-input app-field" data-index="${i}" data-field="appStoreUrl"
+              value="${esc(a.appStoreUrl || '')}" placeholder="https://apps.apple.com/app/...">
+          </div>
         </div>
-      </div>
       </div>
     </div>`;
   }).join('');
 
   container.querySelectorAll('.app-field').forEach(el => {
     el.addEventListener('input', e => {
-      const idx = +e.target.dataset.index, field = e.target.dataset.field;
-      settingsData.apps[idx][field] = e.target.value;
-      if (field === 'title') e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
+      const idx = +e.target.dataset.index;
+      const field = e.target.dataset.field;
+      const screenIdx = e.target.dataset.screen;
+      const lang = e.target.dataset.lang;
+      if (screenIdx !== undefined) {
+        if (!settingsData.apps[idx].screens) settingsData.apps[idx].screens = ['', '', '', '', ''];
+        settingsData.apps[idx].screens[+screenIdx] = e.target.value;
+      } else if (lang) {
+        if (!settingsData.apps[idx].descriptions) settingsData.apps[idx].descriptions = {};
+        settingsData.apps[idx].descriptions[lang] = e.target.value;
+      } else {
+        settingsData.apps[idx][field] = e.target.value;
+        if (field === 'title') {
+          e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
+        }
+        if (field === 'icon') renderApps();
+      }
+    });
+  });
+  container.querySelectorAll('.app-check').forEach(el => {
+    el.addEventListener('change', e => {
+      const idx = +e.target.dataset.index;
+      settingsData.apps[idx][e.target.dataset.field] = e.target.checked;
     });
   });
   container.querySelectorAll('.app-vis-btn').forEach(btn => {
@@ -1223,7 +1306,13 @@ window.toggleAppCard = function(id) {
 };
 
 document.getElementById('addAppBtn').addEventListener('click', () => {
-  settingsData.apps.push({ id: uid(), title: 'New App', description: '', platform: 'Android TV', link: '', visible: true });
+  settingsData.apps.push({
+    id: uid(), title: 'New App', descriptions: {}, platform: 'Android TV',
+    icon: '', screens: ['', '', '', '', ''],
+    showGooglePlay: false, googlePlayUrl: '',
+    showAppStore: false, appStoreUrl: '',
+    visible: true,
+  });
   renderApps();
 });
 
