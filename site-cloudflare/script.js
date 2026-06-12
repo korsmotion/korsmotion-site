@@ -981,12 +981,21 @@ function renderAllReviewsModal(sorted) {
   }
 }
 
+const REVIEWS_CAROUSEL_GAP = 24;
+
+function getReviewsPerView() {
+  if (window.innerWidth <= 640) return 1;
+  if (window.innerWidth <= 968) return 2;
+  return 3;
+}
+
 function initReviewsCarousel(cardCount) {
   const track = document.getElementById('reviewsCarouselTrack');
   const prev = document.getElementById('reviewsPrev');
   const next = document.getElementById('reviewsNext');
   const dots = document.getElementById('reviewsDots');
   const wrap = document.getElementById('reviewsCarouselWrap');
+  const carousel = wrap?.querySelector('.reviews-carousel');
   if (!track || !wrap) return;
 
   const cards = () => track.querySelectorAll('.review-card');
@@ -994,47 +1003,67 @@ function initReviewsCarousel(cardCount) {
   function cardStep() {
     const card = cards()[0];
     if (!card) return 0;
-    return card.offsetWidth + 24;
+    return card.offsetWidth + REVIEWS_CAROUSEL_GAP;
   }
 
-  function activeIndex() {
-    const step = cardStep();
+  function groupCount() {
+    const perView = getReviewsPerView();
+    return Math.max(1, Math.ceil(cardCount / perView));
+  }
+
+  function activeGroup() {
+    const perView = getReviewsPerView();
+    const step = cardStep() * perView;
     if (!step) return 0;
-    return Math.min(cardCount - 1, Math.max(0, Math.round(track.scrollLeft / step)));
+    return Math.min(groupCount() - 1, Math.max(0, Math.round(track.scrollLeft / step)));
+  }
+
+  function rebuildDots() {
+    if (!dots) return;
+    const groups = groupCount();
+    dots.innerHTML = Array.from({ length: groups }, (_, i) =>
+      `<button type="button" class="reviews-dot${i === activeGroup() ? ' active' : ''}" data-group="${i}" aria-label="Reviews ${i + 1}"></button>`
+    ).join('');
+    dots.querySelectorAll('.reviews-dot').forEach(dot => {
+      dot.addEventListener('click', () => scrollToGroup(+dot.dataset.group));
+    });
   }
 
   function updateDots() {
-    const idx = activeIndex();
+    const idx = activeGroup();
     dots?.querySelectorAll('.reviews-dot').forEach((dot, i) => {
       dot.classList.toggle('active', i === idx);
     });
     if (prev) prev.disabled = idx <= 0;
-    if (next) next.disabled = idx >= cardCount - 1;
+    if (next) next.disabled = idx >= groupCount() - 1;
   }
 
-  function scrollToIndex(idx) {
-    const step = cardStep();
-    track.scrollTo({ left: step * idx, behavior: 'smooth' });
+  function scrollToGroup(groupIdx) {
+    const perView = getReviewsPerView();
+    const step = cardStep() * perView;
+    track.scrollTo({ left: step * groupIdx, behavior: 'smooth' });
+  }
+
+  function onCarouselWheel(e) {
+    e.preventDefault();
+    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    track.scrollLeft += delta;
   }
 
   if (wrap.dataset.bound !== '1') {
     wrap.dataset.bound = '1';
-    prev?.addEventListener('click', () => scrollToIndex(Math.max(0, activeIndex() - 1)));
-    next?.addEventListener('click', () => scrollToIndex(Math.min(cardCount - 1, activeIndex() + 1)));
+    prev?.addEventListener('click', () => scrollToGroup(Math.max(0, activeGroup() - 1)));
+    next?.addEventListener('click', () => scrollToGroup(Math.min(groupCount() - 1, activeGroup() + 1)));
     track.addEventListener('scroll', updateDots, { passive: true });
-    track.addEventListener('wheel', e => {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        e.preventDefault();
-        track.scrollLeft += e.deltaY;
-      }
-    }, { passive: false });
-    window.addEventListener('resize', updateDots);
+    track.addEventListener('wheel', onCarouselWheel, { passive: false });
+    carousel?.addEventListener('wheel', onCarouselWheel, { passive: false });
+    window.addEventListener('resize', () => {
+      rebuildDots();
+      updateDots();
+    });
   }
 
-  dots?.querySelectorAll('.reviews-dot').forEach((dot, i) => {
-    dot.addEventListener('click', () => scrollToIndex(i));
-  });
-
+  rebuildDots();
   track.scrollLeft = 0;
   updateDots();
 }
@@ -1053,12 +1082,6 @@ function renderReviews() {
   if (track) {
     track.innerHTML = carouselItems.map(r => buildReviewCardHtml(r)).join('');
     track.querySelectorAll('.review-card').forEach(el => observer.observe(el));
-  }
-
-  if (dots) {
-    dots.innerHTML = carouselItems.map((_, i) =>
-      `<button type="button" class="reviews-dot${i === 0 ? ' active' : ''}" aria-label="Review ${i + 1}"></button>`
-    ).join('');
   }
 
   renderAllReviewsModal(sortedSiteReviews);
