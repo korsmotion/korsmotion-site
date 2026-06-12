@@ -644,24 +644,54 @@ function getWeatherBgUrl(imageId) {
   return adminAssetUrl('images/weather/' + imageId + '.png');
 }
 
+function ruOrdinalDay(n) {
+  const ones = ['', 'первое', 'второе', 'третье', 'четвёртое', 'пятое', 'шестое', 'седьмое', 'восьмое', 'девятое'];
+  const teens = ['десятое', 'одиннадцатое', 'двенадцатое', 'тринадцатое', 'четырнадцатое', 'пятнадцатое', 'шестнадцатое', 'семнадцатое', 'восемнадцатое', 'девятнадцатое'];
+  const tensWord = ['', '', 'двадцать', 'тридцать'];
+  if (n < 10) return ones[n];
+  if (n < 20) return teens[n - 10];
+  if (n === 20) return 'двадцатое';
+  if (n === 30) return 'тридцатое';
+  if (n === 31) return 'тридцать первое';
+  return tensWord[Math.floor(n / 10)] + ' ' + ones[n % 10];
+}
+
+function enOrdinalDay(n) {
+  const words = {
+    1: 'first', 2: 'second', 3: 'third', 4: 'fourth', 5: 'fifth', 6: 'sixth', 7: 'seventh', 8: 'eighth', 9: 'ninth', 10: 'tenth',
+    11: 'eleventh', 12: 'twelfth', 13: 'thirteenth', 14: 'fourteenth', 15: 'fifteenth', 16: 'sixteenth', 17: 'seventeenth',
+    18: 'eighteenth', 19: 'nineteenth', 20: 'twentieth', 21: 'twenty-first', 22: 'twenty-second', 23: 'twenty-third',
+    24: 'twenty-fourth', 25: 'twenty-fifth', 26: 'twenty-sixth', 27: 'twenty-seventh', 28: 'twenty-eighth',
+    29: 'twenty-ninth', 30: 'thirtieth', 31: 'thirty-first',
+  };
+  return words[n] || num;
+}
+
 function getWeatherDateDisplay() {
   const now = new Date();
-  const days = {
+  const day = now.getDate();
+  const month = now.getMonth();
+  const weekdays = {
     ru: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
     de: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
     en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
   };
-  const months = {
-    ru: ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
-    de: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
-    en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-  };
+  const monthsRuGen = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  const monthsDe = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+  const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const lang = adminLang || 'ru';
-  const dayList = days[lang] || days.en;
-  const monthList = months[lang] || months.en;
+  const dayList = weekdays[lang] || weekdays.en;
+  let dateStr;
+  if (lang === 'ru') {
+    dateStr = `${ruOrdinalDay(day)} ${monthsRuGen[month]}`;
+  } else if (lang === 'de') {
+    dateStr = `${day}. ${monthsDe[month]}`;
+  } else {
+    dateStr = `${enOrdinalDay(day)} of ${monthsEn[month]}`;
+  }
   return {
     dayName: dayList[now.getDay()],
-    dateStr: now.getDate() + ' ' + monthList[now.getMonth()],
+    dateStr,
   };
 }
 
