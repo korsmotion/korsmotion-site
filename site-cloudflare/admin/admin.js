@@ -168,23 +168,64 @@ function applySectionCollapse(section) {
   const chevron = section.querySelector('.section-chevron');
   if (chevron) chevron.classList.toggle('open', !collapsed);
 }
+function ensureUiSettings() {
+  if (!settingsData.ui) settingsData.ui = {};
+  if (!settingsData.ui.collapsedCats) settingsData.ui.collapsedCats = {};
+  if (!settingsData.ui.collapsedProjects) settingsData.ui.collapsedProjects = {};
+  if (!settingsData.ui.collapsedApps) settingsData.ui.collapsedApps = {};
+}
+function applyUiCollapseFromSettings() {
+  ensureUiSettings();
+  CATEGORIES.forEach(c => {
+    const collapsed = settingsData.ui.collapsedCats[c.id];
+    if (collapsed === true) localStorage.setItem(CAT_COLLAPSE_PREFIX + c.id, 'true');
+    else if (collapsed === false) localStorage.setItem(CAT_COLLAPSE_PREFIX + c.id, 'false');
+  });
+  for (const [id, collapsed] of Object.entries(settingsData.ui.collapsedProjects)) {
+    localStorage.setItem(PROJECT_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
+  }
+  for (const [id, collapsed] of Object.entries(settingsData.ui.collapsedApps)) {
+    localStorage.setItem(APP_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
+  }
+}
+function snapshotUiCollapseState() {
+  ensureUiSettings();
+  CATEGORIES.forEach(c => {
+    settingsData.ui.collapsedCats[c.id] = isCatCollapsed(c.id);
+  });
+  settingsData.ui.collapsedProjects = {};
+  (projectsData.projects || []).forEach(p => {
+    settingsData.ui.collapsedProjects[p.id] = isProjectCardCollapsed(p.id);
+  });
+  settingsData.ui.collapsedApps = {};
+  (settingsData.apps || []).forEach((a, i) => {
+    const appId = a.id || `app_${i}`;
+    settingsData.ui.collapsedApps[appId] = isAppCardCollapsed(appId);
+  });
+}
 function isCatCollapsed(catId) {
   return localStorage.getItem(CAT_COLLAPSE_PREFIX + catId) === 'true';
 }
 function setCatCollapsed(catId, collapsed) {
   localStorage.setItem(CAT_COLLAPSE_PREFIX + catId, collapsed ? 'true' : 'false');
+  ensureUiSettings();
+  settingsData.ui.collapsedCats[catId] = collapsed;
 }
 function isProjectCardCollapsed(id) {
   return localStorage.getItem(PROJECT_CARD_COLLAPSE_PREFIX + id) === 'true';
 }
 function setProjectCardCollapsed(id, collapsed) {
   localStorage.setItem(PROJECT_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
+  ensureUiSettings();
+  settingsData.ui.collapsedProjects[id] = collapsed;
 }
 function isAppCardCollapsed(id) {
   return localStorage.getItem(APP_CARD_COLLAPSE_PREFIX + id) === 'true';
 }
 function setAppCardCollapsed(id, collapsed) {
   localStorage.setItem(APP_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
+  ensureUiSettings();
+  settingsData.ui.collapsedApps[id] = collapsed;
 }
 
 function initSectionCollapse() {
@@ -565,6 +606,7 @@ async function loadData() {
     showDevEl.checked = !!settingsData.show_dev_section;
     syncPremiumToggle('showDevSection');
   }
+  applyUiCollapseFromSettings();
   renderAll();
   // Загружаем услуги отдельно из /api/services
   loadServices();
@@ -572,6 +614,7 @@ async function loadData() {
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
   setStatus(u().saving, '');
+  snapshotUiCollapseState();
   try {
     const res = await fetch(API_SAVE, {
       method: 'POST',
@@ -915,12 +958,12 @@ function renderProjectCard(p) {
 
   const titleVal = (p.titles && p.titles[activeLang]) || '';
   const descVal = (p.descriptions && p.descriptions[activeLang]) || '';
-  const isCollapsed = localStorage.getItem('korsmotion_proj_collapsed_' + p.id) === 'true';
+  const isCollapsed = isProjectCardCollapsed(p.id);
 
   return `
     <div class="item-card ${p.visible ? '' : 'hidden-item'}${isCollapsed ? ' collapsed' : ''}" data-id="${p.id}">
       <div class="item-card-head">
-        <button type="button" class="item-card-chevron ${isCollapsed ? '' : 'open'}" onclick="toggleProjectCard('${p.id}')" aria-label="Toggle">▾</button>
+        <button type="button" class="item-card-chevron ${isCollapsed ? '' : 'open'}" onclick="event.stopPropagation();toggleProjectCard('${p.id}')" aria-label="Toggle">▾</button>
         <span class="item-card-title">${esc(p.title || 'Untitled')}</span>
         <div class="item-card-actions">
           <button class="btn btn-ghost btn-sm vis-btn" data-id="${p.id}">${p.visible ? t.hide : t.show}</button>
