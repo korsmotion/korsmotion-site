@@ -151,22 +151,24 @@ export default {
       return json({ ok: true });
     }
 
-    // GET /api/analytics — Cloudflare Web Analytics (RUM) via GraphQL
+    // GET /api/analytics — DEBUG: raw Cloudflare sites API response
     if (url.pathname === '/api/analytics' && request.method === 'GET') {
       const auth = request.headers.get('X-Admin-Password');
       if (auth !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
 
-      const cfApiToken = env.CF_API_TOKEN;
-      if (!cfApiToken) {
-        return json({
-          error: 'CF_API_TOKEN not set in Cloudflare Pages → Settings → Environment variables',
-        }, 503);
+      if (!env.CF_API_TOKEN) {
+        return json({ debug: true, error: 'CF_API_TOKEN not set' }, 503);
       }
 
       try {
-        return json(await getCfAnalytics(cfApiToken));
+        const sitesResp = await fetch(
+          `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/web-analytics/sites`,
+          { headers: { Authorization: `Bearer ${env.CF_API_TOKEN}` } }
+        );
+        const sitesJson = await sitesResp.json();
+        return json({ debug: true, sites: sitesJson });
       } catch (e) {
-        return json({ error: e.message }, 500);
+        return json({ debug: true, error: e.message }, 500);
       }
     }
 

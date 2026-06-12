@@ -916,6 +916,10 @@ async function renderDashboard() {
       headers: { 'X-Admin-Password': ADMIN_PASSWORD }
     });
     const data = await resp.json();
+    if (data.debug) {
+      console.log('Analytics debug:', data);
+      throw new Error(data.error || 'Debug mode — see Console (F12)');
+    }
     if (!resp.ok || data.error) throw new Error(data.error || resp.status);
 
     const acc = data?.data?.viewer?.accounts?.[0];
