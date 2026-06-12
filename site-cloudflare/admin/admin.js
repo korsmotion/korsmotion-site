@@ -51,7 +51,7 @@ const UI = {
     weatherDesc: 'Для виджета погоды в Dashboard', weatherImages: 'Фоновые картинки погоды',
     generalTitle: 'Основные', saveBtn: 'Сохранить', uploadBtn: '📁 Загрузить',
     weatherNoApiKey: 'Укажи API ключ в Настройках ⚙️', weatherLoading: 'Загрузка погоды…',
-    weatherError: 'Не удалось загрузить погоду',
+    weatherError: 'Не удалось загрузить погоду', weatherToday: 'Сегодня',
     servicesTitle: 'Услуги', saveServicesBtn: '💾 Сохранить услуги',
     servicesDesc: 'Редактируй тексты на всех 5 языках. Переключай язык внутри каждой карточки. Нажми «Сохранить услуги» после изменений.'
   },
@@ -80,7 +80,7 @@ const UI = {
     weatherDesc: 'Für das Wetter-Widget im Dashboard', weatherImages: 'Wetter-Hintergrundbilder',
     generalTitle: 'Allgemein', saveBtn: 'Speichern', uploadBtn: '📁 Hochladen',
     weatherNoApiKey: 'API-Schlüssel in Einstellungen ⚙️ angeben', weatherLoading: 'Wetter wird geladen…',
-    weatherError: 'Wetter konnte nicht geladen werden',
+    weatherError: 'Wetter konnte nicht geladen werden', weatherToday: 'Heute',
     servicesTitle: 'Dienstleistungen', saveServicesBtn: '💾 Dienste speichern',
     servicesDesc: 'Texte in allen 5 Sprachen bearbeiten. Sprache in jeder Karte wechseln. Nach Änderungen «Dienste speichern» klicken.'
   },
@@ -109,7 +109,7 @@ const UI = {
     weatherDesc: 'For the weather widget in Dashboard', weatherImages: 'Weather background images',
     generalTitle: 'General', saveBtn: 'Save', uploadBtn: '📁 Upload',
     weatherNoApiKey: 'Set API key in Settings ⚙️', weatherLoading: 'Loading weather…',
-    weatherError: 'Failed to load weather',
+    weatherError: 'Failed to load weather', weatherToday: 'Today',
     servicesTitle: 'Services', saveServicesBtn: '💾 Save services',
     servicesDesc: 'Edit texts in all 5 languages. Switch language inside each card. Click «Save services» after changes.'
   }
@@ -715,12 +715,15 @@ async function loadWeatherWidget() {
       <div class="weather-widget-overlay">
         <div class="weather-widget-header">
           <div class="weather-widget-location">📍 Bischofszell</div>
-          <div class="weather-widget-date">
-            <span class="weather-widget-dayname">${esc(dayName)}</span>
-            <span class="weather-widget-datestr">${esc(dateStr)}</span>
-          </div>
         </div>
         <div class="weather-widget-body">
+          <div class="weather-widget-today">
+            <div class="weather-widget-today-label">${esc(t.weatherToday)}</div>
+            <div class="weather-widget-today-date">
+              <span class="weather-widget-dayname">${esc(dayName)}</span>
+              <span class="weather-widget-datestr">${esc(dateStr)}</span>
+            </div>
+          </div>
           <div class="weather-widget-temp">${temp}°</div>
           <div class="weather-widget-desc">${esc(w.description)}</div>
           <div class="weather-widget-meta"><span>💧 ${humidity}%</span><span>💨 ${wind} km/h</span></div>
