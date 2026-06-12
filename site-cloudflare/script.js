@@ -683,6 +683,23 @@ let currentLanguage = 'ru';
 let allProjects = [];
 let siteProjects = [];
 let siteSettings = { show_dev_section: false, apps: [] };
+let allServices = [];
+let siteServices = [];
+
+const SERVICE_WINDOWS = {
+  s1: '<div class="service-window"><img src="logo.png" alt="" class="anim-logo"></div>',
+  s2: '<div class="service-window"><div class="anim-motion"><div class="shape shape-1"></div><div class="shape shape-2"></div><div class="shape shape-3"></div></div></div>',
+  s3: '<div class="service-window"><div class="anim-design"><div class="layer layer-1"></div><div class="layer layer-2"></div><div class="layer layer-3"></div></div></div>',
+  s4: '<div class="service-window"><div class="anim-logocreate"><div class="grid-block b1"></div><div class="grid-block b2"></div><div class="grid-block b3"></div><div class="grid-block b4"></div><div class="grid-block center"></div></div></div>',
+  s5: '<div class="service-window"><div class="anim-web"><div class="browser-bar"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="browser-content"><div class="web-line"></div><div class="web-line"></div><div class="web-line"></div><div class="web-block"></div></div></div></div>',
+  s6: '<div class="service-window"><div class="anim-support"><div class="gear gear-1"></div><div class="gear gear-2"></div><div class="check"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div></div>',
+};
+
+function svcLang(obj, lang) {
+  if (!obj) return '';
+  if (typeof obj === 'string') return obj;
+  return obj[lang] || obj.en || obj.de || obj.ru || Object.values(obj)[0] || '';
+}
 
 function detectLang() {
   const saved = localStorage.getItem('korsmotion_lang');
@@ -718,6 +735,7 @@ function applyLang(lang) {
   localStorage.setItem('korsmotion_lang', lang);
   renderPortfolio();
   renderDevSection();
+  renderServices();
 }
 
 const switcher = document.getElementById('langSwitcher');
@@ -771,7 +789,76 @@ const serviceIcons = {
 
 function openServiceDetail(id) {
   const t = translations[currentLanguage];
+  const lang = currentLanguage;
   const content = document.getElementById('serviceModalContent');
+  const svc = siteServices.find(s => s.id === id);
+
+  if (svc) {
+    const title = svcLang(svc.title, lang);
+    const subtitle = svcLang(svc.subtitle, lang);
+    const whatText = svcLang(svc.whatText, lang);
+    const priceNote = svcLang(svc.priceNote, lang);
+    const priceVal = svc.price ? `${svc.price} CHF` : '';
+    const steps = (svc.steps || []).slice(0, 4);
+    const faqs = (svc.faq || []).slice(0, 3);
+    const icon = serviceIcons[id] || serviceIcons.s1;
+    const whatLabel = t['sd.s1.what'] || 'What you get';
+    const processLabel = t['sd.s1.process'] || 'Process';
+    const priceLabel = t['sd.s1.price'] || 'Price';
+    const faqLabel = t['sd.s1.faq'] || 'FAQ';
+
+    content.innerHTML = `
+      <div class="service-detail-hero">
+        <div class="service-detail-icon">${icon}</div>
+        <h2 class="service-detail-title">${escHtml(title)}</h2>
+        <p class="service-detail-subtitle">${escHtml(subtitle)}</p>
+      </div>
+      <div class="service-detail-body">
+        <div class="service-detail-block">
+          <h3 class="service-detail-block-title">${whatLabel}</h3>
+          <p class="service-detail-block-text">${escHtml(whatText)}</p>
+        </div>
+        ${steps.length ? `
+        <div class="service-detail-block">
+          <h3 class="service-detail-block-title">${processLabel}</h3>
+          <div class="process-steps">
+            ${steps.map((step, n) => `
+              <div class="process-step">
+                <div class="process-step-num">${n + 1}</div>
+                <div class="process-step-content">
+                  <div class="process-step-title">${escHtml(svcLang(step.title, lang))}</div>
+                  <div class="process-step-text">${escHtml(svcLang(step.desc, lang))}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>` : ''}
+        ${priceVal ? `
+        <div class="price-box">
+          <div class="price-label">${priceLabel}</div>
+          <div class="price-value">${escHtml(priceVal)}</div>
+          <div class="price-note">${escHtml(priceNote)}</div>
+        </div>` : ''}
+        ${faqs.length ? `
+        <div class="service-detail-block">
+          <h3 class="service-detail-block-title">${faqLabel}</h3>
+          ${faqs.map(faq => `
+            <div class="faq-item">
+              <div class="faq-question">${escHtml(svcLang(faq.q, lang))}</div>
+              <div class="faq-answer">${escHtml(svcLang(faq.a, lang))}</div>
+            </div>
+          `).join('')}
+        </div>` : ''}
+        <button class="btn-primary" style="width:100%;justify-content:center;margin-top:24px" onclick="closeModal('serviceModal'); openModal('contactModal');">
+          <span>${t['cta.btn1']}</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    `;
+    openModal('serviceModal');
+    return;
+  }
+
   content.innerHTML = `
     <div class="service-detail-hero">
       <div class="service-detail-icon">${serviceIcons[id]}</div>
@@ -864,11 +951,56 @@ async function loadSiteData() {
     } catch (_) {}
   }
 
+  try {
+    const svcRes = await fetch('/api/services');
+    if (svcRes.ok) {
+      const svcData = await svcRes.json();
+      allServices = svcData.services || [];
+    }
+  } catch (_) {}
+
   allProjects = projects?.projects || [];
   siteProjects = allProjects.filter(p => p.visible);
   siteSettings = settings || { show_dev_section: false, apps: [] };
+  siteServices = allServices.filter(s => s.visible !== false);
   renderPortfolio();
   renderDevSection();
+  renderServices();
+}
+
+function renderServices() {
+  const list = document.getElementById('servicesList');
+  if (!list) return;
+  const lang = currentLanguage;
+  const t = translations[lang] || translations.en;
+
+  if (!siteServices.length) {
+    list.innerHTML = '';
+    const section = document.getElementById('services');
+    if (section) section.style.display = allServices.length ? 'none' : '';
+    return;
+  }
+
+  const section = document.getElementById('services');
+  if (section) section.style.display = '';
+
+  list.innerHTML = siteServices.map((svc, i) => {
+    const id = svc.id || `s${i + 1}`;
+    const num = String(i + 1).padStart(2, '0');
+    const title = svcLang(svc.title, lang);
+    const desc = svcLang(svc.shortDesc, lang);
+    const windowHtml = SERVICE_WINDOWS[id] || SERVICE_WINDOWS[`s${(i % 6) + 1}`] || SERVICE_WINDOWS.s1;
+    return `
+      <div class="service-card" onclick="openServiceDetail('${escHtml(id)}')">
+        ${windowHtml}
+        <div class="service-content">
+          <div class="service-number">— ${num}</div>
+          <h3 class="service-title">${escHtml(title)}</h3>
+          <p class="service-desc">${escHtml(desc)}</p>
+          <span class="service-link"><span>${t['services.detail'] || 'Details'}</span> →</span>
+        </div>
+      </div>`;
+  }).join('');
 }
 
 const carouselState = {};

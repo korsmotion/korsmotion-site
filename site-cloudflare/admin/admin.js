@@ -642,6 +642,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
       body: JSON.stringify({ password: ADMIN_PASSWORD, projects: projectsData, settings: settingsData }),
     });
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
+    if (!(await saveServices({ silent: true }))) throw new Error('services');
     setStatus(u().saved, 'success');
     showToast(u().saved, 'success');
     const now = new Date();
@@ -888,7 +889,7 @@ async function renderDashboard() {
     const rumViews = (group) => {
       const row = group?.[0];
       if (!row) return 0;
-      const n = row.count ?? row.sum?.visits ?? row.sum?.pageViews;
+      const n = row.sum?.pageViews ?? row.sum?.visits ?? row.count;
       return n != null ? n : 0;
     };
     if (!acc) throw new Error('No analytics data');
@@ -1259,7 +1260,7 @@ async function loadServices() {
   updateServicesCount();
 }
 
-async function saveServices() {
+async function saveServices({ silent = false } = {}) {
   try {
     const res = await fetch(API_SERVICES, {
       method: 'POST',
@@ -1267,10 +1268,14 @@ async function saveServices() {
       body: JSON.stringify({ password: ADMIN_PASSWORD, services: servicesData.services }),
     });
     if (!res.ok) throw new Error();
-    showToast('Услуги сохранены ✓', 'success');
-    setStatus('Услуги сохранены ✓', 'success');
+    if (!silent) {
+      showToast('Услуги сохранены ✓', 'success');
+      setStatus('Услуги сохранены ✓', 'success');
+    }
+    return true;
   } catch {
-    showToast('Ошибка сохранения услуг', 'error');
+    if (!silent) showToast('Ошибка сохранения услуг', 'error');
+    return false;
   }
 }
 
@@ -1325,12 +1330,12 @@ function renderServiceCard(svc, i) {
   `).join('');
 
   return `
-    <div class="item-card ${svc.visible ? '' : 'hidden-item'}${isCollapsed ? ' collapsed' : ''}" data-svc-index="${i}" data-svc-id="${esc(svcId)}">
+    <div class="item-card ${svc.visible !== false ? '' : 'hidden-item'}${isCollapsed ? ' collapsed' : ''}" data-svc-index="${i}" data-svc-id="${esc(svcId)}">
       <div class="item-card-head">
         <button type="button" class="item-card-chevron ${isCollapsed ? '' : 'open'}" onclick="event.stopPropagation();toggleServiceCard('${esc(svcId)}')" aria-label="Toggle">▾</button>
         <span class="item-card-title">${esc(lv(svc.title, lang) || svc.id)}</span>
         <div class="item-card-actions">
-          <button class="btn btn-ghost btn-sm svc-vis-btn" data-svc-index="${i}">${svc.visible ? 'Скрыть' : 'Показать'}</button>
+          <button class="btn btn-ghost btn-sm svc-vis-btn" data-svc-index="${i}">${svc.visible !== false ? 'Скрыть' : 'Показать'}</button>
         </div>
       </div>
 
@@ -1401,7 +1406,8 @@ function attachServiceEvents(container) {
   container.querySelectorAll('.svc-vis-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const i = +btn.dataset.svcIndex;
-      servicesData.services[i].visible = !servicesData.services[i].visible;
+      const on = servicesData.services[i].visible !== false;
+      servicesData.services[i].visible = !on;
       renderServices();
     });
   });
