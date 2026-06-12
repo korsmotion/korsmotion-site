@@ -66,6 +66,27 @@ nav a.nav-link:hover{color:var(--violet-deep)}
 .hero-bg img,.hero-bg video{width:100%;height:100%;object-fit:cover;display:block}
 .hero>.container{position:relative;z-index:1}
 .reviews-actions{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:32px}
+#calculator{display:none}
+.calculator-subtitle{font-size:18px;color:var(--ink-soft);max-width:640px;margin-bottom:48px;line-height:1.55}
+.calc-group-block{margin-bottom:48px}
+.calc-group-label{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--violet-mid);margin-bottom:20px}
+.calc-options-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.calc-option-card{position:relative;background:rgba(255,255,255,.45);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1.5px solid rgba(255,255,255,.85);border-radius:20px;padding:24px 20px;cursor:pointer;transition:all .3s ease;user-select:none;min-height:160px}
+.calc-option-card:hover:not(.required){background:rgba(255,255,255,.62);transform:translateY(-2px);box-shadow:0 12px 32px rgba(91,63,191,.1)}
+.calc-option-card.selected{border-color:var(--violet-deep);background:rgba(139,111,232,.14);box-shadow:0 8px 24px rgba(91,63,191,.15)}
+.calc-option-card.required{border-color:rgba(139,111,232,.45);background:rgba(139,111,232,.08);cursor:default}
+.calc-option-check{position:absolute;top:12px;right:12px;width:26px;height:26px;border-radius:50%;background:var(--violet-deep);color:#fff;display:none;align-items:center;justify-content:center}
+.calc-option-card.selected:not(.required) .calc-option-check{display:flex}
+.calc-option-lock{position:absolute;top:12px;right:12px;font-size:18px;line-height:1;display:none}
+.calc-option-card.required .calc-option-lock{display:block}
+.calc-option-icon{font-size:36px;margin-bottom:12px;line-height:1}
+.calc-option-title{font-weight:700;font-size:16px;color:var(--ink);margin-bottom:8px;padding-right:28px}
+.calc-option-desc{font-size:13px;color:var(--ink-soft);line-height:1.45}
+.calculator-actions{margin-top:48px;text-align:center}
+.calc-modal-list{list-style:none;margin:20px 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.calc-modal-list li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-soft);padding:10px 14px;background:rgba(255,255,255,.5);border-radius:12px;border:1px solid rgba(184,154,237,.25)}
+.calc-modal-list .calc-modal-icon{font-size:20px;line-height:1}
+.calc-modal-text{font-size:15px;color:var(--ink-soft);line-height:1.6;margin-bottom:8px}
 .reviews-carousel-wrap{position:relative;display:flex;align-items:center;gap:12px;margin-top:8px}
 .reviews-carousel{flex:1;min-width:0;overflow:hidden;container-type:inline-size}
 .reviews-carousel-track{display:flex;gap:24px;padding:12px 0 20px;will-change:transform;transition:transform .45s ease}
@@ -613,6 +634,23 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   </div>
 </section>
 
+<section id="calculator">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label" data-i18n="calculator.label">— Калькулятор проекта</div>
+      <h2 class="section-title" data-i18n-html="calculator.title">Соберите свой<br><em>идеальный сайт</em></h2>
+      <p class="calculator-subtitle" data-i18n="calculator.subtitle">Выберите нужные модули — мы подготовим точную смету.</p>
+    </div>
+    <div id="calculatorGroups"></div>
+    <div class="calculator-actions reveal">
+      <button type="button" class="btn-primary" id="calculatorRequestBtn">
+        <span data-i18n="calculator.btn">Запросить предложение →</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
 <section id="cta">
   <div class="container">
     <div class="cta-card reveal">
@@ -759,6 +797,44 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   </div>
 </div>
 
+<div class="modal-overlay" id="calculatorModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('calculatorModal')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-scroll">
+      <div class="modal-header-gradient">
+        <h2 class="modal-header-title" data-i18n="calculator.modalTitle">Отличный выбор!</h2>
+        <p class="calc-modal-text" id="calcModalText" data-i18n="calculator.modalText">Вы выбрали 0 модулей. Оставьте контакты — Sergej Korsakov подготовит точную смету в течение 24 часов.</p>
+        <ul class="calc-modal-list" id="calcModalList"></ul>
+      </div>
+      <div class="modal-body">
+        <form id="calculatorForm">
+          <div class="form-group">
+            <label class="form-label" data-i18n="calculator.name">Имя *</label>
+            <input type="text" id="calcFormName" class="form-input" required data-i18n-placeholder="form.namePh" placeholder="Ваше имя">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="calculator.email">Email *</label>
+            <input type="email" id="calcFormEmail" class="form-input" required placeholder="you@email.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="calculator.phone">Телефон</label>
+            <input type="tel" id="calcFormPhone" class="form-input" placeholder="+41 ...">
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;justify-content:center">
+            <span data-i18n="calculator.submit">Отправить</span>
+          </button>
+        </form>
+        <div class="form-success" id="calcFormSuccess">
+          <div class="form-success-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <p class="form-success-text" data-i18n="calculator.success">Спасибо! Мы свяжемся с вами в течение 24 часов.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="reviewModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('reviewModal')">
@@ -800,7 +876,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   </div>
 </div>
 
-<script src="script.js?v=14"></script>
+<script src="script.js?v=15"></script>
 <script src="script-patch.js"></script>
 </body>
 </html>

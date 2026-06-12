@@ -136,6 +136,37 @@ function normalizeHero(raw) {
   };
 }
 
+const FORMSPREE_CALCULATOR_ID = 'xpqbjznb';
+
+const CALC_SUCCESS_MSG = {
+  ru: 'Спасибо! Мы свяжемся с вами в течение 24 часов.',
+  de: 'Danke! Wir melden uns innerhalb von 24 Stunden.',
+  en: 'Thank you! We will contact you within 24 hours.',
+  fr: 'Merci ! Nous vous contacterons dans les 24 heures.',
+  it: 'Grazie! Vi contatteremo entro 24 ore.',
+};
+
+function normalizeCalculator(data) {
+  if (!data || typeof data !== 'object' || !Array.isArray(data.groups)) {
+    return { visible: false, groups: [] };
+  }
+  return {
+    visible: data.visible === true,
+    groups: data.groups,
+  };
+}
+
+async function loadCalculatorDefault(env, request) {
+  const defUrl = new URL(request.url);
+  defUrl.pathname = '/data/calculator-default.json';
+  defUrl.search = '';
+  try {
+    const res = await env.ASSETS.fetch(defUrl.toString());
+    if (res.ok) return normalizeCalculator(await res.json());
+  } catch (_) {}
+  return { visible: false, groups: [] };
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -304,6 +335,81 @@ export default {
     if (url.pathname === '/api/hero' && request.method === 'GET') {
       const raw = await env.KORSMOTION_DATA.get('hero_data');
       return json(normalizeHero(raw ? JSON.parse(raw) : {}));
+    }
+
+    // GET /api/calculator
+    if (url.pathname === '/api/calculator' && request.method === 'GET') {
+      const raw = await env.KORSMOTION_DATA.get('calculator_data');
+      if (raw) return json(normalizeCalculator(JSON.parse(raw)));
+      return json(await loadCalculatorDefault(env, request));
+    }
+
+    // POST /api/calculator — admin save
+    if (url.pathname === '/api/calculator' && request.method === 'POST') {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return json({ error: 'Invalid JSON' }, 400);
+      }
+      if (body.password !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
+      const calc = normalizeCalculator(body.calculator || body);
+      await env.KORSMOTION_DATA.put('calculator_data', JSON.stringify(calc));
+      return json({ ok: true });
+    }
+
+    // POST /api/calculator-request — public lead form
+    if (url.pathname === '/api/calculator-request' && request.method === 'POST') {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return json({ error: 'Invalid JSON' }, 400);
+      }
+      const name = (body.name || '').trim();
+      const email = (body.email || '').trim();
+      const phone = (body.phone || '').trim();
+      const lang = (body.lang || 'ru').toLowerCase();
+      const selectedOptions = Array.isArray(body.selectedOptions) ? body.selectedOptions : [];
+      const totalInternal = parseInt(body.totalInternal, 10) || 0;
+      if (!name || !email) return json({ error: 'Name and email required' }, 400);
+
+      const optionsList = selectedOptions.length
+        ? selectedOptions.map(o => `- ${o}`).join('\n')
+        : '—';
+      const adminMessage = [
+        `Новый лид: ${name} (${email}, ${phone || '—'})`,
+        `Язык: ${lang}`,
+        'Выбрано:',
+        optionsList,
+        `Внутренняя расчетная стоимость: ${totalInternal} CHF`,
+      ].join('\n');
+
+      try {
+        const fsRes = await fetch(`https://formspree.io/f/${FORMSPREE_CALCULATOR_ID}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            _subject: `Новый лид: ${name}`,
+            _replyto: email,
+            message: adminMessage,
+            name,
+            email,
+            phone,
+            lang,
+            selectedOptions: optionsList,
+            totalInternal,
+          }),
+        });
+        if (!fsRes.ok) throw new Error('Formspree error');
+      } catch (e) {
+        return json({ error: 'Failed to send request' }, 500);
+      }
+
+      return json({
+        ok: true,
+        message: CALC_SUCCESS_MSG[lang] || CALC_SUCCESS_MSG.en,
+      });
     }
 
     // POST /api/hero — admin save

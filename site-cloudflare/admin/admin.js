@@ -21,10 +21,11 @@ const API_SAVE = '/api/save';
 const API_SERVICES = '/api/services';
 const API_REVIEWS = '/api/reviews';
 const API_HERO = '/api/hero';
+const API_CALCULATOR = '/api/calculator';
 const WEATHER_CITY = 'Bischofszell,CH';
 const WEATHER_REFRESH_MS = 30 * 60 * 1000;
 const SECTION_COLLAPSE_KEY = 'korsmotion_admin_section_';
-const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, hero: false, portfolio: true, devApps: true, services: true, reviews: true };
+const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, hero: false, portfolio: true, devApps: true, services: true, reviews: true, calculator: true };
 const CAT_COLLAPSE_PREFIX = 'korsmotion_cat_collapsed_';
 const PROJECT_CARD_COLLAPSE_PREFIX = 'korsmotion_proj_collapsed_';
 const APP_CARD_COLLAPSE_PREFIX = 'korsmotion_appcard_collapsed_';
@@ -85,6 +86,11 @@ const UI = {
     reviewsDelete: 'Удалить', reviewsDeleteShort: '✕ Удалить',
     reviewsEmptyPending: 'Нет новых отзывов', reviewsEmptyApproved: 'Нет одобренных отзывов',
     reviewsHidden: 'Скрыт',
+    calcTitle: 'Калькулятор', calcShow: 'ПОКАЗАТЬ НА САЙТЕ',
+    calcAddGroup: '+ Добавить группу', calcAddOption: '+ Добавить опцию',
+    calcDeleteGroup: 'Удалить группу', calcDeleteOption: 'Удалить',
+    calcGroupLabel: 'Название группы', calcActive: 'Активна', calcRequired: 'Обязательная',
+    calcIcon: 'Иконка (emoji)', calcPrice: 'Внутренняя цена (CHF)', calcTitleField: 'Заголовок', calcDescField: 'Описание',
   },
   de: {
     adminTitle: 'Admin-Panel', viewSite: 'Website ansehen', logout: 'Abmelden',
@@ -139,6 +145,11 @@ const UI = {
     reviewsDelete: 'Löschen', reviewsDeleteShort: '✕ Löschen',
     reviewsEmptyPending: 'Keine neuen Bewertungen', reviewsEmptyApproved: 'Keine genehmigten Bewertungen',
     reviewsHidden: 'Verborgen',
+    calcTitle: 'Kalkulator', calcShow: 'AUF WEBSITE ANZEIGEN',
+    calcAddGroup: '+ Gruppe hinzufügen', calcAddOption: '+ Option hinzufügen',
+    calcDeleteGroup: 'Gruppe löschen', calcDeleteOption: 'Löschen',
+    calcGroupLabel: 'Gruppenname', calcActive: 'Aktiv', calcRequired: 'Pflicht',
+    calcIcon: 'Icon (Emoji)', calcPrice: 'Interner Preis (CHF)', calcTitleField: 'Titel', calcDescField: 'Beschreibung',
   },
   en: {
     adminTitle: 'Admin Panel', viewSite: 'View site', logout: 'Logout',
@@ -193,6 +204,11 @@ const UI = {
     reviewsDelete: 'Delete', reviewsDeleteShort: '✕ Delete',
     reviewsEmptyPending: 'No new reviews', reviewsEmptyApproved: 'No approved reviews',
     reviewsHidden: 'Hidden',
+    calcTitle: 'Calculator', calcShow: 'SHOW ON SITE',
+    calcAddGroup: '+ Add group', calcAddOption: '+ Add option',
+    calcDeleteGroup: 'Delete group', calcDeleteOption: 'Delete',
+    calcGroupLabel: 'Group label', calcActive: 'Active', calcRequired: 'Required',
+    calcIcon: 'Icon (emoji)', calcPrice: 'Internal price (CHF)', calcTitleField: 'Title', calcDescField: 'Description',
   }
 };
 
@@ -250,6 +266,9 @@ const DEFAULT_SETTINGS = {
 };
 let settingsData = { ...DEFAULT_SETTINGS };
 let reviewsData = { reviews: [] };
+let calculatorData = { visible: false, groups: [] };
+let calcAdminLang = 'ru';
+const calcOptLangTab = {};
 let heroData = JSON.parse(JSON.stringify(DEFAULT_HERO));
 let reviewsActiveTab = 'pending';
 let heroActiveLang = 'ru';
@@ -525,7 +544,7 @@ function initDirtyTracking() {
   if (!app || app.dataset.dirtyBound === '1') return;
   app.dataset.dirtyBound = '1';
   app.addEventListener('input', e => {
-    if (e.target.closest('#projectsList, #devList, #servicesList, #heroSection, #reviewsSection')) markUnsaved();
+    if (e.target.closest('#projectsList, #devList, #servicesList, #heroSection, #reviewsSection, #calculatorSection')) markUnsaved();
   });
   app.addEventListener('change', e => {
     if (['showDevSection', 'showPortfolioSection', 'showServicesSection', 'showReviewsSection', 'showHeroSection'].includes(e.target.id)) markUnsaved();
@@ -921,6 +940,7 @@ async function loadData() {
   loadServices();
   loadReviewsAdmin();
   loadHeroAdmin();
+  loadCalculatorAdmin();
 }
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
@@ -937,6 +957,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     if (!(await saveServices({ silent: true }))) throw new Error('services');
     if (!(await saveReviews({ silent: true }))) throw new Error('reviews');
     if (!(await saveHero({ silent: true }))) throw new Error('hero');
+    if (!(await saveCalculator({ silent: true }))) throw new Error('calculator');
     await markSavedSuccess();
     showToast(u().loadedServer, 'success');
     const now = new Date();
@@ -975,6 +996,7 @@ function renderAll() {
   renderDevelopment();
   renderServices();
   renderReviewsAdmin();
+  renderCalculatorAdmin();
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -2180,6 +2202,272 @@ function renderReviewsAdmin() {
       markUnsaved();
       renderReviewsAdmin();
     });
+  });
+}
+
+// ── Calculator ────────────────────────────────────────────────────────────────
+function ensureCalcLangFields(obj) {
+  if (!obj.label) obj.label = {};
+  if (!obj.title) obj.title = {};
+  if (!obj.desc) obj.desc = {};
+  SITE_LANGS.forEach(l => {
+    if (obj.label[l] === undefined) obj.label[l] = '';
+    if (obj.title && obj.title[l] === undefined) obj.title[l] = '';
+    if (obj.desc && obj.desc[l] === undefined) obj.desc[l] = '';
+  });
+  return obj;
+}
+
+function syncCalculatorVisibilityToggle() {
+  const el = document.getElementById('calcVisible');
+  if (!el) return;
+  el.checked = calculatorData.visible === true;
+  syncPremiumToggle('calcVisible');
+}
+
+function bindCalculatorVisibleToggle() {
+  const el = document.getElementById('calcVisible');
+  if (!el || el.dataset.bound === '1') return;
+  el.dataset.bound = '1';
+  el.addEventListener('change', e => {
+    calculatorData.visible = e.target.checked;
+    syncPremiumToggle('calcVisible');
+    markUnsaved();
+  });
+}
+
+async function loadCalculatorAdmin() {
+  try {
+    const res = await fetch(API_CALCULATOR);
+    if (res.ok) calculatorData = await res.json();
+  } catch (_) {}
+  if (!Array.isArray(calculatorData.groups) || !calculatorData.groups.length) {
+    try {
+      const def = await fetch('../data/calculator-default.json');
+      if (def.ok) calculatorData = await def.json();
+    } catch (_) {}
+  }
+  if (!Array.isArray(calculatorData.groups)) calculatorData.groups = [];
+  calculatorData.groups.forEach(g => {
+    ensureCalcLangFields(g);
+    (g.options || []).forEach(o => ensureCalcLangFields(o));
+  });
+  syncCalculatorVisibilityToggle();
+  bindCalculatorVisibleToggle();
+  renderCalculatorAdmin();
+}
+
+async function saveCalculator({ silent } = {}) {
+  try {
+    const res = await fetch(API_CALCULATOR, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: ADMIN_PASSWORD, calculator: calculatorData }),
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
+    return true;
+  } catch (e) {
+    if (!silent) showToast(u().saveError, 'error');
+    return false;
+  }
+}
+
+function renderCalcOptionCard(group, gi, opt, oi) {
+  const t = u();
+  const optLang = calcOptLangTab[opt.id] || calcAdminLang;
+  const previewTitle = (opt.title && (opt.title.ru || opt.title.en)) || opt.id;
+  return `
+    <div class="item-card calc-opt-card" data-gi="${gi}" data-oi="${oi}">
+      <div class="item-card-head">
+        <span class="item-card-title">${esc(opt.icon || '📦')} ${esc(previewTitle)}</span>
+        <div class="item-card-actions" style="gap:8px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600">
+            <input type="checkbox" class="calc-opt-active" data-gi="${gi}" data-oi="${oi}" ${opt.active !== false ? 'checked' : ''}>
+            ${esc(t.calcActive)}
+          </label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600">
+            <input type="checkbox" class="calc-opt-required" data-gi="${gi}" data-oi="${oi}" ${opt.required ? 'checked' : ''}>
+            ${esc(t.calcRequired)}
+          </label>
+          <button type="button" class="btn btn-danger btn-sm calc-opt-del" data-gi="${gi}" data-oi="${oi}">${esc(t.calcDeleteOption)}</button>
+        </div>
+      </div>
+      <div class="item-card-body item-card-body--plain">
+        <div class="item-fields" style="margin-bottom:12px">
+          <div class="form-group">
+            <label class="form-label">${esc(t.calcIcon)}</label>
+            <input class="form-input calc-opt-field" data-gi="${gi}" data-oi="${oi}" data-field="icon" value="${esc(opt.icon || '')}" style="max-width:80px;font-size:22px;text-align:center">
+          </div>
+          <div class="form-group">
+            <label class="form-label">${esc(t.calcPrice)}</label>
+            <input type="number" class="form-input calc-opt-field" data-gi="${gi}" data-oi="${oi}" data-field="price" value="${esc(String(opt.price ?? 0))}" min="0" step="50">
+          </div>
+        </div>
+        <div class="lang-section">
+          <div class="lang-section-label">${esc(t.langLabel)}:</div>
+          <div class="lang-tabs">
+            ${SITE_LANGS.map(l => `
+              <button type="button" class="lang-tab${l === optLang ? ' active' : ''}" data-calc-opt-lang="${opt.id}" data-lang="${l}">${SITE_LANG_LABELS[l]}</button>
+            `).join('')}
+          </div>
+          <div class="lang-fields">
+            <div class="form-group">
+              <label class="form-label">${esc(t.calcTitleField)}</label>
+              <input class="form-input calc-opt-field" data-gi="${gi}" data-oi="${oi}" data-field="title" data-lang="${optLang}" value="${esc((opt.title && opt.title[optLang]) || '')}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">${esc(t.calcDescField)}</label>
+              <textarea class="form-textarea calc-opt-field" data-gi="${gi}" data-oi="${oi}" data-field="desc" data-lang="${optLang}" rows="2">${esc((opt.desc && opt.desc[optLang]) || '')}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderCalculatorAdmin() {
+  const container = document.getElementById('calculatorSection');
+  if (!container) return;
+  const t = u();
+  const groups = calculatorData.groups || [];
+
+  container.innerHTML = `
+    ${groups.map((group, gi) => {
+      ensureCalcLangFields(group);
+      const gLang = calcAdminLang;
+      const opts = group.options || [];
+      return `
+        <div class="calc-group-admin" data-gi="${gi}" style="margin-bottom:24px;padding:16px;background:var(--bg-input);border-radius:12px;border:2px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px">
+              <div class="lang-section-label">${esc(t.calcGroupLabel)} (ID: ${esc(group.id || '')})</div>
+              <div class="lang-tabs" style="margin:8px 0">
+                ${SITE_LANGS.map(l => `
+                  <button type="button" class="lang-tab${l === gLang ? ' active' : ''}" data-calc-group-lang="${gi}" data-lang="${l}">${SITE_LANG_LABELS[l]}</button>
+                `).join('')}
+              </div>
+              <input class="form-input calc-group-label" data-gi="${gi}" data-lang="${gLang}" value="${esc((group.label && group.label[gLang]) || '')}">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm calc-group-del" data-gi="${gi}">${esc(t.calcDeleteGroup)}</button>
+          </div>
+          <div class="calc-options-admin">${opts.map((opt, oi) => renderCalcOptionCard(group, gi, opt, oi)).join('')}</div>
+          <button type="button" class="btn btn-ghost btn-sm calc-add-opt" data-gi="${gi}" style="margin-top:12px">${esc(t.calcAddOption)}</button>
+        </div>`;
+    }).join('')}
+    <button type="button" class="btn btn-primary btn-sm" id="calcAddGroupBtn">${esc(t.calcAddGroup)}</button>`;
+
+  container.querySelectorAll('[data-calc-group-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      calcAdminLang = btn.dataset.lang;
+      renderCalculatorAdmin();
+    });
+  });
+  container.querySelectorAll('.calc-group-label').forEach(el => {
+    el.addEventListener('input', e => {
+      const gi = +e.target.dataset.gi;
+      const lang = e.target.dataset.lang;
+      const g = calculatorData.groups[gi];
+      if (!g) return;
+      if (!g.label) g.label = {};
+      g.label[lang] = e.target.value;
+      markUnsaved();
+    });
+  });
+  container.querySelectorAll('[data-calc-opt-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      calcOptLangTab[btn.dataset.calcOptLang] = btn.dataset.lang;
+      renderCalculatorAdmin();
+    });
+  });
+  container.querySelectorAll('.calc-opt-field').forEach(el => {
+    el.addEventListener('input', e => {
+      const gi = +e.target.dataset.gi;
+      const oi = +e.target.dataset.oi;
+      const field = e.target.dataset.field;
+      const lang = e.target.dataset.lang;
+      const opt = calculatorData.groups[gi]?.options?.[oi];
+      if (!opt) return;
+      if (lang) {
+        if (!opt[field]) opt[field] = {};
+        opt[field][lang] = e.target.value;
+        if (field === 'title') {
+          const card = e.target.closest('.calc-opt-card');
+          const preview = (opt.title && (opt.title.ru || opt.title.en)) || opt.id;
+          if (card) card.querySelector('.item-card-title').textContent = `${opt.icon || '📦'} ${preview}`;
+        }
+      } else if (field === 'price') {
+        opt.price = parseInt(e.target.value, 10) || 0;
+      } else {
+        opt[field] = e.target.value;
+        if (field === 'icon') {
+          const card = e.target.closest('.calc-opt-card');
+          const preview = (opt.title && (opt.title.ru || opt.title.en)) || opt.id;
+          if (card) card.querySelector('.item-card-title').textContent = `${opt.icon || '📦'} ${preview}`;
+        }
+      }
+      markUnsaved();
+    });
+  });
+  container.querySelectorAll('.calc-opt-active').forEach(el => {
+    el.addEventListener('change', e => {
+      const gi = +e.target.dataset.gi;
+      const oi = +e.target.dataset.oi;
+      const opt = calculatorData.groups[gi]?.options?.[oi];
+      if (opt) opt.active = e.target.checked;
+      markUnsaved();
+    });
+  });
+  container.querySelectorAll('.calc-opt-required').forEach(el => {
+    el.addEventListener('change', e => {
+      const gi = +e.target.dataset.gi;
+      const oi = +e.target.dataset.oi;
+      const opt = calculatorData.groups[gi]?.options?.[oi];
+      if (opt) opt.required = e.target.checked;
+      markUnsaved();
+    });
+  });
+  container.querySelectorAll('.calc-opt-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const gi = +btn.dataset.gi;
+      const oi = +btn.dataset.oi;
+      calculatorData.groups[gi]?.options?.splice(oi, 1);
+      markUnsaved();
+      renderCalculatorAdmin();
+    });
+  });
+  container.querySelectorAll('.calc-group-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const gi = +btn.dataset.gi;
+      calculatorData.groups.splice(gi, 1);
+      markUnsaved();
+      renderCalculatorAdmin();
+    });
+  });
+  container.querySelectorAll('.calc-add-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const gi = +btn.dataset.gi;
+      const g = calculatorData.groups[gi];
+      if (!g) return;
+      if (!g.options) g.options = [];
+      const id = 'opt_' + Date.now();
+      g.options.push({
+        id, active: true, required: false, icon: '📦', price: 0,
+        title: { de: '', en: '', fr: '', it: '', ru: '' },
+        desc: { de: '', en: '', fr: '', it: '', ru: '' },
+      });
+      markUnsaved();
+      renderCalculatorAdmin();
+    });
+  });
+  document.getElementById('calcAddGroupBtn')?.addEventListener('click', () => {
+    const id = 'grp_' + Date.now();
+    calculatorData.groups.push({
+      id,
+      label: { de: 'Neue Gruppe', en: 'New group', fr: 'Nouveau groupe', it: 'Nuovo gruppo', ru: 'Новая группа' },
+      options: [],
+    });
+    markUnsaved();
+    renderCalculatorAdmin();
   });
 }
 

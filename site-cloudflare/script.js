@@ -38,6 +38,12 @@ const translations = {
     'reviews.formText':'Ваш отзыв *','reviews.formSubmit':'Отправить',
     'reviews.success':'Спасибо! Отзыв будет проверен и опубликован.',
     'reviews.allBtn':'Все отзывы →','reviews.allTitle':'Все отзывы',
+    'calculator.label':'— Калькулятор проекта','calculator.title':'Соберите свой<br><em>идеальный сайт</em>',
+    'calculator.subtitle':'Выберите нужные модули — мы подготовим точную смету.',
+    'calculator.btn':'Запросить предложение →','calculator.modalTitle':'Отличный выбор!',
+    'calculator.modalText':'Вы выбрали {N} модулей. Оставьте контакты — Sergej Korsakov подготовит точную смету в течение 24 часов.',
+    'calculator.name':'Имя *','calculator.email':'Email *','calculator.phone':'Телефон',
+    'calculator.submit':'Отправить','calculator.success':'Спасибо! Мы свяжемся с вами в течение 24 часов.',
     'cta.label':'— Готовы начать?','cta.title':'Расскажите<br>о вашем <em>проекте</em>',
     'cta.text':'Опишите задачу — отвечу в течение дня. Бесплатная консультация перед стартом.',
     'cta.btn1':'Написать сообщение',
@@ -178,6 +184,12 @@ const translations = {
     'reviews.formText':'Your review *','reviews.formSubmit':'Submit',
     'reviews.success':'Thank you! Your review will be checked and published.',
     'reviews.allBtn':'All reviews →','reviews.allTitle':'All reviews',
+    'calculator.label':'— Project calculator','calculator.title':'Build your<br><em>perfect website</em>',
+    'calculator.subtitle':'Select the modules you need — we will prepare an accurate quote.',
+    'calculator.btn':'Request a quote →','calculator.modalTitle':'Great choice!',
+    'calculator.modalText':'You selected {N} modules. Leave your contacts — Sergej Korsakov will prepare an accurate quote within 24 hours.',
+    'calculator.name':'Name *','calculator.email':'Email *','calculator.phone':'Phone',
+    'calculator.submit':'Submit','calculator.success':'Thank you! We will contact you within 24 hours.',
     'cta.label':'— Ready to start?','cta.title':'Tell me about<br>your <em>project</em>',
     'cta.text':"Describe your vision — I'll get back to you within 24 hours.",
     'cta.btn1':'Send message',
@@ -318,6 +330,12 @@ const translations = {
     'reviews.formText':'Ihre Bewertung *','reviews.formSubmit':'Senden',
     'reviews.success':'Danke! Ihre Bewertung wird geprüft und veröffentlicht.',
     'reviews.allBtn':'Alle Bewertungen →','reviews.allTitle':'Alle Bewertungen',
+    'calculator.label':'— Projekt-Kalkulator','calculator.title':'Stellen Sie Ihre<br><em>perfekte Website</em> zusammen',
+    'calculator.subtitle':'Wählen Sie die gewünschten Module — wir erstellen ein genaues Angebot.',
+    'calculator.btn':'Angebot anfordern →','calculator.modalTitle':'Ausgezeichnete Wahl!',
+    'calculator.modalText':'Sie haben {N} Module gewählt. Hinterlassen Sie Ihre Kontaktdaten — Sergej Korsakov erstellt innerhalb von 24 Stunden ein genaues Angebot.',
+    'calculator.name':'Name *','calculator.email':'E-Mail *','calculator.phone':'Telefon',
+    'calculator.submit':'Senden','calculator.success':'Danke! Wir melden uns innerhalb von 24 Stunden.',
     'cta.label':'— Bereit für den Start?','cta.title':'Erzählen Sie mir von<br>Ihrem <em>Projekt</em>',
     'cta.text':'Beschreiben Sie Ihre Vision – ich antworte innerhalb von 24 Stunden.',
     'cta.btn1':'Nachricht senden',
@@ -458,6 +476,12 @@ const translations = {
     'reviews.formText':'La tua recensione *','reviews.formSubmit':'Invia',
     'reviews.success':'Grazie! La recensione sarà verificata e pubblicata.',
     'reviews.allBtn':'Tutte le recensioni →','reviews.allTitle':'Tutte le recensioni',
+    'calculator.label':'— Calcolatore progetto','calculator.title':'Componi il tuo<br><em>sito ideale</em>',
+    'calculator.subtitle':'Seleziona i moduli necessari — prepareremo un preventivo preciso.',
+    'calculator.btn':'Richiedi preventivo →','calculator.modalTitle':'Ottima scelta!',
+    'calculator.modalText':'Hai selezionato {N} moduli. Lascia i tuoi contatti — Sergej Korsakov preparerà un preventivo preciso entro 24 ore.',
+    'calculator.name':'Nome *','calculator.email':'Email *','calculator.phone':'Telefono',
+    'calculator.submit':'Invia','calculator.success':'Grazie! Vi contatteremo entro 24 ore.',
     'cta.label':'— Pronto a iniziare?','cta.title':'Parlami del<br>tuo <em>progetto</em>',
     'cta.text':'Descrivi la tua visione — ti risponderò entro 24 ore.',
     'cta.btn1':'Invia messaggio',
@@ -598,6 +622,12 @@ const translations = {
     'reviews.formText':'Votre avis *','reviews.formSubmit':'Envoyer',
     'reviews.success':'Merci ! Votre avis sera vérifié et publié.',
     'reviews.allBtn':'Tous les avis →','reviews.allTitle':'Tous les avis',
+    'calculator.label':'— Calculateur de projet','calculator.title':'Composez votre<br><em>site idéal</em>',
+    'calculator.subtitle':'Sélectionnez les modules souhaités — nous préparerons un devis précis.',
+    'calculator.btn':'Demander un devis →','calculator.modalTitle':'Excellent choix !',
+    'calculator.modalText':'Vous avez sélectionné {N} modules. Laissez vos coordonnées — Sergej Korsakov préparera un devis précis sous 24 heures.',
+    'calculator.name':'Nom *','calculator.email':'E-mail *','calculator.phone':'Téléphone',
+    'calculator.submit':'Envoyer','calculator.success':'Merci ! Nous vous contacterons dans les 24 heures.',
     'cta.label':'— Prêt à démarrer ?','cta.title':'Parlez-moi de<br>votre <em>projet</em>',
     'cta.text':'Décrivez votre vision — je vous répondrai sous 24 heures.',
     'cta.btn1':'Envoyer un message',
@@ -721,6 +751,9 @@ const REVIEW_STAR_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="c
 let siteSettings = { ...DEFAULT_SITE_SETTINGS };
 let siteHeroData = null;
 let siteReviews = [];
+let siteCalculatorData = null;
+const calcSelected = new Set();
+let calcSelectionInitialized = false;
 let reviewFormStars = 5;
 let sortedSiteReviews = [];
 
@@ -828,6 +861,7 @@ function applyLang(lang) {
   renderServices();
   applyHero();
   renderReviews();
+  renderCalculator();
 }
 
 function heroLangContent(lang) {
@@ -1206,6 +1240,13 @@ function closeModal(id) {
     const infoRow = document.querySelector('.contact-info-row');
     if (infoRow) infoRow.style.display = 'grid';
   }
+  if (id === 'calculatorModal') {
+    const form = document.getElementById('calculatorForm');
+    const success = document.getElementById('calcFormSuccess');
+    if (form) form.style.display = 'block';
+    if (success) success.classList.remove('active');
+    form?.reset();
+  }
 }
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', (e) => {
@@ -1417,6 +1458,14 @@ async function loadSiteData() {
     }
   } catch (_) {}
 
+  try {
+    const calcRes = await fetch('/api/calculator');
+    if (calcRes.ok) {
+      siteCalculatorData = await calcRes.json();
+      calcSelectionInitialized = false;
+    }
+  } catch (_) {}
+
   allProjects = projects?.projects || [];
   siteProjects = allProjects.filter(p => p.visible && ['motion', 'graphic'].includes(p.categoryId || 'motion'));
   siteWebProjects = allProjects.filter(p => p.visible && p.categoryId === 'web');
@@ -1434,6 +1483,141 @@ async function loadSiteData() {
   renderServices();
   applyHero();
   renderReviews();
+  renderCalculator();
+}
+
+function initCalcSelection() {
+  if (!siteCalculatorData?.groups) return;
+  calcSelected.clear();
+  siteCalculatorData.groups.forEach(group => {
+    (group.options || []).forEach(opt => {
+      if (opt.active !== false && opt.required) calcSelected.add(opt.id);
+    });
+  });
+  calcSelectionInitialized = true;
+}
+
+function getCalcOptionById(id) {
+  if (!siteCalculatorData?.groups) return null;
+  for (const group of siteCalculatorData.groups) {
+    const opt = (group.options || []).find(o => o.id === id);
+    if (opt) return opt;
+  }
+  return null;
+}
+
+function getCalcTotalInternal() {
+  let total = 0;
+  if (!siteCalculatorData?.groups) return 0;
+  siteCalculatorData.groups.forEach(group => {
+    (group.options || []).forEach(opt => {
+      if (opt.active !== false && calcSelected.has(opt.id)) {
+        total += parseInt(opt.price, 10) || 0;
+      }
+    });
+  });
+  return total;
+}
+
+function getSelectedCalcOptions() {
+  const lang = currentLanguage;
+  const items = [];
+  if (!siteCalculatorData?.groups) return items;
+  siteCalculatorData.groups.forEach(group => {
+    (group.options || []).forEach(opt => {
+      if (opt.active !== false && calcSelected.has(opt.id)) {
+        items.push({
+          id: opt.id,
+          icon: opt.icon || '📦',
+          title: svcLang(opt.title, lang),
+        });
+      }
+    });
+  });
+  return items;
+}
+
+function renderCalculator() {
+  const section = document.getElementById('calculator');
+  const container = document.getElementById('calculatorGroups');
+  if (!section || !container) return;
+  const data = siteCalculatorData;
+  if (!data || data.visible !== true || !Array.isArray(data.groups) || !data.groups.length) {
+    section.style.display = 'none';
+    return;
+  }
+  if (!calcSelectionInitialized) initCalcSelection();
+  section.style.display = '';
+  const lang = currentLanguage;
+  container.innerHTML = data.groups.map(group => {
+    const activeOpts = (group.options || []).filter(o => o.active !== false);
+    if (!activeOpts.length) return '';
+    const groupLabel = svcLang(group.label, lang);
+    const cards = activeOpts.map(opt => {
+      const selected = calcSelected.has(opt.id);
+      const isRequired = !!opt.required;
+      const title = svcLang(opt.title, lang);
+      const desc = svcLang(opt.desc, lang);
+      return `
+        <div class="calc-option-card reveal${selected ? ' selected' : ''}${isRequired ? ' required' : ''}"
+          data-calc-id="${escHtml(opt.id)}" role="button" tabindex="0" aria-pressed="${selected}">
+          ${isRequired ? '<span class="calc-option-lock" aria-hidden="true">🔒</span>' : ''}
+          <span class="calc-option-check" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <div class="calc-option-icon">${opt.icon || '📦'}</div>
+          <div class="calc-option-title">${escHtml(title)}</div>
+          <div class="calc-option-desc">${escHtml(desc)}</div>
+        </div>`;
+    }).join('');
+    return `
+      <div class="calc-group-block reveal">
+        <div class="calc-group-label">${escHtml(groupLabel)}</div>
+        <div class="calc-options-grid">${cards}</div>
+      </div>`;
+  }).join('');
+
+  container.querySelectorAll('.calc-option-card').forEach(card => {
+    const id = card.dataset.calcId;
+    const opt = getCalcOptionById(id);
+    const toggle = () => {
+      if (!opt || opt.required) return;
+      if (calcSelected.has(id)) calcSelected.delete(id);
+      else calcSelected.add(id);
+      renderCalculator();
+    };
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  });
+  container.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
+function updateCalculatorModal() {
+  const t = translations[currentLanguage] || translations.en;
+  const count = calcSelected.size;
+  const textEl = document.getElementById('calcModalText');
+  const listEl = document.getElementById('calcModalList');
+  if (textEl && t['calculator.modalText']) {
+    textEl.textContent = t['calculator.modalText'].replace('{N}', String(count));
+  }
+  if (listEl) {
+    const items = getSelectedCalcOptions();
+    listEl.innerHTML = items.length
+      ? items.map(item => `<li><span class="calc-modal-icon">${item.icon}</span><span>${escHtml(item.title)}</span></li>`).join('')
+      : '';
+  }
+}
+
+function openCalculatorModal() {
+  updateCalculatorModal();
+  const form = document.getElementById('calculatorForm');
+  const success = document.getElementById('calcFormSuccess');
+  if (form) form.style.display = 'block';
+  if (success) success.classList.remove('active');
+  openModal('calculatorModal');
 }
 
 function renderServices() {
@@ -2188,6 +2372,38 @@ document.getElementById('openAllReviewsBtn')?.addEventListener('click', () => {
 document.getElementById('openReviewFormBtn')?.addEventListener('click', () => {
   resetReviewForm();
   openModal('reviewModal');
+});
+document.getElementById('calculatorRequestBtn')?.addEventListener('click', openCalculatorModal);
+document.getElementById('calculatorForm')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = document.getElementById('calcFormName')?.value.trim();
+  const email = document.getElementById('calcFormEmail')?.value.trim();
+  const phone = document.getElementById('calcFormPhone')?.value.trim();
+  if (!name || !email) return;
+  const selected = getSelectedCalcOptions();
+  const selectedOptions = selected.map(o => o.title);
+  const totalInternal = getCalcTotalInternal();
+  try {
+    const res = await fetch('/api/calculator-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name, email, phone, lang: currentLanguage,
+        selectedOptions, totalInternal,
+      }),
+    });
+    if (!res.ok) throw new Error('submit failed');
+    const data = await res.json().catch(() => ({}));
+    const form = document.getElementById('calculatorForm');
+    const success = document.getElementById('calcFormSuccess');
+    const successText = success?.querySelector('.form-success-text');
+    if (successText && data.message) successText.textContent = data.message;
+    if (form) form.style.display = 'none';
+    if (success) success.classList.add('active');
+    setTimeout(() => closeModal('calculatorModal'), 3000);
+  } catch (_) {
+    alert('Ошибка отправки. Попробуйте позже.');
+  }
 });
 document.getElementById('reviewForm')?.addEventListener('submit', async e => {
   e.preventDefault();

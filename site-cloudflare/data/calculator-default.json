@@ -1,0 +1,34 @@
+{
+  "visible": false,
+  "groups": [
+    {
+      "id": "base",
+      "label": { "de": "Grundlage", "en": "Foundation", "ru": "Основа", "fr": "Base", "it": "Base" },
+      "options": [
+        { "id": "opt1", "active": true, "required": false, "icon": "📄", "title": { "de": "Visitenkarte", "en": "Business card", "ru": "Визитка", "fr": "Carte de visite", "it": "Biglietto" }, "desc": { "de": "1 Seite, einfaches Design", "en": "1 page, simple design", "ru": "1 страница, простой дизайн", "fr": "1 page", "it": "1 pagina" }, "price": 800 },
+        { "id": "opt2", "active": true, "required": false, "icon": "📑", "title": { "de": "Mehrseiter", "en": "Multi-page", "ru": "Многостраничный", "fr": "Multi-pages", "it": "Multi-pagina" }, "desc": { "de": "Bis zu 10 Seiten", "en": "Up to 10 pages", "ru": "До 10 страниц", "fr": "Jusqu'à 10 pages", "it": "Fino a 10 pagine" }, "price": 1500 },
+        { "id": "opt3", "active": true, "required": false, "icon": "📱", "title": { "de": "Mobile App", "en": "Mobile App", "ru": "Мобильное приложение", "fr": "Application mobile", "it": "App mobile" }, "desc": { "de": "Android / iOS", "en": "Android / iOS", "ru": "Android / iOS", "fr": "Android / iOS", "it": "Android / iOS" }, "price": 3000 }
+      ]
+    },
+    {
+      "id": "features",
+      "label": { "de": "Funktionen", "en": "Features", "ru": "Функционал", "fr": "Fonctionnalités", "it": "Funzionalità" },
+      "options": [
+        { "id": "opt4", "active": true, "required": false, "icon": "⚙️", "title": { "de": "Admin Panel / CMS", "en": "Admin Panel / CMS", "ru": "Admin панель / CMS", "fr": "Panneau Admin", "it": "Pannello Admin" }, "desc": { "de": "Inhalte selbst bearbeiten", "en": "Edit content yourself", "ru": "Управляйте контентом сами", "fr": "Gérez le contenu", "it": "Gestite i contenuti" }, "price": 500 },
+        { "id": "opt5", "active": true, "required": false, "icon": "🌍", "title": { "de": "Mehrsprachigkeit", "en": "Multilingual", "ru": "Мультиязычность", "fr": "Multilingue", "it": "Multilingua" }, "desc": { "de": "Bis zu 5 Sprachen", "en": "Up to 5 languages", "ru": "До 5 языков", "fr": "Jusqu'à 5 langues", "it": "Fino a 5 lingue" }, "price": 300 },
+        { "id": "opt6", "active": true, "required": false, "icon": "📬", "title": { "de": "Kontaktformular", "en": "Contact form", "ru": "Форма обратной связи", "fr": "Formulaire contact", "it": "Modulo contatto" }, "desc": { "de": "Mit E-Mail Benachrichtigung", "en": "With email notification", "ru": "С уведомлением на email", "fr": "Avec notification", "it": "Con notifica email" }, "price": 150 },
+        { "id": "opt7", "active": true, "required": false, "icon": "📝", "title": { "de": "Blog / News", "en": "Blog / News", "ru": "Блог / новости", "fr": "Blog / actualités", "it": "Blog / notizie" }, "desc": { "de": "Artikel und Updates", "en": "Articles and updates", "ru": "Статьи и обновления", "fr": "Articles et mises à jour", "it": "Articoli e aggiornamenti" }, "price": 400 }
+      ]
+    },
+    {
+      "id": "design",
+      "label": { "de": "Design & Marketing", "en": "Design & Marketing", "ru": "Дизайн и маркетинг", "fr": "Design & Marketing", "it": "Design & Marketing" },
+      "options": [
+        { "id": "opt8", "active": true, "required": false, "icon": "✨", "title": { "de": "Animationen", "en": "Animations", "ru": "Анимации и эффекты", "fr": "Animations", "it": "Animazioni" }, "desc": { "de": "Premium Animationseffekte", "en": "Premium animation effects", "ru": "Премиум анимации", "fr": "Effets premium", "it": "Effetti premium" }, "price": 300 },
+        { "id": "opt9", "active": true, "required": false, "icon": "🔍", "title": { "de": "SEO Optimierung", "en": "SEO optimization", "ru": "SEO оптимизация", "fr": "Optimisation SEO", "it": "Ottimizzazione SEO" }, "desc": { "de": "Meta-Tags, Speed, Struktur", "en": "Meta-tags, speed, structure", "ru": "Meta-теги, скорость, структура", "fr": "Meta-tags, vitesse", "it": "Meta-tag, velocità" }, "price": 250 },
+        { "id": "opt10", "active": true, "required": false, "icon": "🖼️", "title": { "de": "Portfolio / Galerie", "en": "Portfolio / Gallery", "ru": "Портфолио / галерея", "fr": "Portfolio", "it": "Portfolio" }, "desc": { "de": "Mit Video und Bildern", "en": "With video and images", "ru": "С видео и фото", "fr": "Avec vidéo et images", "it": "Con video e immagini" }, "price": 300 },
+        { "id": "opt11", "active": true, "required": false, "icon": "⭐", "title": { "de": "Bewertungen", "en": "Reviews", "ru": "Отзывы клиентов", "fr": "Avis clients", "it": "Recensioni" }, "desc": { "de": "Mit Moderationssystem", "en": "With moderation system", "ru": "С системой модерации", "fr": "Avec modération", "it": "Con moderazione" }, "price": 200 }
+      ]
+    }
+  ]
+}
