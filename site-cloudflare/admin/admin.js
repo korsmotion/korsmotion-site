@@ -632,20 +632,20 @@ async function loadWeatherWidget() {
     const forecastHtml = forecastDays.length
       ? forecastDays.map(d => `
           <div class="weather-forecast-day">
-            <span class="wf-day">${esc(d.day)}</span><span class="wf-emoji">${d.emoji}</span><span class="wf-temp">${d.min}/${d.max}</span>
+            <span class="wf-day">${esc(d.day)}</span>
+            <span class="wf-emoji">${d.emoji}</span>
+            <span class="wf-temp">${d.max}° / ${d.min}°</span>
           </div>`).join('')
       : '';
 
     widget.innerHTML = `
       <div class="weather-widget-bg" style="background-image:url('${esc(bgUrl)}')"></div>
       <div class="weather-widget-overlay">
-        <div class="weather-widget-current">
-          <div class="weather-widget-main">
-            <span class="weather-widget-location">📍 Bischofszell</span>
-            <span class="weather-widget-temp">${temp}°</span>
-            <span class="weather-widget-desc">${esc(w.description)}</span>
-          </div>
-          <div class="weather-widget-meta">💧 ${humidity}% · 💨 ${wind} km/h</div>
+        <div class="weather-widget-location">📍 Bischofszell</div>
+        <div class="weather-widget-body">
+          <div class="weather-widget-temp">${temp}°</div>
+          <div class="weather-widget-desc">${esc(w.description)}</div>
+          <div class="weather-widget-meta"><span>💧 ${humidity}%</span><span>💨 ${wind} km/h</span></div>
         </div>
         ${forecastHtml ? `<div class="weather-widget-forecast">${forecastHtml}</div>` : ''}
       </div>`;
@@ -665,39 +665,41 @@ async function renderDashboard() {
 
   el.innerHTML = `
     <h2 class="section-title">${t.dashboardTitle}</h2>
-    <div class="dash-grid">
-      <div class="dash-card">
-        <div class="dash-icon">📁</div>
-        <div class="dash-val">${projects}</div>
-        <div class="dash-label">${t.dashProjects}</div>
+    <div class="dash-board">
+      <div class="dash-stats">
+        <div class="dash-card">
+          <div class="dash-icon">📁</div>
+          <div class="dash-val">${projects}</div>
+          <div class="dash-label">${t.dashProjects}</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-icon">📱</div>
+          <div class="dash-val">${apps}</div>
+          <div class="dash-label">${t.dashApps}</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-icon">💾</div>
+          <div class="dash-val dash-val-sm">${esc(lastSaved)}</div>
+          <div class="dash-label">${t.dashLastSaved}</div>
+        </div>
+        <div class="dash-card" id="dash-today">
+          <div class="dash-icon">👁</div>
+          <div class="dash-val dash-loading">…</div>
+          <div class="dash-label">${t.dashViewsToday}</div>
+        </div>
+        <div class="dash-card" id="dash-week">
+          <div class="dash-icon">📈</div>
+          <div class="dash-val dash-loading">…</div>
+          <div class="dash-label">${t.dashWeek}</div>
+        </div>
+        <div class="dash-card" id="dash-month">
+          <div class="dash-icon">🗓</div>
+          <div class="dash-val dash-loading">…</div>
+          <div class="dash-label">${t.dashMonth}</div>
+        </div>
       </div>
-      <div class="dash-card">
-        <div class="dash-icon">📱</div>
-        <div class="dash-val">${apps}</div>
-        <div class="dash-label">${t.dashApps}</div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-icon">💾</div>
-        <div class="dash-val dash-val-sm">${esc(lastSaved)}</div>
-        <div class="dash-label">${t.dashLastSaved}</div>
-      </div>
-      <div class="dash-card" id="dash-today">
-        <div class="dash-icon">👁</div>
-        <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">${t.dashViewsToday}</div>
-      </div>
-      <div class="dash-card" id="dash-week">
-        <div class="dash-icon">📈</div>
-        <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">${t.dashWeek}</div>
-      </div>
-      <div class="dash-card" id="dash-month">
-        <div class="dash-icon">🗓</div>
-        <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">${t.dashMonth}</div>
-      </div>
-    </div>
-    <div id="weather-widget"></div>`;
+      <div id="weather-widget"></div>
+    </div>`;
 
   loadWeatherWidget();
   startWeatherRefresh();
