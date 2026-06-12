@@ -48,6 +48,16 @@ const DEFAULT_SETTINGS = {
   apps: [],
 };
 
+function normalizeSettings(raw) {
+  const s = raw && typeof raw === 'object' ? raw : {};
+  return {
+    ...DEFAULT_SETTINGS,
+    ...s,
+    apps: Array.isArray(s.apps) ? s.apps : DEFAULT_SETTINGS.apps,
+    ui: s.ui && typeof s.ui === 'object' ? s.ui : {},
+  };
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -66,7 +76,7 @@ export default {
         env.KORSMOTION_DATA.get('settings'),
       ]);
       const projects = pRaw ? JSON.parse(pRaw) : DEFAULT_PROJECTS;
-      const settings = sRaw ? JSON.parse(sRaw) : DEFAULT_SETTINGS;
+      const settings = normalizeSettings(sRaw ? JSON.parse(sRaw) : {});
       return json({ projects, settings });
     }
 
@@ -83,9 +93,10 @@ export default {
         return json({ error: 'Unauthorized' }, 401);
       }
 
+      const settings = normalizeSettings(body.settings);
       await Promise.all([
         env.KORSMOTION_DATA.put('projects', JSON.stringify(body.projects)),
-        env.KORSMOTION_DATA.put('settings', JSON.stringify(body.settings)),
+        env.KORSMOTION_DATA.put('settings', JSON.stringify(settings)),
       ]);
 
       return json({ ok: true });
@@ -133,9 +144,16 @@ export default {
 
     // GET /api/services — load services from KV
     if (url.pathname === '/api/services' && request.method === 'GET') {
-      const raw = await env.KORSMOTION_DATA.get('services_data');
-      if (!raw) return json({ services: [] });
-      return json(JSON.parse(raw));
+      const [raw, sRaw] = await Promise.all([
+        env.KORSMOTION_DATA.get('services_data'),
+        env.KORSMOTION_DATA.get('settings'),
+      ]);
+      const data = raw ? JSON.parse(raw) : { services: [] };
+      const settings = normalizeSettings(sRaw ? JSON.parse(sRaw) : {});
+      return json({
+        services: data.services || [],
+        show_services_section: settings.show_services_section,
+      });
     }
 
     // POST /api/services — save services to KV

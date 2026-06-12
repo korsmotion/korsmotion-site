@@ -178,8 +178,33 @@ const CATEGORIES = [
 
 let adminLang = localStorage.getItem('korsmotion_admin_lang') || 'ru';
 let projectsData = { projects: [] };
-let settingsData = { show_portfolio_section: true, show_services_section: true, show_dev_section: false, apps: [] };
+const DEFAULT_SETTINGS = {
+  show_portfolio_section: true,
+  show_services_section: true,
+  show_dev_section: false,
+  apps: [],
+};
+let settingsData = { ...DEFAULT_SETTINGS };
 let saveDirty = false;
+
+function normalizeSettings(raw) {
+  const s = raw && typeof raw === 'object' ? raw : {};
+  return {
+    ...DEFAULT_SETTINGS,
+    ...s,
+    apps: Array.isArray(s.apps) ? s.apps : DEFAULT_SETTINGS.apps,
+    ui: s.ui && typeof s.ui === 'object' ? s.ui : {},
+  };
+}
+
+function snapshotSectionVisibility() {
+  const portfolio = document.getElementById('showPortfolioSection');
+  const services = document.getElementById('showServicesSection');
+  const dev = document.getElementById('showDevSection');
+  if (portfolio) settingsData.show_portfolio_section = portfolio.checked;
+  if (services) settingsData.show_services_section = services.checked;
+  if (dev) settingsData.show_dev_section = dev.checked;
+}
 let servicesData = { services: [] };
 let serviceActiveLang = 'de'; // активный язык в редакторе услуг
 let activeLangTab = {}; // per project id
@@ -770,7 +795,7 @@ async function loadData() {
     if (!res.ok) throw new Error();
     const data = await res.json();
     projectsData = data.projects || { projects: [] };
-    settingsData = data.settings || { show_portfolio_section: true, show_services_section: true, show_dev_section: false, apps: [] };
+    settingsData = normalizeSettings(data.settings);
     saveDirty = false;
     syncSectionVisibilityToggles();
     setStatus(u().loadedServer, 'success');
@@ -778,7 +803,7 @@ async function loadData() {
     try {
       const [pRes, sRes] = await Promise.all([fetch('../data/projects.json'), fetch('../data/settings.json')]);
       if (pRes.ok) projectsData = await pRes.json();
-      if (sRes.ok) settingsData = await sRes.json();
+      if (sRes.ok) settingsData = normalizeSettings(await sRes.json());
       saveDirty = false;
       setStatus(u().loadedFiles, 'warning');
     } catch { setStatus('Error', 'error'); }
@@ -792,6 +817,7 @@ async function loadData() {
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
   markSaving();
+  snapshotSectionVisibility();
   snapshotUiCollapseState();
   try {
     const res = await fetch(API_SAVE, {
@@ -1751,7 +1777,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveBtn = document.getElementById('saveSvcBtn');
   if (saveBtn) saveBtn.addEventListener('click', async () => {
     markSaving();
+    snapshotSectionVisibility();
     snapshotUiCollapseState();
-    await saveServices();
+    try {
+      const res = await fetch(API_SAVE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: ADMIN_PASSWORD, projects: projectsData, settings: settingsData }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
+      if (!(await saveServices({ silent: true }))) throw new Error('services');
+      await markSavedSuccess();
+      showToast(u().loadedServer, 'success');
+      const now = new Date();
+      localStorage.setItem('korsmotion_last_saved',
+        now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}));
+      renderDashboard();
+    } catch (err) {
+      markSaveError(u().saveError + ': ' + err.message);
+      showToast(u().saveError, 'error');
+    }
   });
 });

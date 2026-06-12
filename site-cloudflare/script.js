@@ -682,7 +682,35 @@ let currentLanguage = 'ru';
 
 let allProjects = [];
 let siteProjects = [];
-let siteSettings = { show_portfolio_section: true, show_services_section: true, show_dev_section: false, apps: [] };
+const DEFAULT_SITE_SETTINGS = {
+  show_portfolio_section: true,
+  show_services_section: true,
+  show_dev_section: false,
+  apps: [],
+};
+let siteSettings = { ...DEFAULT_SITE_SETTINGS };
+
+function normalizeSiteSettings(raw) {
+  const s = raw && typeof raw === 'object' ? raw : {};
+  return {
+    ...DEFAULT_SITE_SETTINGS,
+    ...s,
+    apps: Array.isArray(s.apps) ? s.apps : DEFAULT_SITE_SETTINGS.apps,
+  };
+}
+
+function isSiteSectionVisible(key) {
+  return siteSettings[key] !== false;
+}
+
+function setSiteSectionVisible(sectionId, navIds, visible) {
+  const section = document.getElementById(sectionId);
+  if (section) section.classList.toggle('site-section-hidden', !visible);
+  (navIds || []).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = visible ? '' : 'none';
+  });
+}
 let allServices = [];
 let siteServices = [];
 
@@ -951,17 +979,22 @@ async function loadSiteData() {
     } catch (_) {}
   }
 
+  let svcMeta = {};
   try {
     const svcRes = await fetch('/api/services');
     if (svcRes.ok) {
       const svcData = await svcRes.json();
       allServices = svcData.services || [];
+      svcMeta = svcData;
     }
   } catch (_) {}
 
   allProjects = projects?.projects || [];
   siteProjects = allProjects.filter(p => p.visible);
-  siteSettings = settings || { show_portfolio_section: true, show_services_section: true, show_dev_section: false, apps: [] };
+  siteSettings = normalizeSiteSettings(settings);
+  if (svcMeta.show_services_section !== undefined) {
+    siteSettings.show_services_section = svcMeta.show_services_section;
+  }
   siteServices = allServices.filter(s => s.visible !== false);
   renderPortfolio();
   renderDevSection();
@@ -973,26 +1006,17 @@ function renderServices() {
   if (!list) return;
   const lang = currentLanguage;
   const t = translations[lang] || translations.en;
-  const showSection = siteSettings.show_services_section !== false;
-  const navItem = document.getElementById('navServicesItem');
-  const footerItem = document.getElementById('footerServicesItem');
-  if (navItem) navItem.style.display = showSection ? '' : 'none';
-  if (footerItem) footerItem.style.display = showSection ? '' : 'none';
-  if (!showSection) {
-    const section = document.getElementById('services');
-    if (section) section.style.display = 'none';
-    return;
-  }
+  const showSection = isSiteSectionVisible('show_services_section');
+  setSiteSectionVisible('services', ['navServicesItem', 'footerServicesItem'], showSection);
+  if (!showSection) return;
 
   if (!siteServices.length) {
     list.innerHTML = '';
-    const section = document.getElementById('services');
-    if (section) section.style.display = allServices.length ? 'none' : '';
+    if (allServices.length) setSiteSectionVisible('services', ['navServicesItem', 'footerServicesItem'], false);
     return;
   }
 
-  const section = document.getElementById('services');
-  if (section) section.style.display = '';
+  setSiteSectionVisible('services', ['navServicesItem', 'footerServicesItem'], true);
 
   list.innerHTML = siteServices.map((svc, i) => {
     const id = svc.id || `s${i + 1}`;
@@ -1033,26 +1057,16 @@ function renderPortfolio() {
   if (!grid) return;
   const t = translations[currentLanguage];
   const lang = currentLanguage;
-  const showSection = siteSettings.show_portfolio_section !== false;
-  const navItem = document.getElementById('navPortfolioItem');
-  const footerItem = document.getElementById('footerPortfolioItem');
-  if (navItem) navItem.style.display = showSection ? '' : 'none';
-  if (footerItem) footerItem.style.display = showSection ? '' : 'none';
-  if (!showSection) {
-    const section = document.getElementById('portfolio');
-    if (section) section.style.display = 'none';
-    return;
-  }
+  const showSection = isSiteSectionVisible('show_portfolio_section');
+  setSiteSectionVisible('portfolio', ['navPortfolioItem', 'footerPortfolioItem'], showSection);
+  if (!showSection) return;
 
   if (!siteProjects.length) {
     grid.innerHTML = `<p style="text-align:center;color:var(--ink-soft);padding:40px 0;grid-column:1/-1">${t['portfolio.empty'] || ''}</p>`;
-    const section = document.getElementById('portfolio');
-    if (section) section.style.display = 'none';
     return;
   }
 
-  const section = document.getElementById('portfolio');
-  if (section) section.style.display = '';
+  setSiteSectionVisible('portfolio', ['navPortfolioItem', 'footerPortfolioItem'], true);
 
   const catGroups = PORTFOLIO_CATS.map(cat => ({
     ...cat,
@@ -1528,10 +1542,8 @@ function renderDevSection() {
   const footerItem = document.getElementById('footerDevItem');
   if (!section) return;
 
-  const show = !!siteSettings.show_dev_section;
-  section.style.display = show ? '' : 'none';
-  if (navItem) navItem.style.display = show ? '' : 'none';
-  if (footerItem) footerItem.style.display = show ? '' : 'none';
+  const show = isSiteSectionVisible('show_dev_section');
+  setSiteSectionVisible('development', ['navDevItem', 'footerDevItem'], show);
 
   if (!show || !grid) return;
 
