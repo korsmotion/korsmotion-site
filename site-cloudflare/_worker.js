@@ -41,7 +41,12 @@ async function trackVisitor(request, env) {
 }
 
 const DEFAULT_PROJECTS = { projects: [] };
-const DEFAULT_SETTINGS = { show_dev_section: false, apps: [] };
+const DEFAULT_SETTINGS = {
+  show_portfolio_section: true,
+  show_services_section: true,
+  show_dev_section: false,
+  apps: [],
+};
 
 export default {
   async fetch(request, env, ctx) {

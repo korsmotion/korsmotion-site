@@ -36,8 +36,9 @@ const UI = {
     portfolio: 'Портфолио', devApps: 'Разработка', devAppsDesc: 'Приложения и другие проекты',
     addDev: '+ Добавить', saveChanges: 'Сохранить',
     add: '+ Добавить', hide: 'Скрыть', show: 'Показать', delete: 'Удалить',
-    loading: 'Загрузка...', saving: 'Сохранение...', saved: 'Сохранено ✓',
-    loadedServer: 'Загружено с сервера ✓', loadedFiles: 'Загружено из файлов (KV недоступен)',
+    loading: 'Загрузка...', saving: 'Сохраняю...', saved: '✓ Сохранено',
+    loadedServer: '✓✓ Загружено с сервера', loadedFiles: 'Загружено из файлов (KV недоступен)',
+    unsavedChanges: '● Несохранённые изменения',
     saveError: 'Ошибка сохранения', noProjects: 'Нет проектов. Нажми + Добавить.',
     noApps: 'Нет проектов разработки. Нажми + Добавить.',
     fieldTitle: 'Название', fieldThumb: 'Ссылка на картинку', fieldVideo: 'Ссылка на видео (YouTube)',
@@ -77,8 +78,9 @@ const UI = {
     portfolio: 'Portfolio', devApps: 'Entwicklung', devAppsDesc: 'Apps und andere Entwicklungsprojekte',
     addDev: '+ Hinzufügen', saveChanges: 'Speichern',
     add: '+ Hinzufügen', hide: 'Verbergen', show: 'Anzeigen', delete: 'Löschen',
-    loading: 'Laden...', saving: 'Speichern...', saved: 'Gespeichert ✓',
-    loadedServer: 'Vom Server geladen ✓', loadedFiles: 'Aus Dateien geladen (KV nicht verfügbar)',
+    loading: 'Laden...', saving: 'Speichere...', saved: '✓ Gespeichert',
+    loadedServer: '✓✓ Vom Server geladen', loadedFiles: 'Aus Dateien geladen (KV nicht verfügbar)',
+    unsavedChanges: '● Ungespeicherte Änderungen',
     saveError: 'Fehler beim Speichern', noProjects: 'Keine Projekte. + Hinzufügen klicken.',
     noApps: 'Keine Entwicklungsprojekte. + Hinzufügen klicken.',
     fieldTitle: 'Titel', fieldThumb: 'Bild-URL', fieldVideo: 'Video-URL (YouTube)',
@@ -118,8 +120,9 @@ const UI = {
     portfolio: 'Portfolio', devApps: 'Development', devAppsDesc: 'Apps and other development projects',
     addDev: '+ Add', saveChanges: 'Save changes',
     add: '+ Add', hide: 'Hide', show: 'Show', delete: 'Delete',
-    loading: 'Loading...', saving: 'Saving...', saved: 'Saved ✓',
-    loadedServer: 'Loaded from server ✓', loadedFiles: 'Loaded from files (KV not available)',
+    loading: 'Loading...', saving: 'Saving...', saved: '✓ Saved',
+    loadedServer: '✓✓ Loaded from server', loadedFiles: 'Loaded from files (KV not available)',
+    unsavedChanges: '● Unsaved changes',
     saveError: 'Save error', noProjects: 'No projects yet. Click + Add.',
     noApps: 'No development projects yet. Click + Add.',
     fieldTitle: 'Title', fieldThumb: 'Thumbnail URL', fieldVideo: 'Video URL (YouTube)',
@@ -175,7 +178,8 @@ const CATEGORIES = [
 
 let adminLang = localStorage.getItem('korsmotion_admin_lang') || 'ru';
 let projectsData = { projects: [] };
-let settingsData = { show_dev_section: false, apps: [] };
+let settingsData = { show_portfolio_section: true, show_services_section: true, show_dev_section: false, apps: [] };
+let saveDirty = false;
 let servicesData = { services: [] };
 let serviceActiveLang = 'de'; // активный язык в редакторе услуг
 let activeLangTab = {}; // per project id
@@ -256,6 +260,7 @@ function setCatCollapsed(catId, collapsed) {
   localStorage.setItem(CAT_COLLAPSE_PREFIX + catId, collapsed ? 'true' : 'false');
   ensureUiSettings();
   settingsData.ui.collapsedCats[catId] = collapsed;
+  markUnsaved();
 }
 function isProjectCardCollapsed(id) {
   return localStorage.getItem(PROJECT_CARD_COLLAPSE_PREFIX + id) === 'true';
@@ -264,6 +269,7 @@ function setProjectCardCollapsed(id, collapsed) {
   localStorage.setItem(PROJECT_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
   ensureUiSettings();
   settingsData.ui.collapsedProjects[id] = collapsed;
+  markUnsaved();
 }
 function isAppCardCollapsed(id) {
   return localStorage.getItem(APP_CARD_COLLAPSE_PREFIX + id) === 'true';
@@ -272,6 +278,7 @@ function setAppCardCollapsed(id, collapsed) {
   localStorage.setItem(APP_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
   ensureUiSettings();
   settingsData.ui.collapsedApps[id] = collapsed;
+  markUnsaved();
 }
 function isServiceCardCollapsed(id) {
   const stored = localStorage.getItem(SERVICE_CARD_COLLAPSE_PREFIX + id);
@@ -282,6 +289,7 @@ function setServiceCardCollapsed(id, collapsed) {
   localStorage.setItem(SERVICE_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
   ensureUiSettings();
   settingsData.ui.collapsedServices[id] = collapsed;
+  markUnsaved();
 }
 
 function initSectionCollapse() {
@@ -313,8 +321,85 @@ function showToast(msg, type) {
 }
 function setStatus(msg, type) {
   const el = document.getElementById('saveStatus');
+  if (!el) return;
   el.textContent = msg;
   el.className = 'save-status' + (type ? ' ' + type : '');
+  el.style.color = '';
+}
+
+function initSaveBtn() {
+  const btn = document.getElementById('saveBtn');
+  if (!btn) return;
+  btn.style.background = '#16A34A';
+  btn.textContent = u().saveChanges;
+  btn.disabled = false;
+}
+
+function markUnsaved() {
+  saveDirty = true;
+  const status = document.getElementById('saveStatus');
+  if (!status) return;
+  status.textContent = u().unsavedChanges;
+  status.className = 'save-status unsaved';
+}
+
+function markSaving() {
+  const btn = document.getElementById('saveBtn');
+  const status = document.getElementById('saveStatus');
+  if (btn) btn.disabled = true;
+  if (status) {
+    status.textContent = u().saving;
+    status.className = 'save-status saving';
+  }
+}
+
+async function markSavedSuccess() {
+  saveDirty = false;
+  const btn = document.getElementById('saveBtn');
+  const status = document.getElementById('saveStatus');
+  if (btn) btn.disabled = false;
+  if (!status) return;
+  status.textContent = u().saved;
+  status.className = 'save-status success';
+  await new Promise(r => setTimeout(r, 700));
+  status.textContent = u().loadedServer;
+  status.className = 'save-status success';
+}
+
+function markSaveError(msg) {
+  const btn = document.getElementById('saveBtn');
+  if (btn) btn.disabled = false;
+  const status = document.getElementById('saveStatus');
+  if (!status) return;
+  status.textContent = msg || u().saveError;
+  status.className = 'save-status error';
+}
+
+function syncSectionVisibilityToggles() {
+  const map = [
+    ['showPortfolioSection', settingsData.show_portfolio_section !== false],
+    ['showServicesSection', settingsData.show_services_section !== false],
+    ['showDevSection', !!settingsData.show_dev_section],
+  ];
+  map.forEach(([id, on]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.checked = on;
+    syncPremiumToggle(id);
+  });
+}
+
+function initDirtyTracking() {
+  const app = document.getElementById('adminApp');
+  if (!app || app.dataset.dirtyBound === '1') return;
+  app.dataset.dirtyBound = '1';
+  app.addEventListener('input', e => {
+    if (e.target.closest('#projectsList, #appsList, #servicesList')) markUnsaved();
+  });
+  app.addEventListener('change', e => {
+    if (['showDevSection', 'showPortfolioSection', 'showServicesSection'].includes(e.target.id)) markUnsaved();
+    if (e.target.closest('#appsList')) markUnsaved();
+  });
 }
 function adminAssetUrl(path) {
   if (!path) return '';
@@ -531,6 +616,7 @@ window.uploadAppIcon = function(appIndex) {
       await uploadImageToGitHub(file, `site-cloudflare/images/apps/${appId}/icon.png`);
       app.icon = `images/apps/${appId}/icon.png`;
       renderApps();
+      markUnsaved();
     } catch (_) {}
   }, 'image/*');
 };
@@ -638,6 +724,8 @@ function applyAdminLang() {
   document.querySelectorAll('.admin-lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === adminLang);
   });
+  initSaveBtn();
+  if (saveDirty) markUnsaved();
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -682,21 +770,20 @@ async function loadData() {
     if (!res.ok) throw new Error();
     const data = await res.json();
     projectsData = data.projects || { projects: [] };
-    settingsData = data.settings || { show_dev_section: false, apps: [] };
+    settingsData = data.settings || { show_portfolio_section: true, show_services_section: true, show_dev_section: false, apps: [] };
+    saveDirty = false;
+    syncSectionVisibilityToggles();
     setStatus(u().loadedServer, 'success');
   } catch {
     try {
       const [pRes, sRes] = await Promise.all([fetch('../data/projects.json'), fetch('../data/settings.json')]);
       if (pRes.ok) projectsData = await pRes.json();
       if (sRes.ok) settingsData = await sRes.json();
+      saveDirty = false;
       setStatus(u().loadedFiles, 'warning');
     } catch { setStatus('Error', 'error'); }
   }
-  const showDevEl = document.getElementById('showDevSection');
-  if (showDevEl) {
-    showDevEl.checked = !!settingsData.show_dev_section;
-    syncPremiumToggle('showDevSection');
-  }
+  syncSectionVisibilityToggles();
   applyUiCollapseFromSettings();
   renderAll();
   // Загружаем услуги отдельно из /api/services
@@ -704,7 +791,7 @@ async function loadData() {
 }
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
-  setStatus(u().saving, '');
+  markSaving();
   snapshotUiCollapseState();
   try {
     const res = await fetch(API_SAVE, {
@@ -714,22 +801,34 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     });
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
     if (!(await saveServices({ silent: true }))) throw new Error('services');
-    setStatus(u().saved, 'success');
-    showToast(u().saved, 'success');
+    await markSavedSuccess();
+    showToast(u().loadedServer, 'success');
     const now = new Date();
     localStorage.setItem('korsmotion_last_saved',
       now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}));
     renderDashboard();
   } catch (err) {
-    setStatus(u().saveError + ': ' + err.message, 'error');
+    markSaveError(u().saveError + ': ' + err.message);
     showToast(u().saveError, 'error');
   }
 });
 
-document.getElementById('showDevSection').addEventListener('change', e => {
-  settingsData.show_dev_section = e.target.checked;
-  syncPremiumToggle('showDevSection');
-});
+function bindSectionVisibilityToggles() {
+  const pairs = [
+    ['showPortfolioSection', 'show_portfolio_section'],
+    ['showServicesSection', 'show_services_section'],
+    ['showDevSection', 'show_dev_section'],
+  ];
+  pairs.forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.bound === '1') return;
+    el.dataset.bound = '1';
+    el.addEventListener('change', e => {
+      settingsData[key] = e.target.checked;
+      syncPremiumToggle(id);
+    });
+  });
+}
 
 function renderAll() {
   renderDashboard();
@@ -1043,7 +1142,7 @@ function renderProjects() {
   container.querySelectorAll('.vis-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const p = projectsData.projects.find(x => x.id === btn.dataset.id);
-      if (p) { p.visible = !p.visible; renderProjects(); }
+      if (p) { p.visible = !p.visible; renderProjects(); markUnsaved(); }
     });
   });
 
@@ -1052,6 +1151,7 @@ function renderProjects() {
       if (confirm(u().deleteConfirm)) {
         projectsData.projects = projectsData.projects.filter(x => x.id !== btn.dataset.id);
         renderProjects();
+        markUnsaved();
       }
     });
   });
@@ -1180,6 +1280,7 @@ window.addProject = function(catId) {
   });
   setCatCollapsed(catId, false);
   renderProjects();
+  markUnsaved();
 };
 
 window.setProjectLangTab = function(id, lang) {
@@ -1332,11 +1433,16 @@ function renderApps() {
     btn.addEventListener('click', () => {
       settingsData.apps[+btn.dataset.index].visible = !settingsData.apps[+btn.dataset.index].visible;
       renderApps();
+      markUnsaved();
     });
   });
   container.querySelectorAll('.app-del-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (confirm(u().deleteAppConfirm)) { settingsData.apps.splice(+btn.dataset.index, 1); renderApps(); }
+      if (confirm(u().deleteAppConfirm)) {
+        settingsData.apps.splice(+btn.dataset.index, 1);
+        renderApps();
+        markUnsaved();
+      }
     });
   });
 }
@@ -1355,11 +1461,15 @@ document.getElementById('addAppBtn').addEventListener('click', () => {
     visible: true,
   });
   renderApps();
+  markUnsaved();
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderWeatherGrid();
+initSaveBtn();
 initPremiumToggles();
+initDirtyTracking();
+bindSectionVisibilityToggles();
 initPasswordToggles();
 bindMaskedSecretField('githubTokenInput', getGithubToken, GITHUB_TOKEN_KEY);
 bindMaskedSecretField('weatherKeyInput', getWeatherKey, WEATHER_KEY);
@@ -1406,7 +1516,7 @@ window.toggleVideoPreview = function(id, url) {
 
 window.setCardType = function(id, type) {
   const p = projectsData.projects.find(x => x.id === id);
-  if (p) { p.cardType = type; renderProjects(); }
+  if (p) { p.cardType = type; renderProjects(); markUnsaved(); }
 };
 
 // ── SERVICES ──────────────────────────────────────────────────────────────────
@@ -1441,12 +1551,15 @@ async function saveServices({ silent = false } = {}) {
     });
     if (!res.ok) throw new Error();
     if (!silent) {
-      showToast('Услуги сохранены ✓', 'success');
-      setStatus('Услуги сохранены ✓', 'success');
+      await markSavedSuccess();
+      showToast(u().loadedServer, 'success');
     }
     return true;
   } catch {
-    if (!silent) showToast('Ошибка сохранения услуг', 'error');
+    if (!silent) {
+      markSaveError(u().saveError);
+      showToast(u().saveError, 'error');
+    }
     return false;
   }
 }
@@ -1582,6 +1695,7 @@ function attachServiceEvents(container) {
       const on = servicesData.services[i].visible !== false;
       servicesData.services[i].visible = !on;
       renderServices();
+      markUnsaved();
     });
   });
 
@@ -1635,8 +1749,9 @@ function attachServiceEvents(container) {
 // Кнопка "Сохранить услуги"
 document.addEventListener('DOMContentLoaded', () => {
   const saveBtn = document.getElementById('saveSvcBtn');
-  if (saveBtn) saveBtn.addEventListener('click', () => {
+  if (saveBtn) saveBtn.addEventListener('click', async () => {
+    markSaving();
     snapshotUiCollapseState();
-    saveServices();
+    await saveServices();
   });
 });

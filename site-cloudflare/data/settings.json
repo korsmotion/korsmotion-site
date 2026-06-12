@@ -1,4 +1,6 @@
 {
+  "show_portfolio_section": true,
+  "show_services_section": true,
   "show_dev_section": true,
   "apps": [
     {

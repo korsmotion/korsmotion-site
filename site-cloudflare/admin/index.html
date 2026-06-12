@@ -170,10 +170,15 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
   backdrop-filter:blur(16px);border-top:2px solid var(--border);padding:14px 24px;
   z-index:100;display:flex;align-items:center;justify-content:center;gap:16px;
   box-shadow:0 -4px 20px rgba(0,0,0,.06)}
-.save-status{font-size:13px;color:var(--text-muted)}
-.save-status.success{color:var(--success)}
+.save-status{font-size:13px;color:var(--text-muted);font-weight:600;min-width:200px;text-align:right}
+.save-status.unsaved{color:#F59E0B}
+.save-status.saving{color:#9CA3AF}
+.save-status.success{color:#16A34A}
 .save-status.error{color:var(--danger)}
 .save-status.warning{color:var(--warning)}
+#saveBtn{background:#16A34A!important}
+#saveBtn:hover{background:#15803D!important}
+#saveBtn:disabled{opacity:.7;cursor:wait}
 
 /* Toast */
 .toast{position:fixed;top:24px;right:24px;background:#fff;border:2px solid var(--border);
@@ -359,6 +364,15 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
         <div class="section-title" data-ui="portfolio">Portfolio</div>
         <span class="section-count" id="projectsCount">0</span>
       </div>
+      <div class="section-head-actions">
+        <div class="section-vis-toggle" role="switch" tabindex="0">
+          <span data-ui="showDev">Show on site</span>
+          <input type="checkbox" id="showPortfolioSection" class="premium-toggle-input">
+          <div class="premium-toggle-track" id="showPortfolioSectionTrack" data-for="showPortfolioSection" role="switch" tabindex="0" aria-checked="false">
+            <div class="premium-toggle-knob"></div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="section-body">
       <div id="projectsList"></div>
@@ -401,6 +415,13 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
         <span class="section-count" id="servicesCount">0</span>
       </div>
       <div class="section-head-actions">
+        <div class="section-vis-toggle" role="switch" tabindex="0">
+          <span data-ui="showDev">Show on site</span>
+          <input type="checkbox" id="showServicesSection" class="premium-toggle-input">
+          <div class="premium-toggle-track" id="showServicesSectionTrack" data-for="showServicesSection" role="switch" tabindex="0" aria-checked="false">
+            <div class="premium-toggle-knob"></div>
+          </div>
+        </div>
         <button class="btn btn-primary btn-sm" id="saveSvcBtn" data-ui="svcSave">💾 Сохранить услуги</button>
       </div>
     </div>

@@ -682,7 +682,7 @@ let currentLanguage = 'ru';
 
 let allProjects = [];
 let siteProjects = [];
-let siteSettings = { show_dev_section: false, apps: [] };
+let siteSettings = { show_portfolio_section: true, show_services_section: true, show_dev_section: false, apps: [] };
 let allServices = [];
 let siteServices = [];
 
@@ -961,7 +961,7 @@ async function loadSiteData() {
 
   allProjects = projects?.projects || [];
   siteProjects = allProjects.filter(p => p.visible);
-  siteSettings = settings || { show_dev_section: false, apps: [] };
+  siteSettings = settings || { show_portfolio_section: true, show_services_section: true, show_dev_section: false, apps: [] };
   siteServices = allServices.filter(s => s.visible !== false);
   renderPortfolio();
   renderDevSection();
@@ -973,6 +973,16 @@ function renderServices() {
   if (!list) return;
   const lang = currentLanguage;
   const t = translations[lang] || translations.en;
+  const showSection = siteSettings.show_services_section !== false;
+  const navItem = document.getElementById('navServicesItem');
+  const footerItem = document.getElementById('footerServicesItem');
+  if (navItem) navItem.style.display = showSection ? '' : 'none';
+  if (footerItem) footerItem.style.display = showSection ? '' : 'none';
+  if (!showSection) {
+    const section = document.getElementById('services');
+    if (section) section.style.display = 'none';
+    return;
+  }
 
   if (!siteServices.length) {
     list.innerHTML = '';
@@ -1023,6 +1033,16 @@ function renderPortfolio() {
   if (!grid) return;
   const t = translations[currentLanguage];
   const lang = currentLanguage;
+  const showSection = siteSettings.show_portfolio_section !== false;
+  const navItem = document.getElementById('navPortfolioItem');
+  const footerItem = document.getElementById('footerPortfolioItem');
+  if (navItem) navItem.style.display = showSection ? '' : 'none';
+  if (footerItem) footerItem.style.display = showSection ? '' : 'none';
+  if (!showSection) {
+    const section = document.getElementById('portfolio');
+    if (section) section.style.display = 'none';
+    return;
+  }
 
   if (!siteProjects.length) {
     grid.innerHTML = `<p style="text-align:center;color:var(--ink-soft);padding:40px 0;grid-column:1/-1">${t['portfolio.empty'] || ''}</p>`;
