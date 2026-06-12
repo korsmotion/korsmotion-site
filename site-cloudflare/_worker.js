@@ -75,8 +75,8 @@ export default {
           `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/web-analytics/sites`,
           { headers: { Authorization: `Bearer ${cfApiToken}` } }
         );
-        const sitesData = await sitesResp.json();
-        const siteTag = sitesData.result?.[0]?.site_tag;
+        const sitesJson = await sitesResp.json();
+        const siteTag = sitesJson.result?.[0]?.site_tag;
         if (!siteTag) return json({ error: 'No Web Analytics site found' }, 404);
 
         const now = new Date();
@@ -87,16 +87,16 @@ export default {
         const query = `{
           viewer {
             accounts(filter: { accountTag: "${CF_ACCOUNT_ID}" }) {
-              total: rumWebsitesAdaptiveGroups(
-                filter: { siteTag: "${siteTag}", date_geq: "${since30}", date_leq: "${today}" }
+              todayViews: rumWebsitesAdaptiveGroups(
+                filter: { siteTag: "${siteTag}", date_geq: "${today}", date_leq: "${today}" }
                 limit: 1
               ) { sum { pageViews visits } }
               week: rumWebsitesAdaptiveGroups(
                 filter: { siteTag: "${siteTag}", date_geq: "${since7}", date_leq: "${today}" }
                 limit: 1
               ) { sum { pageViews visits } }
-              todayViews: rumWebsitesAdaptiveGroups(
-                filter: { siteTag: "${siteTag}", date_geq: "${today}", date_leq: "${today}" }
+              total: rumWebsitesAdaptiveGroups(
+                filter: { siteTag: "${siteTag}", date_geq: "${since30}", date_leq: "${today}" }
                 limit: 1
               ) { sum { pageViews visits } }
             }

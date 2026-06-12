@@ -23,7 +23,7 @@ const WEATHER_CITY = 'Bischofszell,CH';
 const WEATHER_REFRESH_MS = 30 * 60 * 1000;
 const SECTION_COLLAPSE_KEY = 'korsmotion_admin_section_';
 const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, portfolio: true, devApps: true, services: true };
-const PROJECT_CARD_COLLAPSE_PREFIX = 'korsmotion_card_collapsed_';
+const PROJECT_CARD_COLLAPSE_PREFIX = 'korsmotion_proj_collapsed_';
 const APP_CARD_COLLAPSE_PREFIX = 'korsmotion_appcard_collapsed_';
 
 // ── Admin UI translations ─────────────────────────────────────────────────────
@@ -909,12 +909,12 @@ function renderProjectCard(p) {
 
   const titleVal = (p.titles && p.titles[activeLang]) || '';
   const descVal = (p.descriptions && p.descriptions[activeLang]) || '';
-  const collapsed = isProjectCardCollapsed(p.id);
+  const isCollapsed = localStorage.getItem('korsmotion_proj_collapsed_' + p.id) === 'true';
 
   return `
-    <div class="item-card ${p.visible ? '' : 'hidden-item'}${collapsed ? ' collapsed' : ''}" data-id="${p.id}">
+    <div class="item-card ${p.visible ? '' : 'hidden-item'}${isCollapsed ? ' collapsed' : ''}" data-id="${p.id}">
       <div class="item-card-head">
-        <button type="button" class="item-card-chevron ${collapsed ? '' : 'open'}" onclick="toggleProjectCard('${p.id}')" aria-label="Toggle">▾</button>
+        <button type="button" class="item-card-chevron ${isCollapsed ? '' : 'open'}" onclick="toggleProjectCard('${p.id}')" aria-label="Toggle">▾</button>
         <span class="item-card-title">${esc(p.title || 'Untitled')}</span>
         <div class="item-card-actions">
           <button class="btn btn-ghost btn-sm vis-btn" data-id="${p.id}">${p.visible ? t.hide : t.show}</button>
