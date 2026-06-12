@@ -1125,6 +1125,13 @@ window.setCardType = function(id, type) {
 const LANGS = ['de', 'en', 'ru', 'fr', 'it'];
 const LANG_LABELS = { de: 'DE', en: 'EN', ru: 'RU', fr: 'FR', it: 'IT' };
 
+function updateServicesCount() {
+  const countEl = document.getElementById('servicesCount');
+  if (countEl) {
+    countEl.textContent = (servicesData.services || []).filter(s => s.visible !== false).length;
+  }
+}
+
 async function loadServices() {
   try {
     const res = await fetch(API_SERVICES);
@@ -1134,6 +1141,7 @@ async function loadServices() {
     }
   } catch (_) {}
   renderServices();
+  updateServicesCount();
 }
 
 async function saveServices() {
@@ -1155,6 +1163,7 @@ function renderServices() {
   const container = document.getElementById('servicesList');
   if (!container) return;
   const services = servicesData.services || [];
+  updateServicesCount();
 
   if (!services.length) {
     container.innerHTML = '<div class="empty-state">Нет услуг</div>';
