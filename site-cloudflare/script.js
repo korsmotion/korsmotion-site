@@ -695,21 +695,43 @@ function normalizeSiteSettings(raw) {
   return {
     ...DEFAULT_SITE_SETTINGS,
     ...s,
+    show_portfolio_section: s.show_portfolio_section === false ? false : true,
+    show_services_section: s.show_services_section === false ? false : true,
+    show_dev_section: s.show_dev_section === true,
     apps: Array.isArray(s.apps) ? s.apps : DEFAULT_SITE_SETTINGS.apps,
   };
 }
 
 function isSiteSectionVisible(key) {
+  if (key === 'show_dev_section') return siteSettings.show_dev_section === true;
+  if (key === 'show_portfolio_section') return siteSettings.show_portfolio_section !== false;
+  if (key === 'show_services_section') return siteSettings.show_services_section !== false;
   return siteSettings[key] !== false;
+}
+
+function applySectionVisibilityFromApi(payload) {
+  if (!payload || typeof payload !== 'object') return;
+  if ('portfolio' in payload) siteSettings.show_portfolio_section = !!payload.portfolio;
+  if ('services' in payload) siteSettings.show_services_section = !!payload.services;
+  if ('development' in payload) siteSettings.show_dev_section = !!payload.development;
 }
 
 function setSiteSectionVisible(sectionId, navIds, visible) {
   const section = document.getElementById(sectionId);
-  if (section) section.classList.toggle('site-section-hidden', !visible);
+  if (section) {
+    section.classList.toggle('site-section-hidden', !visible);
+    section.style.display = visible ? '' : 'none';
+  }
   (navIds || []).forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = visible ? '' : 'none';
   });
+}
+
+function applyAllSectionVisibility() {
+  setSiteSectionVisible('portfolio', ['navPortfolioItem', 'footerPortfolioItem'], isSiteSectionVisible('show_portfolio_section'));
+  setSiteSectionVisible('services', ['navServicesItem', 'footerServicesItem'], isSiteSectionVisible('show_services_section'));
+  setSiteSectionVisible('development', ['navDevItem', 'footerDevItem'], isSiteSectionVisible('show_dev_section'));
 }
 let allServices = [];
 let siteServices = [];
@@ -777,8 +799,6 @@ document.querySelectorAll('.lang-option').forEach(btn => {
     switcher.classList.remove('open');
   });
 });
-applyLang(detectLang());
-
 // MODALS
 function openModal(id) {
   document.getElementById(id).classList.add('active');
@@ -958,6 +978,7 @@ const darkMetaGradients = ['pv-2', 'pv-4'];
 async function loadSiteData() {
   let projects = null;
   let settings = null;
+  let sectionVisibility = null;
 
   try {
     const res = await fetch('/api/data');
@@ -965,6 +986,7 @@ async function loadSiteData() {
       const data = await res.json();
       projects = data.projects || null;
       settings = data.settings || null;
+      sectionVisibility = data.sectionVisibility || null;
     }
   } catch (_) {}
 
@@ -992,10 +1014,14 @@ async function loadSiteData() {
   allProjects = projects?.projects || [];
   siteProjects = allProjects.filter(p => p.visible);
   siteSettings = normalizeSiteSettings(settings);
-  if (svcMeta.show_services_section !== undefined) {
-    siteSettings.show_services_section = svcMeta.show_services_section;
+  applySectionVisibilityFromApi(sectionVisibility);
+  if (svcMeta.sectionVisibility) {
+    applySectionVisibilityFromApi(svcMeta.sectionVisibility);
+  } else if (svcMeta.show_services_section !== undefined) {
+    siteSettings.show_services_section = !!svcMeta.show_services_section;
   }
   siteServices = allServices.filter(s => s.visible !== false);
+  applyAllSectionVisibility();
   renderPortfolio();
   renderDevSection();
   renderServices();
@@ -1725,6 +1751,7 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 loadSiteData().then(() => {
+  applyLang(detectLang());
   document.querySelectorAll('#portfolioGrid .portfolio-item, #devGrid .dev-card').forEach(el => observer.observe(el));
 });
 

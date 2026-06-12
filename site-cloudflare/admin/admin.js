@@ -192,6 +192,9 @@ function normalizeSettings(raw) {
   return {
     ...DEFAULT_SETTINGS,
     ...s,
+    show_portfolio_section: s.show_portfolio_section === false ? false : true,
+    show_services_section: s.show_services_section === false ? false : true,
+    show_dev_section: s.show_dev_section === true,
     apps: Array.isArray(s.apps) ? s.apps : DEFAULT_SETTINGS.apps,
     ui: s.ui && typeof s.ui === 'object' ? s.ui : {},
   };
@@ -201,9 +204,9 @@ function snapshotSectionVisibility() {
   const portfolio = document.getElementById('showPortfolioSection');
   const services = document.getElementById('showServicesSection');
   const dev = document.getElementById('showDevSection');
-  if (portfolio) settingsData.show_portfolio_section = portfolio.checked;
-  if (services) settingsData.show_services_section = services.checked;
-  if (dev) settingsData.show_dev_section = dev.checked;
+  settingsData.show_portfolio_section = portfolio ? portfolio.checked : settingsData.show_portfolio_section !== false;
+  settingsData.show_services_section = services ? services.checked : settingsData.show_services_section !== false;
+  settingsData.show_dev_section = dev ? dev.checked : !!settingsData.show_dev_section;
 }
 let servicesData = { services: [] };
 let serviceActiveLang = 'de'; // активный язык в редакторе услуг

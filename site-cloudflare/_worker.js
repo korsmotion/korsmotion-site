@@ -53,9 +53,40 @@ function normalizeSettings(raw) {
   return {
     ...DEFAULT_SETTINGS,
     ...s,
+    show_portfolio_section: s.show_portfolio_section === false ? false : true,
+    show_services_section: s.show_services_section === false ? false : true,
+    show_dev_section: s.show_dev_section === true,
     apps: Array.isArray(s.apps) ? s.apps : DEFAULT_SETTINGS.apps,
     ui: s.ui && typeof s.ui === 'object' ? s.ui : {},
   };
+}
+
+async function applySectionFlags(env, settings) {
+  const [portfolio, services, dev] = await Promise.all([
+    env.KORSMOTION_DATA.get('flag:portfolio'),
+    env.KORSMOTION_DATA.get('flag:services'),
+    env.KORSMOTION_DATA.get('flag:dev'),
+  ]);
+  if (portfolio !== null) settings.show_portfolio_section = portfolio === '1';
+  if (services !== null) settings.show_services_section = services === '1';
+  if (dev !== null) settings.show_dev_section = dev === '1';
+  return settings;
+}
+
+function sectionVisibilityPayload(settings) {
+  return {
+    portfolio: settings.show_portfolio_section !== false,
+    services: settings.show_services_section !== false,
+    development: !!settings.show_dev_section,
+  };
+}
+
+async function persistSectionFlags(env, settings) {
+  return Promise.all([
+    env.KORSMOTION_DATA.put('flag:portfolio', settings.show_portfolio_section === false ? '0' : '1'),
+    env.KORSMOTION_DATA.put('flag:services', settings.show_services_section === false ? '0' : '1'),
+    env.KORSMOTION_DATA.put('flag:dev', settings.show_dev_section ? '1' : '0'),
+  ]);
 }
 
 export default {
@@ -76,8 +107,9 @@ export default {
         env.KORSMOTION_DATA.get('settings'),
       ]);
       const projects = pRaw ? JSON.parse(pRaw) : DEFAULT_PROJECTS;
-      const settings = normalizeSettings(sRaw ? JSON.parse(sRaw) : {});
-      return json({ projects, settings });
+      let settings = normalizeSettings(sRaw ? JSON.parse(sRaw) : {});
+      settings = await applySectionFlags(env, settings);
+      return json({ projects, settings, sectionVisibility: sectionVisibilityPayload(settings) });
     }
 
     // POST /api/save — save projects + settings to KV
@@ -97,9 +129,10 @@ export default {
       await Promise.all([
         env.KORSMOTION_DATA.put('projects', JSON.stringify(body.projects)),
         env.KORSMOTION_DATA.put('settings', JSON.stringify(settings)),
+        persistSectionFlags(env, settings),
       ]);
 
-      return json({ ok: true });
+      return json({ ok: true, sectionVisibility: sectionVisibilityPayload(settings) });
     }
 
     // GET /api/analytics — unique visitors from KV visit keys
@@ -149,10 +182,12 @@ export default {
         env.KORSMOTION_DATA.get('settings'),
       ]);
       const data = raw ? JSON.parse(raw) : { services: [] };
-      const settings = normalizeSettings(sRaw ? JSON.parse(sRaw) : {});
+      let settings = normalizeSettings(sRaw ? JSON.parse(sRaw) : {});
+      settings = await applySectionFlags(env, settings);
       return json({
         services: data.services || [],
-        show_services_section: settings.show_services_section,
+        show_services_section: settings.show_services_section !== false,
+        sectionVisibility: sectionVisibilityPayload(settings),
       });
     }
 
