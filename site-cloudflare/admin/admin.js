@@ -23,6 +23,7 @@ const WEATHER_CITY = 'Bischofszell,CH';
 const WEATHER_REFRESH_MS = 30 * 60 * 1000;
 const SECTION_COLLAPSE_KEY = 'korsmotion_admin_section_';
 const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, portfolio: true, devApps: true, services: true };
+const CAT_COLLAPSE_PREFIX = 'korsmotion_cat_collapsed_';
 const PROJECT_CARD_COLLAPSE_PREFIX = 'korsmotion_proj_collapsed_';
 const APP_CARD_COLLAPSE_PREFIX = 'korsmotion_appcard_collapsed_';
 
@@ -141,7 +142,6 @@ let projectsData = { projects: [] };
 let settingsData = { show_dev_section: false, apps: [] };
 let servicesData = { services: [] };
 let serviceActiveLang = 'de'; // активный язык в редакторе услуг
-const expandedCats = new Set(CATEGORIES.map(c => c.id));
 let activeLangTab = {}; // per project id
 let weatherRefreshTimer = null;
 
@@ -167,6 +167,12 @@ function applySectionCollapse(section) {
   section.classList.toggle('collapsed', collapsed);
   const chevron = section.querySelector('.section-chevron');
   if (chevron) chevron.classList.toggle('open', !collapsed);
+}
+function isCatCollapsed(catId) {
+  return localStorage.getItem(CAT_COLLAPSE_PREFIX + catId) === 'true';
+}
+function setCatCollapsed(catId, collapsed) {
+  localStorage.setItem(CAT_COLLAPSE_PREFIX + catId, collapsed ? 'true' : 'false');
 }
 function isProjectCardCollapsed(id) {
   return localStorage.getItem(PROJECT_CARD_COLLAPSE_PREFIX + id) === 'true';
@@ -835,7 +841,7 @@ function renderProjects() {
   const container = document.getElementById('projectsList');
   container.innerHTML = CATEGORIES.map(cat => {
     const items = projectsByCategory(cat.id);
-    const isOpen = expandedCats.has(cat.id);
+    const isOpen = !isCatCollapsed(cat.id);
     const catLabel = cat.label[adminLang] || cat.label.en;
     return `
       <div class="cat-section">
@@ -995,7 +1001,7 @@ function updateThumbPreview(id, url) {
 }
 
 window.toggleCat = function(catId) {
-  expandedCats.has(catId) ? expandedCats.delete(catId) : expandedCats.add(catId);
+  setCatCollapsed(catId, !isCatCollapsed(catId));
   renderProjects();
 };
 
@@ -1016,7 +1022,7 @@ window.addProject = function(catId) {
     client: '', year: new Date().getFullYear().toString(), duration: '',
     titles: {}, descriptions: {}
   });
-  expandedCats.add(catId);
+  setCatCollapsed(catId, false);
   renderProjects();
 };
 
