@@ -1019,22 +1019,43 @@ function initReviewsCarousel(cardCount) {
 
   layoutReviewsCarouselCards();
 
-  function pageStep() {
-    const perView = getReviewsPerView();
+  function cardStep() {
     const card = track.querySelector('.review-card');
-    if (!card) return carousel?.clientWidth || 0;
-    return perView * (card.offsetWidth + REVIEWS_CAROUSEL_GAP);
+    return card ? card.offsetWidth + REVIEWS_CAROUSEL_GAP : 0;
+  }
+
+  function maxScrollLeft() {
+    if (!carousel) return 0;
+    return Math.max(0, track.scrollWidth - carousel.clientWidth);
+  }
+
+  function groupScrollPositions() {
+    const perView = getReviewsPerView();
+    const step = cardStep();
+    const maxScroll = maxScrollLeft();
+    if (!step || cardCount <= perView) return [0];
+
+    const maxGroup = Math.ceil(cardCount / perView) - 1;
+    const positions = [];
+    for (let g = 0; g <= maxGroup; g++) {
+      const pos = Math.min(g * perView * step, maxScroll);
+      if (!positions.length || pos > positions[positions.length - 1] + 1) positions.push(pos);
+    }
+    return positions.length ? positions : [0];
   }
 
   function groupCount() {
-    const perView = getReviewsPerView();
-    return Math.max(1, Math.ceil(cardCount / perView));
+    return groupScrollPositions().length;
   }
 
-  function activeGroup() {
-    const step = pageStep();
-    if (!step) return 0;
-    return Math.min(groupCount() - 1, Math.max(0, Math.round(track.scrollLeft / step)));
+  function activeGroupFromScroll() {
+    const positions = groupScrollPositions();
+    const sl = track.scrollLeft;
+    let idx = 0;
+    positions.forEach((pos, i) => {
+      if (sl >= pos - 4) idx = i;
+    });
+    return idx;
   }
 
   function rebuildDots() {
@@ -1050,7 +1071,7 @@ function initReviewsCarousel(cardCount) {
 
   function updateDots() {
     const idx = reviewsCarouselGroup;
-    const maxGroup = groupCount() - 1;
+    const maxGroup = Math.max(0, groupCount() - 1);
     dots?.querySelectorAll('.reviews-dot').forEach((dot, i) => {
       dot.classList.toggle('active', i === idx);
     });
@@ -1065,16 +1086,17 @@ function initReviewsCarousel(cardCount) {
   }
 
   function scrollToGroup(groupIdx) {
-    const maxGroup = groupCount() - 1;
+    const positions = groupScrollPositions();
+    const maxGroup = positions.length - 1;
     reviewsCarouselGroup = Math.max(0, Math.min(maxGroup, groupIdx));
-    const step = pageStep();
+    const targetLeft = positions[reviewsCarouselGroup];
     reviewsCarouselProgrammatic = true;
-    track.scrollTo({ left: step * reviewsCarouselGroup, behavior: 'smooth' });
+    track.scrollTo({ left: targetLeft, behavior: 'smooth' });
     updateDots();
     clearTimeout(scrollToGroup._timer);
     scrollToGroup._timer = setTimeout(() => {
+      track.scrollLeft = targetLeft;
       reviewsCarouselProgrammatic = false;
-      track.scrollLeft = step * reviewsCarouselGroup;
       updateDots();
     }, 450);
   }
@@ -1092,12 +1114,13 @@ function initReviewsCarousel(cardCount) {
       scrollToGroup(reviewsCarouselGroup - 1);
     });
     next?.addEventListener('click', () => {
-      if (reviewsCarouselGroup >= groupCount() - 1) return;
+      const maxGroup = groupScrollPositions().length - 1;
+      if (reviewsCarouselGroup >= maxGroup) return;
       scrollToGroup(reviewsCarouselGroup + 1);
     });
     track.addEventListener('scroll', () => {
       if (reviewsCarouselProgrammatic) return;
-      reviewsCarouselGroup = activeGroup();
+      reviewsCarouselGroup = activeGroupFromScroll();
       updateDots();
     }, { passive: true });
     track.addEventListener('wheel', onCarouselWheel, { passive: false });
@@ -1105,7 +1128,9 @@ function initReviewsCarousel(cardCount) {
     window.addEventListener('resize', () => {
       layoutReviewsCarouselCards();
       requestAnimationFrame(() => {
-        track.scrollLeft = pageStep() * reviewsCarouselGroup;
+        const positions = groupScrollPositions();
+        reviewsCarouselGroup = Math.min(reviewsCarouselGroup, positions.length - 1);
+        track.scrollLeft = positions[reviewsCarouselGroup] || 0;
         rebuildDots();
         updateDots();
       });
