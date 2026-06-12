@@ -922,7 +922,7 @@ async function renderDashboard() {
     const rumViews = (group) => {
       const row = group?.[0];
       if (!row) return 0;
-      const n = row.count ?? row.sum?.visits;
+      const n = row.count ?? row.sum?.count ?? row.sum?.visits;
       return n != null ? n : 0;
     };
     if (!acc) throw new Error('No analytics data');

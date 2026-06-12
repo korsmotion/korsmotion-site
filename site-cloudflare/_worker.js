@@ -3,13 +3,14 @@
 // KV binding: KORSMOTION_DATA
 
 const ADMIN_PASSWORD = 'korsmotion2026';
-const CF_ACCOUNT_ID = '0bb844a6ae45ef8dd4157eb97bac9de2';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
 };
+
+const SKIP_EXTENSIONS = ['js', 'css', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'ico', 'svg', 'woff', 'woff2', 'mp4', 'webm'];
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -18,84 +19,25 @@ function json(data, status = 200) {
   });
 }
 
-function siteHosts(site) {
-  return [
-    site?.host,
-    site?.site_host,
-    site?.ruleset?.zone_name,
-    ...(site?.rules || []).map(r => r.host),
-  ].filter(Boolean).join(' ').toLowerCase();
+function shouldSkipTracking(pathname) {
+  if (pathname.startsWith('/api/')) return true;
+  if (pathname.startsWith('/admin')) return true;
+  const dot = pathname.lastIndexOf('.');
+  if (dot === -1) return false;
+  return SKIP_EXTENSIONS.includes(pathname.slice(dot + 1).toLowerCase());
 }
 
-async function fetchSiteTag(cfApiToken) {
-  const sitesResp = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/rum/site_info/list`,
-    { headers: { Authorization: `Bearer ${cfApiToken}` } }
-  );
-  const sitesJson = await sitesResp.json();
-  if (!sitesResp.ok || sitesJson.success === false) {
-    throw new Error(sitesJson.errors?.[0]?.message || `Sites API ${sitesResp.status}`);
-  }
-  const sites = sitesJson.result || [];
-  const site = sites.find(s => siteHosts(s).includes('korsmotion')) || sites[0];
-  if (!site?.site_tag) throw new Error('No Web Analytics site found');
-  return site.site_tag;
-}
+async function trackVisitor(request, env) {
+  const url = new URL(request.url);
+  if (request.method !== 'GET') return;
+  if (shouldSkipTracking(url.pathname)) return;
 
-async function getCfAnalytics(cfApiToken) {
-  const siteTag = await fetchSiteTag(cfApiToken);
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const today = new Date().toISOString().split('T')[0];
+  const visitKey = `visit:${today}:${ip.slice(0, 8)}`;
 
-  const now = new Date();
-  const nowIso = now.toISOString();
-  const since24h = new Date(now - 24 * 60 * 60 * 1000).toISOString();
-  const today = now.toISOString().split('T')[0];
-  const since7 = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-  const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-
-  const query = `
-    query RumDashboard($acct: string!, $site: string!, $since24h: Time!, $now: Time!, $today: string!, $since7: string!, $since30: string!) {
-      viewer {
-        accounts(filter: { accountTag: $acct }) {
-          todayViews: rumPageloadEventsAdaptiveGroups(
-            filter: { siteTag: $site, datetime_geq: $since24h, datetime_leq: $now }
-            limit: 1
-          ) { count sum { visits } }
-          week: rumPageloadEventsAdaptiveGroups(
-            filter: { siteTag: $site, date_geq: $since7, date_leq: $today }
-            limit: 1
-          ) { count sum { visits } }
-          total: rumPageloadEventsAdaptiveGroups(
-            filter: { siteTag: $site, date_geq: $since30, date_leq: $today }
-            limit: 1
-          ) { count sum { visits } }
-        }
-      }
-    }`;
-
-  const resp = await fetch('https://api.cloudflare.com/client/v4/graphql', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${cfApiToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      query,
-      variables: {
-        acct: CF_ACCOUNT_ID,
-        site: siteTag,
-        since24h,
-        now: nowIso,
-        today,
-        since7,
-        since30,
-      },
-    }),
-  });
-  const data = await resp.json();
-  if (data.errors?.length) {
-    throw new Error(data.errors.map(e => e.message).join('; '));
-  }
-  return data;
+  if (await env.KORSMOTION_DATA.get(visitKey)) return;
+  await env.KORSMOTION_DATA.put(visitKey, '1', { expirationTtl: 86400 });
 }
 
 const DEFAULT_PROJECTS = { projects: [] };
@@ -104,6 +46,8 @@ const DEFAULT_SETTINGS = { show_dev_section: false, apps: [] };
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    ctx.waitUntil(trackVisitor(request, env));
 
     // Preflight
     if (request.method === 'OPTIONS') {
@@ -142,20 +86,41 @@ export default {
       return json({ ok: true });
     }
 
-    // GET /api/analytics — Cloudflare Web Analytics (RUM) via GraphQL
+    // GET /api/analytics — unique visitors from KV visit keys
     if (url.pathname === '/api/analytics' && request.method === 'GET') {
       const auth = request.headers.get('X-Admin-Password');
       if (auth !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
 
-      const cfApiToken = env.CF_API_TOKEN;
-      if (!cfApiToken) {
-        return json({
-          error: 'CF_API_TOKEN not set in Cloudflare Pages → Settings → Environment variables',
-        }, 503);
-      }
-
       try {
-        return json(await getCfAnalytics(cfApiToken));
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+        const since7 = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+        const list = await env.KORSMOTION_DATA.list({ prefix: 'visit:' });
+        const keys = list.keys.map(k => k.name);
+
+        const todayCount = keys.filter(k => k.startsWith(`visit:${today}`)).length;
+        const weekCount = keys.filter(k => {
+          const d = k.split(':')[1];
+          return d >= since7 && d <= today;
+        }).length;
+        const monthCount = keys.filter(k => {
+          const d = k.split(':')[1];
+          return d >= since30 && d <= today;
+        }).length;
+
+        return json({
+          data: {
+            viewer: {
+              accounts: [{
+                todayViews: [{ sum: { count: todayCount } }],
+                week: [{ sum: { count: weekCount } }],
+                total: [{ sum: { count: monthCount } }],
+              }],
+            },
+          },
+        });
       } catch (e) {
         return json({ error: e.message }, 500);
       }
