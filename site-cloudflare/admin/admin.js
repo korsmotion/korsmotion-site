@@ -93,11 +93,19 @@ const UI = {
     calcIcon: 'Иконка (emoji)', calcPrice: 'Внутренняя цена (CHF)', calcTitleField: 'Заголовок', calcDescField: 'Описание',
     calcTabOverview: 'Обзор', calcTabEditor: 'Редактор', calcTabGroups: 'Группы',
     calcColNum: '#', calcColIcon: 'Иконка', calcColName: 'Название', calcColGroup: 'Группа', calcColPrice: 'Цена CHF',
-    calcColActive: 'Активна', calcColRequired: 'Обяз.', calcColActions: 'Действия',
-    calcTotalOpts: 'Всего опций', calcTotalSum: 'Сумма (все активные)', calcSave: 'Сохранить', calcSaveOption: 'Сохранить опцию',
-    calcBackList: '← Назад к списку', calcNotesTitle: 'Внутренние заметки 🔒', calcNotesField: 'Заметки',
+    calcColType: 'Тип', calcColActive: 'Активна', calcColRequired: 'Обяз.', calcColActions: 'Действия',
+    calcTotalOpts: 'Всего опций', calcTotalSum: 'Сумма', calcTotalCosts: 'Затраты', calcTotalMargin: 'Маржа',
+    calcSave: 'Сохранить', calcSaveOption: 'Сохранить опцию', calcBackList: '← Назад к списку',
+    calcNotesTitle: 'Внутренние заметки 🔒', calcNotesField: 'Заметки',
     calcDomainField: 'Где регистрируем домен', calcToolsField: 'Используемые инструменты', calcTimeField: 'Примерное время выполнения',
+    calcInternalCost: 'Мои затраты (CHF)', calcInternalCostHint: 'Подрядчики, плагины, сервисы',
+    calcPriceChf: 'Цена CHF', calcPriceUsd: 'Цена USD', calcPriceEur: 'Цена EUR', calcPaymentType: 'Тип платежа',
+    calcPayOneTime: 'Единоразово', calcPayMonthly: 'В месяц', calcPayYearly: 'В год',
+    calcPayShortOne: 'разово', calcPayShortMonth: '/мес', calcPayShortYear: '/год',
+    calcSearchPh: '🔍 Поиск по названию...', calcFilterGroup: 'Группа', calcFilterAll: 'Все',
+    calcDocsTitle: 'Документы 📎', calcDocsAttach: 'Прикрепить файл', calcDocsTooBig: 'Файл больше 5 МБ',
     calcGroupColId: 'ID', calcGroupColName: 'Название (RU)', calcGroupColCount: 'Кол-во опций', calcSelectGroup: 'Группа',
+    calcGroupSelType: 'Тип выбора', calcGroupSelMultiple: 'Множественный выбор (чекбоксы)', calcGroupSelSingle: 'Одиночный выбор (радиокнопки)',
     calcNoOptions: 'Нет опций. Добавьте первую.', calcNoGroups: 'Нет групп. Добавьте первую.',
   },
   de: {
@@ -160,11 +168,19 @@ const UI = {
     calcIcon: 'Icon (Emoji)', calcPrice: 'Interner Preis (CHF)', calcTitleField: 'Titel', calcDescField: 'Beschreibung',
     calcTabOverview: 'Übersicht', calcTabEditor: 'Editor', calcTabGroups: 'Gruppen',
     calcColNum: '#', calcColIcon: 'Icon', calcColName: 'Name', calcColGroup: 'Gruppe', calcColPrice: 'Preis CHF',
-    calcColActive: 'Aktiv', calcColRequired: 'Pflicht', calcColActions: 'Aktionen',
-    calcTotalOpts: 'Optionen gesamt', calcTotalSum: 'Summe (alle aktiv)', calcSave: 'Speichern', calcSaveOption: 'Option speichern',
-    calcBackList: '← Zurück zur Liste', calcNotesTitle: 'Interne Notizen 🔒', calcNotesField: 'Notizen',
+    calcColType: 'Typ', calcColActive: 'Aktiv', calcColRequired: 'Pflicht', calcColActions: 'Aktionen',
+    calcTotalOpts: 'Optionen gesamt', calcTotalSum: 'Summe', calcTotalCosts: 'Kosten', calcTotalMargin: 'Marge',
+    calcSave: 'Speichern', calcSaveOption: 'Option speichern', calcBackList: '← Zurück zur Liste',
+    calcNotesTitle: 'Interne Notizen 🔒', calcNotesField: 'Notizen',
     calcDomainField: 'Domain-Registrierung', calcToolsField: 'Verwendete Tools', calcTimeField: 'Geschätzte Dauer',
+    calcInternalCost: 'Meine Kosten (CHF)', calcInternalCostHint: 'Auftragnehmer, Plugins, Services',
+    calcPriceChf: 'Preis CHF', calcPriceUsd: 'Preis USD', calcPriceEur: 'Preis EUR', calcPaymentType: 'Zahlungsart',
+    calcPayOneTime: 'Einmalig', calcPayMonthly: 'Pro Monat', calcPayYearly: 'Pro Jahr',
+    calcPayShortOne: 'einmal', calcPayShortMonth: '/Mon', calcPayShortYear: '/Jahr',
+    calcSearchPh: '🔍 Suche...', calcFilterGroup: 'Gruppe', calcFilterAll: 'Alle',
+    calcDocsTitle: 'Dokumente 📎', calcDocsAttach: 'Datei anhängen', calcDocsTooBig: 'Datei über 5 MB',
     calcGroupColId: 'ID', calcGroupColName: 'Name (RU)', calcGroupColCount: 'Optionen', calcSelectGroup: 'Gruppe',
+    calcGroupSelType: 'Auswahltyp', calcGroupSelMultiple: 'Mehrfachauswahl', calcGroupSelSingle: 'Einfachauswahl',
     calcNoOptions: 'Keine Optionen.', calcNoGroups: 'Keine Gruppen.',
   },
   en: {
@@ -227,11 +243,19 @@ const UI = {
     calcIcon: 'Icon (emoji)', calcPrice: 'Internal price (CHF)', calcTitleField: 'Title', calcDescField: 'Description',
     calcTabOverview: 'Overview', calcTabEditor: 'Editor', calcTabGroups: 'Groups',
     calcColNum: '#', calcColIcon: 'Icon', calcColName: 'Name', calcColGroup: 'Group', calcColPrice: 'Price CHF',
-    calcColActive: 'Active', calcColRequired: 'Req.', calcColActions: 'Actions',
-    calcTotalOpts: 'Total options', calcTotalSum: 'Sum (all active)', calcSave: 'Save', calcSaveOption: 'Save option',
-    calcBackList: '← Back to list', calcNotesTitle: 'Internal notes 🔒', calcNotesField: 'Notes',
+    calcColType: 'Type', calcColActive: 'Active', calcColRequired: 'Req.', calcColActions: 'Actions',
+    calcTotalOpts: 'Total options', calcTotalSum: 'Sum', calcTotalCosts: 'Costs', calcTotalMargin: 'Margin',
+    calcSave: 'Save', calcSaveOption: 'Save option', calcBackList: '← Back to list',
+    calcNotesTitle: 'Internal notes 🔒', calcNotesField: 'Notes',
     calcDomainField: 'Domain registration', calcToolsField: 'Tools used', calcTimeField: 'Estimated time',
+    calcInternalCost: 'My costs (CHF)', calcInternalCostHint: 'Contractors, plugins, services',
+    calcPriceChf: 'Price CHF', calcPriceUsd: 'Price USD', calcPriceEur: 'Price EUR', calcPaymentType: 'Payment type',
+    calcPayOneTime: 'One-time', calcPayMonthly: 'Monthly', calcPayYearly: 'Yearly',
+    calcPayShortOne: 'once', calcPayShortMonth: '/mo', calcPayShortYear: '/yr',
+    calcSearchPh: '🔍 Search...', calcFilterGroup: 'Group', calcFilterAll: 'All',
+    calcDocsTitle: 'Documents 📎', calcDocsAttach: 'Attach file', calcDocsTooBig: 'File exceeds 5 MB',
     calcGroupColId: 'ID', calcGroupColName: 'Name (RU)', calcGroupColCount: 'Options', calcSelectGroup: 'Group',
+    calcGroupSelType: 'Selection type', calcGroupSelMultiple: 'Multiple choice', calcGroupSelSingle: 'Single choice',
     calcNoOptions: 'No options yet.', calcNoGroups: 'No groups yet.',
   }
 };
@@ -295,7 +319,12 @@ let calcActiveTab = 'overview';
 let calcEditingRef = null;
 let calcEditorLang = 'ru';
 let calcGroupEditGi = null;
+let calcFullscreen = false;
+let calcOverviewSearch = '';
+let calcOverviewGroupFilter = 'all';
 const CALC_EMOJIS = ['📄', '📑', '📱', '⚙️', '🌍', '📬', '📝', '✨', '🔍', '🖼️', '⭐', '📦', '🎨', '💻', '🔒', '🛒', '📊', '🎬', '📷', '🛠️'];
+const CALC_DOC_MAX = 5 * 1024 * 1024;
+const CALC_DOC_STORE_MAX = 500 * 1024;
 let heroData = JSON.parse(JSON.stringify(DEFAULT_HERO));
 let reviewsActiveTab = 'pending';
 let heroActiveLang = 'ru';
@@ -2251,12 +2280,53 @@ function ensureCalcLangFields(obj) {
   return obj;
 }
 
+function calcPriceChf(price) {
+  if (price && typeof price === 'object') return parseInt(price.chf, 10) || 0;
+  return parseInt(price, 10) || 0;
+}
+
+function ensureCalcPrice(opt) {
+  if (typeof opt.price === 'number') {
+    opt.price = { chf: opt.price, usd: 0, eur: 0 };
+  } else if (!opt.price || typeof opt.price !== 'object') {
+    opt.price = { chf: 0, usd: 0, eur: 0 };
+  }
+  ['chf', 'usd', 'eur'].forEach(k => {
+    if (opt.price[k] === undefined) opt.price[k] = 0;
+  });
+  return opt.price;
+}
+
+function ensureCalcGroupFields(g) {
+  ensureCalcLangFields(g);
+  if (!g.selectionType) g.selectionType = 'multiple';
+  return g;
+}
+
 function ensureCalcMetaFields(opt) {
+  ensureCalcPrice(opt);
+  if (!opt.paymentType) opt.paymentType = 'one_time';
+  if (opt.internalCost === undefined) opt.internalCost = 0;
   if (opt.notes === undefined) opt.notes = '';
   if (opt.domainWhere === undefined) opt.domainWhere = '';
   if (opt.tools === undefined) opt.tools = '';
   if (opt.estimateTime === undefined) opt.estimateTime = '';
+  if (!Array.isArray(opt.documents)) opt.documents = [];
   return opt;
+}
+
+function calcPaymentTypeShort(type, t) {
+  if (type === 'monthly') return t.calcPayShortMonth;
+  if (type === 'yearly') return t.calcPayShortYear;
+  return t.calcPayShortOne;
+}
+
+function calcDocIcon(type, name) {
+  const n = (name || '').toLowerCase();
+  if (type === 'application/pdf' || n.endsWith('.pdf')) return '📄';
+  if (type?.startsWith('image/') || /\.(jpe?g|png)$/i.test(n)) return '🖼️';
+  if (n.endsWith('.docx')) return '📝';
+  return '📎';
 }
 
 function getCalcEditingOption() {
@@ -2279,10 +2349,76 @@ function calcTotalActiveSum() {
   let sum = 0;
   (calculatorData.groups || []).forEach(g => {
     (g.options || []).forEach(o => {
-      if (o.active !== false) sum += parseInt(o.price, 10) || 0;
+      if (o.active !== false) sum += calcPriceChf(o.price);
     });
   });
   return sum;
+}
+
+function calcTotalActiveCosts() {
+  let sum = 0;
+  (calculatorData.groups || []).forEach(g => {
+    (g.options || []).forEach(o => {
+      if (o.active !== false) sum += parseInt(o.internalCost, 10) || 0;
+    });
+  });
+  return sum;
+}
+
+function calcFilteredRows() {
+  const lang = adminLang || 'ru';
+  const search = (calcOverviewSearch || '').toLowerCase().trim();
+  const groupFilter = calcOverviewGroupFilter;
+  return calcFlattenOptions().filter(row => {
+    if (groupFilter !== 'all' && String(row.gi) !== groupFilter) return false;
+    if (search) {
+      const name = (calcLang(row.opt.title, lang) || row.opt.id).toLowerCase();
+      if (!name.includes(search)) return false;
+    }
+    return true;
+  });
+}
+
+function toggleCalcFullscreen() {
+  calcFullscreen = !calcFullscreen;
+  const wrap = document.getElementById('calcSectionWrap');
+  if (wrap) wrap.classList.toggle('calc-fullscreen', calcFullscreen);
+  document.body.classList.toggle('calc-fullscreen-open', calcFullscreen);
+}
+
+function attachCalcDocument(file, opt) {
+  const allowed = /\.(pdf|jpe?g|png|docx)$/i;
+  if (!allowed.test(file.name)) {
+    showToast('PDF, JPG, PNG, DOCX only', 'error');
+    return;
+  }
+  if (file.size > CALC_DOC_MAX) {
+    showToast(u().calcDocsTooBig, 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const doc = {
+      id: 'doc_' + Date.now(),
+      name: file.name,
+      type: file.type || '',
+      date: new Date().toISOString().slice(0, 10),
+      size: file.size,
+    };
+    if (file.size <= CALC_DOC_STORE_MAX) {
+      const b64 = reader.result;
+      doc.data = typeof b64 === 'string' && b64.includes(',') ? b64.split(',')[1] : b64;
+      doc.stored = true;
+    } else {
+      doc.stored = false;
+      doc.todo = true;
+    }
+    if (!opt.documents) opt.documents = [];
+    opt.documents.push(doc);
+    markUnsaved();
+    renderCalculatorAdmin();
+  };
+  reader.readAsDataURL(file);
 }
 
 function openCalcEditor(gi, oi) {
@@ -2297,6 +2433,7 @@ function addCalcOption(targetGi) {
     calculatorData.groups.push({
       id: 'grp_' + Date.now(),
       label: { de: 'Neue Gruppe', en: 'New group', fr: 'Nouveau groupe', it: 'Nuovo gruppo', ru: 'Новая группа' },
+      selectionType: 'multiple',
       options: [],
     });
   }
@@ -2305,10 +2442,12 @@ function addCalcOption(targetGi) {
   if (!g.options) g.options = [];
   const id = 'opt_' + Date.now();
   const opt = {
-    id, active: true, required: false, icon: '📦', price: 0,
+    id, active: true, required: false, icon: '📦',
+    price: { chf: 0, usd: 0, eur: 0 },
+    paymentType: 'one_time', internalCost: 0,
     title: { de: '', en: '', fr: '', it: '', ru: '' },
     desc: { de: '', en: '', fr: '', it: '', ru: '' },
-    notes: '', domainWhere: '', tools: '', estimateTime: '',
+    notes: '', domainWhere: '', tools: '', estimateTime: '', documents: [],
   };
   g.options.push(opt);
   markUnsaved();
@@ -2319,6 +2458,7 @@ function addCalcGroup() {
   calculatorData.groups.push({
     id: 'grp_' + Date.now(),
     label: { de: 'Neue Gruppe', en: 'New group', fr: 'Nouveau groupe', it: 'Nuovo gruppo', ru: 'Новая группа' },
+    selectionType: 'multiple',
     options: [],
   });
   markUnsaved();
@@ -2339,7 +2479,7 @@ async function loadCalculatorAdmin() {
   }
   if (!Array.isArray(calculatorData.groups)) calculatorData.groups = [];
   calculatorData.groups.forEach(g => {
-    ensureCalcLangFields(g);
+    ensureCalcGroupFields(g);
     (g.options || []).forEach(o => { ensureCalcLangFields(o); ensureCalcMetaFields(o); });
   });
   renderCalculatorAdmin();
@@ -2365,7 +2505,11 @@ function renderCalcToolbar(t) {
   return `
     <div class="calc-toolbar">
       <div class="calc-toolbar-left">
-        <div class="calc-toolbar-title">${esc(t.calcTitle)}</div>
+        <div class="calc-toolbar-title">
+          <button type="button" class="calc-fs-btn" id="calcFullscreenBtn" title="Fullscreen">⛶</button>
+          ${esc(t.calcTitle)}
+          ${calcFullscreen ? '<button type="button" class="calc-fs-btn calc-fs-close" id="calcFullscreenClose">✕</button>' : ''}
+        </div>
         <div class="section-vis-toggle" role="switch">
           <span>${esc(t.calcShow)}</span>
           <input type="checkbox" id="calcVisible" class="premium-toggle-input" ${calculatorData.visible === true ? 'checked' : ''}>
@@ -2384,35 +2528,57 @@ function renderCalcToolbar(t) {
 
 function renderCalcOverview(t) {
   const lang = adminLang || 'ru';
-  const rows = calcFlattenOptions();
-  if (!rows.length) return `<div class="calc-empty">${esc(t.calcNoOptions)}</div>`;
+  const allRows = calcFlattenOptions();
+  if (!allRows.length) return `<div class="calc-empty">${esc(t.calcNoOptions)}</div>`;
 
-  const body = rows.map((row, idx) => {
-    const { gi, oi, opt, group } = row;
-    const name = calcLang(opt.title, lang) || opt.id;
-    const groupName = calcLang(group.label, lang) || group.id;
-    return `
-      <tr class="calc-overview-row" data-gi="${gi}" data-oi="${oi}" draggable="true">
-        <td class="calc-row-num"><span class="calc-drag-handle">⋮⋮</span>${idx + 1}</td>
-        <td class="calc-icon-cell">${opt.icon || '📦'}</td>
-        <td>${esc(name)}</td>
-        <td>${esc(groupName)}</td>
-        <td>${parseInt(opt.price, 10) || 0}</td>
-        <td class="calc-toggle-cell" onclick="event.stopPropagation()">
-          <input type="checkbox" class="calc-overview-active" data-gi="${gi}" data-oi="${oi}" ${opt.active !== false ? 'checked' : ''}>
-        </td>
-        <td class="calc-req-cell">${opt.required ? '☑' : '☐'}</td>
-        <td class="calc-actions-cell" onclick="event.stopPropagation()">
-          <button type="button" class="calc-icon-btn calc-overview-edit" data-gi="${gi}" data-oi="${oi}" title="Edit">✏️</button>
-          <button type="button" class="calc-icon-btn calc-overview-del" data-gi="${gi}" data-oi="${oi}" title="Delete">🗑️</button>
-        </td>
-      </tr>`;
-  }).join('');
+  const groupFilterOpts = (calculatorData.groups || []).map((g, gi) =>
+    `<option value="${gi}"${calcOverviewGroupFilter === String(gi) ? ' selected' : ''}>${esc(calcLang(g.label, lang) || g.id)}</option>`
+  ).join('');
+
+  const filtered = calcFilteredRows();
+  const body = filtered.length
+    ? filtered.map((row, idx) => {
+      const { gi, oi, opt, group } = row;
+      const name = calcLang(opt.title, lang) || opt.id;
+      const groupName = calcLang(group.label, lang) || group.id;
+      const payShort = calcPaymentTypeShort(opt.paymentType, t);
+      return `
+        <tr class="calc-overview-row" data-gi="${gi}" data-oi="${oi}" data-search="${esc(name.toLowerCase())}" draggable="true">
+          <td class="calc-row-num"><span class="calc-drag-handle">⋮⋮</span>${idx + 1}</td>
+          <td class="calc-icon-cell">${opt.icon || '📦'}</td>
+          <td>${esc(name)}</td>
+          <td>${esc(groupName)}</td>
+          <td>${calcPriceChf(opt.price)}</td>
+          <td>${esc(payShort)}</td>
+          <td class="calc-toggle-cell">
+            <input type="checkbox" class="calc-overview-active" data-gi="${gi}" data-oi="${oi}" ${opt.active !== false ? 'checked' : ''}>
+          </td>
+          <td class="calc-req-cell">${opt.required ? '☑' : '☐'}</td>
+          <td class="calc-actions-cell">
+            <button type="button" class="calc-icon-btn calc-overview-edit" data-gi="${gi}" data-oi="${oi}" title="Edit">✏️</button>
+            <button type="button" class="calc-icon-btn calc-overview-del" data-gi="${gi}" data-oi="${oi}" title="Delete">🗑️</button>
+          </td>
+        </tr>`;
+    }).join('')
+    : `<tr><td colspan="9" class="calc-empty">${esc(t.calcNoOptions)}</td></tr>`;
 
   const totalSum = calcTotalActiveSum();
+  const totalCosts = calcTotalActiveCosts();
+  const margin = totalSum - totalCosts;
+
   return `
+    <div class="calc-overview-filters">
+      <input type="search" class="form-input" id="calcOverviewSearch" value="${esc(calcOverviewSearch)}" placeholder="${esc(t.calcSearchPh)}">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
+        ${esc(t.calcFilterGroup)}:
+        <select class="form-input" id="calcOverviewGroupFilter">
+          <option value="all"${calcOverviewGroupFilter === 'all' ? ' selected' : ''}>${esc(t.calcFilterAll)}</option>
+          ${groupFilterOpts}
+        </select>
+      </label>
+    </div>
     <div class="calc-table-wrap">
-      <table class="calc-table">
+      <table class="calc-table" id="calcOverviewTable">
         <thead>
           <tr>
             <th>${esc(t.calcColNum)}</th>
@@ -2420,6 +2586,7 @@ function renderCalcOverview(t) {
             <th>${esc(t.calcColName)}</th>
             <th>${esc(t.calcColGroup)}</th>
             <th>${esc(t.calcColPrice)}</th>
+            <th>${esc(t.calcColType)}</th>
             <th>${esc(t.calcColActive)}</th>
             <th>${esc(t.calcColRequired)}</th>
             <th>${esc(t.calcColActions)}</th>
@@ -2429,8 +2596,10 @@ function renderCalcOverview(t) {
       </table>
     </div>
     <div class="calc-footer-stats">
-      <span>${esc(t.calcTotalOpts)}: <strong>${rows.length}</strong></span>
+      <span>${esc(t.calcTotalOpts)}: <strong>${allRows.length}</strong></span>
       <span>${esc(t.calcTotalSum)}: <strong>${totalSum} CHF</strong></span>
+      <span>${esc(t.calcTotalCosts)}: <strong>${totalCosts} CHF</strong></span>
+      <span>${esc(t.calcTotalMargin)}: <strong>${margin} CHF</strong></span>
     </div>`;
 }
 
@@ -2444,6 +2613,7 @@ function renderCalcEditor(t) {
   const { gi } = calcEditingRef;
   const lang = calcEditorLang;
   const groups = calculatorData.groups || [];
+  const price = opt.price;
 
   const groupOptions = groups.map((g, i) =>
     `<option value="${i}"${i === gi ? ' selected' : ''}>${esc(calcLang(g.label, 'ru') || g.id)}</option>`
@@ -2453,18 +2623,45 @@ function renderCalcEditor(t) {
     `<button type="button" class="calc-emoji-btn${opt.icon === e ? ' active' : ''}" data-emoji="${e}">${e}</button>`
   ).join('');
 
+  const docs = opt.documents || [];
+  const docList = docs.length
+    ? docs.map(d => `
+        <li class="calc-doc-item">
+          <span>${calcDocIcon(d.type, d.name)}</span>
+          <span title="${esc(d.name)}">${esc(d.name)}${d.todo ? ' (TODO)' : ''}</span>
+          <span class="calc-doc-meta">${esc(d.date || '')}</span>
+          <button type="button" class="calc-icon-btn calc-doc-del" data-doc-id="${esc(d.id)}">🗑️</button>
+        </li>`).join('')
+    : '';
+
   return `
     <div class="calc-editor-grid">
       <div class="calc-editor-main">
-        <div class="item-fields" style="margin-bottom:12px">
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">${esc(t.calcIcon)}</label>
+          <input class="form-input" id="calcEditorIcon" value="${esc(opt.icon || '')}" style="max-width:80px;font-size:22px;text-align:center">
+          <div class="calc-emoji-grid">${emojiBtns}</div>
+        </div>
+        <div class="calc-price-row">
           <div class="form-group">
-            <label class="form-label">${esc(t.calcIcon)}</label>
-            <input class="form-input" id="calcEditorIcon" value="${esc(opt.icon || '')}" style="max-width:80px;font-size:22px;text-align:center">
-            <div class="calc-emoji-grid">${emojiBtns}</div>
+            <label class="form-label">${esc(t.calcPriceChf)}</label>
+            <input type="number" class="form-input" id="calcEditorPriceChf" value="${calcPriceChf(price)}" min="0" step="50">
           </div>
           <div class="form-group">
-            <label class="form-label">${esc(t.calcPrice)}</label>
-            <input type="number" class="form-input" id="calcEditorPrice" value="${parseInt(opt.price, 10) || 0}" min="0" step="50">
+            <label class="form-label">${esc(t.calcPriceUsd)}</label>
+            <input type="number" class="form-input" id="calcEditorPriceUsd" value="${parseInt(price.usd, 10) || 0}" min="0" step="50">
+          </div>
+          <div class="form-group">
+            <label class="form-label">${esc(t.calcPriceEur)}</label>
+            <input type="number" class="form-input" id="calcEditorPriceEur" value="${parseInt(price.eur, 10) || 0}" min="0" step="50">
+          </div>
+          <div class="form-group">
+            <label class="form-label">${esc(t.calcPaymentType)}</label>
+            <select class="form-input" id="calcEditorPaymentType">
+              <option value="one_time"${opt.paymentType === 'one_time' || !opt.paymentType ? ' selected' : ''}>${esc(t.calcPayOneTime)}</option>
+              <option value="monthly"${opt.paymentType === 'monthly' ? ' selected' : ''}>${esc(t.calcPayMonthly)}</option>
+              <option value="yearly"${opt.paymentType === 'yearly' ? ' selected' : ''}>${esc(t.calcPayYearly)}</option>
+            </select>
           </div>
         </div>
         <div style="display:flex;gap:20px;margin-bottom:16px;flex-wrap:wrap">
@@ -2499,21 +2696,34 @@ function renderCalcEditor(t) {
       </div>
       <div class="calc-editor-notes">
         <div class="calc-editor-notes-title">${esc(t.calcNotesTitle)}</div>
-        <div class="form-group">
-          <label class="form-label">${esc(t.calcNotesField)}</label>
-          <textarea class="form-textarea" id="calcEditorNotes" rows="4">${esc(opt.notes || '')}</textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">${esc(t.calcDomainField)}</label>
-          <input class="form-input" id="calcEditorDomain" value="${esc(opt.domainWhere || '')}">
-        </div>
-        <div class="form-group">
-          <label class="form-label">${esc(t.calcToolsField)}</label>
-          <input class="form-input" id="calcEditorTools" value="${esc(opt.tools || '')}" placeholder="Figma, Cloudflare, ...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">${esc(t.calcTimeField)}</label>
-          <input class="form-input" id="calcEditorTime" value="${esc(opt.estimateTime || '')}" placeholder="3-5 дней">
+        <div class="calc-editor-notes-body">
+          <div class="form-group calc-notes-grow">
+            <label class="form-label">${esc(t.calcNotesField)}</label>
+            <textarea class="form-textarea" id="calcEditorNotes">${esc(opt.notes || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">${esc(t.calcInternalCost)}</label>
+            <input type="number" class="form-input" id="calcEditorInternalCost" value="${parseInt(opt.internalCost, 10) || 0}" min="0" step="10">
+            <div class="calc-field-hint">${esc(t.calcInternalCostHint)}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">${esc(t.calcDomainField)}</label>
+            <input class="form-input" id="calcEditorDomain" value="${esc(opt.domainWhere || '')}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">${esc(t.calcToolsField)}</label>
+            <input class="form-input" id="calcEditorTools" value="${esc(opt.tools || '')}" placeholder="Figma, Cloudflare, ...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">${esc(t.calcTimeField)}</label>
+            <input class="form-input" id="calcEditorTime" value="${esc(opt.estimateTime || '')}" placeholder="3-5 дней">
+          </div>
+          <div class="calc-docs-section">
+            <div class="form-label">${esc(t.calcDocsTitle)}</div>
+            <input type="file" id="calcDocInput" accept=".pdf,.jpg,.jpeg,.png,.docx" hidden>
+            <button type="button" class="btn btn-ghost btn-sm" id="calcDocAttach">${esc(t.calcDocsAttach)}</button>
+            <ul class="calc-doc-list">${docList}</ul>
+          </div>
         </div>
       </div>
     </div>
@@ -2528,10 +2738,11 @@ function renderCalcGroups(t) {
   if (!groups.length) return `<div class="calc-empty">${esc(t.calcNoGroups)}</div>`;
 
   const rows = groups.map((group, gi) => {
-    ensureCalcLangFields(group);
+    ensureCalcGroupFields(group);
     const count = (group.options || []).length;
     const ruName = (group.label && group.label.ru) || '';
     const isEditing = calcGroupEditGi === gi;
+    const selType = group.selectionType || 'multiple';
     const mainRow = `
       <tr class="calc-group-row" data-gi="${gi}" draggable="true">
         <td class="calc-row-num"><span class="calc-drag-handle">⋮⋮</span>${gi + 1}</td>
@@ -2553,6 +2764,11 @@ function renderCalcGroups(t) {
               <input class="form-input calc-group-inline" data-gi="${gi}" data-lang="${l}" value="${esc((group.label && group.label[l]) || '')}">
             </div>
           `).join('')}
+        </div>
+        <div class="calc-group-sel-type">
+          <div class="lang-section-label">${esc(t.calcGroupSelType)}</div>
+          <label><input type="radio" name="calcGroupSelType_${gi}" class="calc-group-seltype" data-gi="${gi}" value="multiple"${selType === 'multiple' ? ' checked' : ''}> ${esc(t.calcGroupSelMultiple)}</label>
+          <label><input type="radio" name="calcGroupSelType_${gi}" class="calc-group-seltype" data-gi="${gi}" value="single"${selType === 'single' ? ' checked' : ''}> ${esc(t.calcGroupSelSingle)}</label>
         </div>
       </td></tr>` : '';
     return mainRow + expandRow;
@@ -2581,24 +2797,33 @@ function snapshotCalcEditorFields() {
   if (!opt || calcActiveTab !== 'editor') return;
   const lang = calcEditorLang;
   const icon = document.getElementById('calcEditorIcon');
-  const price = document.getElementById('calcEditorPrice');
+  const priceChf = document.getElementById('calcEditorPriceChf');
+  const priceUsd = document.getElementById('calcEditorPriceUsd');
+  const priceEur = document.getElementById('calcEditorPriceEur');
+  const paymentType = document.getElementById('calcEditorPaymentType');
   const active = document.getElementById('calcEditorActive');
   const required = document.getElementById('calcEditorRequired');
   const groupSel = document.getElementById('calcEditorGroup');
   const title = document.getElementById('calcEditorTitle');
   const desc = document.getElementById('calcEditorDesc');
   const notes = document.getElementById('calcEditorNotes');
+  const internalCost = document.getElementById('calcEditorInternalCost');
   const domain = document.getElementById('calcEditorDomain');
   const tools = document.getElementById('calcEditorTools');
   const time = document.getElementById('calcEditorTime');
 
   if (icon) opt.icon = icon.value;
-  if (price) opt.price = parseInt(price.value, 10) || 0;
+  ensureCalcPrice(opt);
+  if (priceChf) opt.price.chf = parseInt(priceChf.value, 10) || 0;
+  if (priceUsd) opt.price.usd = parseInt(priceUsd.value, 10) || 0;
+  if (priceEur) opt.price.eur = parseInt(priceEur.value, 10) || 0;
+  if (paymentType) opt.paymentType = paymentType.value;
   if (active) opt.active = active.checked;
   if (required) opt.required = required.checked;
   if (title) { if (!opt.title) opt.title = {}; opt.title[lang] = title.value; }
   if (desc) { if (!opt.desc) opt.desc = {}; opt.desc[lang] = desc.value; }
   if (notes) opt.notes = notes.value;
+  if (internalCost) opt.internalCost = parseInt(internalCost.value, 10) || 0;
   if (domain) opt.domainWhere = domain.value;
   if (tools) opt.tools = tools.value;
   if (time) opt.estimateTime = time.value;
@@ -2620,11 +2845,17 @@ function bindCalcOverviewDrag(container) {
   let dragGi = null;
   let dragOi = null;
   container.querySelectorAll('.calc-overview-row').forEach(row => {
-    row.addEventListener('dragstart', e => {
-      dragGi = +row.dataset.gi;
-      dragOi = +row.dataset.oi;
-      e.dataTransfer.effectAllowed = 'move';
-    });
+    row.draggable = false;
+    const handle = row.querySelector('.calc-drag-handle');
+    if (handle) {
+      handle.draggable = true;
+      handle.addEventListener('dragstart', e => {
+        e.stopPropagation();
+        dragGi = +row.dataset.gi;
+        dragOi = +row.dataset.oi;
+        e.dataTransfer.effectAllowed = 'move';
+      });
+    }
     row.addEventListener('dragover', e => {
       e.preventDefault();
       if (+row.dataset.gi === dragGi) row.classList.add('calc-drag-over');
@@ -2664,10 +2895,16 @@ function remapGiAfterGroupMove(from, to) {
 function bindCalcGroupsDrag(container) {
   let dragGi = null;
   container.querySelectorAll('.calc-group-row').forEach(row => {
-    row.addEventListener('dragstart', e => {
-      dragGi = +row.dataset.gi;
-      e.dataTransfer.effectAllowed = 'move';
-    });
+    row.draggable = false;
+    const handle = row.querySelector('.calc-drag-handle');
+    if (handle) {
+      handle.draggable = true;
+      handle.addEventListener('dragstart', e => {
+        e.stopPropagation();
+        dragGi = +row.dataset.gi;
+        e.dataTransfer.effectAllowed = 'move';
+      });
+    }
     row.addEventListener('dragover', e => {
       e.preventDefault();
       row.classList.add('calc-drag-over');
@@ -2708,6 +2945,20 @@ function bindCalculatorAdminEvents(container) {
   });
   document.getElementById('calcToolbarAddOpt')?.addEventListener('click', () => addCalcOption());
   document.getElementById('calcToolbarAddGroup')?.addEventListener('click', () => addCalcGroup());
+  document.getElementById('calcFullscreenBtn')?.addEventListener('click', toggleCalcFullscreen);
+  document.getElementById('calcFullscreenClose')?.addEventListener('click', toggleCalcFullscreen);
+
+  document.getElementById('calcOverviewSearch')?.addEventListener('input', e => {
+    calcOverviewSearch = e.target.value;
+    const pos = e.target.selectionStart;
+    renderCalculatorAdmin();
+    const el = document.getElementById('calcOverviewSearch');
+    if (el) { el.focus(); el.setSelectionRange(pos, pos); }
+  });
+  document.getElementById('calcOverviewGroupFilter')?.addEventListener('change', e => {
+    calcOverviewGroupFilter = e.target.value;
+    renderCalculatorAdmin();
+  });
 
   container.querySelectorAll('[data-calc-tab]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2718,13 +2969,20 @@ function bindCalculatorAdminEvents(container) {
   });
 
   container.querySelectorAll('.calc-overview-row').forEach(row => {
-    row.addEventListener('click', () => openCalcEditor(+row.dataset.gi, +row.dataset.oi));
+    row.addEventListener('click', e => {
+      if (e.target.closest('.calc-actions-cell, .calc-toggle-cell, .calc-drag-handle')) return;
+      openCalcEditor(+row.dataset.gi, +row.dataset.oi);
+    });
   });
   container.querySelectorAll('.calc-overview-edit').forEach(btn => {
-    btn.addEventListener('click', () => openCalcEditor(+btn.dataset.gi, +btn.dataset.oi));
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      openCalcEditor(+btn.dataset.gi, +btn.dataset.oi);
+    });
   });
   container.querySelectorAll('.calc-overview-del').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
       const gi = +btn.dataset.gi;
       const oi = +btn.dataset.oi;
       calculatorData.groups[gi]?.options?.splice(oi, 1);
@@ -2734,7 +2992,9 @@ function bindCalculatorAdminEvents(container) {
     });
   });
   container.querySelectorAll('.calc-overview-active').forEach(el => {
+    el.addEventListener('click', e => e.stopPropagation());
     el.addEventListener('change', e => {
+      e.stopPropagation();
       const opt = calculatorData.groups[+e.target.dataset.gi]?.options?.[+e.target.dataset.oi];
       if (opt) { opt.active = e.target.checked; markUnsaved(); }
     });
@@ -2774,22 +3034,48 @@ function bindCalculatorAdminEvents(container) {
       }
     });
   });
-  ['calcEditorIcon', 'calcEditorPrice', 'calcEditorActive', 'calcEditorRequired', 'calcEditorGroup',
-    'calcEditorTitle', 'calcEditorDesc', 'calcEditorNotes', 'calcEditorDomain', 'calcEditorTools', 'calcEditorTime'
+  ['calcEditorIcon', 'calcEditorPriceChf', 'calcEditorPriceUsd', 'calcEditorPriceEur', 'calcEditorPaymentType',
+    'calcEditorActive', 'calcEditorRequired', 'calcEditorGroup', 'calcEditorTitle', 'calcEditorDesc',
+    'calcEditorNotes', 'calcEditorInternalCost', 'calcEditorDomain', 'calcEditorTools', 'calcEditorTime'
   ].forEach(id => {
     document.getElementById(id)?.addEventListener('input', markUnsaved);
     document.getElementById(id)?.addEventListener('change', markUnsaved);
   });
 
-  container.querySelectorAll('.calc-group-edit').forEach(btn => {
+  document.getElementById('calcDocAttach')?.addEventListener('click', () => {
+    document.getElementById('calcDocInput')?.click();
+  });
+  document.getElementById('calcDocInput')?.addEventListener('change', e => {
+    const opt = getCalcEditingOption();
+    const file = e.target.files?.[0];
+    if (opt && file) attachCalcDocument(file, opt);
+    e.target.value = '';
+  });
+  container.querySelectorAll('.calc-doc-del').forEach(btn => {
     btn.addEventListener('click', () => {
+      const opt = getCalcEditingOption();
+      if (!opt?.documents) return;
+      const id = btn.dataset.docId;
+      opt.documents = opt.documents.filter(d => d.id !== id);
+      markUnsaved();
+      renderCalculatorAdmin();
+    });
+  });
+
+  container.querySelectorAll('.calc-group-edit').forEach(btn => {
+    btn.addEventListener('mousedown', e => e.stopPropagation());
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
       const gi = +btn.dataset.gi;
       calcGroupEditGi = calcGroupEditGi === gi ? null : gi;
       renderCalculatorAdmin();
     });
   });
   container.querySelectorAll('.calc-group-del').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('mousedown', e => e.stopPropagation());
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
       const gi = +btn.dataset.gi;
       calculatorData.groups.splice(gi, 1);
       if (calcGroupEditGi === gi) calcGroupEditGi = null;
@@ -2807,6 +3093,12 @@ function bindCalculatorAdminEvents(container) {
       markUnsaved();
     });
   });
+  container.querySelectorAll('.calc-group-seltype').forEach(el => {
+    el.addEventListener('change', e => {
+      const g = calculatorData.groups[+e.target.dataset.gi];
+      if (g) { g.selectionType = e.target.value; markUnsaved(); }
+    });
+  });
   bindCalcGroupsDrag(container);
   document.getElementById('calcGroupsAddBtn')?.addEventListener('click', () => addCalcGroup());
 }
@@ -2815,18 +3107,25 @@ function renderCalculatorAdmin() {
   const container = document.getElementById('calculatorSection');
   if (!container) return;
   const t = u();
+  const wrap = document.getElementById('calcSectionWrap');
+  if (wrap) wrap.classList.toggle('calc-fullscreen', calcFullscreen);
+  document.body.classList.toggle('calc-fullscreen-open', calcFullscreen);
 
   container.innerHTML = `
-    ${renderCalcToolbar(t)}
-    <div class="calc-nav-tabs">
-      <button type="button" class="admin-tab${calcActiveTab === 'overview' ? ' active' : ''}" data-calc-tab="overview">${esc(t.calcTabOverview)}</button>
-      <button type="button" class="admin-tab${calcActiveTab === 'editor' ? ' active' : ''}" data-calc-tab="editor">${esc(t.calcTabEditor)}</button>
-      <button type="button" class="admin-tab${calcActiveTab === 'groups' ? ' active' : ''}" data-calc-tab="groups">${esc(t.calcTabGroups)}</button>
-    </div>
-    <div class="calc-tab-panel">
-      ${calcActiveTab === 'overview' ? renderCalcOverview(t) : ''}
-      ${calcActiveTab === 'editor' ? renderCalcEditor(t) : ''}
-      ${calcActiveTab === 'groups' ? renderCalcGroups(t) : ''}
+    <div class="calc-panel-inner">
+      <div class="calc-sticky-head">
+        ${renderCalcToolbar(t)}
+        <div class="calc-nav-tabs">
+          <button type="button" class="admin-tab${calcActiveTab === 'overview' ? ' active' : ''}" data-calc-tab="overview">${esc(t.calcTabOverview)}</button>
+          <button type="button" class="admin-tab${calcActiveTab === 'editor' ? ' active' : ''}" data-calc-tab="editor">${esc(t.calcTabEditor)}</button>
+          <button type="button" class="admin-tab${calcActiveTab === 'groups' ? ' active' : ''}" data-calc-tab="groups">${esc(t.calcTabGroups)}</button>
+        </div>
+      </div>
+      <div class="calc-tab-panel calc-tab-panel--${calcActiveTab}">
+        ${calcActiveTab === 'overview' ? renderCalcOverview(t) : ''}
+        ${calcActiveTab === 'editor' ? renderCalcEditor(t) : ''}
+        ${calcActiveTab === 'groups' ? renderCalcGroups(t) : ''}
+      </div>
     </div>`;
 
   bindCalculatorAdminEvents(container);
