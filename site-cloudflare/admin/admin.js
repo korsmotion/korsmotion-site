@@ -644,18 +644,6 @@ function getWeatherBgUrl(imageId) {
   return adminAssetUrl('images/weather/' + imageId + '.png');
 }
 
-function ruOrdinalDay(n) {
-  const ones = ['', 'первое', 'второе', 'третье', 'четвёртое', 'пятое', 'шестое', 'седьмое', 'восьмое', 'девятое'];
-  const teens = ['десятое', 'одиннадцатое', 'двенадцатое', 'тринадцатое', 'четырнадцатое', 'пятнадцатое', 'шестнадцатое', 'семнадцатое', 'восемнадцатое', 'девятнадцатое'];
-  const tensWord = ['', '', 'двадцать', 'тридцать'];
-  if (n < 10) return ones[n];
-  if (n < 20) return teens[n - 10];
-  if (n === 20) return 'двадцатое';
-  if (n === 30) return 'тридцатое';
-  if (n === 31) return 'тридцать первое';
-  return tensWord[Math.floor(n / 10)] + ' ' + ones[n % 10];
-}
-
 function enOrdinalDay(n) {
   const words = {
     1: 'first', 2: 'second', 3: 'third', 4: 'fourth', 5: 'fifth', 6: 'sixth', 7: 'seventh', 8: 'eighth', 9: 'ninth', 10: 'tenth',
@@ -683,7 +671,7 @@ function getWeatherDateDisplay() {
   const dayList = weekdays[lang] || weekdays.en;
   let dateStr;
   if (lang === 'ru') {
-    dateStr = `${ruOrdinalDay(day)} ${monthsRuGen[month]}`;
+    dateStr = `${day} ${monthsRuGen[month]}`;
   } else if (lang === 'de') {
     dateStr = `${day}. ${monthsDe[month]}`;
   } else {
