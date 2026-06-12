@@ -1,8 +1,26 @@
 const ADMIN_PASSWORD = 'korsmotion2026';
 const SESSION_KEY = 'korsmotion_admin_session';
+const GITHUB_TOKEN_KEY = 'korsmotion_github_token';
+const WEATHER_KEY = 'korsmotion_weather_key';
+const WEATHER_IMAGE_ACCEPT = 'image/*,.gif';
+const WEATHER_SLOTS = [
+  { id: 'sunny', label: 'Sunny', emoji: '☀️' },
+  { id: 'night', label: 'Night', emoji: '🌙' },
+  { id: 'cloudy', label: 'Cloudy', emoji: '☁️' },
+  { id: 'rain', label: 'Rain', emoji: '🌧️' },
+  { id: 'snow', label: 'Snow', emoji: '❄️' },
+  { id: 'thunderstorm', label: 'Thunderstorm', emoji: '⛈️' },
+  { id: 'fog', label: 'Fog', emoji: '🌫️' },
+  { id: 'sun_up', label: 'Sun_up_Рассвет', emoji: '🌅' },
+  { id: 'sunset', label: 'Закат', emoji: '🌇' },
+];
+const GITHUB_REPO = 'korsmotion/korsmotion-site';
+const GITHUB_BRANCH = 'main';
 const API_DATA = '/api/data';
 const API_SAVE = '/api/save';
 const API_SERVICES = '/api/services';
+const WEATHER_CITY = 'Bischofszell,CH';
+const WEATHER_REFRESH_MS = 30 * 60 * 1000;
 
 // ── Admin UI translations ─────────────────────────────────────────────────────
 const UI = {
@@ -21,7 +39,17 @@ const UI = {
     langLabel: 'Контент на языках', noImage: 'Нет картинки',
     deleteConfirm: 'Удалить этот проект?', deleteAppConfirm: 'Удалить это приложение?',
     password: 'Пароль', signIn: 'Войти', wrongPassword: 'Неверный пароль',
-    catLabel: 'Категория контента'
+    catLabel: 'Категория контента',
+    dashboardTitle: 'Дашборд', dashProjects: 'Проектов', dashApps: 'Приложений',
+    dashLastSaved: 'Последнее сохранение', dashViewsToday: 'Просмотров сегодня',
+    dashWeek: 'За 7 дней', dashMonth: 'За 30 дней',
+    settingsTitle: 'Настройки', settingsClose: 'Закрыть', settingsBtnTitle: 'Настройки',
+    integrationsTitle: 'Интеграции', githubToken: 'GitHub Token', githubDesc: 'Для загрузки файлов в репозиторий',
+    weatherTitle: 'Погода', weatherApiKey: 'OpenWeatherMap API Key',
+    weatherDesc: 'Для виджета погоды в Dashboard', weatherImages: 'Фоновые картинки погоды',
+    generalTitle: 'Основные', saveBtn: 'Сохранить', uploadBtn: '📁 Загрузить',
+    weatherNoApiKey: 'Укажи API ключ в Настройках ⚙️', weatherLoading: 'Загрузка погоды…',
+    weatherError: 'Не удалось загрузить погоду'
   },
   de: {
     adminTitle: 'Admin-Panel', viewSite: 'Website ansehen', logout: 'Abmelden',
@@ -38,7 +66,17 @@ const UI = {
     langLabel: 'Inhalte in Sprachen', noImage: 'Kein Bild',
     deleteConfirm: 'Dieses Projekt löschen?', deleteAppConfirm: 'Diese App löschen?',
     password: 'Passwort', signIn: 'Anmelden', wrongPassword: 'Falsches Passwort',
-    catLabel: 'Inhaltskategorie'
+    catLabel: 'Inhaltskategorie',
+    dashboardTitle: 'Dashboard', dashProjects: 'Projekte', dashApps: 'Apps',
+    dashLastSaved: 'Letzte Speicherung', dashViewsToday: 'Aufrufe heute',
+    dashWeek: '7 Tage', dashMonth: '30 Tage',
+    settingsTitle: 'Einstellungen', settingsClose: 'Schließen', settingsBtnTitle: 'Einstellungen',
+    integrationsTitle: 'Integrationen', githubToken: 'GitHub Token', githubDesc: 'Für Datei-Upload ins Repository',
+    weatherTitle: 'Wetter', weatherApiKey: 'OpenWeatherMap API Key',
+    weatherDesc: 'Für das Wetter-Widget im Dashboard', weatherImages: 'Wetter-Hintergrundbilder',
+    generalTitle: 'Allgemein', saveBtn: 'Speichern', uploadBtn: '📁 Hochladen',
+    weatherNoApiKey: 'API-Schlüssel in Einstellungen ⚙️ angeben', weatherLoading: 'Wetter wird geladen…',
+    weatherError: 'Wetter konnte nicht geladen werden'
   },
   en: {
     adminTitle: 'Admin Panel', viewSite: 'View site', logout: 'Logout',
@@ -55,8 +93,25 @@ const UI = {
     langLabel: 'Content by language', noImage: 'No image',
     deleteConfirm: 'Delete this project?', deleteAppConfirm: 'Delete this app?',
     password: 'Password', signIn: 'Sign in', wrongPassword: 'Incorrect password',
-    catLabel: 'Content category'
+    catLabel: 'Content category',
+    dashboardTitle: 'Dashboard', dashProjects: 'Projects', dashApps: 'Apps',
+    dashLastSaved: 'Last saved', dashViewsToday: 'Views today',
+    dashWeek: '7 days', dashMonth: '30 days',
+    settingsTitle: 'Settings', settingsClose: 'Close', settingsBtnTitle: 'Settings',
+    integrationsTitle: 'Integrations', githubToken: 'GitHub Token', githubDesc: 'For file upload to repository',
+    weatherTitle: 'Weather', weatherApiKey: 'OpenWeatherMap API Key',
+    weatherDesc: 'For the weather widget in Dashboard', weatherImages: 'Weather background images',
+    generalTitle: 'General', saveBtn: 'Save', uploadBtn: '📁 Upload',
+    weatherNoApiKey: 'Set API key in Settings ⚙️', weatherLoading: 'Loading weather…',
+    weatherError: 'Failed to load weather'
   }
+};
+
+const UI_PREFIX = {
+  settingsTitle: '⚙️ ',
+  integrationsTitle: '🔗 ',
+  weatherTitle: '🌤 ',
+  generalTitle: '⚙️ ',
 };
 
 const SITE_LANGS = ['de', 'en', 'fr', 'it', 'ru'];
@@ -78,6 +133,7 @@ let servicesData = { services: [] };
 let serviceActiveLang = 'de'; // активный язык в редакторе услуг
 const expandedCats = new Set(CATEGORIES.map(c => c.id));
 let activeLangTab = {}; // per project id
+let weatherRefreshTimer = null;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function u() { return adminLang ? UI[adminLang] || UI.en : UI.en; }
@@ -97,6 +153,260 @@ function setStatus(msg, type) {
   el.textContent = msg;
   el.className = 'save-status' + (type ? ' ' + type : '');
 }
+function adminAssetUrl(path) {
+  if (!path) return '';
+  if (/^(https?:\/\/|\/|data:)/i.test(path)) return path;
+  return '../' + path.replace(/^\.\//, '');
+}
+function getGithubToken() {
+  return localStorage.getItem(GITHUB_TOKEN_KEY) || '';
+}
+function getWeatherKey() {
+  return localStorage.getItem(WEATHER_KEY) || '';
+}
+function maskSecretKey(token) {
+  return token ? token.slice(0, 8) + '...' : '';
+}
+function initMaskedSecretField(inputId, storageKey) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const val = localStorage.getItem(storageKey) || '';
+  if (val) {
+    input.value = maskSecretKey(val);
+    input.dataset.masked = '1';
+  } else {
+    input.value = '';
+    input.dataset.masked = '0';
+  }
+  delete input.dataset.focusValue;
+}
+function saveMaskedSecretField(inputId, storageKey, successMsg) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val || (val.endsWith('...') && val.length <= 12)) {
+    showToast(adminLang === 'de' ? 'Vollständigen Schlüssel eingeben' : adminLang === 'en' ? 'Enter full key' : 'Введите полный ключ', 'error');
+    return;
+  }
+  localStorage.setItem(storageKey, val);
+  input.value = maskSecretKey(val);
+  input.dataset.masked = '1';
+  delete input.dataset.focusValue;
+  showToast(successMsg, 'success');
+  if (storageKey === WEATHER_KEY) loadWeatherWidget();
+}
+function bindMaskedSecretField(inputId, getValue, storageKey) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.addEventListener('focus', () => {
+    if (input.dataset.masked === '1') {
+      const stored = getValue();
+      if (stored) {
+        input.value = stored;
+        input.dataset.masked = '0';
+        input.dataset.focusValue = stored;
+      }
+    } else {
+      input.dataset.focusValue = input.value;
+    }
+  });
+  input.addEventListener('blur', () => {
+    const stored = getValue();
+    const current = input.value.trim();
+    const focusValue = input.dataset.focusValue || '';
+    if (focusValue && current === focusValue && stored) {
+      input.value = maskSecretKey(stored);
+      input.dataset.masked = '1';
+    }
+    delete input.dataset.focusValue;
+  });
+}
+function initGithubTokenField() {
+  initMaskedSecretField('githubTokenInput', GITHUB_TOKEN_KEY);
+}
+function saveGithubToken() {
+  saveMaskedSecretField('githubTokenInput', GITHUB_TOKEN_KEY, adminLang === 'de' ? 'Token gespeichert ✓' : adminLang === 'en' ? 'Token saved ✓' : 'Токен сохранён ✓');
+}
+function initWeatherKeyField() {
+  initMaskedSecretField('weatherKeyInput', WEATHER_KEY);
+}
+function saveWeatherKey() {
+  saveMaskedSecretField('weatherKeyInput', WEATHER_KEY, adminLang === 'de' ? 'API-Schlüssel gespeichert ✓' : adminLang === 'en' ? 'API key saved ✓' : 'API ключ сохранён ✓');
+}
+function weatherPreviewPlaceholder(slot) {
+  return `<div class="weather-slot-placeholder">${slot.emoji}<br>${esc(slot.label)}</div>`;
+}
+function weatherPreviewImg(url, weatherId, label) {
+  return `<img class="weather-slot-img" src="${esc(url)}" alt="${esc(label)}" data-weather-id="${esc(weatherId)}" onerror="showWeatherPlaceholder(this)">`;
+}
+window.showWeatherPlaceholder = function(img) {
+  const slot = WEATHER_SLOTS.find(s => s.id === img.dataset.weatherId);
+  if (slot) img.outerHTML = weatherPreviewPlaceholder(slot);
+};
+function updateWeatherPreview(weatherId, url) {
+  const el = document.getElementById('weather-preview-' + weatherId);
+  const slot = WEATHER_SLOTS.find(s => s.id === weatherId);
+  if (!el || !slot) return;
+  el.innerHTML = url ? weatherPreviewImg(url, weatherId, slot.label) : weatherPreviewPlaceholder(slot);
+}
+function initWeatherPreviews() {
+  WEATHER_SLOTS.forEach(slot => {
+    const el = document.getElementById('weather-preview-' + slot.id);
+    if (!el) return;
+    const localUrl = adminAssetUrl('images/weather/' + slot.id + '.png');
+    el.innerHTML = weatherPreviewImg(localUrl, slot.id, slot.label);
+  });
+}
+function renderWeatherGrid() {
+  const grid = document.getElementById('weatherImagesGrid');
+  if (!grid) return;
+  grid.innerHTML = WEATHER_SLOTS.map(slot => `
+    <div class="weather-slot" data-weather="${slot.id}">
+      <div class="weather-slot-label">${esc(slot.label)}</div>
+      <div class="weather-slot-preview" id="weather-preview-${slot.id}">${weatherPreviewPlaceholder(slot)}</div>
+      <button type="button" class="upload-btn" onclick="uploadWeatherImage('${slot.id}')">${esc(u().uploadBtn)}</button>
+    </div>`).join('');
+  initWeatherPreviews();
+}
+function openSettingsModal() {
+  initGithubTokenField();
+  initWeatherKeyField();
+  renderWeatherGrid();
+  syncPremiumToggle('showDevSection');
+  const overlay = document.getElementById('settingsModal');
+  if (overlay) {
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+function closeSettingsModal() {
+  const overlay = document.getElementById('settingsModal');
+  if (overlay) {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+function githubApiPath(targetPath) {
+  return targetPath.split('/').map(encodeURIComponent).join('/');
+}
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+function pickMediaFile(onSelect, accept) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = accept || 'image/*';
+  input.style.display = 'none';
+  input.onchange = () => {
+    const file = input.files && input.files[0];
+    if (file) onSelect(file);
+    input.remove();
+  };
+  document.body.appendChild(input);
+  input.click();
+}
+async function uploadImageToGitHub(file, targetPath) {
+  const githubToken = getGithubToken();
+  if (!githubToken) {
+    showToast(adminLang === 'de' ? 'GitHub Token in Einstellungen angeben' : adminLang === 'en' ? 'Set GitHub Token in Settings' : 'Укажи GitHub Token в настройках', 'error');
+    throw new Error('No token');
+  }
+  showToast(adminLang === 'de' ? 'Hochladen...' : adminLang === 'en' ? 'Uploading...' : 'Загрузка...', '');
+  try {
+    const content = await readFileAsBase64(file);
+    const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${githubApiPath(targetPath)}`;
+    const headers = {
+      'Authorization': 'token ' + githubToken,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github+json'
+    };
+    const putFile = async (sha) => {
+      const body = { message: 'Upload weather image via admin', content, branch: GITHUB_BRANCH };
+      if (sha) body.sha = sha;
+      return fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    };
+    let resp = await putFile();
+    if (resp.status === 409) {
+      const getResp = await fetch(apiUrl + `?ref=${GITHUB_BRANCH}`, { headers });
+      if (!getResp.ok) throw new Error('Failed to get file SHA');
+      const meta = await getResp.json();
+      resp = await putFile(meta.sha);
+    }
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.message || 'Upload failed');
+    }
+    showToast(adminLang === 'de' ? 'Hochgeladen ✓' : adminLang === 'en' ? 'Uploaded ✓' : 'Загружено ✓', 'success');
+    return `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/${targetPath}`;
+  } catch (e) {
+    if (e.message !== 'No token') showToast(adminLang === 'de' ? 'Upload-Fehler' : adminLang === 'en' ? 'Upload error' : 'Ошибка загрузки', 'error');
+    throw e;
+  }
+}
+window.uploadWeatherImage = function(weatherId) {
+  pickMediaFile(async (file) => {
+    try {
+      const path = `site-cloudflare/images/weather/${weatherId}.png`;
+      const url = await uploadImageToGitHub(file, path);
+      updateWeatherPreview(weatherId, url);
+      loadWeatherWidget();
+    } catch (_) {}
+  }, WEATHER_IMAGE_ACCEPT);
+};
+function syncPremiumToggle(inputId) {
+  const input = document.getElementById(inputId);
+  const track = document.getElementById(inputId + 'Track');
+  if (!input || !track) return;
+  track.classList.toggle('is-on', input.checked);
+  track.setAttribute('aria-checked', input.checked ? 'true' : 'false');
+}
+function initPremiumToggles() {
+  document.querySelectorAll('.premium-toggle-track').forEach(track => {
+    const inputId = track.dataset.for;
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    track.addEventListener('click', () => {
+      input.checked = !input.checked;
+      syncPremiumToggle(inputId);
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    track.addEventListener('keydown', e => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        input.checked = !input.checked;
+        syncPremiumToggle(inputId);
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+    syncPremiumToggle(inputId);
+  });
+}
+function initPasswordToggles() {
+  document.querySelectorAll('.pw-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+        btn.setAttribute('aria-label', adminLang === 'de' ? 'Verbergen' : adminLang === 'en' ? 'Hide' : 'Скрыть');
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁';
+        btn.setAttribute('aria-label', adminLang === 'de' ? 'Anzeigen' : adminLang === 'en' ? 'Show' : 'Показать');
+      }
+    });
+  });
+}
+function startWeatherRefresh() {
+  if (weatherRefreshTimer) clearInterval(weatherRefreshTimer);
+  weatherRefreshTimer = setInterval(() => loadWeatherWidget(), WEATHER_REFRESH_MS);
+}
 
 // ── Admin language switcher ───────────────────────────────────────────────────
 function setAdminLang(lang) {
@@ -104,20 +414,29 @@ function setAdminLang(lang) {
   localStorage.setItem('korsmotion_admin_lang', lang);
   applyAdminLang();
   renderAll();
+  loadWeatherWidget();
+  if (document.getElementById('settingsModal')?.classList.contains('open')) {
+    renderWeatherGrid();
+  }
 }
 
 function applyAdminLang() {
   const t = u();
-  // Update static UI labels
   document.querySelectorAll('[data-ui]').forEach(el => {
     const key = el.getAttribute('data-ui');
-    if (t[key] !== undefined) el.textContent = t[key];
+    if (t[key] !== undefined) {
+      const prefix = UI_PREFIX[key] || '';
+      el.textContent = prefix + t[key];
+    }
+  });
+  document.querySelectorAll('[data-ui-title]').forEach(el => {
+    const key = el.getAttribute('data-ui-title');
+    if (t[key] !== undefined) el.title = t[key];
   });
   document.querySelectorAll('[data-ui-placeholder]').forEach(el => {
     const key = el.getAttribute('data-ui-placeholder');
     if (t[key] !== undefined) el.placeholder = t[key];
   });
-  // Active lang button
   document.querySelectorAll('.admin-lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === adminLang);
   });
@@ -174,7 +493,11 @@ async function loadData() {
       setStatus(u().loadedFiles, 'warning');
     } catch { setStatus('Error', 'error'); }
   }
-  document.getElementById('showDevSection').checked = !!settingsData.show_dev_section;
+  const showDevEl = document.getElementById('showDevSection');
+  if (showDevEl) {
+    showDevEl.checked = !!settingsData.show_dev_section;
+    syncPremiumToggle('showDevSection');
+  }
   renderAll();
   // Загружаем услуги отдельно из /api/services
   loadServices();
@@ -203,6 +526,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
 document.getElementById('showDevSection').addEventListener('change', e => {
   settingsData.show_dev_section = e.target.checked;
+  syncPremiumToggle('showDevSection');
 });
 
 function renderAll() {
@@ -213,50 +537,169 @@ function renderAll() {
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
+function pickWeatherImageId(weather, icon) {
+  const id = weather?.id || 800;
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 8) return 'sun_up';
+  if (hour >= 17 && hour < 21) return 'sunset';
+  if (icon && icon.endsWith('n')) return 'night';
+  if (id >= 200 && id < 300) return 'thunderstorm';
+  if (id >= 300 && id < 600) return 'rain';
+  if (id >= 600 && id < 700) return 'snow';
+  if (id >= 700 && id < 800) return 'fog';
+  if (id === 800) return 'sunny';
+  return 'cloudy';
+}
+
+function weatherEmojiFromId(id, icon) {
+  if (id >= 200 && id < 300) return '⛈️';
+  if (id >= 300 && id < 600) return '🌧️';
+  if (id >= 600 && id < 700) return '❄️';
+  if (id >= 700 && id < 800) return '🌫️';
+  if (id === 800) return icon && icon.endsWith('n') ? '🌙' : '☀️';
+  return '☁️';
+}
+
+function build5DayForecast(forecastData) {
+  if (!forecastData?.list?.length) return [];
+  const dayMap = new Map();
+  const todayKey = new Date().toDateString();
+  const locale = adminLang === 'de' ? 'de-DE' : adminLang === 'en' ? 'en-GB' : 'ru-RU';
+
+  for (const item of forecastData.list) {
+    const d = new Date(item.dt * 1000);
+    const key = d.toDateString();
+    if (key === todayKey) continue;
+    const w = item.weather[0];
+    if (!dayMap.has(key)) {
+      dayMap.set(key, {
+        date: d,
+        min: item.main.temp_min,
+        max: item.main.temp_max,
+        id: w.id,
+        icon: w.icon,
+      });
+    } else {
+      const entry = dayMap.get(key);
+      entry.min = Math.min(entry.min, item.main.temp_min);
+      entry.max = Math.max(entry.max, item.main.temp_max);
+    }
+  }
+
+  return Array.from(dayMap.values()).slice(0, 5).map(entry => ({
+    day: entry.date.toLocaleDateString(locale, { weekday: 'short' }),
+    min: Math.round(entry.min),
+    max: Math.round(entry.max),
+    emoji: weatherEmojiFromId(entry.id, entry.icon),
+  }));
+}
+
+function getWeatherBgUrl(imageId) {
+  return adminAssetUrl('images/weather/' + imageId + '.png');
+}
+
+async function loadWeatherWidget() {
+  const widget = document.getElementById('weather-widget');
+  if (!widget) return;
+
+  const t = u();
+  const apiKey = getWeatherKey();
+  const owmLang = adminLang === 'ru' ? 'ru' : adminLang === 'de' ? 'de' : 'en';
+
+  if (!apiKey) {
+    widget.innerHTML = `<div class="weather-widget-placeholder">${esc(t.weatherNoApiKey)}</div>`;
+    return;
+  }
+
+  widget.innerHTML = `<div class="weather-widget-placeholder">${esc(t.weatherLoading)}</div>`;
+
+  try {
+    const q = encodeURIComponent(WEATHER_CITY);
+    const [currentRes, forecastRes] = await Promise.all([
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${q}&appid=${apiKey}&units=metric&lang=${owmLang}`),
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${q}&appid=${apiKey}&units=metric&lang=${owmLang}`),
+    ]);
+    if (!currentRes.ok) throw new Error('weather');
+    const current = await currentRes.json();
+    const forecast = forecastRes.ok ? await forecastRes.json() : null;
+
+    const w = current.weather[0];
+    const bgUrl = getWeatherBgUrl(pickWeatherImageId(w, w.icon));
+    const temp = Math.round(current.main.temp);
+    const humidity = current.main.humidity;
+    const wind = Math.round((current.wind?.speed || 0) * 3.6);
+    const forecastDays = build5DayForecast(forecast);
+    const forecastHtml = forecastDays.length
+      ? forecastDays.map(d => `
+          <div class="weather-forecast-day">
+            <div>${esc(d.day)}</div>
+            <span class="wf-emoji">${d.emoji}</span>
+            <div class="wf-temp">${d.min}° / ${d.max}°</div>
+          </div>`).join('')
+      : '';
+
+    widget.innerHTML = `
+      <div class="weather-widget-bg" style="background-image:url('${esc(bgUrl)}')"></div>
+      <div class="weather-widget-overlay">
+        <div class="weather-widget-location">📍 Bischofszell</div>
+        <div class="weather-widget-temp">${temp}°</div>
+        <div class="weather-widget-desc">${esc(w.description)}</div>
+        <div class="weather-widget-meta">💧 ${humidity}% · 💨 ${wind} km/h</div>
+        ${forecastHtml ? `<div class="weather-widget-forecast">${forecastHtml}</div>` : ''}
+      </div>`;
+  } catch (_) {
+    widget.innerHTML = `<div class="weather-widget-placeholder">${esc(t.weatherError)}</div>`;
+  }
+}
+
 async function renderDashboard() {
   const el = document.getElementById('dashboardSection');
   if (!el) return;
 
+  const t = u();
   const projects = (projectsData.projects || []).length;
   const apps = (settingsData.apps || []).length;
   const lastSaved = localStorage.getItem('korsmotion_last_saved') || '—';
 
-  // Render skeleton first
   el.innerHTML = `
+    <h2 class="section-title">${t.dashboardTitle}</h2>
     <div class="dash-grid">
       <div class="dash-card">
         <div class="dash-icon">📁</div>
         <div class="dash-val">${projects}</div>
-        <div class="dash-label">Проектов</div>
+        <div class="dash-label">${t.dashProjects}</div>
       </div>
       <div class="dash-card">
         <div class="dash-icon">📱</div>
         <div class="dash-val">${apps}</div>
-        <div class="dash-label">Приложений</div>
+        <div class="dash-label">${t.dashApps}</div>
       </div>
       <div class="dash-card">
         <div class="dash-icon">💾</div>
-        <div class="dash-val dash-val-sm">${lastSaved}</div>
-        <div class="dash-label">Последнее сохранение</div>
+        <div class="dash-val dash-val-sm">${esc(lastSaved)}</div>
+        <div class="dash-label">${t.dashLastSaved}</div>
       </div>
       <div class="dash-card" id="dash-today">
         <div class="dash-icon">👁</div>
         <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">Просмотров сегодня</div>
+        <div class="dash-label">${t.dashViewsToday}</div>
       </div>
       <div class="dash-card" id="dash-week">
         <div class="dash-icon">📈</div>
         <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">За 7 дней</div>
+        <div class="dash-label">${t.dashWeek}</div>
       </div>
       <div class="dash-card" id="dash-month">
         <div class="dash-icon">🗓</div>
         <div class="dash-val dash-loading">…</div>
-        <div class="dash-label">За 30 дней</div>
+        <div class="dash-label">${t.dashMonth}</div>
       </div>
-    </div>`;
+    </div>
+    <div id="weather-widget"></div>`;
 
-  // Load analytics async
+  loadWeatherWidget();
+  startWeatherRefresh();
+
   try {
     const resp = await fetch('/api/analytics', {
       headers: { 'X-Admin-Password': ADMIN_PASSWORD }
@@ -274,10 +717,10 @@ async function renderDashboard() {
       document.getElementById('dash-week').querySelector('.dash-val').classList.remove('dash-loading');
       document.getElementById('dash-month').querySelector('.dash-val').classList.remove('dash-loading');
     }
-  } catch(e) {
-    ['dash-today','dash-week','dash-month'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.querySelector('.dash-val').textContent = '—';
+  } catch (_) {
+    ['dash-today', 'dash-week', 'dash-month'].forEach(id => {
+      const card = document.getElementById(id);
+      if (card) card.querySelector('.dash-val').textContent = '—';
     });
   }
 }
@@ -545,10 +988,24 @@ document.getElementById('addAppBtn').addEventListener('click', () => {
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-// Admin lang switcher buttons
+renderWeatherGrid();
+initPremiumToggles();
+initPasswordToggles();
+bindMaskedSecretField('githubTokenInput', getGithubToken, GITHUB_TOKEN_KEY);
+bindMaskedSecretField('weatherKeyInput', getWeatherKey, WEATHER_KEY);
+
 document.querySelectorAll('.admin-lang-btn').forEach(btn => {
   btn.addEventListener('click', () => setAdminLang(btn.dataset.lang));
 });
+
+const saveGithubTokenBtn = document.getElementById('saveGithubTokenBtn');
+if (saveGithubTokenBtn) saveGithubTokenBtn.addEventListener('click', saveGithubToken);
+const saveWeatherKeyBtn = document.getElementById('saveWeatherKeyBtn');
+if (saveWeatherKeyBtn) saveWeatherKeyBtn.addEventListener('click', saveWeatherKey);
+const openSettingsModalBtn = document.getElementById('openSettingsModal');
+if (openSettingsModalBtn) openSettingsModalBtn.addEventListener('click', openSettingsModal);
+const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
+if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
 
 if (isLoggedIn()) showAdmin(); else showLogin();
 
