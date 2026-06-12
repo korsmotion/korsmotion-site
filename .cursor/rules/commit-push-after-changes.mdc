@@ -1,0 +1,30 @@
+---
+description: After code changes, commit and push to deploy on Cloudflare Pages
+alwaysApply: true
+---
+
+# Deploy workflow — commit and push
+
+This site (`site-cloudflare/`) deploys via GitHub → Cloudflare Pages. **Local changes do not appear on www.korsmotion.ch until pushed to `origin/main`.**
+
+## Required after every implementation task
+
+When you finish making file changes in this repo:
+
+1. Run `git status` and `git diff` to verify what changed.
+2. **Commit** all relevant changes with a clear message (do not commit secrets: `.env`, tokens, credentials).
+3. **Push** to `origin/main` immediately: `git push origin main`.
+4. Confirm push succeeded (`git status` shows clean tree, branch up to date).
+
+Do this **without waiting** for the user to ask "commit push" — they expect deploy as part of the task.
+
+## Exceptions
+
+- **Questions-only** or **read-only review** — no commit.
+- User explicitly says **not to push** or **not to commit**.
+- No file changes were made.
+
+## Repo
+
+- Remote: `https://github.com/korsmotion/korsmotion-site.git`
+- Branch: `main`
