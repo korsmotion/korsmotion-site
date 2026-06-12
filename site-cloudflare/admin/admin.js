@@ -22,10 +22,11 @@ const API_SERVICES = '/api/services';
 const API_REVIEWS = '/api/reviews';
 const API_HERO = '/api/hero';
 const API_CALCULATOR = '/api/calculator';
+const API_CLIENTS = '/api/clients';
 const WEATHER_CITY = 'Bischofszell,CH';
 const WEATHER_REFRESH_MS = 30 * 60 * 1000;
 const SECTION_COLLAPSE_KEY = 'korsmotion_admin_section_';
-const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, hero: false, portfolio: true, devApps: true, services: true, reviews: true, calculator: true };
+const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, hero: false, portfolio: true, devApps: true, services: true, reviews: true, calculator: true, clients: true };
 const CAT_COLLAPSE_PREFIX = 'korsmotion_cat_collapsed_';
 const PROJECT_CARD_COLLAPSE_PREFIX = 'korsmotion_proj_collapsed_';
 const APP_CARD_COLLAPSE_PREFIX = 'korsmotion_appcard_collapsed_';
@@ -107,6 +108,21 @@ const UI = {
     calcGroupColId: 'ID', calcGroupColName: 'Название (RU)', calcGroupColCount: 'Кол-во опций', calcSelectGroup: 'Группа',
     calcGroupSelType: 'Тип выбора', calcGroupSelMultiple: 'Множественный выбор (чекбоксы)', calcGroupSelSingle: 'Одиночный выбор (радиокнопки)',
     calcNoOptions: 'Нет опций. Добавьте первую.', calcNoGroups: 'Нет групп. Добавьте первую.',
+    calcDocsEmpty: 'Нет документов', calcDocOpen: 'Открыть',
+    clientsTitle: 'Клиенты 👥', clientsAdd: '+ Добавить клиента', clientsBack: '← Назад к списку',
+    clientsSave: 'Сохранить клиента', clientsColNum: '#', clientsColName: 'Имя / Компания',
+    clientsColSite: 'Сайт/Проект', clientsColStatus: 'Статус', clientsColDate: 'Дата',
+    clientsName: 'Имя / Название компании', clientsContact: 'Контактное лицо', clientsEmail: 'Email',
+    clientsPhone: 'Телефон', clientsStatus: 'Статус проекта', clientsDateStart: 'Дата начала', clientsDateEnd: 'Дата сдачи',
+    clientsProjectName: 'Название проекта', clientsProjectType: 'Тип проекта', clientsProjectUrl: 'URL сайта',
+    clientsBudget: 'Бюджет', clientsServices: 'Услуги из калькулятора', clientsTechTitle: 'Технические данные 🔒',
+    clientsDomainProvider: 'Домен: где зарегистрирован', clientsDomainLogin: 'Домен: логин', clientsDomainPass: 'Домен: пароль',
+    clientsHosting: 'Хостинг/Сервер', clientsCmsUrl: 'CMS/Admin URL', clientsCmsLogin: 'CMS логин', clientsCmsPass: 'CMS пароль',
+    clientsExtraAccess: 'Дополнительные доступы', clientsNotesTitle: 'Заметки 📝', clientsNotes: 'Внутренние заметки',
+    clientsHistory: 'История изменений', clientsEmpty: 'Нет клиентов. Добавьте первого.',
+    clientStatusInProgress: 'В разработке', clientStatusCompleted: 'Завершён', clientStatusSupport: 'Поддержка', clientStatusPaused: 'На паузе',
+    clientTypeLanding: 'Лендинг', clientTypeMultipage: 'Многостраничный', clientTypeMobile: 'Мобильное приложение',
+    clientTypeMotion: 'Моушен', clientTypeOther: 'Другое',
   },
   de: {
     adminTitle: 'Admin-Panel', viewSite: 'Website ansehen', logout: 'Abmelden',
@@ -182,6 +198,21 @@ const UI = {
     calcGroupColId: 'ID', calcGroupColName: 'Name (RU)', calcGroupColCount: 'Optionen', calcSelectGroup: 'Gruppe',
     calcGroupSelType: 'Auswahltyp', calcGroupSelMultiple: 'Mehrfachauswahl', calcGroupSelSingle: 'Einfachauswahl',
     calcNoOptions: 'Keine Optionen.', calcNoGroups: 'Keine Gruppen.',
+    calcDocsEmpty: 'Keine Dokumente', calcDocOpen: 'Öffnen',
+    clientsTitle: 'Kunden 👥', clientsAdd: '+ Kunde hinzufügen', clientsBack: '← Zurück zur Liste',
+    clientsSave: 'Kunde speichern', clientsColNum: '#', clientsColName: 'Name / Firma',
+    clientsColSite: 'Website/Projekt', clientsColStatus: 'Status', clientsColDate: 'Datum',
+    clientsName: 'Name / Firma', clientsContact: 'Ansprechpartner', clientsEmail: 'E-Mail',
+    clientsPhone: 'Telefon', clientsStatus: 'Projektstatus', clientsDateStart: 'Startdatum', clientsDateEnd: 'Lieferdatum',
+    clientsProjectName: 'Projektname', clientsProjectType: 'Projekttyp', clientsProjectUrl: 'Website-URL',
+    clientsBudget: 'Budget', clientsServices: 'Dienste aus Kalkulator', clientsTechTitle: 'Technische Daten 🔒',
+    clientsDomainProvider: 'Domain-Anbieter', clientsDomainLogin: 'Domain-Login', clientsDomainPass: 'Domain-Passwort',
+    clientsHosting: 'Hosting/Server', clientsCmsUrl: 'CMS/Admin URL', clientsCmsLogin: 'CMS-Login', clientsCmsPass: 'CMS-Passwort',
+    clientsExtraAccess: 'Zusätzliche Zugänge', clientsNotesTitle: 'Notizen 📝', clientsNotes: 'Interne Notizen',
+    clientsHistory: 'Änderungsverlauf', clientsEmpty: 'Keine Kunden.',
+    clientStatusInProgress: 'In Entwicklung', clientStatusCompleted: 'Abgeschlossen', clientStatusSupport: 'Support', clientStatusPaused: 'Pausiert',
+    clientTypeLanding: 'Landingpage', clientTypeMultipage: 'Mehrseitig', clientTypeMobile: 'Mobile App',
+    clientTypeMotion: 'Motion', clientTypeOther: 'Sonstiges',
   },
   en: {
     adminTitle: 'Admin Panel', viewSite: 'View site', logout: 'Logout',
@@ -257,6 +288,21 @@ const UI = {
     calcGroupColId: 'ID', calcGroupColName: 'Name (RU)', calcGroupColCount: 'Options', calcSelectGroup: 'Group',
     calcGroupSelType: 'Selection type', calcGroupSelMultiple: 'Multiple choice', calcGroupSelSingle: 'Single choice',
     calcNoOptions: 'No options yet.', calcNoGroups: 'No groups yet.',
+    calcDocsEmpty: 'No documents', calcDocOpen: 'Open',
+    clientsTitle: 'Clients 👥', clientsAdd: '+ Add client', clientsBack: '← Back to list',
+    clientsSave: 'Save client', clientsColNum: '#', clientsColName: 'Name / Company',
+    clientsColSite: 'Site/Project', clientsColStatus: 'Status', clientsColDate: 'Date',
+    clientsName: 'Name / Company', clientsContact: 'Contact person', clientsEmail: 'Email',
+    clientsPhone: 'Phone', clientsStatus: 'Project status', clientsDateStart: 'Start date', clientsDateEnd: 'Delivery date',
+    clientsProjectName: 'Project name', clientsProjectType: 'Project type', clientsProjectUrl: 'Site URL',
+    clientsBudget: 'Budget', clientsServices: 'Calculator services', clientsTechTitle: 'Technical data 🔒',
+    clientsDomainProvider: 'Domain registrar', clientsDomainLogin: 'Domain login', clientsDomainPass: 'Domain password',
+    clientsHosting: 'Hosting/Server', clientsCmsUrl: 'CMS/Admin URL', clientsCmsLogin: 'CMS login', clientsCmsPass: 'CMS password',
+    clientsExtraAccess: 'Additional access', clientsNotesTitle: 'Notes 📝', clientsNotes: 'Internal notes',
+    clientsHistory: 'Change history', clientsEmpty: 'No clients yet.',
+    clientStatusInProgress: 'In development', clientStatusCompleted: 'Completed', clientStatusSupport: 'Support', clientStatusPaused: 'Paused',
+    clientTypeLanding: 'Landing', clientTypeMultipage: 'Multi-page', clientTypeMobile: 'Mobile app',
+    clientTypeMotion: 'Motion', clientTypeOther: 'Other',
   }
 };
 
@@ -315,6 +361,16 @@ const DEFAULT_SETTINGS = {
 let settingsData = { ...DEFAULT_SETTINGS };
 let reviewsData = { reviews: [] };
 let calculatorData = { visible: false, groups: [] };
+let clientsData = [];
+let clientsView = 'list';
+let clientsEditingId = null;
+
+const CLIENT_STATUS_META = {
+  in_progress: { icon: '🔄', cls: 'client-status-in_progress' },
+  completed: { icon: '✅', cls: 'client-status-completed' },
+  support: { icon: '🛠️', cls: 'client-status-support' },
+  paused: { icon: '⏸️', cls: 'client-status-paused' },
+};
 let calcActiveTab = 'overview';
 let calcEditingRef = null;
 let calcEditorLang = 'ru';
@@ -600,7 +656,7 @@ function initDirtyTracking() {
   if (!app || app.dataset.dirtyBound === '1') return;
   app.dataset.dirtyBound = '1';
   app.addEventListener('input', e => {
-    if (e.target.closest('#projectsList, #devList, #servicesList, #heroSection, #reviewsSection, #calculatorSection')) markUnsaved();
+    if (e.target.closest('#projectsList, #devList, #servicesList, #heroSection, #reviewsSection, #calculatorSection, #clientsSection')) markUnsaved();
   });
   app.addEventListener('change', e => {
     if (['showDevSection', 'showPortfolioSection', 'showServicesSection', 'showReviewsSection', 'showHeroSection'].includes(e.target.id)) markUnsaved();
@@ -997,6 +1053,7 @@ async function loadData() {
   loadReviewsAdmin();
   loadHeroAdmin();
   loadCalculatorAdmin();
+  loadClientsAdmin();
 }
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
@@ -1014,6 +1071,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     if (!(await saveReviews({ silent: true }))) throw new Error('reviews');
     if (!(await saveHero({ silent: true }))) throw new Error('hero');
     if (!(await saveCalculator({ silent: true }))) throw new Error('calculator');
+    if (!(await saveClients({ silent: true }))) throw new Error('clients');
     await markSavedSuccess();
     showToast(u().loadedServer, 'success');
     const now = new Date();
@@ -1053,6 +1111,7 @@ function renderAll() {
   renderServices();
   renderReviewsAdmin();
   renderCalculatorAdmin();
+  renderClientsAdmin();
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -2339,6 +2398,34 @@ function calcDocIcon(type, name) {
   return '📎';
 }
 
+function formatDocDate(dateStr) {
+  if (!dateStr) return '';
+  const p = dateStr.split('-');
+  if (p.length === 3) return `${p[2]}.${p[1]}.${p[0]}`;
+  return dateStr;
+}
+
+function openStoredDocument(doc) {
+  if (!doc?.data) {
+    showToast(doc?.todo ? 'File metadata only (TODO storage)' : 'File not available', 'warning');
+    return;
+  }
+  const mime = doc.type || 'application/octet-stream';
+  window.open(`data:${mime};base64,${doc.data}`, '_blank');
+}
+
+function renderCalcDocList(docs, t) {
+  if (!docs?.length) return `<div class="calc-docs-empty">${esc(t.calcDocsEmpty)}</div>`;
+  return `<ul class="calc-doc-list">${docs.map(d => `
+    <li class="calc-doc-item">
+      <span>${calcDocIcon(d.type, d.name)}</span>
+      <span title="${esc(d.name)}">${esc(d.name)}</span>
+      <span class="calc-doc-meta">${esc(formatDocDate(d.date))}</span>
+      <button type="button" class="calc-doc-open calc-doc-open-btn" data-doc-id="${esc(d.id)}">${esc(t.calcDocOpen)}</button>
+      <button type="button" class="calc-icon-btn calc-doc-del" data-doc-id="${esc(d.id)}">🗑️</button>
+    </li>`).join('')}</ul>`;
+}
+
 function getCalcEditingOption() {
   if (!calcEditingRef) return null;
   const { gi, oi } = calcEditingRef;
@@ -2396,7 +2483,7 @@ function toggleCalcFullscreen() {
   document.body.classList.toggle('calc-fullscreen-open', calcFullscreen);
 }
 
-function attachCalcDocument(file, opt) {
+function attachDocument(file, target, rerender) {
   const allowed = /\.(pdf|jpe?g|png|docx)$/i;
   if (!allowed.test(file.name)) {
     showToast('PDF, JPG, PNG, DOCX only', 'error');
@@ -2423,12 +2510,16 @@ function attachCalcDocument(file, opt) {
       doc.stored = false;
       doc.todo = true;
     }
-    if (!opt.documents) opt.documents = [];
-    opt.documents.push(doc);
+    if (!target.documents) target.documents = [];
+    target.documents.push(doc);
     markUnsaved();
-    renderCalculatorAdmin();
+    rerender();
   };
   reader.readAsDataURL(file);
+}
+
+function attachCalcDocument(file, opt) {
+  attachDocument(file, opt, () => renderCalculatorAdmin());
 }
 
 function openCalcEditor(gi, oi) {
@@ -2633,16 +2724,7 @@ function renderCalcEditor(t) {
     `<button type="button" class="calc-emoji-btn${opt.icon === e ? ' active' : ''}" data-emoji="${e}">${e}</button>`
   ).join('');
 
-  const docs = opt.documents || [];
-  const docList = docs.length
-    ? docs.map(d => `
-        <li class="calc-doc-item">
-          <span>${calcDocIcon(d.type, d.name)}</span>
-          <span title="${esc(d.name)}">${esc(d.name)}${d.todo ? ' (TODO)' : ''}</span>
-          <span class="calc-doc-meta">${esc(d.date || '')}</span>
-          <button type="button" class="calc-icon-btn calc-doc-del" data-doc-id="${esc(d.id)}">🗑️</button>
-        </li>`).join('')
-    : '';
+  const docListHtml = renderCalcDocList(opt.documents || [], t);
 
   return `
     <div class="calc-editor-grid">
@@ -2652,18 +2734,21 @@ function renderCalcEditor(t) {
           <input class="form-input" id="calcEditorIcon" value="${esc(opt.icon || '')}" style="max-width:80px;font-size:22px;text-align:center">
           <div class="calc-emoji-grid">${emojiBtns}</div>
         </div>
-        <div class="calc-price-compact">
-          <input type="number" class="form-input calc-price-input" id="calcEditorPrice" value="${calcPriceAmount(opt)}" min="0" step="50" title="${esc(t.calcPrice)}">
-          <select class="form-input calc-currency-select" id="calcEditorCurrency" title="${esc(t.calcCurrency)}">
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">${esc(t.calcPrice)}</label>
+          <div class="calc-price-compact">
+          <input type="number" class="form-input calc-price-input" id="calcEditorPrice" value="${calcPriceAmount(opt)}" min="0" step="50">
+          <select class="form-input calc-currency-select" id="calcEditorCurrency">
             <option value="CHF"${currency === 'CHF' ? ' selected' : ''}>CHF</option>
             <option value="USD"${currency === 'USD' ? ' selected' : ''}>USD</option>
             <option value="EUR"${currency === 'EUR' ? ' selected' : ''}>EUR</option>
           </select>
-          <select class="form-input calc-payment-select" id="calcEditorPaymentType" title="${esc(t.calcPaymentType)}">
+          <select class="form-input calc-payment-select" id="calcEditorPaymentType">
             <option value="one_time"${opt.paymentType === 'one_time' || !opt.paymentType ? ' selected' : ''}>${esc(t.calcPayOneTime)}</option>
             <option value="monthly"${opt.paymentType === 'monthly' ? ' selected' : ''}>${esc(t.calcPayMonthly)}</option>
             <option value="yearly"${opt.paymentType === 'yearly' ? ' selected' : ''}>${esc(t.calcPayYearly)}</option>
           </select>
+          </div>
         </div>
         <div style="display:flex;gap:20px;margin-bottom:16px;flex-wrap:wrap">
           <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600">
@@ -2704,26 +2789,26 @@ function renderCalcEditor(t) {
           </div>
           <div class="form-group">
             <label class="form-label">${esc(t.calcInternalCost)}</label>
-            <input type="number" class="form-input" id="calcEditorInternalCost" value="${parseInt(opt.internalCost, 10) || 0}" min="0" step="10">
+            <input type="number" class="form-input calc-field-narrow" id="calcEditorInternalCost" value="${parseInt(opt.internalCost, 10) || 0}" min="0" step="10">
             <div class="calc-field-hint">${esc(t.calcInternalCostHint)}</div>
           </div>
           <div class="form-group">
             <label class="form-label">${esc(t.calcDomainField)}</label>
-            <input class="form-input" id="calcEditorDomain" value="${esc(opt.domainWhere || '')}">
+            <input class="form-input calc-field-medium" id="calcEditorDomain" value="${esc(opt.domainWhere || '')}">
           </div>
           <div class="form-group">
             <label class="form-label">${esc(t.calcToolsField)}</label>
-            <input class="form-input" id="calcEditorTools" value="${esc(opt.tools || '')}" placeholder="Figma, Cloudflare, ...">
+            <input class="form-input calc-field-medium" id="calcEditorTools" value="${esc(opt.tools || '')}" placeholder="Figma, Cloudflare, ...">
           </div>
           <div class="form-group">
             <label class="form-label">${esc(t.calcTimeField)}</label>
-            <input class="form-input" id="calcEditorTime" value="${esc(opt.estimateTime || '')}" placeholder="3-5 дней">
+            <input class="form-input calc-field-medium" id="calcEditorTime" value="${esc(opt.estimateTime || '')}" placeholder="3-5 дней">
           </div>
           <div class="calc-docs-section">
             <div class="form-label">${esc(t.calcDocsTitle)}</div>
             <input type="file" id="calcDocInput" accept=".pdf,.jpg,.jpeg,.png,.docx" hidden>
             <button type="button" class="btn btn-ghost btn-sm" id="calcDocAttach">${esc(t.calcDocsAttach)}</button>
-            <ul class="calc-doc-list">${docList}</ul>
+            ${docListHtml}
           </div>
         </div>
       </div>
@@ -3059,6 +3144,13 @@ function bindCalculatorAdminEvents(container) {
       renderCalculatorAdmin();
     });
   });
+  container.querySelectorAll('.calc-doc-open-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const opt = getCalcEditingOption();
+      const doc = opt?.documents?.find(d => d.id === btn.dataset.docId);
+      if (doc) openStoredDocument(doc);
+    });
+  });
 
   container.querySelectorAll('.calc-group-edit').forEach(btn => {
     btn.addEventListener('mousedown', e => e.stopPropagation());
@@ -3127,5 +3219,376 @@ function renderCalculatorAdmin() {
     </div>`;
 
   bindCalculatorAdminEvents(container);
+}
+
+// ── Clients ───────────────────────────────────────────────────────────────────
+function clientStatusLabel(status, t) {
+  const map = {
+    in_progress: t.clientStatusInProgress,
+    completed: t.clientStatusCompleted,
+    support: t.clientStatusSupport,
+    paused: t.clientStatusPaused,
+  };
+  return map[status] || map.in_progress;
+}
+
+function clientTypeLabel(type, t) {
+  const map = {
+    landing: t.clientTypeLanding,
+    multipage: t.clientTypeMultipage,
+    mobile: t.clientTypeMobile,
+    motion: t.clientTypeMotion,
+    other: t.clientTypeOther,
+  };
+  return map[type] || map.other;
+}
+
+function formatClientListDate(dateStr) {
+  if (!dateStr) return '—';
+  const p = dateStr.split('-');
+  if (p.length >= 2) return `${p[1]}.${p[0]}`;
+  return dateStr;
+}
+
+function createEmptyClient() {
+  return {
+    id: 'client_' + Date.now(),
+    name: '', contact: '', email: '', phone: '',
+    status: 'in_progress', dateStart: '', dateEnd: '',
+    project: { name: '', type: 'landing', url: '', budget: 0, currency: 'CHF', services: [] },
+    technical: {
+      domainProvider: '', domainLogin: '', domainPassword: '',
+      hosting: '', cmsUrl: '', cmsLogin: '', cmsPassword: '', extraAccess: '',
+    },
+    notes: '', history: [], documents: [],
+  };
+}
+
+function normalizeClient(c) {
+  const client = { ...createEmptyClient(), ...c };
+  client.project = { ...createEmptyClient().project, ...(c.project || {}) };
+  client.technical = { ...createEmptyClient().technical, ...(c.technical || {}) };
+  if (!Array.isArray(client.history)) client.history = [];
+  if (!Array.isArray(client.documents)) client.documents = [];
+  if (!Array.isArray(client.project.services)) client.project.services = [];
+  return client;
+}
+
+function getEditingClient() {
+  if (!clientsEditingId) return null;
+  return clientsData.find(c => c.id === clientsEditingId) || null;
+}
+
+function getCalcServiceOptions() {
+  const opts = [];
+  (calculatorData.groups || []).forEach(g => {
+    (g.options || []).forEach(o => {
+      if (o.active === false) return;
+      opts.push({ id: o.id, label: calcLang(o.title, 'ru') || o.id });
+    });
+  });
+  return opts;
+}
+
+function updateClientsBadge() {
+  const badge = document.getElementById('clientsCountBadge');
+  if (badge) badge.textContent = String(clientsData.length);
+}
+
+async function loadClientsAdmin() {
+  try {
+    const res = await fetch(API_CLIENTS);
+    if (res.ok) {
+      const data = await res.json();
+      clientsData = (Array.isArray(data.clients) ? data.clients : []).map(normalizeClient);
+    }
+  } catch (_) {}
+  updateClientsBadge();
+  renderClientsAdmin();
+}
+
+async function saveClients({ silent } = {}) {
+  try {
+    const res = await fetch(API_CLIENTS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: ADMIN_PASSWORD, clients: clientsData }),
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
+    if (!silent) showToast(u().saved, 'success');
+    return true;
+  } catch (e) {
+    if (!silent) showToast(u().saveError, 'error');
+    return false;
+  }
+}
+
+function attachClientDocument(file, client) {
+  attachDocument(file, client, () => renderClientsAdmin());
+}
+
+function snapshotClientCard() {
+  const client = getEditingClient();
+  if (!client || clientsView !== 'card') return;
+  const g = id => document.getElementById(id);
+  if (g('clientName')) client.name = g('clientName').value;
+  if (g('clientContact')) client.contact = g('clientContact').value;
+  if (g('clientEmail')) client.email = g('clientEmail').value;
+  if (g('clientPhone')) client.phone = g('clientPhone').value;
+  if (g('clientStatus')) client.status = g('clientStatus').value;
+  if (g('clientDateStart')) client.dateStart = g('clientDateStart').value;
+  if (g('clientDateEnd')) client.dateEnd = g('clientDateEnd').value;
+  if (g('clientProjectName')) client.project.name = g('clientProjectName').value;
+  if (g('clientProjectType')) client.project.type = g('clientProjectType').value;
+  if (g('clientProjectUrl')) client.project.url = g('clientProjectUrl').value;
+  if (g('clientBudget')) client.project.budget = parseInt(g('clientBudget').value, 10) || 0;
+  if (g('clientBudgetCurrency')) client.project.currency = g('clientBudgetCurrency').value || 'CHF';
+  const svcSel = g('clientServices');
+  if (svcSel) client.project.services = Array.from(svcSel.selectedOptions).map(o => o.value);
+  const tech = client.technical;
+  if (g('clientDomainProvider')) tech.domainProvider = g('clientDomainProvider').value;
+  if (g('clientDomainLogin')) tech.domainLogin = g('clientDomainLogin').value;
+  if (g('clientDomainPass')) tech.domainPassword = g('clientDomainPass').value;
+  if (g('clientHosting')) tech.hosting = g('clientHosting').value;
+  if (g('clientCmsUrl')) tech.cmsUrl = g('clientCmsUrl').value;
+  if (g('clientCmsLogin')) tech.cmsLogin = g('clientCmsLogin').value;
+  if (g('clientCmsPass')) tech.cmsPassword = g('clientCmsPass').value;
+  if (g('clientExtraAccess')) tech.extraAccess = g('clientExtraAccess').value;
+  if (g('clientNotes')) client.notes = g('clientNotes').value;
+}
+
+function renderClientsList(t) {
+  if (!clientsData.length) return `<div class="calc-empty">${esc(t.clientsEmpty)}</div>`;
+  const rows = clientsData.map((c, i) => {
+    const meta = CLIENT_STATUS_META[c.status] || CLIENT_STATUS_META.in_progress;
+    const site = c.project?.url || c.project?.name || '—';
+    return `
+      <tr class="calc-overview-row" data-client-id="${esc(c.id)}">
+        <td class="calc-row-num">${i + 1}</td>
+        <td>${esc(c.name || '—')}</td>
+        <td>${esc(site)}</td>
+        <td><span class="client-status-badge ${meta.cls}">${meta.icon} ${esc(clientStatusLabel(c.status, t))}</span></td>
+        <td>${esc(formatClientListDate(c.dateEnd))}</td>
+        <td class="calc-actions-cell">
+          <button type="button" class="calc-icon-btn client-edit-btn" data-client-id="${esc(c.id)}">✏️</button>
+          <button type="button" class="calc-icon-btn client-del-btn" data-client-id="${esc(c.id)}">🗑️</button>
+        </td>
+      </tr>`;
+  }).join('');
+  return `
+    <div class="clients-toolbar">
+      <button type="button" class="btn btn-primary btn-sm" id="clientAddBtn">${esc(t.clientsAdd)}</button>
+    </div>
+    <div class="calc-table-wrap">
+      <table class="calc-table">
+        <thead>
+          <tr>
+            <th>${esc(t.clientsColNum)}</th>
+            <th>${esc(t.clientsColName)}</th>
+            <th>${esc(t.clientsColSite)}</th>
+            <th>${esc(t.clientsColStatus)}</th>
+            <th>${esc(t.clientsColDate)}</th>
+            <th>${esc(t.calcColActions)}</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderClientCard(t) {
+  const client = getEditingClient();
+  if (!client) return renderClientsList(t);
+  const p = client.project;
+  const tech = client.technical;
+  const svcOpts = getCalcServiceOptions();
+  const svcSelected = new Set(p.services || []);
+  const svcOptions = svcOpts.map(o =>
+    `<option value="${esc(o.id)}"${svcSelected.has(o.id) ? ' selected' : ''}>${esc(o.label)}</option>`
+  ).join('');
+  const history = (client.history || []).slice().reverse().map(h =>
+    `<li><strong>${esc(formatDocDate(h.date))}</strong> — ${esc(h.text)}</li>`
+  ).join('');
+  const docListHtml = renderCalcDocList(client.documents || [], t);
+
+  return `
+    <div class="client-card-grid">
+      <div class="client-card-main">
+        <div class="form-group"><label class="form-label">${esc(t.clientsName)}</label><input class="form-input" id="clientName" value="${esc(client.name)}"></div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsContact)}</label><input class="form-input calc-field-medium" id="clientContact" value="${esc(client.contact)}"></div>
+        <div class="item-fields">
+          <div class="form-group"><label class="form-label">${esc(t.clientsEmail)}</label><input type="email" class="form-input calc-field-medium" id="clientEmail" value="${esc(client.email)}"></div>
+          <div class="form-group"><label class="form-label">${esc(t.clientsPhone)}</label><input class="form-input calc-field-medium" id="clientPhone" value="${esc(client.phone)}"></div>
+        </div>
+        <div class="item-fields">
+          <div class="form-group"><label class="form-label">${esc(t.clientsStatus)}</label>
+            <select class="form-input" id="clientStatus">
+              <option value="in_progress"${client.status === 'in_progress' ? ' selected' : ''}>${esc(t.clientStatusInProgress)}</option>
+              <option value="completed"${client.status === 'completed' ? ' selected' : ''}>${esc(t.clientStatusCompleted)}</option>
+              <option value="support"${client.status === 'support' ? ' selected' : ''}>${esc(t.clientStatusSupport)}</option>
+              <option value="paused"${client.status === 'paused' ? ' selected' : ''}>${esc(t.clientStatusPaused)}</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">${esc(t.clientsDateStart)}</label><input type="date" class="form-input" id="clientDateStart" value="${esc(client.dateStart)}"></div>
+          <div class="form-group"><label class="form-label">${esc(t.clientsDateEnd)}</label><input type="date" class="form-input" id="clientDateEnd" value="${esc(client.dateEnd)}"></div>
+        </div>
+        <div class="client-section-title">Проект</div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsProjectName)}</label><input class="form-input" id="clientProjectName" value="${esc(p.name)}"></div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsProjectType)}</label>
+          <select class="form-input calc-field-medium" id="clientProjectType">
+            <option value="landing"${p.type === 'landing' ? ' selected' : ''}>${esc(t.clientTypeLanding)}</option>
+            <option value="multipage"${p.type === 'multipage' ? ' selected' : ''}>${esc(t.clientTypeMultipage)}</option>
+            <option value="mobile"${p.type === 'mobile' ? ' selected' : ''}>${esc(t.clientTypeMobile)}</option>
+            <option value="motion"${p.type === 'motion' ? ' selected' : ''}>${esc(t.clientTypeMotion)}</option>
+            <option value="other"${p.type === 'other' ? ' selected' : ''}>${esc(t.clientTypeOther)}</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsProjectUrl)}</label><input class="form-input calc-field-medium" id="clientProjectUrl" value="${esc(p.url)}"></div>
+        <div class="calc-price-compact" style="margin-bottom:12px">
+          <label class="form-label" style="width:100%;margin-bottom:6px">${esc(t.clientsBudget)}</label>
+          <input type="number" class="form-input calc-price-input" id="clientBudget" value="${parseInt(p.budget, 10) || 0}" min="0" step="100">
+          <select class="form-input calc-currency-select" id="clientBudgetCurrency">
+            <option value="CHF"${(p.currency || 'CHF') === 'CHF' ? ' selected' : ''}>CHF</option>
+            <option value="USD"${p.currency === 'USD' ? ' selected' : ''}>USD</option>
+            <option value="EUR"${p.currency === 'EUR' ? ' selected' : ''}>EUR</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsServices)}</label>
+          <select class="form-input client-services-select" id="clientServices" multiple>${svcOptions}</select>
+        </div>
+        <div class="client-section-title">${esc(t.clientsNotesTitle)}</div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsNotes)}</label><textarea class="form-textarea" id="clientNotes" rows="5">${esc(client.notes)}</textarea></div>
+        ${history ? `<div class="form-label">${esc(t.clientsHistory)}</div><ul class="client-history">${history}</ul>` : ''}
+        <div class="calc-docs-section">
+          <div class="form-label">${esc(t.calcDocsTitle)}</div>
+          <input type="file" id="clientDocInput" accept=".pdf,.jpg,.jpeg,.png,.docx" hidden>
+          <button type="button" class="btn btn-ghost btn-sm" id="clientDocAttach">${esc(t.calcDocsAttach)}</button>
+          ${docListHtml}
+        </div>
+      </div>
+      <div class="client-card-tech">
+        <div class="calc-editor-notes-title">${esc(t.clientsTechTitle)}</div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsDomainProvider)}</label><input class="form-input calc-field-medium" id="clientDomainProvider" value="${esc(tech.domainProvider)}"></div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsDomainLogin)}</label><input class="form-input calc-field-medium" id="clientDomainLogin" value="${esc(tech.domainLogin)}"></div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsDomainPass)}</label>
+          <div class="pw-wrap"><input type="password" class="form-input calc-field-medium" id="clientDomainPass" value="${esc(tech.domainPassword)}"><button type="button" class="pw-toggle" data-target="clientDomainPass">👁</button></div>
+        </div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsHosting)}</label><input class="form-input calc-field-medium" id="clientHosting" value="${esc(tech.hosting)}"></div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsCmsUrl)}</label><input class="form-input calc-field-medium" id="clientCmsUrl" value="${esc(tech.cmsUrl)}"></div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsCmsLogin)}</label><input class="form-input calc-field-medium" id="clientCmsLogin" value="${esc(tech.cmsLogin)}"></div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsCmsPass)}</label>
+          <div class="pw-wrap"><input type="password" class="form-input calc-field-medium" id="clientCmsPass" value="${esc(tech.cmsPassword)}"><button type="button" class="pw-toggle" data-target="clientCmsPass">👁</button></div>
+        </div>
+        <div class="form-group"><label class="form-label">${esc(t.clientsExtraAccess)}</label><textarea class="form-textarea" id="clientExtraAccess" rows="4">${esc(tech.extraAccess)}</textarea></div>
+      </div>
+    </div>
+    <div class="calc-editor-footer">
+      <button type="button" class="btn btn-ghost btn-sm" id="clientBackBtn">${esc(t.clientsBack)}</button>
+      <button type="button" class="btn btn-success btn-sm" id="clientSaveBtn">${esc(t.clientsSave)}</button>
+    </div>`;
+}
+
+function bindClientsEvents(container) {
+  const t = u();
+  document.getElementById('clientAddBtn')?.addEventListener('click', () => {
+    const c = createEmptyClient();
+    clientsData.unshift(c);
+    clientsEditingId = c.id;
+    clientsView = 'card';
+    markUnsaved();
+    renderClientsAdmin();
+  });
+  container.querySelectorAll('.calc-overview-row[data-client-id]').forEach(row => {
+    row.addEventListener('click', e => {
+      if (e.target.closest('.calc-actions-cell')) return;
+      clientsEditingId = row.dataset.clientId;
+      clientsView = 'card';
+      renderClientsAdmin();
+    });
+  });
+  container.querySelectorAll('.client-edit-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      clientsEditingId = btn.dataset.clientId;
+      clientsView = 'card';
+      renderClientsAdmin();
+    });
+  });
+  container.querySelectorAll('.client-del-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = btn.dataset.clientId;
+      clientsData = clientsData.filter(c => c.id !== id);
+      if (clientsEditingId === id) { clientsEditingId = null; clientsView = 'list'; }
+      markUnsaved();
+      updateClientsBadge();
+      renderClientsAdmin();
+    });
+  });
+  document.getElementById('clientBackBtn')?.addEventListener('click', () => {
+    snapshotClientCard();
+    clientsView = 'list';
+    clientsEditingId = null;
+    renderClientsAdmin();
+  });
+  document.getElementById('clientSaveBtn')?.addEventListener('click', async () => {
+    snapshotClientCard();
+    const client = getEditingClient();
+    if (client) {
+      const today = new Date().toISOString().slice(0, 10);
+      client.history.push({ date: today, text: 'Изменения сохранены' });
+    }
+    markUnsaved();
+    markSaving();
+    if (await saveClients({ silent: true })) {
+      await markSavedSuccess();
+      showToast(t.saved, 'success');
+    } else markSaveError(t.saveError);
+  });
+  document.getElementById('clientDocAttach')?.addEventListener('click', () => {
+    document.getElementById('clientDocInput')?.click();
+  });
+  document.getElementById('clientDocInput')?.addEventListener('change', e => {
+    const client = getEditingClient();
+    const file = e.target.files?.[0];
+    if (client && file) attachClientDocument(file, client);
+    e.target.value = '';
+  });
+  container.querySelectorAll('.calc-doc-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const client = getEditingClient();
+      if (!client?.documents) return;
+      client.documents = client.documents.filter(d => d.id !== btn.dataset.docId);
+      markUnsaved();
+      renderClientsAdmin();
+    });
+  });
+  container.querySelectorAll('.calc-doc-open-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const client = getEditingClient();
+      const doc = client?.documents?.find(d => d.id === btn.dataset.docId);
+      if (doc) openStoredDocument(doc);
+    });
+  });
+  container.querySelectorAll('#clientsSection .pw-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+  });
+  container.querySelectorAll('#clientsSection input, #clientsSection select, #clientsSection textarea').forEach(el => {
+    el.addEventListener('input', markUnsaved);
+    el.addEventListener('change', markUnsaved);
+  });
+}
+
+function renderClientsAdmin() {
+  const container = document.getElementById('clientsSection');
+  if (!container) return;
+  const t = u();
+  updateClientsBadge();
+  container.innerHTML = clientsView === 'card' ? renderClientCard(t) : renderClientsList(t);
+  bindClientsEvents(container);
 }
 

@@ -344,6 +344,27 @@ export default {
       return json(await loadCalculatorDefault(env, request));
     }
 
+    // GET /api/clients
+    if (url.pathname === '/api/clients' && request.method === 'GET') {
+      const raw = await env.KORSMOTION_DATA.get('clients');
+      const clients = raw ? JSON.parse(raw) : [];
+      return json({ clients: Array.isArray(clients) ? clients : [] });
+    }
+
+    // POST /api/clients — admin save
+    if (url.pathname === '/api/clients' && request.method === 'POST') {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return json({ error: 'Invalid JSON' }, 400);
+      }
+      if (body.password !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
+      const clients = Array.isArray(body.clients) ? body.clients : [];
+      await env.KORSMOTION_DATA.put('clients', JSON.stringify(clients));
+      return json({ ok: true });
+    }
+
     // POST /api/calculator — admin save
     if (url.pathname === '/api/calculator' && request.method === 'POST') {
       let body;
