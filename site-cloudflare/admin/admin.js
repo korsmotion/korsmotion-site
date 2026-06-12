@@ -33,9 +33,11 @@ const UI = {
   ru: {
     adminTitle: 'Админ-панель', viewSite: 'Смотреть сайт', logout: 'Выйти',
     showDev: 'Показать на сайте', showDevDesc: 'Раздел «Разработка» на главной и в меню',
-    portfolio: 'Портфолио', devApps: 'Разработка', devAppsDesc: 'Приложения и другие проекты',
+    portfolio: 'Портфолио', devApps: 'Разработка', devAppsDesc: 'Веб-проекты и приложения',
     addDev: '+ Добавить', saveChanges: 'Сохранить',
     add: '+ Добавить', hide: 'Скрыть', show: 'Показать', delete: 'Удалить',
+    noWebProjects: 'Нет веб-проектов. Нажми + Добавить.',
+    noAppsSub: 'Нет приложений. Нажми + Добавить.',
     loading: 'Загрузка...', saving: 'Сохраняю...', saved: '✓ Сохранено',
     loadedServer: '✓✓ Загружено с сервера', loadedFiles: 'Загружено из файлов (KV недоступен)',
     unsavedChanges: '● Несохранённые изменения',
@@ -70,13 +72,15 @@ const UI = {
     svcShow: 'Показать',
     svcSave: '💾 Сохранить услуги',
     svcCount: 'Услуги',
-    svcDesc: 'Редактируй тексты на всех 5 языках. Переключай язык внутри каждой карточки. Нажми «Сохранить услуги» после изменений.'
+    svcDesc: 'Редактируй тексты на всех 5 языках. Переключай язык внутри каждой карточки. Сохраняй кнопкой «Сохранить» внизу.'
   },
   de: {
     adminTitle: 'Admin-Panel', viewSite: 'Website ansehen', logout: 'Abmelden',
     showDev: 'Auf Website anzeigen', showDevDesc: 'Bereich «Entwicklung» auf der Startseite und im Menü',
-    portfolio: 'Portfolio', devApps: 'Entwicklung', devAppsDesc: 'Apps und andere Entwicklungsprojekte',
+    portfolio: 'Portfolio', devApps: 'Entwicklung', devAppsDesc: 'Web-Projekte und Apps',
     addDev: '+ Hinzufügen', saveChanges: 'Speichern',
+    noWebProjects: 'Keine Web-Projekte. + Hinzufügen klicken.',
+    noAppsSub: 'Keine Apps. + Hinzufügen klicken.',
     add: '+ Hinzufügen', hide: 'Verbergen', show: 'Anzeigen', delete: 'Löschen',
     loading: 'Laden...', saving: 'Speichere...', saved: '✓ Gespeichert',
     loadedServer: '✓✓ Vom Server geladen', loadedFiles: 'Aus Dateien geladen (KV nicht verfügbar)',
@@ -112,13 +116,15 @@ const UI = {
     svcShow: 'Anzeigen',
     svcSave: '💾 Dienste speichern',
     svcCount: 'Dienstleistungen',
-    svcDesc: 'Texte in allen 5 Sprachen bearbeiten. Sprache in jeder Karte wechseln. Nach Änderungen «Dienste speichern» klicken.'
+    svcDesc: 'Texte in allen 5 Sprachen bearbeiten. Sprache in jeder Karte wechseln. Mit «Speichern» unten speichern.'
   },
   en: {
     adminTitle: 'Admin Panel', viewSite: 'View site', logout: 'Logout',
     showDev: 'Show on site', showDevDesc: 'Development section on homepage and in navigation',
-    portfolio: 'Portfolio', devApps: 'Development', devAppsDesc: 'Apps and other development projects',
+    portfolio: 'Portfolio', devApps: 'Development', devAppsDesc: 'Web projects and apps',
     addDev: '+ Add', saveChanges: 'Save changes',
+    noWebProjects: 'No web projects yet. Click + Add.',
+    noAppsSub: 'No apps yet. Click + Add.',
     add: '+ Add', hide: 'Hide', show: 'Show', delete: 'Delete',
     loading: 'Loading...', saving: 'Saving...', saved: '✓ Saved',
     loadedServer: '✓✓ Loaded from server', loadedFiles: 'Loaded from files (KV not available)',
@@ -154,7 +160,7 @@ const UI = {
     svcShow: 'Show',
     svcSave: '💾 Save services',
     svcCount: 'Services',
-    svcDesc: 'Edit texts in all 5 languages. Switch language inside each card. Click «Save services» after changes.'
+    svcDesc: 'Edit texts in all 5 languages. Switch language inside each card. Save with the «Save» button below.'
   }
 };
 
@@ -170,11 +176,23 @@ const SITE_LANG_LABELS = { de: '🇩🇪 DE', en: '🇬🇧 EN', fr: '🇫🇷 F
 const ADMIN_LANGS = ['ru', 'de', 'en'];
 const ADMIN_LANG_LABELS = { ru: 'RU', de: 'DE', en: 'EN' };
 
-const CATEGORIES = [
+const PORTFOLIO_CATEGORIES = [
   { id: 'motion', label: { ru: 'Моушн-дизайн', de: 'Motion Design', en: 'Motion Design' }, icon: '🎬' },
   { id: 'graphic', label: { ru: 'Графический дизайн', de: 'Grafik Design', en: 'Graphic Design' }, icon: '🎨' },
-  { id: 'web', label: { ru: 'Веб', de: 'Web', en: 'Web' }, icon: '🌐' },
 ];
+const DEV_SUBSECTIONS = [
+  { id: 'web', label: { ru: 'Веб', de: 'Web', en: 'Web' }, icon: '🌐' },
+  { id: 'apps', label: { ru: 'Приложения', de: 'Apps', en: 'Apps' }, icon: '📱' },
+];
+const DEV_CAT_COLLAPSE_PREFIX = 'korsmotion_devcat_';
+
+function categoryMeta(catId) {
+  return [...PORTFOLIO_CATEGORIES, ...DEV_SUBSECTIONS].find(c => c.id === catId);
+}
+function isPortfolioProject(p) {
+  const cat = p.categoryId || 'motion';
+  return cat !== 'web';
+}
 
 let adminLang = localStorage.getItem('korsmotion_admin_lang') || 'ru';
 let projectsData = { projects: [] };
@@ -240,16 +258,30 @@ function applySectionCollapse(section) {
 function ensureUiSettings() {
   if (!settingsData.ui) settingsData.ui = {};
   if (!settingsData.ui.collapsedCats) settingsData.ui.collapsedCats = {};
+  if (!settingsData.ui.collapsedDevCats) settingsData.ui.collapsedDevCats = {};
   if (!settingsData.ui.collapsedProjects) settingsData.ui.collapsedProjects = {};
   if (!settingsData.ui.collapsedApps) settingsData.ui.collapsedApps = {};
   if (!settingsData.ui.collapsedServices) settingsData.ui.collapsedServices = {};
 }
+function migrateDevCollapseState() {
+  ensureUiSettings();
+  if (settingsData.ui.collapsedCats?.web !== undefined) {
+    settingsData.ui.collapsedDevCats.web = settingsData.ui.collapsedCats.web;
+    delete settingsData.ui.collapsedCats.web;
+  }
+}
 function applyUiCollapseFromSettings() {
   ensureUiSettings();
-  CATEGORIES.forEach(c => {
+  migrateDevCollapseState();
+  PORTFOLIO_CATEGORIES.forEach(c => {
     const collapsed = settingsData.ui.collapsedCats[c.id];
     if (collapsed === true) localStorage.setItem(CAT_COLLAPSE_PREFIX + c.id, 'true');
     else if (collapsed === false) localStorage.setItem(CAT_COLLAPSE_PREFIX + c.id, 'false');
+  });
+  DEV_SUBSECTIONS.forEach(c => {
+    const collapsed = settingsData.ui.collapsedDevCats[c.id];
+    if (collapsed === true) localStorage.setItem(DEV_CAT_COLLAPSE_PREFIX + c.id, 'true');
+    else if (collapsed === false) localStorage.setItem(DEV_CAT_COLLAPSE_PREFIX + c.id, 'false');
   });
   for (const [id, collapsed] of Object.entries(settingsData.ui.collapsedProjects)) {
     localStorage.setItem(PROJECT_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
@@ -263,8 +295,12 @@ function applyUiCollapseFromSettings() {
 }
 function snapshotUiCollapseState() {
   ensureUiSettings();
-  CATEGORIES.forEach(c => {
+  migrateDevCollapseState();
+  PORTFOLIO_CATEGORIES.forEach(c => {
     settingsData.ui.collapsedCats[c.id] = isCatCollapsed(c.id);
+  });
+  DEV_SUBSECTIONS.forEach(c => {
+    settingsData.ui.collapsedDevCats[c.id] = isDevCatCollapsed(c.id);
   });
   settingsData.ui.collapsedProjects = {};
   (projectsData.projects || []).forEach(p => {
@@ -288,6 +324,15 @@ function setCatCollapsed(catId, collapsed) {
   localStorage.setItem(CAT_COLLAPSE_PREFIX + catId, collapsed ? 'true' : 'false');
   ensureUiSettings();
   settingsData.ui.collapsedCats[catId] = collapsed;
+  markUnsaved();
+}
+function isDevCatCollapsed(catId) {
+  return localStorage.getItem(DEV_CAT_COLLAPSE_PREFIX + catId) === 'true';
+}
+function setDevCatCollapsed(catId, collapsed) {
+  localStorage.setItem(DEV_CAT_COLLAPSE_PREFIX + catId, collapsed ? 'true' : 'false');
+  ensureUiSettings();
+  settingsData.ui.collapsedDevCats[catId] = collapsed;
   markUnsaved();
 }
 function isProjectCardCollapsed(id) {
@@ -422,11 +467,11 @@ function initDirtyTracking() {
   if (!app || app.dataset.dirtyBound === '1') return;
   app.dataset.dirtyBound = '1';
   app.addEventListener('input', e => {
-    if (e.target.closest('#projectsList, #appsList, #servicesList')) markUnsaved();
+    if (e.target.closest('#projectsList, #devList, #servicesList')) markUnsaved();
   });
   app.addEventListener('change', e => {
     if (['showDevSection', 'showPortfolioSection', 'showServicesSection'].includes(e.target.id)) markUnsaved();
-    if (e.target.closest('#appsList')) markUnsaved();
+    if (e.target.closest('#devList')) markUnsaved();
   });
 }
 function adminAssetUrl(path) {
@@ -643,7 +688,7 @@ window.uploadAppIcon = function(appIndex) {
     try {
       await uploadImageToGitHub(file, `site-cloudflare/images/apps/${appId}/icon.png`);
       app.icon = `images/apps/${appId}/icon.png`;
-      renderApps();
+      renderDevelopment();
       markUnsaved();
     } catch (_) {}
   }, 'image/*');
@@ -862,7 +907,7 @@ function bindSectionVisibilityToggles() {
 function renderAll() {
   renderDashboard();
   renderProjects();
-  renderApps();
+  renderDevelopment();
   renderServices();
 }
 
@@ -1024,8 +1069,8 @@ async function renderDashboard() {
   if (!el) return;
 
   const t = u();
-  const projects = (projectsData.projects || []).length;
-  const apps = (settingsData.apps || []).length;
+  const projects = (projectsData.projects || []).filter(isPortfolioProject).length;
+  const apps = (projectsData.projects || []).filter(p => p.categoryId === 'web').length + (settingsData.apps || []).length;
   const lastSaved = localStorage.getItem('korsmotion_last_saved') || '—';
 
   el.innerHTML = `
@@ -1117,13 +1162,50 @@ function projectsByCategory(catId) {
   return (projectsData.projects || []).filter(p => (p.categoryId || 'motion') === catId);
 }
 
+function bindProjectCardEvents(container) {
+  container.querySelectorAll('.proj-field').forEach(el => {
+    el.addEventListener('input', e => {
+      const id = e.target.dataset.id, field = e.target.dataset.field, lang = e.target.dataset.lang;
+      const p = projectsData.projects.find(x => x.id === id);
+      if (!p) return;
+      if (lang) {
+        if (!p[field]) p[field] = {};
+        p[field][lang] = e.target.value;
+      } else {
+        p[field] = e.target.value;
+        if (field === 'title') {
+          const card = e.target.closest('.item-card');
+          if (card) card.querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
+        }
+        if (field === 'thumbnail') updateThumbPreview(id, e.target.value);
+      }
+    });
+  });
+  container.querySelectorAll('.vis-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = projectsData.projects.find(x => x.id === btn.dataset.id);
+      if (p) { p.visible = !p.visible; renderProjects(); renderDevelopment(); markUnsaved(); }
+    });
+  });
+  container.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (confirm(u().deleteConfirm)) {
+        projectsData.projects = projectsData.projects.filter(x => x.id !== btn.dataset.id);
+        renderProjects();
+        renderDevelopment();
+        markUnsaved();
+      }
+    });
+  });
+}
+
 function renderProjects() {
   const t = u();
-  const all = projectsData.projects || [];
+  const all = (projectsData.projects || []).filter(isPortfolioProject);
   document.getElementById('projectsCount').textContent = all.length;
 
   const container = document.getElementById('projectsList');
-  container.innerHTML = CATEGORIES.map(cat => {
+  container.innerHTML = PORTFOLIO_CATEGORIES.map(cat => {
     const items = projectsByCategory(cat.id);
     const isOpen = !isCatCollapsed(cat.id);
     const catLabel = cat.label[adminLang] || cat.label.en;
@@ -1148,42 +1230,7 @@ function renderProjects() {
       </div>`;
   }).join('');
 
-  // Bind inputs
-  container.querySelectorAll('.proj-field').forEach(el => {
-    el.addEventListener('input', e => {
-      const id = e.target.dataset.id, field = e.target.dataset.field, lang = e.target.dataset.lang;
-      const p = projectsData.projects.find(x => x.id === id);
-      if (!p) return;
-      if (lang) {
-        if (!p[field]) p[field] = {};
-        p[field][lang] = e.target.value;
-      } else {
-        p[field] = e.target.value;
-        if (field === 'title') {
-          const card = e.target.closest('.item-card');
-          if (card) card.querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
-        }
-        if (field === 'thumbnail') updateThumbPreview(id, e.target.value);
-      }
-    });
-  });
-
-  container.querySelectorAll('.vis-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const p = projectsData.projects.find(x => x.id === btn.dataset.id);
-      if (p) { p.visible = !p.visible; renderProjects(); markUnsaved(); }
-    });
-  });
-
-  container.querySelectorAll('.del-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (confirm(u().deleteConfirm)) {
-        projectsData.projects = projectsData.projects.filter(x => x.id !== btn.dataset.id);
-        renderProjects();
-        markUnsaved();
-      }
-    });
-  });
+  bindProjectCardEvents(container);
 }
 
 function renderProjectCard(p) {
@@ -1293,6 +1340,7 @@ window.toggleCat = function(catId) {
 window.toggleProjectCard = function(id) {
   setProjectCardCollapsed(id, !isProjectCardCollapsed(id));
   renderProjects();
+  renderDevelopment();
 };
 
 window.addProject = function(catId) {
@@ -1301,25 +1349,31 @@ window.addProject = function(catId) {
   const layouts = ['large','small','third'];
   projectsData.projects.push({
     id: uid(), title: 'New Project', categoryId: catId,
-    category: CATEGORIES.find(c => c.id === catId)?.label.en || 'Motion Design',
+    category: categoryMeta(catId)?.label.en || 'Motion Design',
     thumbnail: '', videoUrl: '', visible: true,
     layout: layouts[count % 3], gradient: gradients[count % 5],
     client: '', year: new Date().getFullYear().toString(), duration: '',
     titles: {}, descriptions: {}
   });
-  setCatCollapsed(catId, false);
-  renderProjects();
+  if (catId === 'web') {
+    setDevCatCollapsed('web', false);
+    renderDevelopment();
+  } else {
+    setCatCollapsed(catId, false);
+    renderProjects();
+  }
   markUnsaved();
 };
 
 window.setProjectLangTab = function(id, lang) {
   activeLangTab[id] = lang;
   renderProjects();
+  renderDevelopment();
 };
 
 window.setAppLangTab = function(idx, lang) {
   activeAppLangTab[idx] = lang;
-  renderApps();
+  renderDevelopment();
 };
 
 // ── Dev Apps ──────────────────────────────────────────────────────────────────
@@ -1334,28 +1388,18 @@ function renderAppScreensAdmin(a, i) {
     </div>`).join('');
 }
 
-function renderApps() {
+function renderAppCard(a, i) {
   const t = u();
-  const items = settingsData.apps || [];
-  document.getElementById('appsCount').textContent = items.length;
+  const appId = a.id || `app_${i}`;
+  const collapsed = isAppCardCollapsed(appId);
+  const appLang = activeAppLangTab[i] || 'en';
+  const iconUrl = a.icon || '';
+  const iconPreviewSrc = iconUrl ? adminAssetUrl(iconUrl) : '';
+  const iconHtml = iconPreviewSrc
+    ? `<img src="${esc(iconPreviewSrc)}" alt="" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)">`
+    : `<div style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
 
-  const container = document.getElementById('appsList');
-  if (!items.length) {
-    container.innerHTML = `<div class="empty-state">${t.noApps}</div>`;
-    return;
-  }
-
-  container.innerHTML = items.map((a, i) => {
-    const appId = a.id || `app_${i}`;
-    const collapsed = isAppCardCollapsed(appId);
-    const appLang = activeAppLangTab[i] || 'en';
-    const iconUrl = a.icon || '';
-    const iconPreviewSrc = iconUrl ? adminAssetUrl(iconUrl) : '';
-    const iconHtml = iconPreviewSrc
-      ? `<img src="${esc(iconPreviewSrc)}" alt="" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)">`
-      : `<div style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
-
-    return `
+  return `
     <div class="item-card ${a.visible ? '' : 'hidden-item'}${collapsed ? ' collapsed' : ''}" data-app-id="${esc(appId)}">
       <div class="item-card-head">
         <button type="button" class="item-card-chevron ${collapsed ? '' : 'open'}" onclick="toggleAppCard('${esc(appId)}')" aria-label="Toggle">▾</button>
@@ -1429,8 +1473,9 @@ function renderApps() {
         </div>
       </div>
     </div>`;
-  }).join('');
+}
 
+function bindAppCardEvents(container) {
   container.querySelectorAll('.app-field').forEach(el => {
     el.addEventListener('input', e => {
       const idx = +e.target.dataset.index;
@@ -1448,7 +1493,7 @@ function renderApps() {
         if (field === 'title') {
           e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
         }
-        if (field === 'icon') renderApps();
+        if (field === 'icon') renderDevelopment();
       }
     });
   });
@@ -1461,7 +1506,7 @@ function renderApps() {
   container.querySelectorAll('.app-vis-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       settingsData.apps[+btn.dataset.index].visible = !settingsData.apps[+btn.dataset.index].visible;
-      renderApps();
+      renderDevelopment();
       markUnsaved();
     });
   });
@@ -1469,19 +1514,88 @@ function renderApps() {
     btn.addEventListener('click', () => {
       if (confirm(u().deleteAppConfirm)) {
         settingsData.apps.splice(+btn.dataset.index, 1);
-        renderApps();
+        renderDevelopment();
         markUnsaved();
       }
     });
   });
 }
 
-window.toggleAppCard = function(id) {
-  setAppCardCollapsed(id, !isAppCardCollapsed(id));
-  renderApps();
+function renderDevSubsection(sub) {
+  const t = u();
+  const isOpen = !isDevCatCollapsed(sub.id);
+  const catLabel = sub.label[adminLang] || sub.label.en;
+
+  if (sub.id === 'web') {
+    const items = projectsByCategory('web');
+    return `
+      <div class="cat-section">
+        <div class="cat-header" onclick="toggleDevCat('web')">
+          <div class="cat-header-left">
+            <span class="cat-icon">${sub.icon}</span>
+            <span class="cat-label">${catLabel}</span>
+            <span class="cat-count">${items.length}</span>
+          </div>
+          <div class="cat-header-right">
+            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();addProject('web')">${t.add}</button>
+            <span class="cat-chevron ${isOpen ? 'open' : ''}">▾</span>
+          </div>
+        </div>
+        <div class="cat-body ${isOpen ? 'open' : ''}">
+          ${items.length === 0
+            ? `<div class="empty-state">${t.noWebProjects}</div>`
+            : items.map(p => renderProjectCard(p)).join('')}
+        </div>
+      </div>`;
+  }
+
+  const items = settingsData.apps || [];
+  return `
+    <div class="cat-section">
+      <div class="cat-header" onclick="toggleDevCat('apps')">
+        <div class="cat-header-left">
+          <span class="cat-icon">${sub.icon}</span>
+          <span class="cat-label">${catLabel}</span>
+          <span class="cat-count">${items.length}</span>
+        </div>
+        <div class="cat-header-right">
+          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();addDevApp()">${t.add}</button>
+          <span class="cat-chevron ${isOpen ? 'open' : ''}">▾</span>
+        </div>
+      </div>
+      <div class="cat-body ${isOpen ? 'open' : ''}">
+        ${items.length === 0
+          ? `<div class="empty-state">${t.noAppsSub}</div>`
+          : items.map((a, i) => renderAppCard(a, i)).join('')}
+      </div>
+    </div>`;
+}
+
+function renderDevelopment() {
+  const webItems = projectsByCategory('web');
+  const appItems = settingsData.apps || [];
+  const countEl = document.getElementById('appsCount');
+  if (countEl) countEl.textContent = webItems.length + appItems.length;
+
+  const container = document.getElementById('devList');
+  if (!container) return;
+
+  container.innerHTML = DEV_SUBSECTIONS.map(sub => renderDevSubsection(sub)).join('');
+  bindProjectCardEvents(container);
+  bindAppCardEvents(container);
+}
+
+window.toggleDevCat = function(catId) {
+  setDevCatCollapsed(catId, !isDevCatCollapsed(catId));
+  renderDevelopment();
 };
 
-document.getElementById('addAppBtn').addEventListener('click', () => {
+window.toggleAppCard = function(id) {
+  setAppCardCollapsed(id, !isAppCardCollapsed(id));
+  renderDevelopment();
+};
+
+window.addDevApp = function() {
   settingsData.apps.push({
     id: uid(), title: 'New App', descriptions: {}, platform: 'Android TV',
     icon: '', screens: ['', '', '', '', ''],
@@ -1489,9 +1603,10 @@ document.getElementById('addAppBtn').addEventListener('click', () => {
     showAppStore: false, appStoreUrl: '',
     visible: true,
   });
-  renderApps();
+  setDevCatCollapsed('apps', false);
+  renderDevelopment();
   markUnsaved();
-});
+};
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderWeatherGrid();
@@ -1545,7 +1660,12 @@ window.toggleVideoPreview = function(id, url) {
 
 window.setCardType = function(id, type) {
   const p = projectsData.projects.find(x => x.id === id);
-  if (p) { p.cardType = type; renderProjects(); markUnsaved(); }
+  if (p) {
+    p.cardType = type;
+    renderProjects();
+    renderDevelopment();
+    markUnsaved();
+  }
 };
 
 // ── SERVICES ──────────────────────────────────────────────────────────────────
@@ -1775,30 +1895,3 @@ function attachServiceEvents(container) {
   });
 }
 
-// Кнопка "Сохранить услуги"
-document.addEventListener('DOMContentLoaded', () => {
-  const saveBtn = document.getElementById('saveSvcBtn');
-  if (saveBtn) saveBtn.addEventListener('click', async () => {
-    markSaving();
-    snapshotSectionVisibility();
-    snapshotUiCollapseState();
-    try {
-      const res = await fetch(API_SAVE, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: ADMIN_PASSWORD, projects: projectsData, settings: settingsData }),
-      });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
-      if (!(await saveServices({ silent: true }))) throw new Error('services');
-      await markSavedSuccess();
-      showToast(u().loadedServer, 'success');
-      const now = new Date();
-      localStorage.setItem('korsmotion_last_saved',
-        now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}));
-      renderDashboard();
-    } catch (err) {
-      markSaveError(u().saveError + ': ' + err.message);
-      showToast(u().saveError, 'error');
-    }
-  });
-});

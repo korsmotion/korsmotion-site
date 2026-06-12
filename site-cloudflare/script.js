@@ -682,6 +682,7 @@ let currentLanguage = 'ru';
 
 let allProjects = [];
 let siteProjects = [];
+let siteWebProjects = [];
 const DEFAULT_SITE_SETTINGS = {
   show_portfolio_section: true,
   show_services_section: true,
@@ -1012,7 +1013,8 @@ async function loadSiteData() {
   } catch (_) {}
 
   allProjects = projects?.projects || [];
-  siteProjects = allProjects.filter(p => p.visible);
+  siteProjects = allProjects.filter(p => p.visible && ['motion', 'graphic'].includes(p.categoryId || 'motion'));
+  siteWebProjects = allProjects.filter(p => p.visible && p.categoryId === 'web');
   siteSettings = normalizeSiteSettings(settings);
   applySectionVisibilityFromApi(sectionVisibility);
   if (svcMeta.sectionVisibility) {
@@ -1069,7 +1071,6 @@ const carouselTimers = {};
 const PORTFOLIO_CATS = [
   { id: 'motion',  labelKey: 'cat.motion',  icon: '🎬' },
   { id: 'graphic', labelKey: 'cat.graphic', icon: '🎨' },
-  { id: 'web',     labelKey: 'cat.web',     icon: '🌐' },
 ];
 
 function getYouTubeId(url) {
@@ -1575,8 +1576,28 @@ function renderDevSection() {
 
   const t = translations[currentLanguage];
   const apps = (siteSettings.apps || []).filter(a => a.visible);
+  const lang = currentLanguage;
 
-  grid.innerHTML = apps.map(a => {
+  const webHtml = siteWebProjects.map(p => {
+    const title = (p.titles && p.titles[lang]) || p.title || '';
+    const desc = (p.descriptions && p.descriptions[lang]) || '';
+    const thumb = p.thumbnail
+      ? `<img class="dev-icon" src="${escHtml(p.thumbnail)}" alt="${escHtml(title)}" style="object-fit:cover">`
+      : `<div class="dev-icon-placeholder">🌐</div>`;
+    return `
+      <div class="dev-card dev-card-web" onclick="openPortfolioDetail('${escHtml(p.id)}')" style="cursor:pointer">
+        <div class="dev-card-header">
+          ${thumb}
+          <div class="dev-card-meta">
+            <span class="dev-platform">${t['cat.web'] || 'Web'}</span>
+            <h3 class="dev-title">${escHtml(title)}</h3>
+          </div>
+        </div>
+        ${desc ? `<p class="dev-desc">${escHtml(desc)}</p>` : ''}
+      </div>`;
+  }).join('');
+
+  const appsHtml = apps.map(a => {
     const screens = (a.screens || []).filter(s => s && s.trim());
     const hasScreens = screens.length > 0;
     const hasIcon = !!a.icon;
@@ -1626,6 +1647,8 @@ function renderDevSection() {
         ${hasButtons ? `<div class="store-buttons">${googlePlayBtn}${appStoreBtn}</div>` : ''}
       </div>`;
   }).join('');
+
+  grid.innerHTML = webHtml + appsHtml;
 
   // Start sliders
   apps.forEach(a => {
