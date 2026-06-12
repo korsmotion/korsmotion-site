@@ -3,13 +3,14 @@
 // KV binding: KORSMOTION_DATA
 
 const ADMIN_PASSWORD = 'korsmotion2026';
-const CF_ACCOUNT_ID = '0bb844a6ae45ef8dd4157eb97bac9de2';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
 };
+
+const SKIP_EXTENSIONS = ['js', 'css', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'ico', 'svg', 'woff', 'woff2', 'mp4', 'webm'];
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -18,12 +19,83 @@ function json(data, status = 200) {
   });
 }
 
+function todayStr(date = new Date()) {
+  return date.toISOString().split('T')[0];
+}
+
+function shouldSkipTracking(pathname) {
+  if (pathname.startsWith('/api/')) return true;
+  if (pathname.startsWith('/admin')) return true;
+  const dot = pathname.lastIndexOf('.');
+  if (dot === -1) return false;
+  const ext = pathname.slice(dot + 1).toLowerCase();
+  return SKIP_EXTENSIONS.includes(ext);
+}
+
+function lastNDates(n) {
+  const dates = [];
+  const now = new Date();
+  for (let i = 0; i < n; i++) {
+    dates.push(todayStr(new Date(now - i * 24 * 60 * 60 * 1000)));
+  }
+  return dates;
+}
+
+async function trackVisitor(request, env) {
+  const url = new URL(request.url);
+  if (request.method !== 'GET') return;
+  if (shouldSkipTracking(url.pathname)) return;
+
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const ipHash = ip.slice(0, 8);
+  const today = todayStr();
+  const visitKey = `visit:${today}:${ipHash}`;
+
+  const existing = await env.KORSMOTION_DATA.get(visitKey);
+  if (existing) return;
+
+  await env.KORSMOTION_DATA.put(visitKey, '1', { expirationTtl: 86400 });
+
+  const todayKey = `visits:today:${today}`;
+  const todayCount = parseInt(await env.KORSMOTION_DATA.get(todayKey) || '0', 10) + 1;
+  await env.KORSMOTION_DATA.put(todayKey, String(todayCount));
+}
+
+async function getKvAnalytics(env) {
+  const today = todayStr();
+  const todayVal = parseInt(await env.KORSMOTION_DATA.get(`visits:today:${today}`) || '0', 10);
+
+  let weekVal = 0;
+  for (const d of lastNDates(7)) {
+    weekVal += parseInt(await env.KORSMOTION_DATA.get(`visits:today:${d}`) || '0', 10);
+  }
+
+  let monthVal = 0;
+  for (const d of lastNDates(30)) {
+    monthVal += parseInt(await env.KORSMOTION_DATA.get(`visits:today:${d}`) || '0', 10);
+  }
+
+  return {
+    data: {
+      viewer: {
+        accounts: [{
+          todayViews: [{ sum: { visits: todayVal } }],
+          week: [{ sum: { visits: weekVal } }],
+          total: [{ sum: { visits: monthVal } }],
+        }],
+      },
+    },
+  };
+}
+
 const DEFAULT_PROJECTS = { projects: [] };
 const DEFAULT_SETTINGS = { show_dev_section: false, apps: [] };
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    ctx.waitUntil(trackVisitor(request, env));
 
     // Preflight
     if (request.method === 'OPTIONS') {
@@ -62,57 +134,13 @@ export default {
       return json({ ok: true });
     }
 
-    // GET /api/analytics — Cloudflare Web Analytics via GraphQL
+    // GET /api/analytics — unique visitors from KV (one per IP per day)
     if (url.pathname === '/api/analytics' && request.method === 'GET') {
       const auth = request.headers.get('X-Admin-Password');
       if (auth !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
 
-      const cfApiToken = env.CF_API_TOKEN;
-      if (!cfApiToken) return json({ error: 'Analytics not configured' }, 503);
-
       try {
-        const sitesResp = await fetch(
-          `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/web-analytics/sites`,
-          { headers: { Authorization: `Bearer ${cfApiToken}` } }
-        );
-        const sitesJson = await sitesResp.json();
-        const siteTag = sitesJson.result?.[0]?.site_tag;
-        if (!siteTag) return json({ error: 'No Web Analytics site found' }, 404);
-
-        const now = new Date();
-        const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        const since7 = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        const today = now.toISOString().split('T')[0];
-
-        const query = `{
-          viewer {
-            accounts(filter: { accountTag: "${CF_ACCOUNT_ID}" }) {
-              todayViews: rumWebsitesAdaptiveGroups(
-                filter: { siteTag: "${siteTag}", date_geq: "${today}", date_leq: "${today}" }
-                limit: 1
-              ) { sum { pageViews visits } }
-              week: rumWebsitesAdaptiveGroups(
-                filter: { siteTag: "${siteTag}", date_geq: "${since7}", date_leq: "${today}" }
-                limit: 1
-              ) { sum { pageViews visits } }
-              total: rumWebsitesAdaptiveGroups(
-                filter: { siteTag: "${siteTag}", date_geq: "${since30}", date_leq: "${today}" }
-                limit: 1
-              ) { sum { pageViews visits } }
-            }
-          }
-        }`;
-
-        const resp = await fetch('https://api.cloudflare.com/client/v4/graphql', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${cfApiToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ query }),
-        });
-        const data = await resp.json();
-        return json(data);
+        return json(await getKvAnalytics(env));
       } catch (e) {
         return json({ error: e.message }, 500);
       }

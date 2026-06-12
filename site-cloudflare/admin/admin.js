@@ -866,28 +866,40 @@ async function renderDashboard() {
   loadWeatherWidget();
   startWeatherRefresh();
 
+  const setDashViews = (today, week, month) => {
+    const map = { 'dash-today': today, 'dash-week': week, 'dash-month': month };
+    Object.entries(map).forEach(([id, val]) => {
+      const card = document.getElementById(id);
+      if (!card) return;
+      const el = card.querySelector('.dash-val');
+      el.textContent = val;
+      el.classList.remove('dash-loading');
+    });
+  };
+
   try {
     const resp = await fetch('/api/analytics', {
       headers: { 'X-Admin-Password': ADMIN_PASSWORD }
     });
     const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error(data.error || resp.status);
+
     const acc = data?.data?.viewer?.accounts?.[0];
-    if (acc) {
-      const todayViews = acc.todayViews?.[0]?.sum?.pageViews ?? '—';
-      const weekViews  = acc.week?.[0]?.sum?.pageViews ?? '—';
-      const monthViews = acc.total?.[0]?.sum?.pageViews ?? '—';
-      document.getElementById('dash-today').querySelector('.dash-val').textContent = todayViews;
-      document.getElementById('dash-week').querySelector('.dash-val').textContent = weekViews;
-      document.getElementById('dash-month').querySelector('.dash-val').textContent = monthViews;
-      document.getElementById('dash-today').querySelector('.dash-val').classList.remove('dash-loading');
-      document.getElementById('dash-week').querySelector('.dash-val').classList.remove('dash-loading');
-      document.getElementById('dash-month').querySelector('.dash-val').classList.remove('dash-loading');
-    }
+    const rumViews = (group) => {
+      const row = group?.[0];
+      if (!row) return 0;
+      const n = row.count ?? row.sum?.visits ?? row.sum?.pageViews;
+      return n != null ? n : 0;
+    };
+    if (!acc) throw new Error('No analytics data');
+
+    setDashViews(
+      rumViews(acc.todayViews ?? acc.today),
+      rumViews(acc.week),
+      rumViews(acc.total)
+    );
   } catch (_) {
-    ['dash-today', 'dash-week', 'dash-month'].forEach(id => {
-      const card = document.getElementById(id);
-      if (card) card.querySelector('.dash-val').textContent = '—';
-    });
+    setDashViews('—', '—', '—');
   }
 }
 
