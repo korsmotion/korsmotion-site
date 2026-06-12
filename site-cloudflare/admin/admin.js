@@ -21,6 +21,8 @@ const API_SAVE = '/api/save';
 const API_SERVICES = '/api/services';
 const WEATHER_CITY = 'Bischofszell,CH';
 const WEATHER_REFRESH_MS = 30 * 60 * 1000;
+const SECTION_COLLAPSE_KEY = 'korsmotion_admin_section_';
+const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, portfolio: true, devApps: true, services: true };
 
 // ── Admin UI translations ─────────────────────────────────────────────────────
 const UI = {
@@ -49,7 +51,9 @@ const UI = {
     weatherDesc: 'Для виджета погоды в Dashboard', weatherImages: 'Фоновые картинки погоды',
     generalTitle: 'Основные', saveBtn: 'Сохранить', uploadBtn: '📁 Загрузить',
     weatherNoApiKey: 'Укажи API ключ в Настройках ⚙️', weatherLoading: 'Загрузка погоды…',
-    weatherError: 'Не удалось загрузить погоду'
+    weatherError: 'Не удалось загрузить погоду',
+    servicesTitle: 'Услуги', saveServicesBtn: '💾 Сохранить услуги',
+    servicesDesc: 'Редактируй тексты на всех 5 языках. Переключай язык внутри каждой карточки. Нажми «Сохранить услуги» после изменений.'
   },
   de: {
     adminTitle: 'Admin-Panel', viewSite: 'Website ansehen', logout: 'Abmelden',
@@ -76,7 +80,9 @@ const UI = {
     weatherDesc: 'Für das Wetter-Widget im Dashboard', weatherImages: 'Wetter-Hintergrundbilder',
     generalTitle: 'Allgemein', saveBtn: 'Speichern', uploadBtn: '📁 Hochladen',
     weatherNoApiKey: 'API-Schlüssel in Einstellungen ⚙️ angeben', weatherLoading: 'Wetter wird geladen…',
-    weatherError: 'Wetter konnte nicht geladen werden'
+    weatherError: 'Wetter konnte nicht geladen werden',
+    servicesTitle: 'Dienstleistungen', saveServicesBtn: '💾 Dienste speichern',
+    servicesDesc: 'Texte in allen 5 Sprachen bearbeiten. Sprache in jeder Karte wechseln. Nach Änderungen «Dienste speichern» klicken.'
   },
   en: {
     adminTitle: 'Admin Panel', viewSite: 'View site', logout: 'Logout',
@@ -103,7 +109,9 @@ const UI = {
     weatherDesc: 'For the weather widget in Dashboard', weatherImages: 'Weather background images',
     generalTitle: 'General', saveBtn: 'Save', uploadBtn: '📁 Upload',
     weatherNoApiKey: 'Set API key in Settings ⚙️', weatherLoading: 'Loading weather…',
-    weatherError: 'Failed to load weather'
+    weatherError: 'Failed to load weather',
+    servicesTitle: 'Services', saveServicesBtn: '💾 Save services',
+    servicesDesc: 'Edit texts in all 5 languages. Switch language inside each card. Click «Save services» after changes.'
   }
 };
 
@@ -142,6 +150,43 @@ function esc(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+function isSectionCollapsed(key) {
+  const stored = localStorage.getItem(SECTION_COLLAPSE_KEY + key);
+  if (stored !== null) return stored === '1';
+  return SECTION_COLLAPSE_DEFAULTS[key] ?? true;
+}
+function setSectionCollapsed(key, collapsed) {
+  localStorage.setItem(SECTION_COLLAPSE_KEY + key, collapsed ? '1' : '0');
+}
+function applySectionCollapse(section) {
+  const key = section.dataset.section;
+  if (!key) return;
+  const collapsed = isSectionCollapsed(key);
+  section.classList.toggle('collapsed', collapsed);
+  const chevron = section.querySelector('.section-chevron');
+  if (chevron) chevron.classList.toggle('open', !collapsed);
+}
+function initSectionCollapse() {
+  document.querySelectorAll('.section-collapsible').forEach(section => {
+    applySectionCollapse(section);
+    const head = section.querySelector('.section-head-toggle');
+    if (!head || head.dataset.bound === '1') return;
+    head.dataset.bound = '1';
+    head.addEventListener('click', e => {
+      if (e.target.closest('.section-head-actions')) return;
+      const key = section.dataset.section;
+      const collapsed = !section.classList.contains('collapsed');
+      setSectionCollapsed(key, collapsed);
+      applySectionCollapse(section);
+    });
+    head.addEventListener('keydown', e => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      head.click();
+    });
+  });
+}
+
 function showToast(msg, type) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
@@ -450,6 +495,7 @@ function showAdmin() {
   document.getElementById('adminApp').style.display = 'block';
   document.getElementById('saveBar').style.display = 'flex';
   applyAdminLang();
+  initSectionCollapse();
   loadData();
 }
 function showLogin() {
@@ -655,7 +701,7 @@ async function loadWeatherWidget() {
           <div class="weather-forecast-day">
             <span class="wf-day">${esc(d.day)}</span>
             <span class="wf-emoji">${d.emoji}</span>
-            <span class="wf-temp">${d.max}° / ${d.min}°</span>
+            <span class="wf-temp">${d.max}°/${d.min}°</span>
           </div>`).join('')
       : '';
     const { dayName, dateStr } = getWeatherDateDisplay();
@@ -663,11 +709,13 @@ async function loadWeatherWidget() {
     widget.innerHTML = `
       <div class="weather-widget-bg" style="background-image:url('${esc(bgUrl)}')"></div>
       <div class="weather-widget-overlay">
-        <div class="weather-widget-date">
-          <div class="weather-widget-dayname">${esc(dayName)}</div>
-          <div class="weather-widget-datestr">${esc(dateStr)}</div>
+        <div class="weather-widget-header">
+          <div class="weather-widget-location">📍 Bischofszell</div>
+          <div class="weather-widget-date">
+            <span class="weather-widget-dayname">${esc(dayName)}</span>
+            <span class="weather-widget-datestr">${esc(dateStr)}</span>
+          </div>
         </div>
-        <div class="weather-widget-location">📍 Bischofszell</div>
         <div class="weather-widget-body">
           <div class="weather-widget-temp">${temp}°</div>
           <div class="weather-widget-desc">${esc(w.description)}</div>
@@ -690,7 +738,6 @@ async function renderDashboard() {
   const lastSaved = localStorage.getItem('korsmotion_last_saved') || '—';
 
   el.innerHTML = `
-    <h2 class="section-title">${t.dashboardTitle}</h2>
     <div class="dash-board">
       <div class="dash-stats">
         <div class="dash-card">
@@ -1037,6 +1084,7 @@ if (openSettingsModalBtn) openSettingsModalBtn.addEventListener('click', openSet
 const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
 if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
 
+initSectionCollapse();
 if (isLoggedIn()) showAdmin(); else showLogin();
 
 function getYouTubeIdAdmin(url) {
