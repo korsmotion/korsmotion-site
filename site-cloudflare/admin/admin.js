@@ -542,22 +542,43 @@ function syncPremiumToggle(inputId) {
   track.classList.toggle('is-on', input.checked);
   track.setAttribute('aria-checked', input.checked ? 'true' : 'false');
 }
+function togglePremiumInput(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.checked = !input.checked;
+  syncPremiumToggle(inputId);
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+}
 function initPremiumToggles() {
+  document.querySelectorAll('.section-vis-toggle').forEach(wrap => {
+    if (wrap.dataset.bound === '1') return;
+    wrap.dataset.bound = '1';
+    const input = wrap.querySelector('.premium-toggle-input');
+    if (!input?.id) return;
+    const inputId = input.id;
+    wrap.addEventListener('click', e => {
+      e.stopPropagation();
+      togglePremiumInput(inputId);
+    });
+    wrap.addEventListener('keydown', e => {
+      if (e.key !== ' ' && e.key !== 'Enter') return;
+      e.preventDefault();
+      e.stopPropagation();
+      togglePremiumInput(inputId);
+    });
+    wrap.querySelector('.premium-toggle-track')?.setAttribute('tabindex', '-1');
+    syncPremiumToggle(inputId);
+  });
   document.querySelectorAll('.premium-toggle-track').forEach(track => {
+    if (track.closest('.section-vis-toggle')) return;
     const inputId = track.dataset.for;
     const input = document.getElementById(inputId);
     if (!input) return;
-    track.addEventListener('click', () => {
-      input.checked = !input.checked;
-      syncPremiumToggle(inputId);
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-    });
+    track.addEventListener('click', () => togglePremiumInput(inputId));
     track.addEventListener('keydown', e => {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
-        input.checked = !input.checked;
-        syncPremiumToggle(inputId);
-        input.dispatchEvent(new Event('change', { bubbles: true }));
+        togglePremiumInput(inputId);
       }
     });
     syncPremiumToggle(inputId);
