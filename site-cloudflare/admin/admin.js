@@ -634,6 +634,7 @@ function build5DayForecast(forecastData) {
 
   return Array.from(dayMap.values()).slice(0, 5).map(entry => ({
     day: entry.date.toLocaleDateString(locale, { weekday: 'short' }),
+    dayNum: entry.date.getDate(),
     min: Math.round(entry.min),
     max: Math.round(entry.max),
     emoji: weatherEmojiFromId(entry.id, entry.icon),
@@ -658,15 +659,13 @@ function getWeatherDateDisplay() {
   const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const lang = adminLang || 'ru';
   const dayList = weekdays[lang] || weekdays.en;
-  const weekday = dayList[now.getDay()];
-  const weekdayLabel = lang === 'ru' ? weekday.toLowerCase() : weekday;
-  let monthStr;
-  if (lang === 'ru') monthStr = monthsRuGen[month];
-  else if (lang === 'de') monthStr = monthsDe[month];
-  else monthStr = monthsEn[month];
+  let dateStr;
+  if (lang === 'ru') dateStr = `${day} ${monthsRuGen[month]}`;
+  else if (lang === 'de') dateStr = `${day}. ${monthsDe[month]}`;
+  else dateStr = `${day} ${monthsEn[month]}`;
   return {
-    dateLine: `${day} / ${weekdayLabel}`,
-    monthStr,
+    dayName: dayList[now.getDay()],
+    dateStr,
   };
 }
 
@@ -704,12 +703,12 @@ async function loadWeatherWidget() {
     const forecastHtml = forecastDays.length
       ? forecastDays.map(d => `
           <div class="weather-forecast-day">
-            <span class="wf-day">${esc(d.day)}</span>
+            <span class="wf-day">${d.dayNum}/${esc(d.day)}</span>
             <span class="wf-emoji">${d.emoji}</span>
             <span class="wf-temp">${d.max}°/${d.min}°</span>
           </div>`).join('')
       : '';
-    const { dateLine, monthStr } = getWeatherDateDisplay();
+    const { dayName, dateStr } = getWeatherDateDisplay();
 
     widget.innerHTML = `
       <div class="weather-widget-bg" style="background-image:url('${esc(bgUrl)}')"></div>
@@ -717,8 +716,8 @@ async function loadWeatherWidget() {
         <div class="weather-widget-header">
           <div class="weather-widget-location">📍 Bischofszell</div>
           <div class="weather-widget-date">
-            <span class="weather-widget-dateline">${esc(dateLine)}</span>
-            <span class="weather-widget-month">${esc(monthStr)}</span>
+            <span class="weather-widget-dayname">${esc(dayName)}</span>
+            <span class="weather-widget-datestr">${esc(dateStr)}</span>
           </div>
         </div>
         <div class="weather-widget-body">
