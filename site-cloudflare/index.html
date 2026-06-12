@@ -65,7 +65,33 @@ nav a.nav-link:hover{color:var(--violet-deep)}
 .hero-bg{position:absolute;inset:0;z-index:0;opacity:.32;pointer-events:none}
 .hero-bg img,.hero-bg video{width:100%;height:100%;object-fit:cover;display:block}
 .hero>.container{position:relative;z-index:1}
-.reviews-submit-wrap{text-align:center;margin-top:40px}
+.reviews-actions{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:32px}
+.reviews-carousel-wrap{position:relative;display:flex;align-items:center;gap:12px;margin-top:8px}
+.reviews-carousel{flex:1;min-width:0;overflow:hidden}
+.reviews-carousel-track{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:12px 4px 20px}
+.reviews-carousel-track::-webkit-scrollbar{display:none}
+.reviews-arrow{flex-shrink:0;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.75);backdrop-filter:blur(12px);color:var(--violet-deep);font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 4px 16px rgba(91,63,191,.1)}
+.reviews-arrow:hover{background:#fff;transform:scale(1.05);box-shadow:0 8px 24px rgba(91,63,191,.18)}
+.reviews-arrow:disabled{opacity:.35;cursor:default;transform:none}
+.reviews-dots{display:flex;justify-content:center;gap:8px;margin-top:8px}
+.reviews-dot{width:8px;height:8px;border-radius:50%;background:rgba(91,63,191,.25);border:none;padding:0;cursor:pointer;transition:all .25s}
+.reviews-dot.active{background:var(--violet-deep);transform:scale(1.25)}
+.review-card{flex:0 0 min(360px,calc(100vw - 120px));scroll-snap-align:start;background:rgba(255,255,255,.6);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:24px;padding:32px 28px;transition:box-shadow .3s,transform .3s;opacity:0;transform:translateY(28px);animation:reviewCardIn .65s ease forwards}
+.review-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(91,63,191,.12)}
+@keyframes reviewCardIn{to{opacity:1;transform:translateY(0)}}
+.review-card:nth-child(1){animation-delay:.05s}.review-card:nth-child(2){animation-delay:.1s}.review-card:nth-child(3){animation-delay:.15s}.review-card:nth-child(4){animation-delay:.2s}.review-card:nth-child(5){animation-delay:.25s}.review-card:nth-child(6){animation-delay:.3s}.review-card:nth-child(7){animation-delay:.35s}.review-card:nth-child(8){animation-delay:.4s}.review-card:nth-child(9){animation-delay:.45s}.review-card:nth-child(10){animation-delay:.5s}
+.all-reviews-header{display:flex;align-items:center;gap:12px;padding:32px 32px 20px;flex-wrap:wrap}
+.all-reviews-header h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:500;color:var(--ink);margin:0}
+.all-reviews-count{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 10px;border-radius:100px;background:var(--violet-deep);color:#fff;font-size:13px;font-weight:700}
+.all-reviews-featured{padding:0 32px 24px}
+.all-reviews-featured-grid{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:8px}
+.all-reviews-featured-grid::-webkit-scrollbar{display:none}
+.all-reviews-featured-grid .review-card{flex:0 0 min(320px,80vw)}
+.all-reviews-older{padding:8px 32px 32px;border-top:1px solid rgba(91,63,191,.12)}
+.all-reviews-older-list{display:flex;flex-direction:column;gap:14px}
+.all-reviews-compact{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;font-size:14px;line-height:1.5;color:var(--ink-soft);padding:12px 16px;border-radius:14px;background:rgba(240,237,249,.6);border:1px solid rgba(255,255,255,.8)}
+.all-reviews-compact-stars{color:var(--violet-deep);letter-spacing:1px;flex-shrink:0;font-size:13px}
+.all-reviews-compact-text{color:var(--ink);font-style:italic}
 .review-star-picker{display:flex;gap:8px;margin-top:6px}
 .review-star-btn{background:none;border:none;cursor:pointer;padding:4px;color:var(--border);transition:color .15s,transform .15s}
 .review-star-btn.active,.review-star-btn:hover{color:var(--violet-deep);transform:scale(1.08)}
@@ -213,12 +239,9 @@ section{padding:100px 0;position:relative}
 .app-modal-screen{display:none}
 .app-modal-screen.active{display:block}
 .portfolio-video{width:100%;aspect-ratio:16/9;border-radius:12px;margin-bottom:20px}
-.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.testimonial{background:rgba(255,255,255,.6);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:24px;padding:36px 32px;transition:all .3s}
-.testimonial:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(91,63,191,.12)}
 .stars{display:flex;gap:4px;margin-bottom:20px;color:var(--violet-deep)}
-.testimonial-text{font-family:'Playfair Display',serif;font-size:17px;line-height:1.6;color:var(--ink);margin-bottom:24px;font-style:normal}
-.testimonial-author{display:flex;align-items:center;gap:14px}
+.review-card-text{font-family:'Playfair Display',serif;font-size:17px;line-height:1.6;color:var(--ink);margin-bottom:24px;font-style:normal}
+.review-card-author{display:flex;align-items:center;gap:14px}
 .author-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--violet-mid),var(--violet-deep));display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:16px}
 .author-name{font-weight:600;font-size:14px;color:var(--ink)}
 .author-role{font-size:13px;color:var(--ink-mute)}
@@ -303,7 +326,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
 .portfolio-detail-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:20px;background:var(--violet-whisper);border-radius:16px;margin-bottom:24px}
 .meta-item-label{font-size:11px;font-weight:600;color:var(--ink-mute);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
 .meta-item-value{font-weight:600;color:var(--ink);font-size:14px}
-@media (max-width:968px){.hero-grid{grid-template-columns:1fr;gap:60px}.hero-visual{height:400px}.service-card{grid-template-columns:1fr;gap:24px}.service-window{max-width:280px;margin:0 auto}.portfolio-item.large,.portfolio-item.small,.portfolio-item.third{grid-column:span 12}.testimonials-grid{grid-template-columns:1fr}.cta-card{padding:48px 24px}.form-row{grid-template-columns:1fr}.modal{max-height:95vh;border-radius:20px}.modal-scroll{border-radius:20px}.modal-header-gradient,.service-detail-hero{padding:32px 24px 24px;border-radius:20px 20px 0 0}.modal-body,.service-detail-body,.portfolio-detail-body{padding:24px}.modal-header-title,.service-detail-title{font-size:28px}.contact-info-row{grid-template-columns:1fr;gap:12px}.portfolio-detail-meta{grid-template-columns:1fr}}
+@media (max-width:968px){.hero-grid{grid-template-columns:1fr;gap:60px}.hero-visual{height:400px}.service-card{grid-template-columns:1fr;gap:24px}.service-window{max-width:280px;margin:0 auto}.portfolio-item.large,.portfolio-item.small,.portfolio-item.third{grid-column:span 12}.reviews-arrow{width:36px;height:36px;font-size:15px}.review-card{flex:0 0 min(300px,calc(100vw - 88px))}.cta-card{padding:48px 24px}.form-row{grid-template-columns:1fr}.modal{max-height:95vh;border-radius:20px}.modal-scroll{border-radius:20px}.modal-header-gradient,.service-detail-hero{padding:32px 24px 24px;border-radius:20px 20px 0 0}.modal-body,.service-detail-body,.portfolio-detail-body{padding:24px}.modal-header-title,.service-detail-title{font-size:28px}.contact-info-row{grid-template-columns:1fr;gap:12px}.portfolio-detail-meta{grid-template-columns:1fr}.all-reviews-header,.all-reviews-featured,.all-reviews-older{padding-left:24px;padding-right:24px}}
 .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s ease,transform .8s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
@@ -567,8 +590,16 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
       <div class="section-label" data-i18n="reviews.label">— Что говорят клиенты</div>
       <h2 class="section-title" data-i18n-html="reviews.title">Доверяют<br><em>профессионалу</em></h2>
     </div>
-    <div class="testimonials-grid reveal" id="reviewsGrid"></div>
-    <div class="reviews-submit-wrap reveal">
+    <div class="reviews-carousel-wrap reveal" id="reviewsCarouselWrap">
+      <button type="button" class="reviews-arrow" id="reviewsPrev" aria-label="Previous review">←</button>
+      <div class="reviews-carousel">
+        <div class="reviews-carousel-track" id="reviewsCarouselTrack"></div>
+      </div>
+      <button type="button" class="reviews-arrow" id="reviewsNext" aria-label="Next review">→</button>
+    </div>
+    <div class="reviews-dots" id="reviewsDots"></div>
+    <div class="reviews-actions reveal">
+      <button type="button" class="btn-ghost" id="openAllReviewsBtn" data-i18n="reviews.allBtn">Все отзывы →</button>
       <button type="button" class="btn-ghost" id="openReviewFormBtn" data-i18n="reviews.submitBtn">Оставить отзыв →</button>
     </div>
   </div>
@@ -704,6 +735,22 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   </div>
 </div>
 
+<div class="modal-overlay" id="allReviewsModal">
+  <div class="modal modal-large">
+    <button class="modal-close" onclick="closeModal('allReviewsModal')" aria-label="Close">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-scroll">
+      <div class="all-reviews-header">
+        <h2 data-i18n="reviews.allTitle">Все отзывы</h2>
+        <span class="all-reviews-count" id="allReviewsCount">0</span>
+      </div>
+      <div class="all-reviews-featured" id="allReviewsFeatured"></div>
+      <div class="all-reviews-older" id="allReviewsOlder"></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="reviewModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('reviewModal')">
@@ -745,7 +792,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   </div>
 </div>
 
-<script src="script.js?v=7"></script>
+<script src="script.js?v=8"></script>
 <script src="script-patch.js"></script>
 </body>
 </html>

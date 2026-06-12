@@ -37,6 +37,7 @@ const translations = {
     'reviews.formName':'Имя *','reviews.formRole':'Должность / компания','reviews.formStars':'Оценка',
     'reviews.formText':'Ваш отзыв *','reviews.formSubmit':'Отправить',
     'reviews.success':'Спасибо! Отзыв будет проверен и опубликован.',
+    'reviews.allBtn':'Все отзывы →','reviews.allTitle':'Все отзывы',
     'cta.label':'— Готовы начать?','cta.title':'Расскажите<br>о вашем <em>проекте</em>',
     'cta.text':'Опишите задачу — отвечу в течение дня. Бесплатная консультация перед стартом.',
     'cta.btn1':'Написать сообщение',
@@ -176,6 +177,7 @@ const translations = {
     'reviews.formName':'Name *','reviews.formRole':'Role / company','reviews.formStars':'Rating',
     'reviews.formText':'Your review *','reviews.formSubmit':'Submit',
     'reviews.success':'Thank you! Your review will be checked and published.',
+    'reviews.allBtn':'All reviews →','reviews.allTitle':'All reviews',
     'cta.label':'— Ready to start?','cta.title':'Tell me about<br>your <em>project</em>',
     'cta.text':"Describe your vision — I'll get back to you within 24 hours.",
     'cta.btn1':'Send message',
@@ -315,6 +317,7 @@ const translations = {
     'reviews.formName':'Name *','reviews.formRole':'Position / Unternehmen','reviews.formStars':'Bewertung',
     'reviews.formText':'Ihre Bewertung *','reviews.formSubmit':'Senden',
     'reviews.success':'Danke! Ihre Bewertung wird geprüft und veröffentlicht.',
+    'reviews.allBtn':'Alle Bewertungen →','reviews.allTitle':'Alle Bewertungen',
     'cta.label':'— Bereit für den Start?','cta.title':'Erzählen Sie mir von<br>Ihrem <em>Projekt</em>',
     'cta.text':'Beschreiben Sie Ihre Vision – ich antworte innerhalb von 24 Stunden.',
     'cta.btn1':'Nachricht senden',
@@ -454,6 +457,7 @@ const translations = {
     'reviews.formName':'Nome *','reviews.formRole':'Ruolo / azienda','reviews.formStars':'Valutazione',
     'reviews.formText':'La tua recensione *','reviews.formSubmit':'Invia',
     'reviews.success':'Grazie! La recensione sarà verificata e pubblicata.',
+    'reviews.allBtn':'Tutte le recensioni →','reviews.allTitle':'Tutte le recensioni',
     'cta.label':'— Pronto a iniziare?','cta.title':'Parlami del<br>tuo <em>progetto</em>',
     'cta.text':'Descrivi la tua visione — ti risponderò entro 24 ore.',
     'cta.btn1':'Invia messaggio',
@@ -593,6 +597,7 @@ const translations = {
     'reviews.formName':'Nom *','reviews.formRole':'Poste / entreprise','reviews.formStars':'Note',
     'reviews.formText':'Votre avis *','reviews.formSubmit':'Envoyer',
     'reviews.success':'Merci ! Votre avis sera vérifié et publié.',
+    'reviews.allBtn':'Tous les avis →','reviews.allTitle':'Tous les avis',
     'cta.label':'— Prêt à démarrer ?','cta.title':'Parlez-moi de<br>votre <em>projet</em>',
     'cta.text':'Décrivez votre vision — je vous répondrai sous 24 heures.',
     'cta.btn1':'Envoyer un message',
@@ -711,16 +716,12 @@ const DEFAULT_SITE_SETTINGS = {
   show_hero_section: true,
   apps: [],
 };
-const FALLBACK_REVIEWS = [
-  { id: 'rev_fallback_1', name: 'Alex Weber', role: 'Co-founder, Apex Core', text: 'Сергей сделал анимацию нашего логотипа за неделю — выглядит как кинофильм.', stars: 5, date: '2024-06-12', status: 'approved' },
-  { id: 'rev_fallback_2', name: 'Maria Klein', role: 'Marketing Director', text: 'Профессионал высокого уровня. Понимает задачу с полуслова.', stars: 5, date: '2024-08-03', status: 'approved' },
-  { id: 'rev_fallback_3', name: 'Daniel Roth', role: 'Brand Director', text: 'Идеальный результат и с первого раза. Никаких бесконечных правок.', stars: 5, date: '2024-10-21', status: 'approved' },
-];
 const REVIEW_STAR_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>';
 let siteSettings = { ...DEFAULT_SITE_SETTINGS };
 let siteHeroData = null;
 let siteReviews = [];
 let reviewFormStars = 5;
+let sortedSiteReviews = [];
 
 function normalizeSiteSettings(raw) {
   const s = raw && typeof raw === 'object' ? raw : {};
@@ -911,28 +912,157 @@ function reviewInitials(name) {
   return name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
 
+function sortReviewsByDate(reviews) {
+  return [...reviews].sort((a, b) => {
+    const da = Date.parse(a.date) || 0;
+    const db = Date.parse(b.date) || 0;
+    return db - da;
+  });
+}
+
+function reviewStarsCount(n) {
+  return Math.min(5, Math.max(1, parseInt(n, 10) || 5));
+}
+
+function reviewStarsText(n) {
+  return '★'.repeat(reviewStarsCount(n));
+}
+
+function truncateReviewText(text, max = 80) {
+  const s = String(text || '').trim();
+  if (s.length <= max) return s;
+  return s.slice(0, max).trimEnd() + '…';
+}
+
+function buildReviewCardHtml(review) {
+  const stars = reviewStarsCount(review.stars);
+  return `
+    <article class="review-card">
+      <div class="stars">${REVIEW_STAR_SVG.repeat(stars)}</div>
+      <p class="review-card-text">«${escHtml(review.text || '')}»</p>
+      <div class="review-card-author">
+        <div class="author-avatar">${escHtml(reviewInitials(review.name))}</div>
+        <div>
+          <div class="author-name">${escHtml(review.name || '')}</div>
+          <div class="author-role">${escHtml(review.role || '')}</div>
+        </div>
+      </div>
+    </article>`;
+}
+
+function buildCompactReviewHtml(review) {
+  const name = escHtml(review.name || '');
+  const role = escHtml(review.role || '');
+  const excerpt = escHtml(truncateReviewText(review.text));
+  const meta = role ? `${name} · ${role}` : name;
+  return `
+    <div class="all-reviews-compact">
+      <span class="all-reviews-compact-stars">${reviewStarsText(review.stars)}</span>
+      <span>${meta} · <span class="all-reviews-compact-text">«${excerpt}»</span></span>
+    </div>`;
+}
+
+function renderAllReviewsModal(sorted) {
+  const countEl = document.getElementById('allReviewsCount');
+  const featured = document.getElementById('allReviewsFeatured');
+  const older = document.getElementById('allReviewsOlder');
+  if (countEl) countEl.textContent = String(sorted.length);
+  const top10 = sorted.slice(0, 10);
+  const rest = sorted.slice(10);
+  if (featured) {
+    featured.innerHTML = top10.length
+      ? `<div class="all-reviews-featured-grid">${top10.map(r => buildReviewCardHtml(r)).join('')}</div>`
+      : '';
+  }
+  if (older) {
+    older.innerHTML = rest.length
+      ? `<div class="all-reviews-older-list">${rest.map(r => buildCompactReviewHtml(r)).join('')}</div>`
+      : '';
+  }
+}
+
+function initReviewsCarousel(cardCount) {
+  const track = document.getElementById('reviewsCarouselTrack');
+  const prev = document.getElementById('reviewsPrev');
+  const next = document.getElementById('reviewsNext');
+  const dots = document.getElementById('reviewsDots');
+  const wrap = document.getElementById('reviewsCarouselWrap');
+  if (!track || !wrap) return;
+
+  const cards = () => track.querySelectorAll('.review-card');
+
+  function cardStep() {
+    const card = cards()[0];
+    if (!card) return 0;
+    return card.offsetWidth + 24;
+  }
+
+  function activeIndex() {
+    const step = cardStep();
+    if (!step) return 0;
+    return Math.min(cardCount - 1, Math.max(0, Math.round(track.scrollLeft / step)));
+  }
+
+  function updateDots() {
+    const idx = activeIndex();
+    dots?.querySelectorAll('.reviews-dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === idx);
+    });
+    if (prev) prev.disabled = idx <= 0;
+    if (next) next.disabled = idx >= cardCount - 1;
+  }
+
+  function scrollToIndex(idx) {
+    const step = cardStep();
+    track.scrollTo({ left: step * idx, behavior: 'smooth' });
+  }
+
+  if (wrap.dataset.bound !== '1') {
+    wrap.dataset.bound = '1';
+    prev?.addEventListener('click', () => scrollToIndex(Math.max(0, activeIndex() - 1)));
+    next?.addEventListener('click', () => scrollToIndex(Math.min(cardCount - 1, activeIndex() + 1)));
+    track.addEventListener('scroll', updateDots, { passive: true });
+    track.addEventListener('wheel', e => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        track.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
+    window.addEventListener('resize', updateDots);
+  }
+
+  dots?.querySelectorAll('.reviews-dot').forEach((dot, i) => {
+    dot.addEventListener('click', () => scrollToIndex(i));
+  });
+
+  track.scrollLeft = 0;
+  updateDots();
+}
+
 function renderReviews() {
-  const grid = document.getElementById('reviewsGrid');
-  if (!grid) return;
-  const show = isSiteSectionVisible('show_reviews_section');
+  sortedSiteReviews = sortReviewsByDate(siteReviews);
+  const hasReviews = sortedSiteReviews.length > 0;
+  const show = hasReviews && isSiteSectionVisible('show_reviews_section');
   setSiteSectionVisible('reviews', ['navReviewsItem', 'footerReviewsItem'], show);
   if (!show) return;
 
-  const list = siteReviews.length ? siteReviews : FALLBACK_REVIEWS;
-  grid.innerHTML = list.map(r => `
-    <div class="testimonial">
-      <div class="stars">${REVIEW_STAR_SVG.repeat(Math.min(5, Math.max(1, r.stars || 5)))}</div>
-      <p class="testimonial-text">«${String(r.text || '').replace(/</g, '&lt;')}»</p>
-      <div class="testimonial-author">
-        <div class="author-avatar">${reviewInitials(r.name)}</div>
-        <div>
-          <div class="author-name">${String(r.name || '').replace(/</g, '&lt;')}</div>
-          <div class="author-role">${String(r.role || '').replace(/</g, '&lt;')}</div>
-        </div>
-      </div>
-    </div>`).join('');
+  const carouselItems = sortedSiteReviews.slice(0, 10);
+  const track = document.getElementById('reviewsCarouselTrack');
+  const dots = document.getElementById('reviewsDots');
 
-  grid.querySelectorAll('.testimonial').forEach(el => observer.observe(el));
+  if (track) {
+    track.innerHTML = carouselItems.map(r => buildReviewCardHtml(r)).join('');
+    track.querySelectorAll('.review-card').forEach(el => observer.observe(el));
+  }
+
+  if (dots) {
+    dots.innerHTML = carouselItems.map((_, i) =>
+      `<button type="button" class="reviews-dot${i === 0 ? ' active' : ''}" aria-label="Review ${i + 1}"></button>`
+    ).join('');
+  }
+
+  renderAllReviewsModal(sortedSiteReviews);
+  initReviewsCarousel(carouselItems.length);
 }
 
 function initReviewStarPicker() {
@@ -1963,6 +2093,10 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 initReviewStarPicker();
+document.getElementById('openAllReviewsBtn')?.addEventListener('click', () => {
+  renderAllReviewsModal(sortedSiteReviews);
+  openModal('allReviewsModal');
+});
 document.getElementById('openReviewFormBtn')?.addEventListener('click', () => {
   resetReviewForm();
   openModal('reviewModal');
