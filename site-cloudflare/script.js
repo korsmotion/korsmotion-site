@@ -984,7 +984,7 @@ function renderAllReviewsModal(sorted) {
 
 const REVIEWS_CAROUSEL_GAP = 24;
 let reviewsCarouselGroup = 0;
-let reviewsCarouselProgrammatic = false;
+let reviewsCarouselWheelLock = false;
 
 function getReviewsPerView() {
   if (window.innerWidth <= 640) return 1;
@@ -1000,7 +1000,8 @@ function layoutReviewsCarouselCards() {
   const perView = getReviewsPerView();
   const gap = REVIEWS_CAROUSEL_GAP;
   const viewWidth = carousel.clientWidth;
-  const cardWidth = Math.floor((viewWidth - gap * (perView - 1)) / perView);
+  const cardWidth = (viewWidth - gap * (perView - 1)) / perView;
+  track.dataset.cardWidth = String(cardWidth);
   track.querySelectorAll('.review-card').forEach(card => {
     card.style.width = cardWidth + 'px';
     card.style.flexBasis = cardWidth + 'px';
@@ -1017,16 +1018,25 @@ function initReviewsCarousel(cardCount) {
   const carousel = wrap?.querySelector('.reviews-carousel');
   if (!track || !wrap) return;
 
-  layoutReviewsCarouselCards();
-
   function cardStep() {
+    const w = parseFloat(track.dataset.cardWidth);
+    if (w) return w + REVIEWS_CAROUSEL_GAP;
     const card = track.querySelector('.review-card');
     return card ? card.offsetWidth + REVIEWS_CAROUSEL_GAP : 0;
   }
 
   function maxScrollLeft() {
     if (!carousel) return 0;
-    return Math.max(0, track.scrollWidth - carousel.clientWidth);
+    const cards = track.querySelectorAll('.review-card');
+    if (!cards.length) return 0;
+    const step = cardStep();
+    const totalWidth = cards.length * step - REVIEWS_CAROUSEL_GAP;
+    return Math.max(0, totalWidth - carousel.clientWidth);
+  }
+
+  function applyCarouselOffset(left, animate) {
+    track.style.transition = animate ? 'transform .45s ease' : 'none';
+    track.style.transform = `translateX(-${left}px)`;
   }
 
   function groupScrollPositions() {
@@ -1046,16 +1056,6 @@ function initReviewsCarousel(cardCount) {
 
   function groupCount() {
     return groupScrollPositions().length;
-  }
-
-  function activeGroupFromScroll() {
-    const positions = groupScrollPositions();
-    const sl = track.scrollLeft;
-    let idx = 0;
-    positions.forEach((pos, i) => {
-      if (sl >= pos - 4) idx = i;
-    });
-    return idx;
   }
 
   function rebuildDots() {
@@ -1085,26 +1085,32 @@ function initReviewsCarousel(cardCount) {
     }
   }
 
-  function scrollToGroup(groupIdx) {
+  function scrollToGroup(groupIdx, animate = true) {
     const positions = groupScrollPositions();
     const maxGroup = positions.length - 1;
     reviewsCarouselGroup = Math.max(0, Math.min(maxGroup, groupIdx));
-    const targetLeft = positions[reviewsCarouselGroup];
-    reviewsCarouselProgrammatic = true;
-    track.scrollTo({ left: targetLeft, behavior: 'smooth' });
+    applyCarouselOffset(positions[reviewsCarouselGroup], animate);
     updateDots();
-    clearTimeout(scrollToGroup._timer);
-    scrollToGroup._timer = setTimeout(() => {
-      track.scrollLeft = targetLeft;
-      reviewsCarouselProgrammatic = false;
-      updateDots();
-    }, 450);
   }
 
   function onCarouselWheel(e) {
     e.preventDefault();
+    if (reviewsCarouselWheelLock) return;
     const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-    track.scrollLeft += delta;
+    if (Math.abs(delta) < 8) return;
+    reviewsCarouselWheelLock = true;
+    setTimeout(() => { reviewsCarouselWheelLock = false; }, 420);
+    if (delta > 0) scrollToGroup(reviewsCarouselGroup + 1);
+    else scrollToGroup(reviewsCarouselGroup - 1);
+  }
+
+  function syncCarouselLayout(animate) {
+    layoutReviewsCarouselCards();
+    const positions = groupScrollPositions();
+    reviewsCarouselGroup = Math.min(reviewsCarouselGroup, positions.length - 1);
+    applyCarouselOffset(positions[reviewsCarouselGroup] || 0, animate);
+    rebuildDots();
+    updateDots();
   }
 
   if (wrap.dataset.bound !== '1') {
@@ -1118,29 +1124,13 @@ function initReviewsCarousel(cardCount) {
       if (reviewsCarouselGroup >= maxGroup) return;
       scrollToGroup(reviewsCarouselGroup + 1);
     });
-    track.addEventListener('scroll', () => {
-      if (reviewsCarouselProgrammatic) return;
-      reviewsCarouselGroup = activeGroupFromScroll();
-      updateDots();
-    }, { passive: true });
     track.addEventListener('wheel', onCarouselWheel, { passive: false });
     carousel?.addEventListener('wheel', onCarouselWheel, { passive: false });
-    window.addEventListener('resize', () => {
-      layoutReviewsCarouselCards();
-      requestAnimationFrame(() => {
-        const positions = groupScrollPositions();
-        reviewsCarouselGroup = Math.min(reviewsCarouselGroup, positions.length - 1);
-        track.scrollLeft = positions[reviewsCarouselGroup] || 0;
-        rebuildDots();
-        updateDots();
-      });
-    });
+    window.addEventListener('resize', () => syncCarouselLayout(false));
   }
 
   reviewsCarouselGroup = 0;
-  rebuildDots();
-  track.scrollLeft = 0;
-  updateDots();
+  requestAnimationFrame(() => syncCarouselLayout(false));
 }
 
 function renderReviews() {
