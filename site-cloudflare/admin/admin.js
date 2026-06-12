@@ -598,6 +598,27 @@ function getWeatherBgUrl(imageId) {
   return adminAssetUrl('images/weather/' + imageId + '.png');
 }
 
+function getWeatherDateDisplay() {
+  const now = new Date();
+  const days = {
+    ru: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
+    de: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+    en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  };
+  const months = {
+    ru: ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
+    de: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+    en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  };
+  const lang = adminLang || 'ru';
+  const dayList = days[lang] || days.en;
+  const monthList = months[lang] || months.en;
+  return {
+    dayName: dayList[now.getDay()],
+    dateStr: now.getDate() + ' ' + monthList[now.getMonth()],
+  };
+}
+
 async function loadWeatherWidget() {
   const widget = document.getElementById('weather-widget');
   if (!widget) return;
@@ -637,10 +658,15 @@ async function loadWeatherWidget() {
             <span class="wf-temp">${d.max}° / ${d.min}°</span>
           </div>`).join('')
       : '';
+    const { dayName, dateStr } = getWeatherDateDisplay();
 
     widget.innerHTML = `
       <div class="weather-widget-bg" style="background-image:url('${esc(bgUrl)}')"></div>
       <div class="weather-widget-overlay">
+        <div class="weather-widget-date">
+          <div class="weather-widget-dayname">${esc(dayName)}</div>
+          <div class="weather-widget-datestr">${esc(dateStr)}</div>
+        </div>
         <div class="weather-widget-location">📍 Bischofszell</div>
         <div class="weather-widget-body">
           <div class="weather-widget-temp">${temp}°</div>
