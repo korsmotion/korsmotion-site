@@ -1,23 +1,8 @@
 const ADMIN_PASSWORD = 'korsmotion2026';
 const SESSION_KEY = 'korsmotion_admin_session';
-const GITHUB_TOKEN_KEY = 'korsmotion_github_token';
-const WEATHER_KEY = 'korsmotion_weather_key';
-const WEATHER_IMAGE_ACCEPT = 'image/*,.gif';
-const WEATHER_SLOTS = [
-  { id: 'sunny', label: 'Sunny', emoji: '☀️' },
-  { id: 'night', label: 'Night', emoji: '🌙' },
-  { id: 'cloudy', label: 'Cloudy', emoji: '☁️' },
-  { id: 'rain', label: 'Rain', emoji: '🌧️' },
-  { id: 'snow', label: 'Snow', emoji: '❄️' },
-  { id: 'thunderstorm', label: 'Thunderstorm', emoji: '⛈️' },
-  { id: 'fog', label: 'Fog', emoji: '🌫️' },
-  { id: 'sun_up', label: 'Sun_up_Рассвет', emoji: '🌅' },
-  { id: 'sunset', label: 'Закат', emoji: '🌇' },
-];
-const GITHUB_REPO = 'korsmotion/korsmotion-site';
-const GITHUB_BRANCH = 'main';
 const API_DATA = '/api/data';
 const API_SAVE = '/api/save';
+const API_SERVICES = '/api/services';
 
 // ── Admin UI translations ─────────────────────────────────────────────────────
 const UI = {
@@ -36,17 +21,7 @@ const UI = {
     langLabel: 'Контент на языках', noImage: 'Нет картинки',
     deleteConfirm: 'Удалить этот проект?', deleteAppConfirm: 'Удалить это приложение?',
     password: 'Пароль', signIn: 'Войти', wrongPassword: 'Неверный пароль',
-    catLabel: 'Категория контента',
-    dashboardTitle: 'Дашборд', dashProjects: 'Проектов', dashApps: 'Приложений',
-    dashLastSaved: 'Последнее сохранение', dashViewsToday: 'Просмотров сегодня',
-    dashWeek: 'За 7 дней', dashMonth: 'За 30 дней',
-    settingsTitle: 'Настройки', settingsClose: 'Закрыть', settingsBtnTitle: 'Настройки',
-    integrationsTitle: 'Интеграции', githubToken: 'GitHub Token', githubDesc: 'Для загрузки файлов в репозиторий',
-    weatherTitle: 'Погода', weatherApiKey: 'OpenWeatherMap API Key',
-    weatherDesc: 'Для виджета погоды в Dashboard', weatherImages: 'Фоновые картинки погоды',
-    generalTitle: 'Основные', saveBtn: 'Сохранить', uploadBtn: '📁 Загрузить',
-    weatherNoApiKey: '⚙️ API ключ не указан', weatherLoading: 'Загрузка погоды…',
-    weatherError: 'Не удалось загрузить погоду'
+    catLabel: 'Категория контента'
   },
   de: {
     adminTitle: 'Admin-Panel', viewSite: 'Website ansehen', logout: 'Abmelden',
@@ -63,17 +38,7 @@ const UI = {
     langLabel: 'Inhalte in Sprachen', noImage: 'Kein Bild',
     deleteConfirm: 'Dieses Projekt löschen?', deleteAppConfirm: 'Diese App löschen?',
     password: 'Passwort', signIn: 'Anmelden', wrongPassword: 'Falsches Passwort',
-    catLabel: 'Inhaltskategorie',
-    dashboardTitle: 'Dashboard', dashProjects: 'Projekte', dashApps: 'Apps',
-    dashLastSaved: 'Letzte Speicherung', dashViewsToday: 'Aufrufe heute',
-    dashWeek: '7 Tage', dashMonth: '30 Tage',
-    settingsTitle: 'Einstellungen', settingsClose: 'Schließen', settingsBtnTitle: 'Einstellungen',
-    integrationsTitle: 'Integrationen', githubToken: 'GitHub Token', githubDesc: 'Für Datei-Upload ins Repository',
-    weatherTitle: 'Wetter', weatherApiKey: 'OpenWeatherMap API Key',
-    weatherDesc: 'Für das Wetter-Widget im Dashboard', weatherImages: 'Wetter-Hintergrundbilder',
-    generalTitle: 'Allgemein', saveBtn: 'Speichern', uploadBtn: '📁 Hochladen',
-    weatherNoApiKey: '⚙️ API-Schlüssel nicht angegeben', weatherLoading: 'Wetter wird geladen…',
-    weatherError: 'Wetter konnte nicht geladen werden'
+    catLabel: 'Inhaltskategorie'
   },
   en: {
     adminTitle: 'Admin Panel', viewSite: 'View site', logout: 'Logout',
@@ -90,36 +55,14 @@ const UI = {
     langLabel: 'Content by language', noImage: 'No image',
     deleteConfirm: 'Delete this project?', deleteAppConfirm: 'Delete this app?',
     password: 'Password', signIn: 'Sign in', wrongPassword: 'Incorrect password',
-    catLabel: 'Content category',
-    dashboardTitle: 'Dashboard', dashProjects: 'Projects', dashApps: 'Apps',
-    dashLastSaved: 'Last saved', dashViewsToday: 'Views today',
-    dashWeek: '7 days', dashMonth: '30 days',
-    settingsTitle: 'Settings', settingsClose: 'Close', settingsBtnTitle: 'Settings',
-    integrationsTitle: 'Integrations', githubToken: 'GitHub Token', githubDesc: 'For file upload to repository',
-    weatherTitle: 'Weather', weatherApiKey: 'OpenWeatherMap API Key',
-    weatherDesc: 'For the weather widget in Dashboard', weatherImages: 'Weather background images',
-    generalTitle: 'General', saveBtn: 'Save', uploadBtn: '📁 Upload',
-    weatherNoApiKey: '⚙️ API key not set', weatherLoading: 'Loading weather…',
-    weatherError: 'Failed to load weather'
+    catLabel: 'Content category'
   }
 };
 
-const UI_PREFIX = {
-  settingsTitle: '⚙️ ',
-  integrationsTitle: '🔗 ',
-  weatherTitle: '🌤 ',
-  generalTitle: '⚙️ ',
-};
-
 const SITE_LANGS = ['de', 'en', 'fr', 'it', 'ru'];
-const FLAG_ICONS = { ru: 'ru', de: 'de', en: 'gb', it: 'it', fr: 'fr', es: 'es' };
-const SITE_LANG_LABELS = Object.fromEntries(
-  SITE_LANGS.map(lang => [lang, `<span class="fi fi-${FLAG_ICONS[lang]}"></span> ${lang.toUpperCase()}`])
-);
+const SITE_LANG_LABELS = { de: '🇩🇪 DE', en: '🇬🇧 EN', fr: '🇫🇷 FR', it: '🇮🇹 IT', ru: '🇷🇺 RU' };
 const ADMIN_LANGS = ['ru', 'de', 'en'];
-const ADMIN_LANG_LABELS = Object.fromEntries(
-  ADMIN_LANGS.map(lang => [lang, `<span class="fi fi-${FLAG_ICONS[lang]}"></span> ${lang.toUpperCase()}`])
-);
+const ADMIN_LANG_LABELS = { ru: 'RU', de: 'DE', en: 'EN' };
 
 const CATEGORIES = [
   { id: 'motion', label: { ru: 'Моушн-дизайн', de: 'Motion Design', en: 'Motion Design' }, icon: '🎬' },
@@ -131,9 +74,10 @@ const CATEGORIES = [
 let adminLang = localStorage.getItem('korsmotion_admin_lang') || 'ru';
 let projectsData = { projects: [] };
 let settingsData = { show_dev_section: false, apps: [] };
+let servicesData = { services: [] };
+let serviceActiveLang = 'de'; // активный язык в редакторе услуг
 const expandedCats = new Set(CATEGORIES.map(c => c.id));
 let activeLangTab = {}; // per project id
-let activeAppLangTab = {}; // per app index
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function u() { return adminLang ? UI[adminLang] || UI.en : UI.en; }
@@ -142,283 +86,16 @@ function esc(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-function adminAssetUrl(path) {
-  if (!path) return '';
-  if (/^(https?:\/\/|\/|data:)/i.test(path)) return path;
-  return '../' + path.replace(/^\.\//, '');
-}
-function getGithubToken() {
-  return localStorage.getItem(GITHUB_TOKEN_KEY) || '';
-}
-function maskSecretKey(token) {
-  return token ? token.slice(0, 8) + '...' : '';
-}
-function maskGithubToken(token) { return maskSecretKey(token); }
-function getWeatherKey() {
-  return localStorage.getItem(WEATHER_KEY) || '';
-}
-function initWeatherKeyField() {
-  initMaskedSecretField('weatherKeyInput', WEATHER_KEY);
-}
-function saveWeatherKey() {
-  saveMaskedSecretField('weatherKeyInput', WEATHER_KEY, 'API ключ сохранён ✓');
-}
-function initMaskedSecretField(inputId, storageKey) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  const val = localStorage.getItem(storageKey) || '';
-  if (val) {
-    input.value = maskSecretKey(val);
-    input.dataset.masked = '1';
-  } else {
-    input.value = '';
-    input.dataset.masked = '0';
-  }
-  delete input.dataset.focusValue;
-}
-function saveMaskedSecretField(inputId, storageKey, successMsg) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  const val = input.value.trim();
-  if (!val || (val.endsWith('...') && val.length <= 12)) {
-    showToast('Введите полный ключ', 'error');
-    return;
-  }
-  localStorage.setItem(storageKey, val);
-  input.value = maskSecretKey(val);
-  input.dataset.masked = '1';
-  delete input.dataset.focusValue;
-  showToast(successMsg, 'success');
-}
-function bindMaskedSecretField(inputId, getValue, storageKey) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  input.addEventListener('focus', () => {
-    if (input.dataset.masked === '1') {
-      const stored = getValue();
-      if (stored) {
-        input.value = stored;
-        input.dataset.masked = '0';
-        input.dataset.focusValue = stored;
-      }
-    } else {
-      input.dataset.focusValue = input.value;
-    }
-  });
-  input.addEventListener('blur', () => {
-    const stored = getValue();
-    const current = input.value.trim();
-    const focusValue = input.dataset.focusValue || '';
-    if (focusValue && current === focusValue && stored) {
-      input.value = maskSecretKey(stored);
-      input.dataset.masked = '1';
-    }
-    delete input.dataset.focusValue;
-  });
-}
-function initGithubTokenField() {
-  initMaskedSecretField('githubTokenInput', GITHUB_TOKEN_KEY);
-}
-function saveGithubToken() {
-  saveMaskedSecretField('githubTokenInput', GITHUB_TOKEN_KEY, 'Токен сохранён ✓');
-}
-function weatherPreviewPlaceholder(slot) {
-  return `<div class="weather-slot-placeholder">${slot.emoji}<br>${esc(slot.label)}</div>`;
-}
-function weatherPreviewImg(url, weatherId, label) {
-  return `<img class="weather-slot-img" src="${esc(url)}" alt="${esc(label)}" data-weather-id="${esc(weatherId)}" onerror="showWeatherPlaceholder(this)">`;
-}
-window.showWeatherPlaceholder = function(img) {
-  const slot = WEATHER_SLOTS.find(s => s.id === img.dataset.weatherId);
-  if (slot) img.outerHTML = weatherPreviewPlaceholder(slot);
-};
-function updateWeatherPreview(weatherId, url) {
-  const el = document.getElementById('weather-preview-' + weatherId);
-  const slot = WEATHER_SLOTS.find(s => s.id === weatherId);
-  if (!el || !slot) return;
-  el.innerHTML = url ? weatherPreviewImg(url, weatherId, slot.label) : weatherPreviewPlaceholder(slot);
-}
-function initWeatherPreviews() {
-  WEATHER_SLOTS.forEach(slot => {
-    const el = document.getElementById('weather-preview-' + slot.id);
-    if (!el) return;
-    const localUrl = adminAssetUrl('images/weather/' + slot.id + '.png');
-    el.innerHTML = weatherPreviewImg(localUrl, slot.id, slot.label);
-  });
-}
-function renderWeatherGrid() {
-  const grid = document.getElementById('weatherImagesGrid');
-  if (!grid) return;
-  grid.innerHTML = WEATHER_SLOTS.map(slot => `
-    <div class="weather-slot" data-weather="${slot.id}">
-      <div class="weather-slot-label">${esc(slot.label)}</div>
-      <div class="weather-slot-preview" id="weather-preview-${slot.id}">${weatherPreviewPlaceholder(slot)}</div>
-      <button type="button" class="upload-btn" onclick="uploadWeatherImage('${slot.id}')">${esc(u().uploadBtn)}</button>
-    </div>`).join('');
-  initWeatherPreviews();
-}
-function openSettingsModal() {
-  initGithubTokenField();
-  initWeatherKeyField();
-  initWeatherPreviews();
-  const overlay = document.getElementById('settingsModal');
-  if (overlay) {
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-}
-function closeSettingsModal() {
-  const overlay = document.getElementById('settingsModal');
-  if (overlay) {
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-}
-function sanitizeAppFolder(title) {
-  return (title || 'app').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-}
-function githubApiPath(targetPath) {
-  return targetPath.split('/').map(encodeURIComponent).join('/');
-}
-function readFileAsBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-const MEDIA_FILE_ACCEPT = 'image/*,video/mp4,.gif';
-function isVideoMp4(file) {
-  return file.type === 'video/mp4' || /\.mp4$/i.test(file.name);
-}
-function pickMediaFile(onSelect, accept) {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = accept || MEDIA_FILE_ACCEPT;
-  input.style.display = 'none';
-  input.onchange = () => {
-    const file = input.files && input.files[0];
-    if (file) onSelect(file);
-    input.remove();
-  };
-  document.body.appendChild(input);
-  input.click();
-}
-async function uploadImageToGitHub(file, targetPath) {
-  const githubToken = getGithubToken();
-  if (!githubToken) {
-    showToast('Сначала укажи GitHub Token в настройках', 'error');
-    throw new Error('No token');
-  }
-  showToast('Загрузка...', '');
-  try {
-    const content = await readFileAsBase64(file);
-    const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${githubApiPath(targetPath)}`;
-    const headers = {
-      'Authorization': 'token ' + githubToken,
-      'Content-Type': 'application/json',
-      'Accept': 'application/vnd.github+json'
-    };
-    const putFile = async (sha) => {
-      const body = { message: 'Upload image via admin', content, branch: GITHUB_BRANCH };
-      if (sha) body.sha = sha;
-      return fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
-    };
-    let resp = await putFile();
-    if (resp.status === 409) {
-      const getResp = await fetch(apiUrl + `?ref=${GITHUB_BRANCH}`, { headers });
-      if (!getResp.ok) throw new Error('Failed to get file SHA');
-      const meta = await getResp.json();
-      resp = await putFile(meta.sha);
-    }
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.message || 'Upload failed');
-    }
-    showToast('Загружено ✓', 'success');
-    return `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/${targetPath}`;
-  } catch (e) {
-    if (e.message !== 'No token') showToast('Ошибка загрузки', 'error');
-    throw e;
-  }
-}
 function showToast(msg, type) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
   toast.className = 'toast show' + (type ? ' ' + type : '');
   setTimeout(() => toast.classList.remove('show'), 3500);
 }
-let saveBtnState = 'idle';
-
-function initSaveBtn() {
-  const btn = document.getElementById('saveBtn');
-  if (!btn) return;
-  btn.style.background = '#16A34A';
-  btn.textContent = 'Сохранить';
-}
-
 function setStatus(msg, type) {
   const el = document.getElementById('saveStatus');
   el.textContent = msg;
   el.className = 'save-status' + (type ? ' ' + type : '');
-  el.style.color = '';
-}
-
-function markUnsaved() {
-  const btn = document.getElementById('saveBtn');
-  const status = document.getElementById('saveStatus');
-  if (!btn) return;
-  saveBtnState = 'unsaved';
-  btn.disabled = false;
-  initSaveBtn();
-  if (status) {
-    status.textContent = '● Несохранённые изменения';
-    status.style.color = '#F59E0B';
-    status.className = 'save-status';
-  }
-}
-
-function markSaving() {
-  const btn = document.getElementById('saveBtn');
-  const status = document.getElementById('saveStatus');
-  if (!btn) return;
-  saveBtnState = 'saving';
-  btn.disabled = true;
-  initSaveBtn();
-  if (status) {
-    status.textContent = 'Сохраняю...';
-    status.style.color = '#9CA3AF';
-    status.className = 'save-status';
-  }
-}
-
-function markSaved() {
-  const btn = document.getElementById('saveBtn');
-  const status = document.getElementById('saveStatus');
-  if (!btn) return;
-  saveBtnState = 'saved';
-  btn.disabled = false;
-  initSaveBtn();
-  if (status) {
-    status.textContent = '✓✓ Загружено с сервера';
-    status.style.color = '#16A34A';
-    status.className = 'save-status';
-  }
-}
-
-function markSaveError(msg) {
-  const btn = document.getElementById('saveBtn');
-  const status = document.getElementById('saveStatus');
-  if (!btn) return;
-  saveBtnState = 'error';
-  btn.disabled = false;
-  initSaveBtn();
-  if (status) {
-    status.textContent = msg ? 'Ошибка сохранения: ' + msg : 'Ошибка сохранения';
-    status.style.color = '#DC2626';
-    status.className = 'save-status';
-  }
 }
 
 // ── Admin language switcher ───────────────────────────────────────────────────
@@ -427,30 +104,20 @@ function setAdminLang(lang) {
   localStorage.setItem('korsmotion_admin_lang', lang);
   applyAdminLang();
   renderAll();
-  loadWeatherWidget();
-  if (document.getElementById('settingsModal')?.classList.contains('open')) {
-    renderWeatherGrid();
-  }
 }
 
 function applyAdminLang() {
   const t = u();
+  // Update static UI labels
   document.querySelectorAll('[data-ui]').forEach(el => {
-    if (el.id === 'saveBtn') return;
     const key = el.getAttribute('data-ui');
-    if (t[key] === undefined) return;
-    if (key === 'settingsClose') el.textContent = t[key] + ' ✕';
-    else el.textContent = (UI_PREFIX[key] || '') + t[key];
+    if (t[key] !== undefined) el.textContent = t[key];
   });
-  initSaveBtn();
   document.querySelectorAll('[data-ui-placeholder]').forEach(el => {
     const key = el.getAttribute('data-ui-placeholder');
     if (t[key] !== undefined) el.placeholder = t[key];
   });
-  document.querySelectorAll('[data-ui-title]').forEach(el => {
-    const key = el.getAttribute('data-ui-title');
-    if (t[key] !== undefined) el.title = t[key];
-  });
+  // Active lang button
   document.querySelectorAll('.admin-lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === adminLang);
   });
@@ -463,8 +130,6 @@ function showAdmin() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('adminApp').style.display = 'block';
   document.getElementById('saveBar').style.display = 'flex';
-  initSaveBtn();
-  initGithubTokenField();
   applyAdminLang();
   loadData();
 }
@@ -500,25 +165,23 @@ async function loadData() {
     const data = await res.json();
     projectsData = data.projects || { projects: [] };
     settingsData = data.settings || { show_dev_section: false, apps: [] };
-    markSaved();
+    setStatus(u().loadedServer, 'success');
   } catch {
     try {
       const [pRes, sRes] = await Promise.all([fetch('../data/projects.json'), fetch('../data/settings.json')]);
       if (pRes.ok) projectsData = await pRes.json();
       if (sRes.ok) settingsData = await sRes.json();
       setStatus(u().loadedFiles, 'warning');
-      saveBtnState = 'idle';
-    } catch {
-      markSaveError('');
-    }
+    } catch { setStatus('Error', 'error'); }
   }
   document.getElementById('showDevSection').checked = !!settingsData.show_dev_section;
-  syncPremiumToggle('showDevSection');
   renderAll();
+  // Загружаем услуги отдельно из /api/services
+  loadServices();
 }
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
-  markSaving();
+  setStatus(u().saving, '');
   try {
     const res = await fetch(API_SAVE, {
       method: 'POST',
@@ -526,181 +189,74 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
       body: JSON.stringify({ password: ADMIN_PASSWORD, projects: projectsData, settings: settingsData }),
     });
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
-    markSaved();
+    setStatus(u().saved, 'success');
     showToast(u().saved, 'success');
     const now = new Date();
     localStorage.setItem('korsmotion_last_saved',
       now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}));
     renderDashboard();
   } catch (err) {
-    markSaveError(err.message);
+    setStatus(u().saveError + ': ' + err.message, 'error');
     showToast(u().saveError, 'error');
   }
 });
 
 document.getElementById('showDevSection').addEventListener('change', e => {
   settingsData.show_dev_section = e.target.checked;
-  markUnsaved();
 });
 
 function renderAll() {
   renderDashboard();
   renderProjects();
   renderApps();
+  renderServices();
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
-const WEATHER_CITY = 'Bischofszell,CH';
-
-function pickWeatherImageId(weather, icon) {
-  const id = weather?.id || 800;
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 8) return 'sun_up';
-  if (hour >= 17 && hour < 21) return 'sunset';
-  if (icon && icon.endsWith('n')) return 'night';
-  if (id >= 200 && id < 300) return 'thunderstorm';
-  if (id >= 300 && id < 600) return 'rain';
-  if (id >= 600 && id < 700) return 'snow';
-  if (id >= 700 && id < 800) return 'fog';
-  if (id === 800) return 'sunny';
-  return 'cloudy';
-}
-
-function weatherEmojiFromId(id, icon) {
-  if (id >= 200 && id < 300) return '⛈️';
-  if (id >= 300 && id < 600) return '🌧️';
-  if (id >= 600 && id < 700) return '❄️';
-  if (id >= 700 && id < 800) return '🌫️';
-  if (id === 800) return icon && icon.endsWith('n') ? '🌙' : '☀️';
-  return '☁️';
-}
-
-function build5DayForecast(forecastData) {
-  if (!forecastData?.list?.length) return [];
-  const days = [];
-  const seen = new Set();
-  for (const item of forecastData.list) {
-    const d = new Date(item.dt * 1000);
-    const key = d.toDateString();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    const w = item.weather[0];
-    days.push({
-      day: d.toLocaleDateString(adminLang === 'de' ? 'de-DE' : adminLang === 'en' ? 'en-GB' : 'ru-RU', { weekday: 'short' }),
-      temp: Math.round(item.main.temp),
-      emoji: weatherEmojiFromId(w.id, w.icon),
-    });
-    if (days.length >= 5) break;
-  }
-  return days;
-}
-
-function getWeatherBgUrl(imageId) {
-  return adminAssetUrl('images/weather/' + imageId + '.png');
-}
-
-async function loadWeatherWidget() {
-  const widget = document.getElementById('weather-widget');
-  if (!widget) return;
-
-  const t = u();
-  const apiKey = getWeatherKey();
-  const owmLang = adminLang === 'ru' ? 'ru' : adminLang === 'de' ? 'de' : 'en';
-  if (!apiKey) {
-    widget.innerHTML = `<div class="weather-widget-placeholder">${esc(t.weatherNoApiKey)}</div>`;
-    return;
-  }
-
-  widget.innerHTML = `<div class="weather-widget-placeholder">${esc(t.weatherLoading)}</div>`;
-
-  try {
-    const q = encodeURIComponent(WEATHER_CITY);
-    const [currentRes, forecastRes] = await Promise.all([
-      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${q}&appid=${apiKey}&units=metric&lang=${owmLang}`),
-      fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${q}&appid=${apiKey}&units=metric&lang=${owmLang}`),
-    ]);
-    if (!currentRes.ok) throw new Error('weather');
-    const current = await currentRes.json();
-    const forecast = forecastRes.ok ? await forecastRes.json() : null;
-
-    const w = current.weather[0];
-    const bgUrl = getWeatherBgUrl(pickWeatherImageId(w, w.icon));
-    const temp = Math.round(current.main.temp);
-    const humidity = current.main.humidity;
-    const wind = Math.round((current.wind?.speed || 0) * 3.6);
-    const forecastDays = build5DayForecast(forecast);
-    const forecastHtml = forecastDays.length
-      ? forecastDays.map(d => `
-          <div class="weather-forecast-day">
-            <div>${esc(d.day)}</div>
-            <span class="wf-emoji">${d.emoji}</span>
-            <div class="wf-temp">${d.temp}°</div>
-          </div>`).join('')
-      : '';
-
-    widget.innerHTML = `
-      <div class="weather-widget-bg" style="background-image:url('${esc(bgUrl)}')"></div>
-      <div class="weather-widget-overlay">
-        <div class="weather-widget-location">📍 Bischofszell</div>
-        <div class="weather-widget-temp">${temp}°</div>
-        <div class="weather-widget-desc">${esc(w.description)}</div>
-        <div class="weather-widget-meta">💧 ${humidity}% · 💨 ${wind} km/h</div>
-        ${forecastHtml ? `<div class="weather-widget-forecast">${forecastHtml}</div>` : ''}
-      </div>`;
-  } catch (_) {
-    widget.innerHTML = `<div class="weather-widget-placeholder">${esc(u().weatherError)}</div>`;
-  }
-}
-
 async function renderDashboard() {
   const el = document.getElementById('dashboardSection');
   if (!el) return;
 
-  const t = u();
   const projects = (projectsData.projects || []).length;
   const apps = (settingsData.apps || []).length;
   const lastSaved = localStorage.getItem('korsmotion_last_saved') || '—';
 
+  // Render skeleton first
   el.innerHTML = `
-    <h2 class="section-title">${t.dashboardTitle}</h2>
-    <div class="dash-layout">
-      <div class="dash-grid">
-        <div class="dash-card">
-          <div class="dash-icon">📁</div>
-          <div class="dash-val">${projects}</div>
-          <div class="dash-label">${t.dashProjects}</div>
-        </div>
-        <div class="dash-card">
-          <div class="dash-icon">📱</div>
-          <div class="dash-val">${apps}</div>
-          <div class="dash-label">${t.dashApps}</div>
-        </div>
-        <div class="dash-card">
-          <div class="dash-icon">💾</div>
-          <div class="dash-val dash-val-sm">${esc(lastSaved)}</div>
-          <div class="dash-label">${t.dashLastSaved}</div>
-        </div>
-        <div class="dash-card" id="dash-today">
-          <div class="dash-icon">👁</div>
-          <div class="dash-val dash-loading">…</div>
-          <div class="dash-label">${t.dashViewsToday}</div>
-        </div>
-        <div class="dash-card" id="dash-week">
-          <div class="dash-icon">📈</div>
-          <div class="dash-val dash-loading">…</div>
-          <div class="dash-label">${t.dashWeek}</div>
-        </div>
-        <div class="dash-card" id="dash-month">
-          <div class="dash-icon">🗓</div>
-          <div class="dash-val dash-loading">…</div>
-          <div class="dash-label">${t.dashMonth}</div>
-        </div>
+    <div class="dash-grid">
+      <div class="dash-card">
+        <div class="dash-icon">📁</div>
+        <div class="dash-val">${projects}</div>
+        <div class="dash-label">Проектов</div>
       </div>
-      <div id="weather-widget"></div>
+      <div class="dash-card">
+        <div class="dash-icon">📱</div>
+        <div class="dash-val">${apps}</div>
+        <div class="dash-label">Приложений</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">💾</div>
+        <div class="dash-val dash-val-sm">${lastSaved}</div>
+        <div class="dash-label">Последнее сохранение</div>
+      </div>
+      <div class="dash-card" id="dash-today">
+        <div class="dash-icon">👁</div>
+        <div class="dash-val dash-loading">…</div>
+        <div class="dash-label">Просмотров сегодня</div>
+      </div>
+      <div class="dash-card" id="dash-week">
+        <div class="dash-icon">📈</div>
+        <div class="dash-val dash-loading">…</div>
+        <div class="dash-label">За 7 дней</div>
+      </div>
+      <div class="dash-card" id="dash-month">
+        <div class="dash-icon">🗓</div>
+        <div class="dash-val dash-loading">…</div>
+        <div class="dash-label">За 30 дней</div>
+      </div>
     </div>`;
 
-  loadWeatherWidget();
-
+  // Load analytics async
   try {
     const resp = await fetch('/api/analytics', {
       headers: { 'X-Admin-Password': ADMIN_PASSWORD }
@@ -708,9 +264,9 @@ async function renderDashboard() {
     const data = await resp.json();
     const acc = data?.data?.viewer?.accounts?.[0];
     if (acc) {
-      const todayViews = acc.today?.[0]?.sum?.visits ?? '—';
-      const weekViews  = acc.week?.[0]?.sum?.visits ?? '—';
-      const monthViews = acc.total?.[0]?.sum?.visits ?? '—';
+      const todayViews = acc.todayViews?.[0]?.sum?.pageViews ?? '—';
+      const weekViews  = acc.week?.[0]?.sum?.pageViews ?? '—';
+      const monthViews = acc.total?.[0]?.sum?.pageViews ?? '—';
       document.getElementById('dash-today').querySelector('.dash-val').textContent = todayViews;
       document.getElementById('dash-week').querySelector('.dash-val').textContent = weekViews;
       document.getElementById('dash-month').querySelector('.dash-val').textContent = monthViews;
@@ -718,16 +274,10 @@ async function renderDashboard() {
       document.getElementById('dash-week').querySelector('.dash-val').classList.remove('dash-loading');
       document.getElementById('dash-month').querySelector('.dash-val').classList.remove('dash-loading');
     }
-  } catch (e) {
-    ['dash-today', 'dash-week', 'dash-month'].forEach(id => {
-      const card = document.getElementById(id);
-      if (card) {
-        const val = card.querySelector('.dash-val');
-        if (val) {
-          val.textContent = '—';
-          val.classList.remove('dash-loading');
-        }
-      }
+  } catch(e) {
+    ['dash-today','dash-week','dash-month'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.querySelector('.dash-val').textContent = '—';
     });
   }
 }
@@ -784,16 +334,14 @@ function renderProjects() {
           if (card) card.querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
         }
         if (field === 'thumbnail') updateThumbPreview(id, e.target.value);
-        if (field === 'videoUrl') updateVideoPreview(id, e.target.value);
       }
-      markUnsaved();
     });
   });
 
   container.querySelectorAll('.vis-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const p = projectsData.projects.find(x => x.id === btn.dataset.id);
-      if (p) { p.visible = !p.visible; renderProjects(); markUnsaved(); }
+      if (p) { p.visible = !p.visible; renderProjects(); }
     });
   });
 
@@ -802,7 +350,6 @@ function renderProjects() {
       if (confirm(u().deleteConfirm)) {
         projectsData.projects = projectsData.projects.filter(x => x.id !== btn.dataset.id);
         renderProjects();
-        markUnsaved();
       }
     });
   });
@@ -842,15 +389,17 @@ function renderProjectCard(p) {
             </div>
             <div class="form-group">
               <label class="form-label">${t.fieldThumb}</label>
-              <div class="input-with-upload">
-                <input class="form-input proj-field" data-id="${p.id}" data-field="thumbnail" value="${esc(p.thumbnail)}" placeholder="https://...">
-                <button type="button" class="upload-btn" onclick="uploadProjectThumb('${p.id}')">📁 Загрузить</button>
-              </div>
+              <input class="form-input proj-field" data-id="${p.id}" data-field="thumbnail" value="${esc(p.thumbnail)}" placeholder="https://...">
             </div>
             <div class="form-group full">
               <label class="form-label">${t.fieldVideo}</label>
               <input class="form-input proj-field" data-id="${p.id}" data-field="videoUrl" value="${esc(p.videoUrl)}" placeholder="https://youtube.com/watch?v=...">
-              ${buildVideoPreviewHtml(p.id, p.videoUrl)}
+              ${p.videoUrl && getYouTubeIdAdmin(p.videoUrl) ? `
+                <div class="video-thumb-wrap" id="vthumb-${p.id}">
+                  <img class="video-thumb-img" src="https://img.youtube.com/vi/${getYouTubeIdAdmin(p.videoUrl)}/mqdefault.jpg" alt="">
+                  <button class="video-play-btn" onclick="toggleVideoPreview('${p.id}','${esc(p.videoUrl)}')">▶ Play</button>
+                </div>
+              ` : ''}
             </div>
             <div class="form-group">
               <label class="form-label">${t.fieldClient}</label>
@@ -903,45 +452,6 @@ function updateThumbPreview(id, url) {
     : `<div class="thumb-placeholder" id="thumb-${id}">${t.noImage}</div>`;
 }
 
-function isRawGithubMp4(url) {
-  return !!url && url.startsWith('https://raw.githubusercontent.com') && /\.mp4$/i.test(url);
-}
-
-function buildVideoPreviewHtml(id, url) {
-  if (!url) return '';
-  const ytId = getYouTubeIdAdmin(url);
-  if (ytId) {
-    return `
-      <div class="video-thumb-wrap" id="vthumb-${id}">
-        <img class="video-thumb-img" src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="">
-        <button class="video-play-btn" onclick="toggleVideoPreview('${id}','${esc(url)}')">▶ Play</button>
-      </div>`;
-  }
-  if (isRawGithubMp4(url)) {
-    return `
-      <div class="video-thumb-wrap" id="vthumb-${id}">
-        <video src="${esc(url)}" style="width:100%;border-radius:8px;max-height:180px;object-fit:cover" controls muted preload="metadata"></video>
-      </div>`;
-  }
-  return '';
-}
-
-function updateVideoPreview(id, url) {
-  const input = document.querySelector(`.proj-field[data-id="${id}"][data-field="videoUrl"]`);
-  if (!input) return;
-  const html = buildVideoPreviewHtml(id, url);
-  const wrap = document.getElementById('vthumb-' + id);
-  if (!html) {
-    if (wrap) wrap.remove();
-    return;
-  }
-  if (wrap) {
-    wrap.outerHTML = html;
-  } else {
-    input.insertAdjacentHTML('afterend', html);
-  }
-}
-
 window.toggleCat = function(catId) {
   expandedCats.has(catId) ? expandedCats.delete(catId) : expandedCats.add(catId);
   renderProjects();
@@ -961,12 +471,6 @@ window.addProject = function(catId) {
   });
   expandedCats.add(catId);
   renderProjects();
-  markUnsaved();
-};
-
-window.setAppLangTab = function(idx, lang) {
-  activeAppLangTab[idx] = lang;
-  renderApps();
 };
 
 window.setProjectLangTab = function(id, lang) {
@@ -975,20 +479,6 @@ window.setProjectLangTab = function(id, lang) {
 };
 
 // ── Dev Apps ──────────────────────────────────────────────────────────────────
-function renderAppScreensAdmin(a, i) {
-  const screens = (a.screens || ['','','','','']).concat(['','','','','']).slice(0,5);
-  const labels = ['Скриншот 1','Скриншот 2','Скриншот 3','Скриншот 4','Скриншот 5'];
-  return screens.map((s, si) => `
-    <div class="form-group">
-      <label class="form-label">${labels[si]}</label>
-      <div class="input-with-upload">
-        <input class="form-input app-field" data-index="${i}" data-field="screens" data-screen="${si}"
-          value="${esc(s)}" placeholder="images/apps/appname/screen${si+1}.png">
-        <button type="button" class="upload-btn" onclick="uploadAppScreen(${i}, ${si})" title="Загрузить">📁</button>
-      </div>
-    </div>`).join('');
-}
-
 function renderApps() {
   const t = u();
   const items = settingsData.apps || [];
@@ -1000,13 +490,7 @@ function renderApps() {
     return;
   }
 
-  container.innerHTML = items.map((a, i) => {
-    const iconUrl = adminAssetUrl(a.icon || '');
-    const iconHtml = iconUrl
-      ? `<img id="app-icon-${i}" src="${esc(iconUrl)}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)" onerror="this.outerHTML='<div id=app-icon-${i} style=width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px>📱</div>'">`
-      : `<div id="app-icon-${i}" style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
-
-    return `
+  container.innerHTML = items.map((a, i) => `
     <div class="item-card ${a.visible ? '' : 'hidden-item'}">
       <div class="item-card-head">
         <span class="item-card-title">${esc(a.title || 'Untitled')}</span>
@@ -1015,273 +499,56 @@ function renderApps() {
           <button class="btn btn-danger btn-sm app-del-btn" data-index="${i}">${t.delete}</button>
         </div>
       </div>
-
-      <div style="display:flex;gap:16px;margin-top:14px;align-items:flex-start">
-        <div>${iconHtml}</div>
-        <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="form-group">
-            <label class="form-label">Название</label>
-            <input class="form-input app-field" data-index="${i}" data-field="title" value="${esc(a.title)}">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Платформа</label>
-            <input class="form-input app-field" data-index="${i}" data-field="platform" value="${esc(a.platform)}" placeholder="Android TV">
-          </div>
-          <div class="form-group" style="grid-column:1/-1">
-            <label class="form-label">Иконка (путь)</label>
-            <div class="input-with-upload">
-              <input class="form-input app-field" data-index="${i}" data-field="icon" value="${esc(a.icon||'')}" placeholder="images/apps/appname/icon.png">
-              <button type="button" class="upload-btn" onclick="uploadAppIcon(${i})">📁 Загрузить</button>
-            </div>
-          </div>
+      <div class="item-fields" style="margin-top:14px">
+        <div class="form-group">
+          <label class="form-label">${t.fieldTitle}</label>
+          <input class="form-input app-field" data-index="${i}" data-field="title" value="${esc(a.title)}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">${t.fieldPlatform}</label>
+          <input class="form-input app-field" data-index="${i}" data-field="platform" value="${esc(a.platform)}" placeholder="Android TV">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">${t.fieldDesc}</label>
+          <textarea class="form-textarea app-field" data-index="${i}" data-field="description">${esc(a.description)}</textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">${t.fieldLink}</label>
+          <input class="form-input app-field" data-index="${i}" data-field="link" value="${esc(a.link)}" placeholder="https://...">
         </div>
       </div>
+    </div>`).join('');
 
-      <!-- Описание на языках -->
-      <div class="lang-section" style="margin-top:12px">
-        <div class="lang-section-label">Описание на языках:</div>
-        <div class="lang-tabs">
-          ${SITE_LANGS.map(lang => `
-            <button class="lang-tab ${(activeAppLangTab[i] || 'en') === lang ? 'active' : ''}"
-              onclick="setAppLangTab(${i},'${lang}')">${SITE_LANG_LABELS[lang]}</button>
-          `).join('')}
-        </div>
-        <div class="lang-fields">
-          <div class="form-group">
-            <textarea class="form-textarea app-field" data-index="${i}" data-field="descriptions" data-lang="${activeAppLangTab[i] || 'en'}"
-              placeholder="Описание приложения...">${esc((a.descriptions && a.descriptions[activeAppLangTab[i] || 'en']) || '')}</textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- Скриншоты -->
-      <div style="margin-top:12px;padding:12px;background:var(--bg-input);border-radius:10px;border:2px solid var(--border)">
-        <div class="form-label" style="margin-bottom:10px">🖼 Скриншоты (images/apps/appname/)</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          ${renderAppScreensAdmin(a, i)}
-        </div>
-      </div>
-
-      <!-- Кнопки магазинов -->
-      <div style="margin-top:12px;padding:12px;background:var(--bg-input);border-radius:10px;border:2px solid var(--border)">
-        <div class="form-label" style="margin-bottom:10px">🏪 Магазины</div>
-        <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center">
-
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap">
-            <input type="checkbox" class="app-check" data-index="${i}" data-field="showGooglePlay" ${a.showGooglePlay ? 'checked' : ''}>
-            Google Play
-          </label>
-          <input class="form-input app-field" data-index="${i}" data-field="googlePlayUrl"
-            value="${esc(a.googlePlayUrl||'')}" placeholder="https://play.google.com/store/apps/details?id=...">
-
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap">
-            <input type="checkbox" class="app-check" data-index="${i}" data-field="showAppStore" ${a.showAppStore ? 'checked' : ''}>
-            App Store
-          </label>
-          <input class="form-input app-field" data-index="${i}" data-field="appStoreUrl"
-            value="${esc(a.appStoreUrl||'')}" placeholder="https://apps.apple.com/app/...">
-
-        </div>
-      </div>
-
-    </div>`;
-  }).join('');
-
-  // Bind inputs
   container.querySelectorAll('.app-field').forEach(el => {
     el.addEventListener('input', e => {
-      const idx = +e.target.dataset.index;
-      const field = e.target.dataset.field;
-      const screenIdx = e.target.dataset.screen;
-      const lang = e.target.dataset.lang;
-      if (screenIdx !== undefined) {
-        if (!settingsData.apps[idx].screens) settingsData.apps[idx].screens = ['','','','',''];
-        settingsData.apps[idx].screens[+screenIdx] = e.target.value;
-      } else if (lang) {
-        if (!settingsData.apps[idx].descriptions) settingsData.apps[idx].descriptions = {};
-        settingsData.apps[idx].descriptions[lang] = e.target.value;
-      } else {
-        settingsData.apps[idx][field] = e.target.value;
-        if (field === 'title') e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
-        if (field === 'icon') {
-          const iconEl = document.getElementById('app-icon-' + idx);
-          if (iconEl) {
-            if (e.target.value) {
-              iconEl.outerHTML = `<img id="app-icon-${idx}" src="${esc(adminAssetUrl(e.target.value))}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)" onerror="this.outerHTML='<div id=app-icon-${idx} style=width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px>📱</div>'">`;
-            } else {
-              iconEl.outerHTML = `<div id="app-icon-${idx}" style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
-            }
-          }
-        }
-      }
-      markUnsaved();
+      const idx = +e.target.dataset.index, field = e.target.dataset.field;
+      settingsData.apps[idx][field] = e.target.value;
+      if (field === 'title') e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value || 'Untitled';
     });
   });
-
-  // Bind checkboxes
-  container.querySelectorAll('.app-check').forEach(el => {
-    el.addEventListener('change', e => {
-      const idx = +e.target.dataset.index;
-      settingsData.apps[idx][e.target.dataset.field] = e.target.checked;
-      markUnsaved();
-    });
-  });
-
   container.querySelectorAll('.app-vis-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       settingsData.apps[+btn.dataset.index].visible = !settingsData.apps[+btn.dataset.index].visible;
       renderApps();
-      markUnsaved();
     });
   });
   container.querySelectorAll('.app-del-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (confirm(u().deleteAppConfirm)) { settingsData.apps.splice(+btn.dataset.index, 1); renderApps(); markUnsaved(); }
+      if (confirm(u().deleteAppConfirm)) { settingsData.apps.splice(+btn.dataset.index, 1); renderApps(); }
     });
   });
 }
 
 document.getElementById('addAppBtn').addEventListener('click', () => {
-  settingsData.apps.push({
-    id: uid(), title: 'New App', descriptions: {}, platform: 'Android TV',
-    icon: '', screens: ['','','','',''],
-    showGooglePlay: false, googlePlayUrl: '',
-    showAppStore: false, appStoreUrl: '',
-    visible: true
-  });
+  settingsData.apps.push({ id: uid(), title: 'New App', description: '', platform: 'Android TV', link: '', visible: true });
   renderApps();
-  markUnsaved();
 });
 
-// ── GitHub image upload handlers ──────────────────────────────────────────────
-window.uploadProjectThumb = function(projectId) {
-  pickMediaFile(async (file) => {
-    try {
-      const isVideo = isVideoMp4(file);
-      const path = isVideo
-        ? `site-cloudflare/images/portfolio/${projectId}_preview.mp4`
-        : `site-cloudflare/images/portfolio/${projectId}_${file.name}`;
-      const url = await uploadImageToGitHub(file, path);
-      const field = isVideo ? 'videoUrl' : 'thumbnail';
-      const inp = document.querySelector(`.proj-field[data-id="${projectId}"][data-field="${field}"]`);
-      if (inp) {
-        inp.value = url;
-        inp.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-    } catch (_) {}
-  });
-};
-
-window.uploadAppIcon = function(appIndex) {
-  const app = settingsData.apps[appIndex];
-  const folder = sanitizeAppFolder(app && app.title);
-  pickMediaFile(async (file) => {
-    try {
-      const path = `site-cloudflare/images/apps/${folder}/icon.png`;
-      const url = await uploadImageToGitHub(file, path);
-      const inp = document.querySelector(`.app-field[data-index="${appIndex}"][data-field="icon"]`);
-      if (inp) {
-        inp.value = url;
-        inp.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-    } catch (_) {}
-  });
-};
-
-window.uploadWeatherImage = function(weatherId) {
-  pickMediaFile(async (file) => {
-    try {
-      const path = `site-cloudflare/images/weather/${weatherId}.png`;
-      const url = await uploadImageToGitHub(file, path);
-      updateWeatherPreview(weatherId, url);
-    } catch (_) {}
-  }, WEATHER_IMAGE_ACCEPT);
-};
-
-window.uploadAppScreen = function(appIndex, screenIndex) {
-  const app = settingsData.apps[appIndex];
-  const folder = sanitizeAppFolder(app && app.title);
-  pickMediaFile(async (file) => {
-    try {
-      const path = `site-cloudflare/images/apps/${folder}/screen${screenIndex + 1}.png`;
-      const url = await uploadImageToGitHub(file, path);
-      const inp = document.querySelector(`.app-field[data-index="${appIndex}"][data-field="screens"][data-screen="${screenIndex}"]`);
-      if (inp) {
-        inp.value = url;
-        inp.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-    } catch (_) {}
-  });
-};
-
-function syncPremiumToggle(inputId) {
-  const input = document.getElementById(inputId);
-  const track = document.getElementById(inputId + 'Track');
-  if (!input || !track) return;
-  track.classList.toggle('is-on', input.checked);
-  track.setAttribute('aria-checked', input.checked ? 'true' : 'false');
-}
-
-function initPremiumToggles() {
-  document.querySelectorAll('.premium-toggle-track').forEach(track => {
-    const inputId = track.dataset.for;
-    const input = document.getElementById(inputId);
-    if (!input) return;
-    track.addEventListener('click', () => {
-      input.checked = !input.checked;
-      syncPremiumToggle(inputId);
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-    track.addEventListener('keydown', e => {
-      if (e.key === ' ' || e.key === 'Enter') {
-        e.preventDefault();
-        input.checked = !input.checked;
-        syncPremiumToggle(inputId);
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    });
-    syncPremiumToggle(inputId);
-  });
-}
-
-function initPasswordToggles() {
-  document.querySelectorAll('.pw-toggle').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const input = document.getElementById(btn.dataset.target);
-      if (!input) return;
-      if (input.type === 'password') {
-        input.type = 'text';
-        btn.textContent = '🙈';
-        btn.setAttribute('aria-label', 'Скрыть');
-      } else {
-        input.type = 'password';
-        btn.textContent = '👁';
-        btn.setAttribute('aria-label', 'Показать');
-      }
-    });
-  });
-}
-
 // ── Init ──────────────────────────────────────────────────────────────────────
-renderWeatherGrid();
-initPremiumToggles();
-initPasswordToggles();
-bindMaskedSecretField('githubTokenInput', getGithubToken, GITHUB_TOKEN_KEY);
-bindMaskedSecretField('weatherKeyInput', getWeatherKey, WEATHER_KEY);
-
 // Admin lang switcher buttons
 document.querySelectorAll('.admin-lang-btn').forEach(btn => {
   btn.addEventListener('click', () => setAdminLang(btn.dataset.lang));
 });
-
-const saveGithubTokenBtn = document.getElementById('saveGithubTokenBtn');
-if (saveGithubTokenBtn) saveGithubTokenBtn.addEventListener('click', saveGithubToken);
-const saveWeatherKeyBtn = document.getElementById('saveWeatherKeyBtn');
-if (saveWeatherKeyBtn) saveWeatherKeyBtn.addEventListener('click', saveWeatherKey);
-const openSettingsModalBtn = document.getElementById('openSettingsModal');
-if (openSettingsModalBtn) openSettingsModalBtn.addEventListener('click', openSettingsModal);
-const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
-if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
 
 if (isLoggedIn()) showAdmin(); else showLogin();
 
@@ -1311,5 +578,205 @@ window.toggleVideoPreview = function(id, url) {
 
 window.setCardType = function(id, type) {
   const p = projectsData.projects.find(x => x.id === id);
-  if (p) { p.cardType = type; renderProjects(); markUnsaved(); }
+  if (p) { p.cardType = type; renderProjects(); }
 };
+
+// ── SERVICES ──────────────────────────────────────────────────────────────────
+const LANGS = ['de', 'en', 'ru', 'fr', 'it'];
+const LANG_LABELS = { de: 'DE', en: 'EN', ru: 'RU', fr: 'FR', it: 'IT' };
+
+async function loadServices() {
+  try {
+    const res = await fetch(API_SERVICES);
+    if (res.ok) {
+      const data = await res.json();
+      servicesData = data;
+    }
+  } catch (_) {}
+  renderServices();
+}
+
+async function saveServices() {
+  try {
+    const res = await fetch(API_SERVICES, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: ADMIN_PASSWORD, services: servicesData.services }),
+    });
+    if (!res.ok) throw new Error();
+    showToast('Услуги сохранены ✓', 'success');
+    setStatus('Услуги сохранены ✓', 'success');
+  } catch {
+    showToast('Ошибка сохранения услуг', 'error');
+  }
+}
+
+function renderServices() {
+  const container = document.getElementById('servicesList');
+  if (!container) return;
+  const services = servicesData.services || [];
+
+  if (!services.length) {
+    container.innerHTML = '<div class="empty-state">Нет услуг</div>';
+    return;
+  }
+
+  container.innerHTML = services.map((svc, i) => renderServiceCard(svc, i)).join('');
+  attachServiceEvents(container);
+}
+
+function lv(obj, lang) {
+  if (!obj) return '';
+  return obj[lang] || obj['en'] || obj['de'] || Object.values(obj)[0] || '';
+}
+
+function renderServiceCard(svc, i) {
+  const lang = serviceActiveLang;
+  const langTabs = LANGS.map(l => `
+    <button class="lang-tab ${l === lang ? 'active' : ''}" data-svc-lang="${l}" data-svc-index="${i}">${LANG_LABELS[l]}</button>
+  `).join('');
+
+  const steps = (svc.steps || []).map((step, si) => `
+    <div class="step-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;align-items:start">
+      <input class="form-input svc-step-title" data-svc-index="${i}" data-step="${si}" data-lang="${lang}"
+        value="${esc(lv(step.title, lang))}" placeholder="Шаг ${si+1} заголовок">
+      <input class="form-input svc-step-desc" data-svc-index="${i}" data-step="${si}" data-lang="${lang}"
+        value="${esc(lv(step.desc, lang))}" placeholder="Описание">
+    </div>
+  `).join('');
+
+  const faqs = (svc.faq || []).map((faq, fi) => `
+    <div class="faq-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <input class="form-input svc-faq-q" data-svc-index="${i}" data-faq="${fi}" data-lang="${lang}"
+        value="${esc(lv(faq.q, lang))}" placeholder="Вопрос">
+      <input class="form-input svc-faq-a" data-svc-index="${i}" data-faq="${fi}" data-lang="${lang}"
+        value="${esc(lv(faq.a, lang))}" placeholder="Ответ">
+    </div>
+  `).join('');
+
+  return `
+    <div class="item-card ${svc.visible ? '' : 'hidden-item'}" data-svc-index="${i}">
+      <div class="item-card-head">
+        <span class="item-card-title">${esc(lv(svc.title, lang) || svc.id)}</span>
+        <div class="item-card-actions">
+          <button class="btn btn-ghost btn-sm svc-vis-btn" data-svc-index="${i}">${svc.visible ? 'Скрыть' : 'Показать'}</button>
+        </div>
+      </div>
+
+      <div class="lang-tabs" style="margin:12px 0 16px">${langTabs}</div>
+
+      <div class="item-fields">
+        <div class="form-group">
+          <label class="form-label">Название</label>
+          <input class="form-input svc-field" data-svc-index="${i}" data-field="title" data-lang="${lang}"
+            value="${esc(lv(svc.title, lang))}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Цена (число)</label>
+          <input class="form-input svc-price" data-svc-index="${i}" type="number"
+            value="${svc.price || ''}" placeholder="500">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Краткое описание (карточка)</label>
+          <input class="form-input svc-field" data-svc-index="${i}" data-field="shortDesc" data-lang="${lang}"
+            value="${esc(lv(svc.shortDesc, lang))}">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Подзаголовок (модал)</label>
+          <input class="form-input svc-field" data-svc-index="${i}" data-field="subtitle" data-lang="${lang}"
+            value="${esc(lv(svc.subtitle, lang))}">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Что получаете</label>
+          <textarea class="form-textarea svc-field" data-svc-index="${i}" data-field="whatText" data-lang="${lang}">${esc(lv(svc.whatText, lang))}</textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Примечание к цене / срок</label>
+          <input class="form-input svc-field" data-svc-index="${i}" data-field="priceNote" data-lang="${lang}"
+            value="${esc(lv(svc.priceNote, lang))}">
+        </div>
+
+        <div class="form-group full">
+          <label class="form-label" style="margin-bottom:8px">Шаги процесса (4 шага)</label>
+          ${steps}
+        </div>
+
+        <div class="form-group full">
+          <label class="form-label" style="margin-bottom:8px">FAQ (3 вопроса)</label>
+          ${faqs}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function attachServiceEvents(container) {
+  // Переключение языка в карточке
+  container.querySelectorAll('[data-svc-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      serviceActiveLang = btn.dataset.svcLang;
+      renderServices();
+    });
+  });
+
+  // Видимость
+  container.querySelectorAll('.svc-vis-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = +btn.dataset.svcIndex;
+      servicesData.services[i].visible = !servicesData.services[i].visible;
+      renderServices();
+    });
+  });
+
+  // Цена
+  container.querySelectorAll('.svc-price').forEach(el => {
+    el.addEventListener('input', e => {
+      const i = +e.target.dataset.svcIndex;
+      servicesData.services[i].price = +e.target.value || 0;
+    });
+  });
+
+  // Текстовые поля (title, shortDesc, subtitle, whatText, priceNote)
+  container.querySelectorAll('.svc-field').forEach(el => {
+    el.addEventListener('input', e => {
+      const i = +e.target.dataset.svcIndex;
+      const field = e.target.dataset.field;
+      const lang = e.target.dataset.lang;
+      if (!servicesData.services[i][field]) servicesData.services[i][field] = {};
+      servicesData.services[i][field][lang] = e.target.value;
+      if (field === 'title') {
+        e.target.closest('.item-card').querySelector('.item-card-title').textContent = e.target.value;
+      }
+    });
+  });
+
+  // Шаги
+  container.querySelectorAll('.svc-step-title, .svc-step-desc').forEach(el => {
+    el.addEventListener('input', e => {
+      const i = +e.target.dataset.svcIndex;
+      const si = +e.target.dataset.step;
+      const lang = e.target.dataset.lang;
+      const field = e.target.classList.contains('svc-step-title') ? 'title' : 'desc';
+      if (!servicesData.services[i].steps[si][field]) servicesData.services[i].steps[si][field] = {};
+      servicesData.services[i].steps[si][field][lang] = e.target.value;
+    });
+  });
+
+  // FAQ
+  container.querySelectorAll('.svc-faq-q, .svc-faq-a').forEach(el => {
+    el.addEventListener('input', e => {
+      const i = +e.target.dataset.svcIndex;
+      const fi = +e.target.dataset.faq;
+      const lang = e.target.dataset.lang;
+      const field = e.target.classList.contains('svc-faq-q') ? 'q' : 'a';
+      if (!servicesData.services[i].faq[fi][field]) servicesData.services[i].faq[fi][field] = {};
+      servicesData.services[i].faq[fi][field][lang] = e.target.value;
+    });
+  });
+}
+
+// Кнопка "Сохранить услуги"
+document.addEventListener('DOMContentLoaded', () => {
+  const saveBtn = document.getElementById('saveSvcBtn');
+  if (saveBtn) saveBtn.addEventListener('click', saveServices);
+});

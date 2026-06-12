@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kors Motion — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 <style>
 :root {
   --bg: #E8E4F4;
@@ -49,10 +48,9 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .header-actions{display:flex;gap:8px;align-items:center}
 
 /* Admin lang switcher */
-.admin-lang-btn .fi,.lang-tab .fi{width:20px;line-height:15px;border-radius:2px;flex-shrink:0}
 .admin-lang-switcher{display:flex;gap:4px;background:var(--bg-input);border:2px solid var(--border);
   border-radius:9px;padding:3px}
-.admin-lang-btn{display:inline-flex;align-items:center;padding:5px 12px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;
+.admin-lang-btn{padding:5px 12px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;
   border:none;cursor:pointer;background:transparent;color:var(--text-muted);transition:all .15s}
 .admin-lang-btn.active{background:var(--accent);color:#fff}
 .admin-lang-btn:hover:not(.active){background:var(--accent-dim);color:var(--accent)}
@@ -66,10 +64,6 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
   outline:none;transition:border-color .2s,box-shadow .2s}
 .form-input:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim);background:#fff}
 .form-textarea{resize:vertical;min-height:68px}
-.pw-wrap{position:relative}
-.pw-wrap .form-input{padding-right:40px}
-.pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:16px;padding:4px;line-height:1}
-.pw-toggle:hover{color:var(--accent)}
 
 /* Buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 18px;
@@ -168,11 +162,6 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .toast.error{border-color:rgba(220,38,38,.4);color:var(--danger)}
 
 .empty-state{text-align:center;padding:24px;color:var(--text-muted);font-size:13px}
-
-.upload-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:7px;font-size:12px;font-weight:600;background:var(--bg-input);border:2px solid var(--border);color:var(--text-muted);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit}
-.upload-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
-.input-with-upload{display:flex;gap:8px;align-items:center}
-.input-with-upload .form-input{flex:1;min-width:0}
 .card-type-toggle{display:flex;gap:6px;margin-top:8px}
 .card-type-btn{flex:1;padding:8px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;border:2px solid var(--border);background:#fff;color:var(--text-muted);cursor:pointer;transition:all .15s}
 .card-type-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -185,29 +174,16 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .video-play-btn.stop{background:rgba(220,38,38,.9)}
 
 /* Dashboard */
-.dash-layout{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:14px;align-items:stretch}
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.dash-card{background:var(--bg-input);border:2px solid var(--border);border-radius:14px;padding:12px 10px;text-align:center;transition:border-color .2s}
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dash-card{background:var(--bg-input);border:2px solid var(--border);border-radius:14px;padding:16px 14px;text-align:center;transition:border-color .2s}
 .dash-card:hover{border-color:rgba(124,58,237,.3)}
-.dash-icon{font-size:20px;margin-bottom:4px}
+.dash-icon{font-size:24px;margin-bottom:8px}
 .dash-val{font-size:28px;font-weight:800;color:var(--accent);line-height:1}
 .dash-val-sm{font-size:15px;font-weight:700;color:var(--text)}
 .dash-loading{color:var(--border) !important;animation:dash-pulse 1.2s infinite}
-.dash-label{font-size:11px;font-weight:600;color:var(--text-muted);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.dash-label{font-size:11px;font-weight:600;color:var(--text-muted);margin-top:6px;text-transform:uppercase;letter-spacing:.05em}
 @keyframes dash-pulse{0%,100%{opacity:.4}50%{opacity:1}}
-#weather-widget{min-height:220px;height:100%;border-radius:14px;overflow:hidden;position:relative;background:#1a1a2e}
-.weather-widget-bg{position:absolute;inset:0;background-size:cover;background-position:center}
-.weather-widget-overlay{position:relative;z-index:1;padding:16px;color:#fff;height:100%;min-height:220px;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(0,0,0,.25) 0%,rgba(0,0,0,.55) 100%)}
-.weather-widget-placeholder{display:flex;align-items:center;justify-content:center;height:100%;min-height:220px;color:rgba(255,255,255,.75);font-size:13px;font-weight:500;text-align:center;padding:16px}
-.weather-widget-location{font-size:12px;font-weight:600;opacity:.95;margin-bottom:2px}
-.weather-widget-temp{font-size:40px;font-weight:800;line-height:1.1;margin:4px 0}
-.weather-widget-desc{font-size:13px;text-transform:capitalize;opacity:.92}
-.weather-widget-meta{font-size:11px;opacity:.85;margin-top:8px}
-.weather-widget-forecast{display:flex;gap:4px;margin-top:auto;padding-top:14px;justify-content:space-between}
-.weather-forecast-day{flex:1;text-align:center;font-size:10px;font-weight:600;line-height:1.35}
-.weather-forecast-day .wf-emoji{font-size:16px;display:block;margin:2px 0}
-.weather-forecast-day .wf-temp{opacity:.9}
-@media(max-width:640px){.dash-layout{grid-template-columns:1fr}}
+@media(max-width:640px){.dash-grid{grid-template-columns:repeat(2,1fr)}}
 
 /* Video source tabs */
 .vsrc-tabs{display:flex;gap:4px;margin-bottom:0}
@@ -233,36 +209,6 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .cp-full-wrap{border-radius:10px;overflow:hidden;border:2px solid var(--border);height:100px}
 .cp-media-full{width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e,#0f3460);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative}
 
-/* Settings full-screen overlay */
-.settings-overlay{position:fixed;inset:0;z-index:1000;background:var(--bg);overflow-y:auto;
-  transform:translateX(100%);transition:transform .25s ease;pointer-events:none}
-.settings-overlay.open{transform:translateX(0);pointer-events:auto}
-.settings-inner{max-width:800px;margin:0 auto;padding:28px 24px 100px;width:100%}
-.settings-row{display:flex;align-items:center;gap:16px;padding:16px 0;border-bottom:2px solid var(--border)}
-.settings-row:last-child{border-bottom:none;padding-bottom:0}
-.settings-row:first-child{padding-top:0}
-.settings-row-label{flex:1;min-width:0}
-.settings-row-title{font-size:14px;font-weight:600}
-.settings-row-desc{font-size:12px;color:var(--text-muted);margin-top:2px}
-.settings-row-input{width:280px;flex-shrink:0}
-.settings-row-action{flex-shrink:0}
-.settings-inner .section{overflow:hidden;padding-right:16px}
-.settings-section-body{padding:0 4px}
-.settings-toggle-row{display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;gap:16px;padding:4px 0;border-bottom:none}
-.premium-toggle-input{opacity:0;position:absolute;width:0;height:0;pointer-events:none}
-.premium-toggle-track{position:relative;width:48px;height:26px;border-radius:13px;background:#D1C4E9;cursor:pointer;transition:all .25s ease;flex-shrink:0}
-.premium-toggle-track.is-on{background:var(--accent)}
-.premium-toggle-knob{position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;left:3px;top:3px;transition:all .25s ease;box-shadow:0 2px 4px rgba(0,0,0,.2)}
-.premium-toggle-track.is-on .premium-toggle-knob{left:25px}
-.weather-images-block{margin-top:20px;padding-top:20px;border-top:2px solid var(--border)}
-.weather-images-title{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
-.weather-images-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.weather-slot{background:var(--bg-input);border:2px solid var(--border);border-radius:12px;padding:12px;text-align:center}
-.weather-slot-label{font-size:12px;font-weight:700;margin-bottom:8px}
-.weather-slot-preview{margin:0 auto 10px;width:120px;height:80px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff;border:2px solid var(--border)}
-.weather-slot-img{width:120px;height:80px;border-radius:8px;object-fit:cover;display:block}
-.weather-slot-placeholder{font-size:11px;color:var(--text-muted);line-height:1.4;padding:8px}
-
 @media(max-width:640px){
   .item-card-body{grid-template-columns:1fr}
   .item-fields{grid-template-columns:1fr}
@@ -282,10 +228,7 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
     <form id="loginForm">
       <div class="form-group">
         <label class="form-label" for="password" data-ui="password">Password</label>
-        <div class="pw-wrap">
-          <input type="password" id="password" class="form-input" placeholder="Enter password" autocomplete="current-password" required>
-          <button type="button" class="pw-toggle" data-target="password" aria-label="Показать">👁</button>
-        </div>
+        <input type="password" id="password" class="form-input" placeholder="Enter password" autocomplete="current-password" required>
       </div>
       <button type="submit" class="btn btn-primary" style="width:100%" data-ui="signIn">Sign in</button>
       <p class="login-error" id="loginError" data-ui="wrongPassword">Incorrect password</p>
@@ -303,11 +246,10 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
       </div>
       <!-- Admin UI language switcher -->
       <div class="admin-lang-switcher">
-        <button class="admin-lang-btn" data-lang="ru"><span class="fi fi-ru"></span> RU</button>
-        <button class="admin-lang-btn" data-lang="de"><span class="fi fi-de"></span> DE</button>
-        <button class="admin-lang-btn active" data-lang="en"><span class="fi fi-gb"></span> EN</button>
+        <button class="admin-lang-btn" data-lang="ru">RU</button>
+        <button class="admin-lang-btn" data-lang="de">DE</button>
+        <button class="admin-lang-btn active" data-lang="en">EN</button>
       </div>
-      <button type="button" class="btn btn-ghost btn-sm" id="openSettingsModal" data-ui-title="settingsBtnTitle" title="Settings">⚙️</button>
     </div>
     <div class="header-actions">
       <a href="../index.html" class="btn btn-ghost btn-sm" target="_blank" data-ui="viewSite">View site ↗</a>
@@ -317,6 +259,20 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 
   <!-- Dashboard -->
   <div class="section" id="dashboardSection"></div>
+
+  <!-- Settings -->
+  <div class="section">
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label" data-ui="showDev">Show Development section</div>
+        <div class="toggle-desc" data-ui="showDevDesc">Shows Dev Apps link in navigation</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="showDevSection">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
 
   <!-- Portfolio -->
   <div class="section">
@@ -338,6 +294,22 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <div id="appsList"></div>
   </div>
+
+  <!-- Services -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Услуги</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="section-count" id="servicesCount">0</span>
+        <button class="btn btn-primary btn-sm" id="saveSvcBtn">💾 Сохранить услуги</button>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">
+      Редактируй тексты на всех 5 языках. Переключай язык внутри каждой карточки.
+      Нажми «Сохранить услуги» после изменений.
+    </p>
+    <div id="servicesList"></div>
+  </div>
 </div>
 
 <!-- SAVE BAR -->
@@ -347,87 +319,6 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 </div>
 
 <div class="toast" id="toast"></div>
-
-<!-- Settings full-screen overlay -->
-<div class="settings-overlay" id="settingsModal">
-  <div class="settings-inner">
-    <div class="header">
-      <div class="header-left">
-        <div class="header-logo">
-          <h1 data-ui="settingsTitle">Settings</h1>
-        </div>
-      </div>
-      <div class="header-actions">
-        <button type="button" class="btn btn-ghost btn-sm" id="closeSettingsModalBtn" data-ui="settingsClose">Close ✕</button>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head">
-        <div class="section-title" data-ui="integrationsTitle">Integrations</div>
-      </div>
-      <div class="settings-section-body">
-        <div class="settings-row">
-          <div class="settings-row-label">
-            <div class="settings-row-title" data-ui="githubToken">GitHub Token</div>
-            <div class="settings-row-desc" data-ui="githubDesc">For file upload to repository</div>
-          </div>
-          <div class="settings-row-input pw-wrap">
-            <input class="form-input" type="password" id="githubTokenInput" placeholder="ghp_..." autocomplete="off">
-            <button type="button" class="pw-toggle" data-target="githubTokenInput" aria-label="Показать">👁</button>
-          </div>
-          <div class="settings-row-action">
-            <button type="button" class="btn btn-primary btn-sm" id="saveGithubTokenBtn" data-ui="saveBtn">Save</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head">
-        <div class="section-title" data-ui="weatherTitle">Weather</div>
-      </div>
-      <div class="settings-section-body">
-        <div class="settings-row">
-          <div class="settings-row-label">
-            <div class="settings-row-title" data-ui="weatherApiKey">OpenWeatherMap API Key</div>
-            <div class="settings-row-desc" data-ui="weatherDesc">For the weather widget in Dashboard</div>
-          </div>
-          <div class="settings-row-input pw-wrap">
-            <input class="form-input" type="password" id="weatherKeyInput" placeholder="API key..." autocomplete="off">
-            <button type="button" class="pw-toggle" data-target="weatherKeyInput" aria-label="Показать">👁</button>
-          </div>
-          <div class="settings-row-action">
-            <button type="button" class="btn btn-primary btn-sm" id="saveWeatherKeyBtn" data-ui="saveBtn">Save</button>
-          </div>
-        </div>
-        <div class="weather-images-block">
-          <div class="weather-images-title" data-ui="weatherImages">Weather background images</div>
-          <div class="weather-images-grid" id="weatherImagesGrid"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head">
-        <div class="section-title" data-ui="generalTitle">General</div>
-      </div>
-      <div class="settings-section-body">
-        <div class="settings-row settings-toggle-row">
-          <div class="settings-row-label">
-            <div class="toggle-label" data-ui="showDev">Показать раздел «Разработка»</div>
-            <div class="toggle-desc" data-ui="showDevDesc">Показывает ссылку Dev Apps в навигации</div>
-          </div>
-          <input type="checkbox" id="showDevSection" class="premium-toggle-input">
-          <div class="premium-toggle-track" id="showDevSectionTrack" data-for="showDevSection" role="switch" tabindex="0" aria-checked="false">
-            <div class="premium-toggle-knob"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script src="admin.js"></script>
 </body>
 </html>
