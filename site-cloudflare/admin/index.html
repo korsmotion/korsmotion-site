@@ -333,8 +333,10 @@ body.calc-fullscreen-open{overflow:hidden}
 .calc-editor-notes-body .calc-notes-grow{flex:1;display:flex;flex-direction:column;min-height:120px}
 .calc-editor-notes-body .calc-notes-grow .form-textarea{flex:1;min-height:120px;resize:none}
 .calc-editor-notes-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;color:var(--text-muted);flex-shrink:0}
-.calc-price-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:12px}
-.calc-price-row .form-group{margin-bottom:0}
+.calc-price-compact{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.calc-price-input{width:120px;flex-shrink:0}
+.calc-currency-select{width:88px;flex-shrink:0}
+.calc-payment-select{min-width:160px;flex:1;max-width:220px}
 .calc-field-hint{font-size:11px;color:var(--text-muted);margin-top:4px}
 .calc-docs-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
 .calc-doc-list{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
@@ -640,7 +642,7 @@ body.calc-fullscreen-open{overflow:hidden}
   </div>
 </div>
 
-<script src="admin.js?v=9"></script>
+<script src="admin.js?v=10"></script>
 </body>
 </html>
 <!-- Video preview CSS - добавь в <style> в admin/index.html -->

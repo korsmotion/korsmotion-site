@@ -92,14 +92,14 @@ const UI = {
     calcGroupLabel: 'Название группы', calcActive: 'Активна', calcRequired: 'Обязательная',
     calcIcon: 'Иконка (emoji)', calcPrice: 'Внутренняя цена (CHF)', calcTitleField: 'Заголовок', calcDescField: 'Описание',
     calcTabOverview: 'Обзор', calcTabEditor: 'Редактор', calcTabGroups: 'Группы',
-    calcColNum: '#', calcColIcon: 'Иконка', calcColName: 'Название', calcColGroup: 'Группа', calcColPrice: 'Цена CHF',
+    calcColNum: '#', calcColIcon: 'Иконка', calcColName: 'Название', calcColGroup: 'Группа', calcColPrice: 'Цена',
     calcColType: 'Тип', calcColActive: 'Активна', calcColRequired: 'Обяз.', calcColActions: 'Действия',
     calcTotalOpts: 'Всего опций', calcTotalSum: 'Сумма', calcTotalCosts: 'Затраты', calcTotalMargin: 'Маржа',
     calcSave: 'Сохранить', calcSaveOption: 'Сохранить опцию', calcBackList: '← Назад к списку',
     calcNotesTitle: 'Внутренние заметки 🔒', calcNotesField: 'Заметки',
     calcDomainField: 'Где регистрируем домен', calcToolsField: 'Используемые инструменты', calcTimeField: 'Примерное время выполнения',
     calcInternalCost: 'Мои затраты (CHF)', calcInternalCostHint: 'Подрядчики, плагины, сервисы',
-    calcPriceChf: 'Цена CHF', calcPriceUsd: 'Цена USD', calcPriceEur: 'Цена EUR', calcPaymentType: 'Тип платежа',
+    calcPrice: 'Цена', calcCurrency: 'Валюта', calcPaymentType: 'Тип платежа',
     calcPayOneTime: 'Единоразово', calcPayMonthly: 'В месяц', calcPayYearly: 'В год',
     calcPayShortOne: 'разово', calcPayShortMonth: '/мес', calcPayShortYear: '/год',
     calcSearchPh: '🔍 Поиск по названию...', calcFilterGroup: 'Группа', calcFilterAll: 'Все',
@@ -167,14 +167,14 @@ const UI = {
     calcGroupLabel: 'Gruppenname', calcActive: 'Aktiv', calcRequired: 'Pflicht',
     calcIcon: 'Icon (Emoji)', calcPrice: 'Interner Preis (CHF)', calcTitleField: 'Titel', calcDescField: 'Beschreibung',
     calcTabOverview: 'Übersicht', calcTabEditor: 'Editor', calcTabGroups: 'Gruppen',
-    calcColNum: '#', calcColIcon: 'Icon', calcColName: 'Name', calcColGroup: 'Gruppe', calcColPrice: 'Preis CHF',
+    calcColNum: '#', calcColIcon: 'Icon', calcColName: 'Name', calcColGroup: 'Gruppe', calcColPrice: 'Preis',
     calcColType: 'Typ', calcColActive: 'Aktiv', calcColRequired: 'Pflicht', calcColActions: 'Aktionen',
     calcTotalOpts: 'Optionen gesamt', calcTotalSum: 'Summe', calcTotalCosts: 'Kosten', calcTotalMargin: 'Marge',
     calcSave: 'Speichern', calcSaveOption: 'Option speichern', calcBackList: '← Zurück zur Liste',
     calcNotesTitle: 'Interne Notizen 🔒', calcNotesField: 'Notizen',
     calcDomainField: 'Domain-Registrierung', calcToolsField: 'Verwendete Tools', calcTimeField: 'Geschätzte Dauer',
     calcInternalCost: 'Meine Kosten (CHF)', calcInternalCostHint: 'Auftragnehmer, Plugins, Services',
-    calcPriceChf: 'Preis CHF', calcPriceUsd: 'Preis USD', calcPriceEur: 'Preis EUR', calcPaymentType: 'Zahlungsart',
+    calcPrice: 'Preis', calcCurrency: 'Währung', calcPaymentType: 'Zahlungsart',
     calcPayOneTime: 'Einmalig', calcPayMonthly: 'Pro Monat', calcPayYearly: 'Pro Jahr',
     calcPayShortOne: 'einmal', calcPayShortMonth: '/Mon', calcPayShortYear: '/Jahr',
     calcSearchPh: '🔍 Suche...', calcFilterGroup: 'Gruppe', calcFilterAll: 'Alle',
@@ -242,14 +242,14 @@ const UI = {
     calcGroupLabel: 'Group label', calcActive: 'Active', calcRequired: 'Required',
     calcIcon: 'Icon (emoji)', calcPrice: 'Internal price (CHF)', calcTitleField: 'Title', calcDescField: 'Description',
     calcTabOverview: 'Overview', calcTabEditor: 'Editor', calcTabGroups: 'Groups',
-    calcColNum: '#', calcColIcon: 'Icon', calcColName: 'Name', calcColGroup: 'Group', calcColPrice: 'Price CHF',
+    calcColNum: '#', calcColIcon: 'Icon', calcColName: 'Name', calcColGroup: 'Group', calcColPrice: 'Price',
     calcColType: 'Type', calcColActive: 'Active', calcColRequired: 'Req.', calcColActions: 'Actions',
     calcTotalOpts: 'Total options', calcTotalSum: 'Sum', calcTotalCosts: 'Costs', calcTotalMargin: 'Margin',
     calcSave: 'Save', calcSaveOption: 'Save option', calcBackList: '← Back to list',
     calcNotesTitle: 'Internal notes 🔒', calcNotesField: 'Notes',
     calcDomainField: 'Domain registration', calcToolsField: 'Tools used', calcTimeField: 'Estimated time',
     calcInternalCost: 'My costs (CHF)', calcInternalCostHint: 'Contractors, plugins, services',
-    calcPriceChf: 'Price CHF', calcPriceUsd: 'Price USD', calcPriceEur: 'Price EUR', calcPaymentType: 'Payment type',
+    calcPrice: 'Price', calcCurrency: 'Currency', calcPaymentType: 'Payment type',
     calcPayOneTime: 'One-time', calcPayMonthly: 'Monthly', calcPayYearly: 'Yearly',
     calcPayShortOne: 'once', calcPayShortMonth: '/mo', calcPayShortYear: '/yr',
     calcSearchPh: '🔍 Search...', calcFilterGroup: 'Group', calcFilterAll: 'All',
@@ -2280,21 +2280,31 @@ function ensureCalcLangFields(obj) {
   return obj;
 }
 
-function calcPriceChf(price) {
-  if (price && typeof price === 'object') return parseInt(price.chf, 10) || 0;
-  return parseInt(price, 10) || 0;
+function calcPriceAmount(opt) {
+  if (!opt) return 0;
+  if (opt.price && typeof opt.price === 'object') {
+    return parseInt(opt.price.chf ?? opt.price.usd ?? opt.price.eur, 10) || 0;
+  }
+  return parseInt(opt.price, 10) || 0;
+}
+
+function calcPriceDisplay(opt) {
+  const amount = calcPriceAmount(opt);
+  const cur = (opt && opt.currency) || 'CHF';
+  return `${amount} ${cur}`;
 }
 
 function ensureCalcPrice(opt) {
-  if (typeof opt.price === 'number') {
-    opt.price = { chf: opt.price, usd: 0, eur: 0 };
-  } else if (!opt.price || typeof opt.price !== 'object') {
-    opt.price = { chf: 0, usd: 0, eur: 0 };
+  if (opt.price && typeof opt.price === 'object') {
+    const p = opt.price;
+    if (parseInt(p.chf, 10)) { opt.price = parseInt(p.chf, 10); opt.currency = opt.currency || 'CHF'; }
+    else if (parseInt(p.usd, 10)) { opt.price = parseInt(p.usd, 10); opt.currency = 'USD'; }
+    else if (parseInt(p.eur, 10)) { opt.price = parseInt(p.eur, 10); opt.currency = 'EUR'; }
+    else { opt.price = 0; opt.currency = opt.currency || 'CHF'; }
   }
-  ['chf', 'usd', 'eur'].forEach(k => {
-    if (opt.price[k] === undefined) opt.price[k] = 0;
-  });
-  return opt.price;
+  if (typeof opt.price !== 'number') opt.price = parseInt(opt.price, 10) || 0;
+  if (!opt.currency || !['CHF', 'USD', 'EUR'].includes(opt.currency)) opt.currency = 'CHF';
+  return opt;
 }
 
 function ensureCalcGroupFields(g) {
@@ -2349,7 +2359,7 @@ function calcTotalActiveSum() {
   let sum = 0;
   (calculatorData.groups || []).forEach(g => {
     (g.options || []).forEach(o => {
-      if (o.active !== false) sum += calcPriceChf(o.price);
+      if (o.active !== false) sum += calcPriceAmount(o);
     });
   });
   return sum;
@@ -2443,7 +2453,7 @@ function addCalcOption(targetGi) {
   const id = 'opt_' + Date.now();
   const opt = {
     id, active: true, required: false, icon: '📦',
-    price: { chf: 0, usd: 0, eur: 0 },
+    price: 0, currency: 'CHF',
     paymentType: 'one_time', internalCost: 0,
     title: { de: '', en: '', fr: '', it: '', ru: '' },
     desc: { de: '', en: '', fr: '', it: '', ru: '' },
@@ -2548,7 +2558,7 @@ function renderCalcOverview(t) {
           <td class="calc-icon-cell">${opt.icon || '📦'}</td>
           <td>${esc(name)}</td>
           <td>${esc(groupName)}</td>
-          <td>${calcPriceChf(opt.price)}</td>
+          <td>${esc(calcPriceDisplay(opt))}</td>
           <td>${esc(payShort)}</td>
           <td class="calc-toggle-cell">
             <input type="checkbox" class="calc-overview-active" data-gi="${gi}" data-oi="${oi}" ${opt.active !== false ? 'checked' : ''}>
@@ -2613,7 +2623,7 @@ function renderCalcEditor(t) {
   const { gi } = calcEditingRef;
   const lang = calcEditorLang;
   const groups = calculatorData.groups || [];
-  const price = opt.price;
+  const currency = opt.currency || 'CHF';
 
   const groupOptions = groups.map((g, i) =>
     `<option value="${i}"${i === gi ? ' selected' : ''}>${esc(calcLang(g.label, 'ru') || g.id)}</option>`
@@ -2642,27 +2652,18 @@ function renderCalcEditor(t) {
           <input class="form-input" id="calcEditorIcon" value="${esc(opt.icon || '')}" style="max-width:80px;font-size:22px;text-align:center">
           <div class="calc-emoji-grid">${emojiBtns}</div>
         </div>
-        <div class="calc-price-row">
-          <div class="form-group">
-            <label class="form-label">${esc(t.calcPriceChf)}</label>
-            <input type="number" class="form-input" id="calcEditorPriceChf" value="${calcPriceChf(price)}" min="0" step="50">
-          </div>
-          <div class="form-group">
-            <label class="form-label">${esc(t.calcPriceUsd)}</label>
-            <input type="number" class="form-input" id="calcEditorPriceUsd" value="${parseInt(price.usd, 10) || 0}" min="0" step="50">
-          </div>
-          <div class="form-group">
-            <label class="form-label">${esc(t.calcPriceEur)}</label>
-            <input type="number" class="form-input" id="calcEditorPriceEur" value="${parseInt(price.eur, 10) || 0}" min="0" step="50">
-          </div>
-          <div class="form-group">
-            <label class="form-label">${esc(t.calcPaymentType)}</label>
-            <select class="form-input" id="calcEditorPaymentType">
-              <option value="one_time"${opt.paymentType === 'one_time' || !opt.paymentType ? ' selected' : ''}>${esc(t.calcPayOneTime)}</option>
-              <option value="monthly"${opt.paymentType === 'monthly' ? ' selected' : ''}>${esc(t.calcPayMonthly)}</option>
-              <option value="yearly"${opt.paymentType === 'yearly' ? ' selected' : ''}>${esc(t.calcPayYearly)}</option>
-            </select>
-          </div>
+        <div class="calc-price-compact">
+          <input type="number" class="form-input calc-price-input" id="calcEditorPrice" value="${calcPriceAmount(opt)}" min="0" step="50" title="${esc(t.calcPrice)}">
+          <select class="form-input calc-currency-select" id="calcEditorCurrency" title="${esc(t.calcCurrency)}">
+            <option value="CHF"${currency === 'CHF' ? ' selected' : ''}>CHF</option>
+            <option value="USD"${currency === 'USD' ? ' selected' : ''}>USD</option>
+            <option value="EUR"${currency === 'EUR' ? ' selected' : ''}>EUR</option>
+          </select>
+          <select class="form-input calc-payment-select" id="calcEditorPaymentType" title="${esc(t.calcPaymentType)}">
+            <option value="one_time"${opt.paymentType === 'one_time' || !opt.paymentType ? ' selected' : ''}>${esc(t.calcPayOneTime)}</option>
+            <option value="monthly"${opt.paymentType === 'monthly' ? ' selected' : ''}>${esc(t.calcPayMonthly)}</option>
+            <option value="yearly"${opt.paymentType === 'yearly' ? ' selected' : ''}>${esc(t.calcPayYearly)}</option>
+          </select>
         </div>
         <div style="display:flex;gap:20px;margin-bottom:16px;flex-wrap:wrap">
           <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600">
@@ -2797,9 +2798,8 @@ function snapshotCalcEditorFields() {
   if (!opt || calcActiveTab !== 'editor') return;
   const lang = calcEditorLang;
   const icon = document.getElementById('calcEditorIcon');
-  const priceChf = document.getElementById('calcEditorPriceChf');
-  const priceUsd = document.getElementById('calcEditorPriceUsd');
-  const priceEur = document.getElementById('calcEditorPriceEur');
+  const priceEl = document.getElementById('calcEditorPrice');
+  const currencyEl = document.getElementById('calcEditorCurrency');
   const paymentType = document.getElementById('calcEditorPaymentType');
   const active = document.getElementById('calcEditorActive');
   const required = document.getElementById('calcEditorRequired');
@@ -2813,10 +2813,8 @@ function snapshotCalcEditorFields() {
   const time = document.getElementById('calcEditorTime');
 
   if (icon) opt.icon = icon.value;
-  ensureCalcPrice(opt);
-  if (priceChf) opt.price.chf = parseInt(priceChf.value, 10) || 0;
-  if (priceUsd) opt.price.usd = parseInt(priceUsd.value, 10) || 0;
-  if (priceEur) opt.price.eur = parseInt(priceEur.value, 10) || 0;
+  if (priceEl) opt.price = parseInt(priceEl.value, 10) || 0;
+  if (currencyEl) opt.currency = currencyEl.value || 'CHF';
   if (paymentType) opt.paymentType = paymentType.value;
   if (active) opt.active = active.checked;
   if (required) opt.required = required.checked;
@@ -3034,7 +3032,7 @@ function bindCalculatorAdminEvents(container) {
       }
     });
   });
-  ['calcEditorIcon', 'calcEditorPriceChf', 'calcEditorPriceUsd', 'calcEditorPriceEur', 'calcEditorPaymentType',
+  ['calcEditorIcon', 'calcEditorPrice', 'calcEditorCurrency', 'calcEditorPaymentType',
     'calcEditorActive', 'calcEditorRequired', 'calcEditorGroup', 'calcEditorTitle', 'calcEditorDesc',
     'calcEditorNotes', 'calcEditorInternalCost', 'calcEditorDomain', 'calcEditorTools', 'calcEditorTime'
   ].forEach(id => {
