@@ -168,7 +168,6 @@ const CATEGORIES = [
   { id: 'motion', label: { ru: 'Моушн-дизайн', de: 'Motion Design', en: 'Motion Design' }, icon: '🎬' },
   { id: 'graphic', label: { ru: 'Графический дизайн', de: 'Grafik Design', en: 'Graphic Design' }, icon: '🎨' },
   { id: 'web', label: { ru: 'Веб', de: 'Web', en: 'Web' }, icon: '🌐' },
-  { id: 'app', label: { ru: 'Разработка', de: 'App Dev', en: 'App Dev' }, icon: '📱' },
 ];
 
 let adminLang = localStorage.getItem('korsmotion_admin_lang') || 'ru';
@@ -519,6 +518,20 @@ window.uploadWeatherImage = function(weatherId) {
     } catch (_) {}
   }, WEATHER_IMAGE_ACCEPT);
 };
+
+window.uploadAppIcon = function(appIndex) {
+  const app = settingsData.apps[appIndex];
+  if (!app) return;
+  const appId = app.id || `app_${appIndex}`;
+  pickMediaFile(async (file) => {
+    try {
+      await uploadImageToGitHub(file, `site-cloudflare/images/apps/${appId}/icon.png`);
+      app.icon = `images/apps/${appId}/icon.png`;
+      renderApps();
+    } catch (_) {}
+  }, 'image/*');
+};
+
 function syncPremiumToggle(inputId) {
   const input = document.getElementById(inputId);
   const track = document.getElementById(inputId + 'Track');
@@ -1183,8 +1196,9 @@ function renderApps() {
     const collapsed = isAppCardCollapsed(appId);
     const appLang = activeAppLangTab[i] || 'en';
     const iconUrl = a.icon || '';
-    const iconHtml = iconUrl
-      ? `<img src="${esc(iconUrl)}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)">`
+    const iconPreviewSrc = iconUrl ? adminAssetUrl(iconUrl) : '';
+    const iconHtml = iconPreviewSrc
+      ? `<img src="${esc(iconPreviewSrc)}" alt="" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--border)">`
       : `<div style="width:64px;height:64px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div>`;
 
     return `
@@ -1211,7 +1225,10 @@ function renderApps() {
             </div>
             <div class="form-group" style="grid-column:1/-1">
               <label class="form-label">Иконка (путь)</label>
-              <input class="form-input app-field" data-index="${i}" data-field="icon" value="${esc(a.icon || '')}" placeholder="images/apps/appname/icon.png">
+              <div style="display:flex;gap:8px;align-items:center">
+                <input class="form-input app-field" data-index="${i}" data-field="icon" value="${esc(a.icon || '')}" placeholder="images/apps/${esc(appId)}/icon.png" style="flex:1">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="uploadAppIcon(${i})">${t.uploadBtn}</button>
+              </div>
             </div>
           </div>
         </div>
