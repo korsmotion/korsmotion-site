@@ -703,7 +703,7 @@ async function loadWeatherWidget() {
     const forecastHtml = forecastDays.length
       ? forecastDays.map(d => `
           <div class="weather-forecast-day">
-            <span class="wf-day">${d.dayNum}/${esc(d.day)}</span>
+            <span class="wf-day">${esc(d.day)}/${d.dayNum}</span>
             <span class="wf-emoji">${d.emoji}</span>
             <span class="wf-temp">${d.max}°/${d.min}°</span>
           </div>`).join('')
