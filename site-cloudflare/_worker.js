@@ -28,27 +28,18 @@ function siteHosts(site) {
 }
 
 async function fetchSiteTag(cfApiToken) {
-  const endpoints = [
+  const sitesResp = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/rum/site_info/list`,
-    `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/web-analytics/sites`,
-  ];
-  let lastError = 'No Web Analytics site found';
-
-  for (const url of endpoints) {
-    const sitesResp = await fetch(url, {
-      headers: { Authorization: `Bearer ${cfApiToken}` },
-    });
-    const sitesJson = await sitesResp.json();
-    if (!sitesResp.ok || sitesJson.success === false) {
-      lastError = sitesJson.errors?.[0]?.message || `Sites API ${sitesResp.status}`;
-      continue;
-    }
-    const sites = sitesJson.result || [];
-    const site = sites.find(s => siteHosts(s).includes('korsmotion')) || sites[0];
-    if (site?.site_tag) return site.site_tag;
+    { headers: { Authorization: `Bearer ${cfApiToken}` } }
+  );
+  const sitesJson = await sitesResp.json();
+  if (!sitesResp.ok || sitesJson.success === false) {
+    throw new Error(sitesJson.errors?.[0]?.message || `Sites API ${sitesResp.status}`);
   }
-
-  throw new Error(lastError);
+  const sites = sitesJson.result || [];
+  const site = sites.find(s => siteHosts(s).includes('korsmotion')) || sites[0];
+  if (!site?.site_tag) throw new Error('No Web Analytics site found');
+  return site.site_tag;
 }
 
 async function getCfAnalytics(cfApiToken) {
@@ -151,24 +142,22 @@ export default {
       return json({ ok: true });
     }
 
-    // GET /api/analytics — DEBUG: raw Cloudflare sites API response
+    // GET /api/analytics — Cloudflare Web Analytics (RUM) via GraphQL
     if (url.pathname === '/api/analytics' && request.method === 'GET') {
       const auth = request.headers.get('X-Admin-Password');
       if (auth !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
 
-      if (!env.CF_API_TOKEN) {
-        return json({ debug: true, error: 'CF_API_TOKEN not set' }, 503);
+      const cfApiToken = env.CF_API_TOKEN;
+      if (!cfApiToken) {
+        return json({
+          error: 'CF_API_TOKEN not set in Cloudflare Pages → Settings → Environment variables',
+        }, 503);
       }
 
       try {
-        const sitesResp = await fetch(
-          `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/web-analytics/sites`,
-          { headers: { Authorization: `Bearer ${env.CF_API_TOKEN}` } }
-        );
-        const sitesJson = await sitesResp.json();
-        return json({ debug: true, sites: sitesJson });
+        return json(await getCfAnalytics(cfApiToken));
       } catch (e) {
-        return json({ debug: true, error: e.message }, 500);
+        return json({ error: e.message }, 500);
       }
     }
 
