@@ -739,37 +739,35 @@ async function renderDashboard() {
 
   el.innerHTML = `
     <div class="dash-board">
-      <div class="dash-stats">
-        <div class="dash-card">
-          <div class="dash-icon">📁</div>
-          <div class="dash-val">${projects}</div>
-          <div class="dash-label">${t.dashProjects}</div>
-        </div>
-        <div class="dash-card">
-          <div class="dash-icon">📱</div>
-          <div class="dash-val">${apps}</div>
-          <div class="dash-label">${t.dashApps}</div>
-        </div>
-        <div class="dash-card">
-          <div class="dash-icon">💾</div>
-          <div class="dash-val dash-val-sm">${esc(lastSaved)}</div>
-          <div class="dash-label">${t.dashLastSaved}</div>
-        </div>
-        <div class="dash-card" id="dash-today">
-          <div class="dash-icon">👁</div>
-          <div class="dash-val dash-loading">…</div>
-          <div class="dash-label">${t.dashViewsToday}</div>
-        </div>
-        <div class="dash-card" id="dash-week">
-          <div class="dash-icon">📈</div>
-          <div class="dash-val dash-loading">…</div>
-          <div class="dash-label">${t.dashWeek}</div>
-        </div>
-        <div class="dash-card" id="dash-month">
-          <div class="dash-icon">🗓</div>
-          <div class="dash-val dash-loading">…</div>
-          <div class="dash-label">${t.dashMonth}</div>
-        </div>
+      <div class="dash-card">
+        <div class="dash-icon">📁</div>
+        <div class="dash-val">${projects}</div>
+        <div class="dash-label">${t.dashProjects}</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">📱</div>
+        <div class="dash-val">${apps}</div>
+        <div class="dash-label">${t.dashApps}</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">💾</div>
+        <div class="dash-val dash-val-sm">${esc(lastSaved)}</div>
+        <div class="dash-label">${t.dashLastSaved}</div>
+      </div>
+      <div class="dash-card" id="dash-today">
+        <div class="dash-icon">👁</div>
+        <div class="dash-val dash-loading">…</div>
+        <div class="dash-label">${t.dashViewsToday}</div>
+      </div>
+      <div class="dash-card" id="dash-week">
+        <div class="dash-icon">📈</div>
+        <div class="dash-val dash-loading">…</div>
+        <div class="dash-label">${t.dashWeek}</div>
+      </div>
+      <div class="dash-card" id="dash-month">
+        <div class="dash-icon">🗓</div>
+        <div class="dash-val dash-loading">…</div>
+        <div class="dash-label">${t.dashMonth}</div>
       </div>
       <div id="weather-widget"></div>
     </div>`;
