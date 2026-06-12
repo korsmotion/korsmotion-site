@@ -62,52 +62,51 @@ export default {
       return json({ ok: true });
     }
 
-    // GET /api/analytics — proxy to Cloudflare Analytics API
+    // GET /api/analytics — Cloudflare Web Analytics via GraphQL
     if (url.pathname === '/api/analytics' && request.method === 'GET') {
-      // Verify admin password from header
       const auth = request.headers.get('X-Admin-Password');
       if (auth !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
-
-      const now = new Date();
-      const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      const since7  = new Date(now - 7  * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      const today   = now.toISOString().split('T')[0];
-
-      const query = `{
-        viewer {
-          accounts(filter: { accountTag: "${CF_ACCOUNT_ID}" }) {
-            total: pageviewsAdaptiveGroups(
-              filter: { date_geq: "${since30}", date_leq: "${today}" }
-              limit: 1
-            ) { sum { pageViews } }
-            week: pageviewsAdaptiveGroups(
-              filter: { date_geq: "${since7}", date_leq: "${today}" }
-              limit: 1
-            ) { sum { pageViews } }
-            todayViews: pageviewsAdaptiveGroups(
-              filter: { date_geq: "${today}", date_leq: "${today}" }
-              limit: 1
-            ) { sum { pageViews } }
-            visitors30: visitorsAdaptiveGroups(
-              filter: { date_geq: "${since30}", date_leq: "${today}" }
-              limit: 1
-            ) { sum { visits } }
-            visitors7: visitorsAdaptiveGroups(
-              filter: { date_geq: "${since7}", date_leq: "${today}" }
-              limit: 1
-            ) { sum { visits } }
-          }
-        }
-      }`;
 
       const cfApiToken = env.CF_API_TOKEN;
       if (!cfApiToken) return json({ error: 'Analytics not configured' }, 503);
 
       try {
+        const sitesResp = await fetch(
+          `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/web-analytics/sites`,
+          { headers: { Authorization: `Bearer ${cfApiToken}` } }
+        );
+        const sitesData = await sitesResp.json();
+        const siteTag = sitesData.result?.[0]?.site_tag;
+        if (!siteTag) return json({ error: 'No Web Analytics site found' }, 404);
+
+        const now = new Date();
+        const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const since7 = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const today = now.toISOString().split('T')[0];
+
+        const query = `{
+          viewer {
+            accounts(filter: { accountTag: "${CF_ACCOUNT_ID}" }) {
+              total: rumWebsitesAdaptiveGroups(
+                filter: { siteTag: "${siteTag}", date_geq: "${since30}", date_leq: "${today}" }
+                limit: 1
+              ) { sum { pageViews visits } }
+              week: rumWebsitesAdaptiveGroups(
+                filter: { siteTag: "${siteTag}", date_geq: "${since7}", date_leq: "${today}" }
+                limit: 1
+              ) { sum { pageViews visits } }
+              todayViews: rumWebsitesAdaptiveGroups(
+                filter: { siteTag: "${siteTag}", date_geq: "${today}", date_leq: "${today}" }
+                limit: 1
+              ) { sum { pageViews visits } }
+            }
+          }
+        }`;
+
         const resp = await fetch('https://api.cloudflare.com/client/v4/graphql', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${cfApiToken}`,
+            Authorization: `Bearer ${cfApiToken}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ query }),
