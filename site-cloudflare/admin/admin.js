@@ -56,8 +56,19 @@ const UI = {
     generalTitle: 'Основные', saveBtn: 'Сохранить', uploadBtn: '📁 Загрузить',
     weatherNoApiKey: 'Укажи API ключ в Настройках ⚙️', weatherLoading: 'Загрузка погоды…',
     weatherError: 'Не удалось загрузить погоду', weatherToday: 'Сегодня',
-    servicesTitle: 'Услуги', saveServicesBtn: '💾 Сохранить услуги',
-    servicesDesc: 'Редактируй тексты на всех 5 языках. Переключай язык внутри каждой карточки. Нажми «Сохранить услуги» после изменений.'
+    svcFieldTitle: 'НАЗВАНИЕ',
+    svcFieldPrice: 'ЦЕНА (ЧИСЛО)',
+    svcFieldShortDesc: 'КРАТКОЕ ОПИСАНИЕ (КАРТОЧКА)',
+    svcFieldSubtitle: 'ПОДЗАГОЛОВОК (МОДАЛ)',
+    svcFieldWhat: 'ЧТО ПОЛУЧАЕТЕ',
+    svcFieldPriceNote: 'ПРИМЕЧАНИЕ К ЦЕНЕ / СРОК',
+    svcFieldSteps: 'ШАГИ ПРОЦЕССА (4 ШАГА)',
+    svcFieldFaq: 'FAQ (3 ВОПРОСА)',
+    svcHide: 'Скрыть',
+    svcShow: 'Показать',
+    svcSave: '💾 Сохранить услуги',
+    svcCount: 'Услуги',
+    svcDesc: 'Редактируй тексты на всех 5 языках. Переключай язык внутри каждой карточки. Нажми «Сохранить услуги» после изменений.'
   },
   de: {
     adminTitle: 'Admin-Panel', viewSite: 'Website ansehen', logout: 'Abmelden',
@@ -85,8 +96,19 @@ const UI = {
     generalTitle: 'Allgemein', saveBtn: 'Speichern', uploadBtn: '📁 Hochladen',
     weatherNoApiKey: 'API-Schlüssel in Einstellungen ⚙️ angeben', weatherLoading: 'Wetter wird geladen…',
     weatherError: 'Wetter konnte nicht geladen werden', weatherToday: 'Heute',
-    servicesTitle: 'Dienstleistungen', saveServicesBtn: '💾 Dienste speichern',
-    servicesDesc: 'Texte in allen 5 Sprachen bearbeiten. Sprache in jeder Karte wechseln. Nach Änderungen «Dienste speichern» klicken.'
+    svcFieldTitle: 'NAME',
+    svcFieldPrice: 'PREIS (ZAHL)',
+    svcFieldShortDesc: 'KURZBESCHREIBUNG (KARTE)',
+    svcFieldSubtitle: 'UNTERTITEL (MODAL)',
+    svcFieldWhat: 'WAS SIE ERHALTEN',
+    svcFieldPriceNote: 'PREISHINWEIS / DAUER',
+    svcFieldSteps: 'PROZESSSCHRITTE (4 SCHRITTE)',
+    svcFieldFaq: 'FAQ (3 FRAGEN)',
+    svcHide: 'Verbergen',
+    svcShow: 'Anzeigen',
+    svcSave: '💾 Dienste speichern',
+    svcCount: 'Dienstleistungen',
+    svcDesc: 'Texte in allen 5 Sprachen bearbeiten. Sprache in jeder Karte wechseln. Nach Änderungen «Dienste speichern» klicken.'
   },
   en: {
     adminTitle: 'Admin Panel', viewSite: 'View site', logout: 'Logout',
@@ -114,8 +136,19 @@ const UI = {
     generalTitle: 'General', saveBtn: 'Save', uploadBtn: '📁 Upload',
     weatherNoApiKey: 'Set API key in Settings ⚙️', weatherLoading: 'Loading weather…',
     weatherError: 'Failed to load weather', weatherToday: 'Today',
-    servicesTitle: 'Services', saveServicesBtn: '💾 Save services',
-    servicesDesc: 'Edit texts in all 5 languages. Switch language inside each card. Click «Save services» after changes.'
+    svcFieldTitle: 'TITLE',
+    svcFieldPrice: 'PRICE (NUMBER)',
+    svcFieldShortDesc: 'SHORT DESCRIPTION (CARD)',
+    svcFieldSubtitle: 'SUBTITLE (MODAL)',
+    svcFieldWhat: 'WHAT YOU GET',
+    svcFieldPriceNote: 'PRICE NOTE / DURATION',
+    svcFieldSteps: 'PROCESS STEPS (4 STEPS)',
+    svcFieldFaq: 'FAQ (3 QUESTIONS)',
+    svcHide: 'Hide',
+    svcShow: 'Show',
+    svcSave: '💾 Save services',
+    svcCount: 'Services',
+    svcDesc: 'Edit texts in all 5 languages. Switch language inside each card. Click «Save services» after changes.'
   }
 };
 
@@ -1305,6 +1338,7 @@ function serviceCardId(svc, i) {
 }
 
 function renderServiceCard(svc, i) {
+  const t = u();
   const lang = serviceActiveLang;
   const svcId = serviceCardId(svc, i);
   const isCollapsed = isServiceCardCollapsed(svcId);
@@ -1336,7 +1370,7 @@ function renderServiceCard(svc, i) {
         <button type="button" class="item-card-chevron ${isCollapsed ? '' : 'open'}" onclick="event.stopPropagation();toggleServiceCard('${esc(svcId)}')" aria-label="Toggle">▾</button>
         <span class="item-card-title">${esc(lv(svc.title, lang) || svc.id)}</span>
         <div class="item-card-actions">
-          <button class="btn btn-ghost btn-sm svc-vis-btn" data-svc-index="${i}">${svc.visible !== false ? 'Скрыть' : 'Показать'}</button>
+          <button class="btn btn-ghost btn-sm svc-vis-btn" data-svc-index="${i}">${svc.visible !== false ? t.svcHide : t.svcShow}</button>
         </div>
       </div>
 
@@ -1345,42 +1379,42 @@ function renderServiceCard(svc, i) {
 
       <div class="item-fields">
         <div class="form-group">
-          <label class="form-label">Название</label>
+          <label class="form-label">${t.svcFieldTitle}</label>
           <input class="form-input svc-field" data-svc-index="${i}" data-field="title" data-lang="${lang}"
             value="${esc(lv(svc.title, lang))}">
         </div>
         <div class="form-group">
-          <label class="form-label">Цена (число)</label>
+          <label class="form-label">${t.svcFieldPrice}</label>
           <input class="form-input svc-price" data-svc-index="${i}" type="number"
             value="${svc.price || ''}" placeholder="500">
         </div>
         <div class="form-group full">
-          <label class="form-label">Краткое описание (карточка)</label>
+          <label class="form-label">${t.svcFieldShortDesc}</label>
           <input class="form-input svc-field" data-svc-index="${i}" data-field="shortDesc" data-lang="${lang}"
             value="${esc(lv(svc.shortDesc, lang))}">
         </div>
         <div class="form-group full">
-          <label class="form-label">Подзаголовок (модал)</label>
+          <label class="form-label">${t.svcFieldSubtitle}</label>
           <input class="form-input svc-field" data-svc-index="${i}" data-field="subtitle" data-lang="${lang}"
             value="${esc(lv(svc.subtitle, lang))}">
         </div>
         <div class="form-group full">
-          <label class="form-label">Что получаете</label>
+          <label class="form-label">${t.svcFieldWhat}</label>
           <textarea class="form-textarea svc-field" data-svc-index="${i}" data-field="whatText" data-lang="${lang}">${esc(lv(svc.whatText, lang))}</textarea>
         </div>
         <div class="form-group full">
-          <label class="form-label">Примечание к цене / срок</label>
+          <label class="form-label">${t.svcFieldPriceNote}</label>
           <input class="form-input svc-field" data-svc-index="${i}" data-field="priceNote" data-lang="${lang}"
             value="${esc(lv(svc.priceNote, lang))}">
         </div>
 
         <div class="form-group full">
-          <label class="form-label" style="margin-bottom:8px">Шаги процесса (4 шага)</label>
+          <label class="form-label" style="margin-bottom:8px">${t.svcFieldSteps}</label>
           ${steps}
         </div>
 
         <div class="form-group full">
-          <label class="form-label" style="margin-bottom:8px">FAQ (3 вопроса)</label>
+          <label class="form-label" style="margin-bottom:8px">${t.svcFieldFaq}</label>
           ${faqs}
         </div>
       </div>
