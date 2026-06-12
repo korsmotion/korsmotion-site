@@ -967,11 +967,11 @@ function renderAllReviewsModal(sorted) {
   const featured = document.getElementById('allReviewsFeatured');
   const older = document.getElementById('allReviewsOlder');
   if (countEl) countEl.textContent = String(sorted.length);
-  const top10 = sorted.slice(0, 10);
-  const rest = sorted.slice(10);
+  const top9 = sorted.slice(0, 9);
+  const rest = sorted.slice(9);
   if (featured) {
-    featured.innerHTML = top10.length
-      ? `<div class="all-reviews-featured-grid">${top10.map(r => buildReviewCardHtml(r)).join('')}</div>`
+    featured.innerHTML = top9.length
+      ? `<div class="all-reviews-featured-grid">${top9.map(r => buildReviewCardHtml(r)).join('')}</div>`
       : '';
   }
   if (older) {
