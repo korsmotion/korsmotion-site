@@ -644,17 +644,6 @@ function getWeatherBgUrl(imageId) {
   return adminAssetUrl('images/weather/' + imageId + '.png');
 }
 
-function enOrdinalDay(n) {
-  const words = {
-    1: 'first', 2: 'second', 3: 'third', 4: 'fourth', 5: 'fifth', 6: 'sixth', 7: 'seventh', 8: 'eighth', 9: 'ninth', 10: 'tenth',
-    11: 'eleventh', 12: 'twelfth', 13: 'thirteenth', 14: 'fourteenth', 15: 'fifteenth', 16: 'sixteenth', 17: 'seventeenth',
-    18: 'eighteenth', 19: 'nineteenth', 20: 'twentieth', 21: 'twenty-first', 22: 'twenty-second', 23: 'twenty-third',
-    24: 'twenty-fourth', 25: 'twenty-fifth', 26: 'twenty-sixth', 27: 'twenty-seventh', 28: 'twenty-eighth',
-    29: 'twenty-ninth', 30: 'thirtieth', 31: 'thirty-first',
-  };
-  return words[n] || String(n);
-}
-
 function getWeatherDateDisplay() {
   const now = new Date();
   const day = now.getDate();
@@ -669,17 +658,15 @@ function getWeatherDateDisplay() {
   const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const lang = adminLang || 'ru';
   const dayList = weekdays[lang] || weekdays.en;
-  let dateStr;
-  if (lang === 'ru') {
-    dateStr = `${day} ${monthsRuGen[month]}`;
-  } else if (lang === 'de') {
-    dateStr = `${day}. ${monthsDe[month]}`;
-  } else {
-    dateStr = `${enOrdinalDay(day)} of ${monthsEn[month]}`;
-  }
+  const weekday = dayList[now.getDay()];
+  const weekdayLabel = lang === 'ru' ? weekday.toLowerCase() : weekday;
+  let monthStr;
+  if (lang === 'ru') monthStr = monthsRuGen[month];
+  else if (lang === 'de') monthStr = monthsDe[month];
+  else monthStr = monthsEn[month];
   return {
-    dayName: dayList[now.getDay()],
-    dateStr,
+    dateLine: `${day} / ${weekdayLabel}`,
+    monthStr,
   };
 }
 
@@ -722,7 +709,7 @@ async function loadWeatherWidget() {
             <span class="wf-temp">${d.max}°/${d.min}°</span>
           </div>`).join('')
       : '';
-    const { dayName, dateStr } = getWeatherDateDisplay();
+    const { dateLine, monthStr } = getWeatherDateDisplay();
 
     widget.innerHTML = `
       <div class="weather-widget-bg" style="background-image:url('${esc(bgUrl)}')"></div>
@@ -730,8 +717,8 @@ async function loadWeatherWidget() {
         <div class="weather-widget-header">
           <div class="weather-widget-location">📍 Bischofszell</div>
           <div class="weather-widget-date">
-            <span class="weather-widget-dayname">${esc(dayName)}</span>
-            <span class="weather-widget-datestr">${esc(dateStr)}</span>
+            <span class="weather-widget-dateline">${esc(dateLine)}</span>
+            <span class="weather-widget-month">${esc(monthStr)}</span>
           </div>
         </div>
         <div class="weather-widget-body">
