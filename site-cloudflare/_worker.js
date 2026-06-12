@@ -24,6 +24,9 @@ async function getCfAnalytics(cfApiToken) {
     { headers: { Authorization: `Bearer ${cfApiToken}` } }
   );
   const sitesJson = await sitesResp.json();
+  if (!sitesResp.ok || sitesJson.success === false) {
+    throw new Error(sitesJson.errors?.[0]?.message || 'Failed to fetch Web Analytics sites');
+  }
   const sites = sitesJson.result || [];
   const siteTag = sites.find(s => {
     const host = `${s.host || ''} ${s.site_host || ''}`.toLowerCase();
@@ -34,29 +37,26 @@ async function getCfAnalytics(cfApiToken) {
   }
 
   const now = new Date();
-  const todayStart = new Date(Date.UTC(
-    now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()
-  )).toISOString();
-  const nowIso = now.toISOString();
-  const since7 = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const today = now.toISOString().split('T')[0];
+  const since7 = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
   const query = `
-    query RumDashboard($acct: string!, $site: string!, $todayStart: Time!, $now: Time!, $since7: Time!, $since30: Time!) {
+    query RumDashboard($acct: string!, $site: string!, $today: string!, $since7: string!, $since30: string!) {
       viewer {
         accounts(filter: { accountTag: $acct }) {
           todayViews: rumPageloadEventsAdaptiveGroups(
-            filter: { siteTag: $site, datetime_geq: $todayStart, datetime_leq: $now }
+            filter: { siteTag: $site, date_geq: $today, date_leq: $today }
             limit: 1
-          ) { count sum { pageViews visits } }
+          ) { count sum { visits } }
           week: rumPageloadEventsAdaptiveGroups(
-            filter: { siteTag: $site, datetime_geq: $since7, datetime_leq: $now }
+            filter: { siteTag: $site, date_geq: $since7, date_leq: $today }
             limit: 1
-          ) { count sum { pageViews visits } }
+          ) { count sum { visits } }
           total: rumPageloadEventsAdaptiveGroups(
-            filter: { siteTag: $site, datetime_geq: $since30, datetime_leq: $now }
+            filter: { siteTag: $site, date_geq: $since30, date_leq: $today }
             limit: 1
-          ) { count sum { pageViews visits } }
+          ) { count sum { visits } }
         }
       }
     }`;
@@ -72,8 +72,7 @@ async function getCfAnalytics(cfApiToken) {
       variables: {
         acct: CF_ACCOUNT_ID,
         site: siteTag,
-        todayStart,
-        now: nowIso,
+        today,
         since7,
         since30,
       },

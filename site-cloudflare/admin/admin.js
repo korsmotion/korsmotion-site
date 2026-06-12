@@ -889,7 +889,7 @@ async function renderDashboard() {
     const rumViews = (group) => {
       const row = group?.[0];
       if (!row) return 0;
-      const n = row.sum?.pageViews ?? row.sum?.visits ?? row.count;
+      const n = row.count ?? row.sum?.visits;
       return n != null ? n : 0;
     };
     if (!acc) throw new Error('No analytics data');
@@ -899,7 +899,8 @@ async function renderDashboard() {
       rumViews(acc.week),
       rumViews(acc.total)
     );
-  } catch (_) {
+  } catch (err) {
+    console.warn('Analytics:', err?.message || err);
     setDashViews('—', '—', '—');
   }
 }
