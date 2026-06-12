@@ -26,6 +26,7 @@ const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, portfolio: true, devApps: 
 const CAT_COLLAPSE_PREFIX = 'korsmotion_cat_collapsed_';
 const PROJECT_CARD_COLLAPSE_PREFIX = 'korsmotion_proj_collapsed_';
 const APP_CARD_COLLAPSE_PREFIX = 'korsmotion_appcard_collapsed_';
+const SERVICE_CARD_COLLAPSE_PREFIX = 'korsmotion_svc_collapsed_';
 
 // ── Admin UI translations ─────────────────────────────────────────────────────
 const UI = {
@@ -173,6 +174,7 @@ function ensureUiSettings() {
   if (!settingsData.ui.collapsedCats) settingsData.ui.collapsedCats = {};
   if (!settingsData.ui.collapsedProjects) settingsData.ui.collapsedProjects = {};
   if (!settingsData.ui.collapsedApps) settingsData.ui.collapsedApps = {};
+  if (!settingsData.ui.collapsedServices) settingsData.ui.collapsedServices = {};
 }
 function applyUiCollapseFromSettings() {
   ensureUiSettings();
@@ -186,6 +188,9 @@ function applyUiCollapseFromSettings() {
   }
   for (const [id, collapsed] of Object.entries(settingsData.ui.collapsedApps)) {
     localStorage.setItem(APP_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
+  }
+  for (const [id, collapsed] of Object.entries(settingsData.ui.collapsedServices)) {
+    localStorage.setItem(SERVICE_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
   }
 }
 function snapshotUiCollapseState() {
@@ -201,6 +206,11 @@ function snapshotUiCollapseState() {
   (settingsData.apps || []).forEach((a, i) => {
     const appId = a.id || `app_${i}`;
     settingsData.ui.collapsedApps[appId] = isAppCardCollapsed(appId);
+  });
+  settingsData.ui.collapsedServices = {};
+  (servicesData.services || []).forEach((s, i) => {
+    const svcId = s.id || `svc_${i}`;
+    settingsData.ui.collapsedServices[svcId] = isServiceCardCollapsed(svcId);
   });
 }
 function isCatCollapsed(catId) {
@@ -226,6 +236,16 @@ function setAppCardCollapsed(id, collapsed) {
   localStorage.setItem(APP_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
   ensureUiSettings();
   settingsData.ui.collapsedApps[id] = collapsed;
+}
+function isServiceCardCollapsed(id) {
+  const stored = localStorage.getItem(SERVICE_CARD_COLLAPSE_PREFIX + id);
+  if (stored !== null) return stored === 'true';
+  return true;
+}
+function setServiceCardCollapsed(id, collapsed) {
+  localStorage.setItem(SERVICE_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
+  ensureUiSettings();
+  settingsData.ui.collapsedServices[id] = collapsed;
 }
 
 function initSectionCollapse() {
@@ -1262,8 +1282,14 @@ function lv(obj, lang) {
   return obj[lang] || obj['en'] || obj['de'] || Object.values(obj)[0] || '';
 }
 
+function serviceCardId(svc, i) {
+  return svc.id || `svc_${i}`;
+}
+
 function renderServiceCard(svc, i) {
   const lang = serviceActiveLang;
+  const svcId = serviceCardId(svc, i);
+  const isCollapsed = isServiceCardCollapsed(svcId);
   const langTabs = LANGS.map(l => `
     <button class="lang-tab ${l === lang ? 'active' : ''}" data-svc-lang="${l}" data-svc-index="${i}">${LANG_LABELS[l]}</button>
   `).join('');
@@ -1287,15 +1313,17 @@ function renderServiceCard(svc, i) {
   `).join('');
 
   return `
-    <div class="item-card ${svc.visible ? '' : 'hidden-item'}" data-svc-index="${i}">
+    <div class="item-card ${svc.visible ? '' : 'hidden-item'}${isCollapsed ? ' collapsed' : ''}" data-svc-index="${i}" data-svc-id="${esc(svcId)}">
       <div class="item-card-head">
+        <button type="button" class="item-card-chevron ${isCollapsed ? '' : 'open'}" onclick="event.stopPropagation();toggleServiceCard('${esc(svcId)}')" aria-label="Toggle">▾</button>
         <span class="item-card-title">${esc(lv(svc.title, lang) || svc.id)}</span>
         <div class="item-card-actions">
           <button class="btn btn-ghost btn-sm svc-vis-btn" data-svc-index="${i}">${svc.visible ? 'Скрыть' : 'Показать'}</button>
         </div>
       </div>
 
-      <div class="lang-tabs" style="margin:12px 0 16px">${langTabs}</div>
+      <div class="item-card-body item-card-body--plain">
+      <div class="lang-tabs" style="margin:0 0 16px">${langTabs}</div>
 
       <div class="item-fields">
         <div class="form-group">
@@ -1338,9 +1366,15 @@ function renderServiceCard(svc, i) {
           ${faqs}
         </div>
       </div>
+      </div>
     </div>
   `;
 }
+
+window.toggleServiceCard = function(id) {
+  setServiceCardCollapsed(id, !isServiceCardCollapsed(id));
+  renderServices();
+};
 
 function attachServiceEvents(container) {
   // Переключение языка в карточке
@@ -1410,5 +1444,8 @@ function attachServiceEvents(container) {
 // Кнопка "Сохранить услуги"
 document.addEventListener('DOMContentLoaded', () => {
   const saveBtn = document.getElementById('saveSvcBtn');
-  if (saveBtn) saveBtn.addEventListener('click', saveServices);
+  if (saveBtn) saveBtn.addEventListener('click', () => {
+    snapshotUiCollapseState();
+    saveServices();
+  });
 });
