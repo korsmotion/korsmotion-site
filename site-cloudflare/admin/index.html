@@ -130,10 +130,15 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
   margin-bottom:10px;transition:opacity .2s,border-color .2s}
 .item-card:hover{border-color:rgba(124,58,237,.3)}
 .item-card.hidden-item{opacity:.55}
-.item-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px}
+.item-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px}
+.item-card.collapsed .item-card-head{margin-bottom:0}
+.item-card-chevron{background:none;border:none;cursor:pointer;font-size:16px;color:var(--text-muted);padding:2px 4px;line-height:1;transition:transform .2s;flex-shrink:0}
+.item-card-chevron.open{transform:rotate(180deg)}
 .item-card-title{font-size:14px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .item-card-actions{display:flex;gap:6px;flex-shrink:0}
 .item-card-body{display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:start}
+.item-card-body.item-card-body--plain{display:block}
+.item-card.collapsed .item-card-body{display:none}
 .item-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .item-fields .full{grid-column:1/-1}
 .fields-col{display:flex;flex-direction:column;gap:12px}

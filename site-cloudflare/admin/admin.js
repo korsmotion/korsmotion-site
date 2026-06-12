@@ -23,6 +23,8 @@ const WEATHER_CITY = 'Bischofszell,CH';
 const WEATHER_REFRESH_MS = 30 * 60 * 1000;
 const SECTION_COLLAPSE_KEY = 'korsmotion_admin_section_';
 const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, portfolio: true, devApps: true, services: true };
+const PROJECT_CARD_COLLAPSE_PREFIX = 'korsmotion_card_collapsed_';
+const APP_CARD_COLLAPSE_PREFIX = 'korsmotion_appcard_collapsed_';
 
 // ── Admin UI translations ─────────────────────────────────────────────────────
 const UI = {
@@ -166,6 +168,19 @@ function applySectionCollapse(section) {
   const chevron = section.querySelector('.section-chevron');
   if (chevron) chevron.classList.toggle('open', !collapsed);
 }
+function isProjectCardCollapsed(id) {
+  return localStorage.getItem(PROJECT_CARD_COLLAPSE_PREFIX + id) === 'true';
+}
+function setProjectCardCollapsed(id, collapsed) {
+  localStorage.setItem(PROJECT_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
+}
+function isAppCardCollapsed(id) {
+  return localStorage.getItem(APP_CARD_COLLAPSE_PREFIX + id) === 'true';
+}
+function setAppCardCollapsed(id, collapsed) {
+  localStorage.setItem(APP_CARD_COLLAPSE_PREFIX + id, collapsed ? 'true' : 'false');
+}
+
 function initSectionCollapse() {
   document.querySelectorAll('.section-collapsible').forEach(section => {
     applySectionCollapse(section);
@@ -894,10 +909,12 @@ function renderProjectCard(p) {
 
   const titleVal = (p.titles && p.titles[activeLang]) || '';
   const descVal = (p.descriptions && p.descriptions[activeLang]) || '';
+  const collapsed = isProjectCardCollapsed(p.id);
 
   return `
-    <div class="item-card ${p.visible ? '' : 'hidden-item'}" data-id="${p.id}">
+    <div class="item-card ${p.visible ? '' : 'hidden-item'}${collapsed ? ' collapsed' : ''}" data-id="${p.id}">
       <div class="item-card-head">
+        <button type="button" class="item-card-chevron ${collapsed ? '' : 'open'}" onclick="toggleProjectCard('${p.id}')" aria-label="Toggle">▾</button>
         <span class="item-card-title">${esc(p.title || 'Untitled')}</span>
         <div class="item-card-actions">
           <button class="btn btn-ghost btn-sm vis-btn" data-id="${p.id}">${p.visible ? t.hide : t.show}</button>
@@ -982,6 +999,11 @@ window.toggleCat = function(catId) {
   renderProjects();
 };
 
+window.toggleProjectCard = function(id) {
+  setProjectCardCollapsed(id, !isProjectCardCollapsed(id));
+  renderProjects();
+};
+
 window.addProject = function(catId) {
   const count = projectsData.projects.length;
   const gradients = ['pv-1','pv-2','pv-3','pv-4','pv-5'];
@@ -1015,16 +1037,21 @@ function renderApps() {
     return;
   }
 
-  container.innerHTML = items.map((a, i) => `
-    <div class="item-card ${a.visible ? '' : 'hidden-item'}">
+  container.innerHTML = items.map((a, i) => {
+    const appId = a.id || `app_${i}`;
+    const collapsed = isAppCardCollapsed(appId);
+    return `
+    <div class="item-card ${a.visible ? '' : 'hidden-item'}${collapsed ? ' collapsed' : ''}" data-app-id="${esc(appId)}">
       <div class="item-card-head">
+        <button type="button" class="item-card-chevron ${collapsed ? '' : 'open'}" onclick="toggleAppCard('${esc(appId)}')" aria-label="Toggle">▾</button>
         <span class="item-card-title">${esc(a.title || 'Untitled')}</span>
         <div class="item-card-actions">
           <button class="btn btn-ghost btn-sm app-vis-btn" data-index="${i}">${a.visible ? t.hide : t.show}</button>
           <button class="btn btn-danger btn-sm app-del-btn" data-index="${i}">${t.delete}</button>
         </div>
       </div>
-      <div class="item-fields" style="margin-top:14px">
+      <div class="item-card-body item-card-body--plain">
+      <div class="item-fields">
         <div class="form-group">
           <label class="form-label">${t.fieldTitle}</label>
           <input class="form-input app-field" data-index="${i}" data-field="title" value="${esc(a.title)}">
@@ -1042,7 +1069,9 @@ function renderApps() {
           <input class="form-input app-field" data-index="${i}" data-field="link" value="${esc(a.link)}" placeholder="https://...">
         </div>
       </div>
-    </div>`).join('');
+      </div>
+    </div>`;
+  }).join('');
 
   container.querySelectorAll('.app-field').forEach(el => {
     el.addEventListener('input', e => {
@@ -1063,6 +1092,11 @@ function renderApps() {
     });
   });
 }
+
+window.toggleAppCard = function(id) {
+  setAppCardCollapsed(id, !isAppCardCollapsed(id));
+  renderApps();
+};
 
 document.getElementById('addAppBtn').addEventListener('click', () => {
   settingsData.apps.push({ id: uid(), title: 'New App', description: '', platform: 'Android TV', link: '', visible: true });
