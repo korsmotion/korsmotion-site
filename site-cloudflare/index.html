@@ -61,7 +61,14 @@ nav a.nav-link:hover{color:var(--violet-deep)}
   .nav-cta-mobile{display:inline-flex;justify-content:center;width:100%;padding:16px 28px;font-size:16px;margin-top:auto;flex-shrink:0}
 }
 .container{max-width:1280px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
-.hero{min-height:100vh;display:flex;align-items:center;padding:140px 0 80px}
+.hero{min-height:100vh;display:flex;align-items:center;padding:140px 0 80px;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0;opacity:.32;pointer-events:none}
+.hero-bg img,.hero-bg video{width:100%;height:100%;object-fit:cover;display:block}
+.hero>.container{position:relative;z-index:1}
+.reviews-submit-wrap{text-align:center;margin-top:40px}
+.review-star-picker{display:flex;gap:8px;margin-top:6px}
+.review-star-btn{background:none;border:none;cursor:pointer;padding:4px;color:var(--border);transition:color .15s,transform .15s}
+.review-star-btn.active,.review-star-btn:hover{color:var(--violet-deep);transform:scale(1.08)}
 .hero-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:80px;align-items:center;width:100%}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.7);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:100px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--violet-deep);margin-bottom:32px;animation:fadeInUp .8s ease}
 .hero-badge::before{content:'';width:6px;height:6px;background:var(--violet-deep);border-radius:50%;animation:pulse 2s ease infinite}
@@ -471,7 +478,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
       <li id="navServicesItem"><a href="#services" class="nav-link" data-i18n="nav.services">Услуги</a></li>
       <li id="navPortfolioItem"><a href="#portfolio" class="nav-link" data-i18n="nav.portfolio">Работы</a></li>
       <li id="navDevItem" style="display:none"><a href="#development" class="nav-link" data-i18n="nav.development">Разработка</a></li>
-      <li><a href="#reviews" class="nav-link" data-i18n="nav.reviews">Отзывы</a></li>
+      <li id="navReviewsItem"><a href="#reviews" class="nav-link" data-i18n="nav.reviews">Отзывы</a></li>
     </ul>
     <button type="button" class="nav-cta nav-cta-mobile" onclick="openModal('contactModal');closeNavMenu();" data-i18n="nav.cta">Связаться</button>
   </div>
@@ -492,19 +499,20 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   <button class="nav-cta" onclick="openModal('contactModal')" data-i18n="nav.cta">Связаться</button>
 </nav>
 
-<section class="hero">
+<section class="hero" id="hero">
+  <div class="hero-bg" id="heroBg"></div>
   <div class="container">
     <div class="hero-grid">
       <div>
-        <div class="hero-badge" data-i18n="hero.badge">Studio · Switzerland</div>
-        <h1 data-i18n-html="hero.title">Движение,<br>которое <em>запоминается</em></h1>
-        <p class="hero-text" data-i18n="hero.text">Студия моушн-дизайна.</p>
+        <div class="hero-badge" id="heroBadge" data-i18n="hero.badge">Studio · Switzerland</div>
+        <h1 id="heroTitle" data-i18n-html="hero.title">Движение,<br>которое <em>запоминается</em></h1>
+        <p class="hero-text" id="heroText" data-i18n="hero.text">Студия моушн-дизайна.</p>
         <div class="hero-buttons">
-          <button class="btn-primary" onclick="openModal('contactModal')">
+          <button class="btn-primary" id="heroBtn1" type="button">
             <span data-i18n="hero.btn1">Обсудить проект</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
-          <a href="#portfolio" class="btn-ghost">
+          <a href="#portfolio" class="btn-ghost" id="heroBtn2">
             <span data-i18n="hero.btn2">Смотреть работы</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
@@ -559,40 +567,9 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
       <div class="section-label" data-i18n="reviews.label">— Что говорят клиенты</div>
       <h2 class="section-title" data-i18n-html="reviews.title">Доверяют<br><em>профессионалу</em></h2>
     </div>
-    <div class="testimonials-grid reveal">
-      <div class="testimonial">
-        <div class="stars">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-        </div>
-        <p class="testimonial-text" data-i18n="reviews.t1">«Сергей сделал анимацию нашего логотипа за неделю.»</p>
-        <div class="testimonial-author"><div class="author-avatar">AW</div><div><div class="author-name">Alex Weber</div><div class="author-role">Co-founder, Apex Core</div></div></div>
-      </div>
-      <div class="testimonial">
-        <div class="stars">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-        </div>
-        <p class="testimonial-text" data-i18n="reviews.t2">«Профессионал высокого уровня.»</p>
-        <div class="testimonial-author"><div class="author-avatar">MK</div><div><div class="author-name">Maria Klein</div><div class="author-role" data-i18n="reviews.t2role">Marketing Lead</div></div></div>
-      </div>
-      <div class="testimonial">
-        <div class="stars">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-        </div>
-        <p class="testimonial-text" data-i18n="reviews.t3">«Идеальный результат с первого раза.»</p>
-        <div class="testimonial-author"><div class="author-avatar">DR</div><div><div class="author-name">Daniel Roth</div><div class="author-role" data-i18n="reviews.t3role">Brand Director</div></div></div>
-      </div>
+    <div class="testimonials-grid reveal" id="reviewsGrid"></div>
+    <div class="reviews-submit-wrap reveal">
+      <button type="button" class="btn-ghost" id="openReviewFormBtn" data-i18n="reviews.submitBtn">Оставить отзыв →</button>
     </div>
   </div>
 </section>
@@ -627,7 +604,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
         <li id="footerServicesItem"><a href="#services" data-i18n="nav.services">Услуги</a></li>
         <li id="footerPortfolioItem"><a href="#portfolio" data-i18n="nav.portfolio">Работы</a></li>
         <li id="footerDevItem" style="display:none"><a href="#development" data-i18n="nav.development">Разработка</a></li>
-        <li><a href="#reviews" data-i18n="nav.reviews">Отзывы</a></li>
+        <li id="footerReviewsItem"><a href="#reviews" data-i18n="nav.reviews">Отзывы</a></li>
         <li><a onclick="openModal('contactModal')" data-i18n="footer.contact">Контакты</a></li>
         <li><a href="impressum.html" data-i18n="footer.impressum">Импрессум</a></li>
         <li><a href="agb.html" data-i18n="footer.agb">AGB</a></li>
@@ -727,7 +704,48 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   </div>
 </div>
 
-<script src="script.js?v=6"></script>
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('reviewModal')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-scroll">
+      <div class="modal-header-gradient">
+        <div class="modal-header-label" data-i18n="reviews.formLabel">— Отзыв</div>
+        <h2 class="modal-header-title" data-i18n="reviews.formTitle">Оставить отзыв</h2>
+      </div>
+      <div class="modal-body">
+        <form id="reviewForm">
+          <div class="form-group">
+            <label class="form-label" data-i18n="reviews.formName">Имя *</label>
+            <input type="text" id="reviewFormName" class="form-input" required data-i18n-placeholder="form.namePh" placeholder="Ваше имя">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="reviews.formRole">Должность / компания</label>
+            <input type="text" id="reviewFormRole" class="form-input" placeholder="Marketing Director, Apex Core">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="reviews.formStars">Оценка</label>
+            <div class="review-star-picker" id="reviewStarPicker"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="reviews.formText">Ваш отзыв *</label>
+            <textarea id="reviewFormText" class="form-textarea" required rows="4" placeholder=""></textarea>
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;justify-content:center">
+            <span data-i18n="reviews.formSubmit">Отправить</span>
+          </button>
+        </form>
+        <div class="form-success" id="reviewFormSuccess">
+          <div class="form-success-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <p class="form-success-text" data-i18n="reviews.success">Спасибо! Отзыв будет проверен и опубликован.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js?v=7"></script>
 <script src="script-patch.js"></script>
 </body>
 </html>

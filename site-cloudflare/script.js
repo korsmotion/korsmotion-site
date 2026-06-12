@@ -33,6 +33,10 @@ const translations = {
     'reviews.t1':'«Сергей сделал анимацию нашего логотипа за неделю — выглядит как кинофильм.»',
     'reviews.t2':'«Профессионал высокого уровня. Понимает задачу с полуслова.»','reviews.t2role':'Маркетинг-директор',
     'reviews.t3':'«Идеальный результат и с первого раза. Никаких бесконечных правок.»','reviews.t3role':'Бренд-директор',
+    'reviews.submitBtn':'Оставить отзыв →','reviews.formLabel':'— Отзыв','reviews.formTitle':'Оставить отзыв',
+    'reviews.formName':'Имя *','reviews.formRole':'Должность / компания','reviews.formStars':'Оценка',
+    'reviews.formText':'Ваш отзыв *','reviews.formSubmit':'Отправить',
+    'reviews.success':'Спасибо! Отзыв будет проверен и опубликован.',
     'cta.label':'— Готовы начать?','cta.title':'Расскажите<br>о вашем <em>проекте</em>',
     'cta.text':'Опишите задачу — отвечу в течение дня. Бесплатная консультация перед стартом.',
     'cta.btn1':'Написать сообщение',
@@ -168,6 +172,10 @@ const translations = {
     'reviews.t1':'"Sergej animated our logo in just a week — it looks like a cinematic intro."',
     'reviews.t2':'"A true professional. Understands the brief instantly."','reviews.t2role':'Marketing Director',
     'reviews.t3':'"Perfect execution on the first try. No endless revision loops."','reviews.t3role':'Brand Director',
+    'reviews.submitBtn':'Leave a review →','reviews.formLabel':'— Review','reviews.formTitle':'Leave a review',
+    'reviews.formName':'Name *','reviews.formRole':'Role / company','reviews.formStars':'Rating',
+    'reviews.formText':'Your review *','reviews.formSubmit':'Submit',
+    'reviews.success':'Thank you! Your review will be checked and published.',
     'cta.label':'— Ready to start?','cta.title':'Tell me about<br>your <em>project</em>',
     'cta.text':"Describe your vision — I'll get back to you within 24 hours.",
     'cta.btn1':'Send message',
@@ -303,6 +311,10 @@ const translations = {
     'reviews.t1':'«Sergej hat unser Logo in nur einer Woche animiert – es sieht aus wie ein Kinofilm.»',
     'reviews.t2':'«Ein Profi auf höchstem Niveau. Versteht Aufgaben sofort.»','reviews.t2role':'Marketing Director',
     'reviews.t3':'«Perfektes Ergebnis beim ersten Anlauf. Keine endlosen Korrekturschleifen.»','reviews.t3role':'Brand Director',
+    'reviews.submitBtn':'Bewertung abgeben →','reviews.formLabel':'— Bewertung','reviews.formTitle':'Bewertung abgeben',
+    'reviews.formName':'Name *','reviews.formRole':'Position / Unternehmen','reviews.formStars':'Bewertung',
+    'reviews.formText':'Ihre Bewertung *','reviews.formSubmit':'Senden',
+    'reviews.success':'Danke! Ihre Bewertung wird geprüft und veröffentlicht.',
     'cta.label':'— Bereit für den Start?','cta.title':'Erzählen Sie mir von<br>Ihrem <em>Projekt</em>',
     'cta.text':'Beschreiben Sie Ihre Vision – ich antworte innerhalb von 24 Stunden.',
     'cta.btn1':'Nachricht senden',
@@ -438,6 +450,10 @@ const translations = {
     'reviews.t1':'«Sergej ha animato il nostro logo in una sola settimana — sembra l\'intro di un film.»',
     'reviews.t2':'«Un vero professionista. Comprende il brief all\'istante.»','reviews.t2role':'Direttore Marketing',
     'reviews.t3':'«Esecuzione perfetta al primo colpo. Niente infinite revisioni.»','reviews.t3role':'Brand Director',
+    'reviews.submitBtn':'Lascia una recensione →','reviews.formLabel':'— Recensione','reviews.formTitle':'Lascia una recensione',
+    'reviews.formName':'Nome *','reviews.formRole':'Ruolo / azienda','reviews.formStars':'Valutazione',
+    'reviews.formText':'La tua recensione *','reviews.formSubmit':'Invia',
+    'reviews.success':'Grazie! La recensione sarà verificata e pubblicata.',
     'cta.label':'— Pronto a iniziare?','cta.title':'Parlami del<br>tuo <em>progetto</em>',
     'cta.text':'Descrivi la tua visione — ti risponderò entro 24 ore.',
     'cta.btn1':'Invia messaggio',
@@ -573,6 +589,10 @@ const translations = {
     'reviews.t1':'« Sergej a animé notre logo en une semaine seulement — le résultat est digne d\'un film. »',
     'reviews.t2':'« Un vrai professionnel. Il comprend le brief instantanément. »','reviews.t2role':'Directeur Marketing',
     'reviews.t3':'« Une exécution parfaite du premier coup. Pas de révisions interminables. »','reviews.t3role':'Directeur de Marque',
+    'reviews.submitBtn':'Laisser un avis →','reviews.formLabel':'— Avis','reviews.formTitle':'Laisser un avis',
+    'reviews.formName':'Nom *','reviews.formRole':'Poste / entreprise','reviews.formStars':'Note',
+    'reviews.formText':'Votre avis *','reviews.formSubmit':'Envoyer',
+    'reviews.success':'Merci ! Votre avis sera vérifié et publié.',
     'cta.label':'— Prêt à démarrer ?','cta.title':'Parlez-moi de<br>votre <em>projet</em>',
     'cta.text':'Décrivez votre vision — je vous répondrai sous 24 heures.',
     'cta.btn1':'Envoyer un message',
@@ -687,9 +707,20 @@ const DEFAULT_SITE_SETTINGS = {
   show_portfolio_section: true,
   show_services_section: true,
   show_dev_section: false,
+  show_reviews_section: true,
+  show_hero_section: true,
   apps: [],
 };
+const FALLBACK_REVIEWS = [
+  { id: 'rev_fallback_1', name: 'Alex Weber', role: 'Co-founder, Apex Core', text: 'Сергей сделал анимацию нашего логотипа за неделю — выглядит как кинофильм.', stars: 5, date: '2024-06-12', status: 'approved' },
+  { id: 'rev_fallback_2', name: 'Maria Klein', role: 'Marketing Director', text: 'Профессионал высокого уровня. Понимает задачу с полуслова.', stars: 5, date: '2024-08-03', status: 'approved' },
+  { id: 'rev_fallback_3', name: 'Daniel Roth', role: 'Brand Director', text: 'Идеальный результат и с первого раза. Никаких бесконечных правок.', stars: 5, date: '2024-10-21', status: 'approved' },
+];
+const REVIEW_STAR_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>';
 let siteSettings = { ...DEFAULT_SITE_SETTINGS };
+let siteHeroData = null;
+let siteReviews = [];
+let reviewFormStars = 5;
 
 function normalizeSiteSettings(raw) {
   const s = raw && typeof raw === 'object' ? raw : {};
@@ -699,6 +730,8 @@ function normalizeSiteSettings(raw) {
     show_portfolio_section: s.show_portfolio_section === false ? false : true,
     show_services_section: s.show_services_section === false ? false : true,
     show_dev_section: s.show_dev_section === true,
+    show_reviews_section: s.show_reviews_section === false ? false : true,
+    show_hero_section: s.show_hero_section === false ? false : true,
     apps: Array.isArray(s.apps) ? s.apps : DEFAULT_SITE_SETTINGS.apps,
   };
 }
@@ -715,6 +748,8 @@ function applySectionVisibilityFromApi(payload) {
   if ('portfolio' in payload) siteSettings.show_portfolio_section = !!payload.portfolio;
   if ('services' in payload) siteSettings.show_services_section = !!payload.services;
   if ('development' in payload) siteSettings.show_dev_section = !!payload.development;
+  if ('reviews' in payload) siteSettings.show_reviews_section = !!payload.reviews;
+  if ('hero' in payload) siteSettings.show_hero_section = !!payload.hero;
 }
 
 function setSiteSectionVisible(sectionId, navIds, visible) {
@@ -733,6 +768,8 @@ function applyAllSectionVisibility() {
   setSiteSectionVisible('portfolio', ['navPortfolioItem', 'footerPortfolioItem'], isSiteSectionVisible('show_portfolio_section'));
   setSiteSectionVisible('services', ['navServicesItem', 'footerServicesItem'], isSiteSectionVisible('show_services_section'));
   setSiteSectionVisible('development', ['navDevItem', 'footerDevItem'], isSiteSectionVisible('show_dev_section'));
+  setSiteSectionVisible('reviews', ['navReviewsItem', 'footerReviewsItem'], isSiteSectionVisible('show_reviews_section'));
+  setSiteSectionVisible('hero', [], isSiteSectionVisible('show_hero_section'));
 }
 let allServices = [];
 let siteServices = [];
@@ -787,6 +824,143 @@ function applyLang(lang) {
   renderPortfolio();
   renderDevSection();
   renderServices();
+  applyHero();
+  renderReviews();
+}
+
+function heroLangContent(lang) {
+  if (!siteHeroData?.content) return null;
+  return siteHeroData.content[lang] || siteHeroData.content.en || siteHeroData.content.ru || null;
+}
+
+function bindHeroButton(el, link, isPrimary) {
+  if (!el) return;
+  const href = link || '#';
+  if (href === '#contact') {
+    if (el.tagName === 'BUTTON') {
+      el.onclick = () => openModal('contactModal');
+    } else {
+      el.href = '#';
+      el.onclick = e => { e.preventDefault(); openModal('contactModal'); };
+    }
+    return;
+  }
+  if (el.tagName === 'A') {
+    el.href = href;
+    el.onclick = null;
+  } else {
+    el.onclick = () => {
+      if (href.startsWith('#')) {
+        const target = document.querySelector(href);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.location.href = href;
+      }
+    };
+  }
+}
+
+function applyHero() {
+  const show = isSiteSectionVisible('show_hero_section') && siteHeroData?.show !== false;
+  setSiteSectionVisible('hero', [], show);
+  if (!show) return;
+
+  const lang = currentLanguage;
+  const c = heroLangContent(lang);
+  const t = translations[lang] || translations.en;
+
+  const badgeEl = document.getElementById('heroBadge');
+  const titleEl = document.getElementById('heroTitle');
+  const textEl = document.getElementById('heroText');
+  const btn1 = document.getElementById('heroBtn1');
+  const btn2 = document.getElementById('heroBtn2');
+  const bgEl = document.getElementById('heroBg');
+
+  if (badgeEl) badgeEl.textContent = c?.badge || t['hero.badge'] || '';
+  if (titleEl) titleEl.innerHTML = c?.title || t['hero.title'] || '';
+  if (textEl) textEl.textContent = c?.subtitle || t['hero.text'] || '';
+  if (btn1) {
+    const span = btn1.querySelector('span');
+    if (span) span.textContent = c?.btn1Text || t['hero.btn1'] || '';
+    bindHeroButton(btn1, c?.btn1Link || '#contact', true);
+  }
+  if (btn2) {
+    const span = btn2.querySelector('span');
+    if (span) span.textContent = c?.btn2Text || t['hero.btn2'] || '';
+    bindHeroButton(btn2, c?.btn2Link || '#portfolio', false);
+  }
+
+  if (bgEl) {
+    const media = siteHeroData?.media || '';
+    if (!media) {
+      bgEl.innerHTML = '';
+    } else {
+      const ext = media.split('.').pop().toLowerCase();
+      const url = media.startsWith('http') ? media : media;
+      if (['mp4', 'webm', 'mov'].includes(ext)) {
+        bgEl.innerHTML = `<video src="${url}" muted loop autoplay playsinline></video>`;
+      } else {
+        bgEl.innerHTML = `<img src="${url}" alt="">`;
+      }
+    }
+  }
+}
+
+function reviewInitials(name) {
+  if (!name) return '?';
+  return name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function renderReviews() {
+  const grid = document.getElementById('reviewsGrid');
+  if (!grid) return;
+  const show = isSiteSectionVisible('show_reviews_section');
+  setSiteSectionVisible('reviews', ['navReviewsItem', 'footerReviewsItem'], show);
+  if (!show) return;
+
+  const list = siteReviews.length ? siteReviews : FALLBACK_REVIEWS;
+  grid.innerHTML = list.map(r => `
+    <div class="testimonial">
+      <div class="stars">${REVIEW_STAR_SVG.repeat(Math.min(5, Math.max(1, r.stars || 5)))}</div>
+      <p class="testimonial-text">«${String(r.text || '').replace(/</g, '&lt;')}»</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">${reviewInitials(r.name)}</div>
+        <div>
+          <div class="author-name">${String(r.name || '').replace(/</g, '&lt;')}</div>
+          <div class="author-role">${String(r.role || '').replace(/</g, '&lt;')}</div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  grid.querySelectorAll('.testimonial').forEach(el => observer.observe(el));
+}
+
+function initReviewStarPicker() {
+  const picker = document.getElementById('reviewStarPicker');
+  if (!picker || picker.dataset.bound === '1') return;
+  picker.dataset.bound = '1';
+  const starSvg = '<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>';
+  picker.innerHTML = [1, 2, 3, 4, 5].map(n =>
+    `<button type="button" class="review-star-btn${n <= reviewFormStars ? ' active' : ''}" data-star="${n}" aria-label="${n}">${starSvg}</button>`
+  ).join('');
+  picker.querySelectorAll('.review-star-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      reviewFormStars = +btn.dataset.star;
+      picker.querySelectorAll('.review-star-btn').forEach((b, i) => b.classList.toggle('active', i < reviewFormStars));
+    });
+  });
+}
+
+function resetReviewForm() {
+  const form = document.getElementById('reviewForm');
+  const success = document.getElementById('reviewFormSuccess');
+  if (form) {
+    form.reset();
+    form.style.display = '';
+  }
+  if (success) success.classList.remove('active');
+  reviewFormStars = 5;
+  initReviewStarPicker();
 }
 
 const switcher = document.getElementById('langSwitcher');
@@ -1012,6 +1186,19 @@ async function loadSiteData() {
     }
   } catch (_) {}
 
+  try {
+    const heroRes = await fetch('/api/hero');
+    if (heroRes.ok) siteHeroData = await heroRes.json();
+  } catch (_) {}
+
+  try {
+    const revRes = await fetch('/api/reviews');
+    if (revRes.ok) {
+      const revData = await revRes.json();
+      siteReviews = Array.isArray(revData.reviews) ? revData.reviews : [];
+    }
+  } catch (_) {}
+
   allProjects = projects?.projects || [];
   siteProjects = allProjects.filter(p => p.visible && ['motion', 'graphic'].includes(p.categoryId || 'motion'));
   siteWebProjects = allProjects.filter(p => p.visible && p.categoryId === 'web');
@@ -1027,6 +1214,8 @@ async function loadSiteData() {
   renderPortfolio();
   renderDevSection();
   renderServices();
+  applyHero();
+  renderReviews();
 }
 
 function renderServices() {
@@ -1772,6 +1961,34 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+initReviewStarPicker();
+document.getElementById('openReviewFormBtn')?.addEventListener('click', () => {
+  resetReviewForm();
+  openModal('reviewModal');
+});
+document.getElementById('reviewForm')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = document.getElementById('reviewFormName')?.value.trim();
+  const role = document.getElementById('reviewFormRole')?.value.trim();
+  const text = document.getElementById('reviewFormText')?.value.trim();
+  if (!name || !text) return;
+  try {
+    const res = await fetch('/api/reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, role, text, stars: reviewFormStars }),
+    });
+    if (!res.ok) throw new Error('submit failed');
+    const form = document.getElementById('reviewForm');
+    const success = document.getElementById('reviewFormSuccess');
+    if (form) form.style.display = 'none';
+    if (success) success.classList.add('active');
+    setTimeout(() => closeModal('reviewModal'), 3000);
+  } catch (_) {
+    alert('Ошибка отправки. Попробуйте позже.');
+  }
+});
 
 loadSiteData().then(() => {
   applyLang(detectLang());

@@ -45,7 +45,29 @@ const DEFAULT_SETTINGS = {
   show_portfolio_section: true,
   show_services_section: true,
   show_dev_section: false,
+  show_reviews_section: true,
+  show_hero_section: true,
   apps: [],
+};
+
+const DEFAULT_REVIEWS = {
+  reviews: [
+    { id: 'rev_seed_1', name: 'Alex Weber', role: 'Co-founder, Apex Core', text: 'Сергей сделал анимацию нашего логотипа за неделю — выглядит как кинофильм.', stars: 5, date: '2024-06-12', status: 'approved' },
+    { id: 'rev_seed_2', name: 'Maria Klein', role: 'Marketing Director', text: 'Профессионал высокого уровня. Понимает задачу с полуслова.', stars: 5, date: '2024-08-03', status: 'approved' },
+    { id: 'rev_seed_3', name: 'Daniel Roth', role: 'Brand Director', text: 'Идеальный результат и с первого раза. Никаких бесконечных правок.', stars: 5, date: '2024-10-21', status: 'approved' },
+  ],
+};
+
+const DEFAULT_HERO = {
+  show: true,
+  media: '',
+  content: {
+    de: { badge: 'Motion Design Studio · Schweiz', title: 'Bewegung, die<br><em>eindruckt</em>', subtitle: 'Kors Motion ist Ihr Spezialist für Motion Design.', btn1Text: 'Projekt anfragen', btn1Link: '#contact', btn2Text: 'Portfolio ansehen', btn2Link: '#portfolio' },
+    en: { badge: 'Motion Design Studio · Switzerland', title: 'Motion<br>that <em>resonates</em>', subtitle: 'Kors Motion is a premium motion design studio.', btn1Text: 'Discuss a project', btn1Link: '#contact', btn2Text: 'View portfolio', btn2Link: '#portfolio' },
+    ru: { badge: 'Студия моушн-дизайна · Швейцария', title: 'Движение,<br>которое <em>запоминается</em>', subtitle: 'Kors Motion — студия моушн-дизайна.', btn1Text: 'Обсудить проект', btn1Link: '#contact', btn2Text: 'Смотреть работы', btn2Link: '#portfolio' },
+    fr: { badge: 'Studio de Motion Design · Suisse', title: 'Un mouvement<br>qui <em>marque les esprits</em>', subtitle: 'Kors Motion est un studio de motion design.', btn1Text: 'Discuter d\'un projet', btn1Link: '#contact', btn2Text: 'Voir le portfolio', btn2Link: '#portfolio' },
+    it: { badge: 'Studio di Motion Design · Svizzera', title: 'Un movimento<br>che <em>lascia il segno</em>', subtitle: 'Kors Motion è uno studio di motion design.', btn1Text: 'Parliamo del progetto', btn1Link: '#contact', btn2Text: 'Vedi il portfolio', btn2Link: '#portfolio' },
+  },
 };
 
 function normalizeSettings(raw) {
@@ -56,20 +78,26 @@ function normalizeSettings(raw) {
     show_portfolio_section: s.show_portfolio_section === false ? false : true,
     show_services_section: s.show_services_section === false ? false : true,
     show_dev_section: s.show_dev_section === true,
+    show_reviews_section: s.show_reviews_section === false ? false : true,
+    show_hero_section: s.show_hero_section === false ? false : true,
     apps: Array.isArray(s.apps) ? s.apps : DEFAULT_SETTINGS.apps,
     ui: s.ui && typeof s.ui === 'object' ? s.ui : {},
   };
 }
 
 async function applySectionFlags(env, settings) {
-  const [portfolio, services, dev] = await Promise.all([
+  const [portfolio, services, dev, reviews, hero] = await Promise.all([
     env.KORSMOTION_DATA.get('flag:portfolio'),
     env.KORSMOTION_DATA.get('flag:services'),
     env.KORSMOTION_DATA.get('flag:dev'),
+    env.KORSMOTION_DATA.get('flag:reviews'),
+    env.KORSMOTION_DATA.get('flag:hero'),
   ]);
   if (portfolio !== null) settings.show_portfolio_section = portfolio === '1';
   if (services !== null) settings.show_services_section = services === '1';
   if (dev !== null) settings.show_dev_section = dev === '1';
+  if (reviews !== null) settings.show_reviews_section = reviews === '1';
+  if (hero !== null) settings.show_hero_section = hero === '1';
   return settings;
 }
 
@@ -78,6 +106,8 @@ function sectionVisibilityPayload(settings) {
     portfolio: settings.show_portfolio_section !== false,
     services: settings.show_services_section !== false,
     development: !!settings.show_dev_section,
+    reviews: settings.show_reviews_section !== false,
+    hero: settings.show_hero_section !== false,
   };
 }
 
@@ -86,7 +116,24 @@ async function persistSectionFlags(env, settings) {
     env.KORSMOTION_DATA.put('flag:portfolio', settings.show_portfolio_section === false ? '0' : '1'),
     env.KORSMOTION_DATA.put('flag:services', settings.show_services_section === false ? '0' : '1'),
     env.KORSMOTION_DATA.put('flag:dev', settings.show_dev_section ? '1' : '0'),
+    env.KORSMOTION_DATA.put('flag:reviews', settings.show_reviews_section === false ? '0' : '1'),
+    env.KORSMOTION_DATA.put('flag:hero', settings.show_hero_section === false ? '0' : '1'),
   ]);
+}
+
+function normalizeReviews(raw) {
+  const data = raw && typeof raw === 'object' ? raw : {};
+  const reviews = Array.isArray(data.reviews) ? data.reviews : DEFAULT_REVIEWS.reviews;
+  return { reviews };
+}
+
+function normalizeHero(raw) {
+  const data = raw && typeof raw === 'object' ? raw : {};
+  return {
+    show: data.show !== false,
+    media: typeof data.media === 'string' ? data.media : '',
+    content: { ...DEFAULT_HERO.content, ...(data.content || {}) },
+  };
 }
 
 export default {
@@ -205,6 +252,71 @@ export default {
       }
 
       await env.KORSMOTION_DATA.put('services_data', JSON.stringify({ services: body.services }));
+      return json({ ok: true });
+    }
+
+    // GET /api/reviews — approved for site; all for admin (X-Admin-Password)
+    if (url.pathname === '/api/reviews' && request.method === 'GET') {
+      const raw = await env.KORSMOTION_DATA.get('reviews_data');
+      const data = normalizeReviews(raw ? JSON.parse(raw) : {});
+      const isAdmin = request.headers.get('X-Admin-Password') === ADMIN_PASSWORD;
+      const reviews = isAdmin
+        ? data.reviews
+        : data.reviews.filter(r => r.status === 'approved');
+      return json({ reviews });
+    }
+
+    // POST /api/reviews — public submit OR admin save
+    if (url.pathname === '/api/reviews' && request.method === 'POST') {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return json({ error: 'Invalid JSON' }, 400);
+      }
+
+      if (body.password === ADMIN_PASSWORD && Array.isArray(body.reviews)) {
+        await env.KORSMOTION_DATA.put('reviews_data', JSON.stringify({ reviews: body.reviews }));
+        return json({ ok: true });
+      }
+
+      const name = (body.name || '').trim();
+      const text = (body.text || '').trim();
+      if (!name || !text) return json({ error: 'Name and text required' }, 400);
+
+      const raw = await env.KORSMOTION_DATA.get('reviews_data');
+      const data = normalizeReviews(raw ? JSON.parse(raw) : {});
+      const review = {
+        id: 'rev_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        name,
+        role: (body.role || '').trim(),
+        text,
+        stars: Math.min(5, Math.max(1, parseInt(body.stars, 10) || 5)),
+        date: new Date().toISOString().split('T')[0],
+        status: 'pending',
+      };
+      data.reviews.unshift(review);
+      await env.KORSMOTION_DATA.put('reviews_data', JSON.stringify(data));
+      return json({ ok: true, id: review.id });
+    }
+
+    // GET /api/hero
+    if (url.pathname === '/api/hero' && request.method === 'GET') {
+      const raw = await env.KORSMOTION_DATA.get('hero_data');
+      return json(normalizeHero(raw ? JSON.parse(raw) : {}));
+    }
+
+    // POST /api/hero — admin save
+    if (url.pathname === '/api/hero' && request.method === 'POST') {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return json({ error: 'Invalid JSON' }, 400);
+      }
+      if (body.password !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
+      const hero = normalizeHero(body.hero || body);
+      await env.KORSMOTION_DATA.put('hero_data', JSON.stringify(hero));
       return json({ ok: true });
     }
 

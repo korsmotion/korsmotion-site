@@ -19,10 +19,12 @@ const GITHUB_BRANCH = 'main';
 const API_DATA = '/api/data';
 const API_SAVE = '/api/save';
 const API_SERVICES = '/api/services';
+const API_REVIEWS = '/api/reviews';
+const API_HERO = '/api/hero';
 const WEATHER_CITY = 'Bischofszell,CH';
 const WEATHER_REFRESH_MS = 30 * 60 * 1000;
 const SECTION_COLLAPSE_KEY = 'korsmotion_admin_section_';
-const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, portfolio: true, devApps: true, services: true };
+const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, hero: false, portfolio: true, devApps: true, services: true, reviews: true };
 const CAT_COLLAPSE_PREFIX = 'korsmotion_cat_collapsed_';
 const PROJECT_CARD_COLLAPSE_PREFIX = 'korsmotion_proj_collapsed_';
 const APP_CARD_COLLAPSE_PREFIX = 'korsmotion_appcard_collapsed_';
@@ -72,7 +74,17 @@ const UI = {
     svcShow: 'Показать',
     svcSave: '💾 Сохранить услуги',
     svcCount: 'Услуги',
-    svcDesc: 'Редактируй тексты на всех 5 языках. Переключай язык внутри каждой карточки. Сохраняй кнопкой «Сохранить» внизу.'
+    svcDesc: 'Редактируй тексты на всех 5 языках. Переключай язык внутри каждой карточки. Сохраняй кнопкой «Сохранить» внизу.',
+    heroTitle: 'Главная', heroShow: 'Показать',
+    heroBadge: 'Бейдж', heroMainTitle: 'Заголовок (HTML: &lt;br&gt;, &lt;em&gt;)',
+    heroSubtitle: 'Подзаголовок', heroBtn1: 'Кнопка 1 — текст', heroBtn1Link: 'Кнопка 1 — ссылка',
+    heroBtn2: 'Кнопка 2 — текст', heroBtn2Link: 'Кнопка 2 — ссылка',
+    heroMedia: 'Фон (GIF / видео / изображение)', heroMediaNone: 'Фон не загружен',
+    reviewsTitle: 'Отзывы', reviewsTabPending: '📬 Новые', reviewsTabApproved: '✅ Одобренные',
+    reviewsApprove: '✓ Одобрить', reviewsHide: 'Скрыть', reviewsShow: 'Показать',
+    reviewsDelete: 'Удалить', reviewsDeleteShort: '✕ Удалить',
+    reviewsEmptyPending: 'Нет новых отзывов', reviewsEmptyApproved: 'Нет одобренных отзывов',
+    reviewsHidden: 'Скрыт',
   },
   de: {
     adminTitle: 'Admin-Panel', viewSite: 'Website ansehen', logout: 'Abmelden',
@@ -116,7 +128,17 @@ const UI = {
     svcShow: 'Anzeigen',
     svcSave: '💾 Dienste speichern',
     svcCount: 'Dienstleistungen',
-    svcDesc: 'Texte in allen 5 Sprachen bearbeiten. Sprache in jeder Karte wechseln. Mit «Speichern» unten speichern.'
+    svcDesc: 'Texte in allen 5 Sprachen bearbeiten. Sprache in jeder Karte wechseln. Mit «Speichern» unten speichern.',
+    heroTitle: 'Startseite', heroShow: 'Anzeigen',
+    heroBadge: 'Badge', heroMainTitle: 'Titel (HTML: &lt;br&gt;, &lt;em&gt;)',
+    heroSubtitle: 'Untertitel', heroBtn1: 'Button 1 — Text', heroBtn1Link: 'Button 1 — Link',
+    heroBtn2: 'Button 2 — Text', heroBtn2Link: 'Button 2 — Link',
+    heroMedia: 'Hintergrund (GIF / Video / Bild)', heroMediaNone: 'Kein Hintergrund',
+    reviewsTitle: 'Bewertungen', reviewsTabPending: '📬 Neu', reviewsTabApproved: '✅ Genehmigt',
+    reviewsApprove: '✓ Genehmigen', reviewsHide: 'Verbergen', reviewsShow: 'Anzeigen',
+    reviewsDelete: 'Löschen', reviewsDeleteShort: '✕ Löschen',
+    reviewsEmptyPending: 'Keine neuen Bewertungen', reviewsEmptyApproved: 'Keine genehmigten Bewertungen',
+    reviewsHidden: 'Verborgen',
   },
   en: {
     adminTitle: 'Admin Panel', viewSite: 'View site', logout: 'Logout',
@@ -160,7 +182,17 @@ const UI = {
     svcShow: 'Show',
     svcSave: '💾 Save services',
     svcCount: 'Services',
-    svcDesc: 'Edit texts in all 5 languages. Switch language inside each card. Save with the «Save» button below.'
+    svcDesc: 'Edit texts in all 5 languages. Switch language inside each card. Save with the «Save» button below.',
+    heroTitle: 'Homepage', heroShow: 'Show',
+    heroBadge: 'Badge', heroMainTitle: 'Title (HTML: &lt;br&gt;, &lt;em&gt;)',
+    heroSubtitle: 'Subtitle', heroBtn1: 'Button 1 — text', heroBtn1Link: 'Button 1 — link',
+    heroBtn2: 'Button 2 — text', heroBtn2Link: 'Button 2 — link',
+    heroMedia: 'Background (GIF / video / image)', heroMediaNone: 'No background uploaded',
+    reviewsTitle: 'Reviews', reviewsTabPending: '📬 New', reviewsTabApproved: '✅ Approved',
+    reviewsApprove: '✓ Approve', reviewsHide: 'Hide', reviewsShow: 'Show',
+    reviewsDelete: 'Delete', reviewsDeleteShort: '✕ Delete',
+    reviewsEmptyPending: 'No new reviews', reviewsEmptyApproved: 'No approved reviews',
+    reviewsHidden: 'Hidden',
   }
 };
 
@@ -196,13 +228,31 @@ function isPortfolioProject(p) {
 
 let adminLang = localStorage.getItem('korsmotion_admin_lang') || 'ru';
 let projectsData = { projects: [] };
+const DEFAULT_HERO = {
+  show: true,
+  media: '',
+  content: {
+    de: { badge: 'Motion Design Studio · Schweiz', title: 'Bewegung, die<br><em>eindruckt</em>', subtitle: 'Kors Motion ist Ihr Spezialist für Motion Design.', btn1Text: 'Projekt anfragen', btn1Link: '#contact', btn2Text: 'Portfolio ansehen', btn2Link: '#portfolio' },
+    en: { badge: 'Motion Design Studio · Switzerland', title: 'Motion<br>that <em>resonates</em>', subtitle: 'Kors Motion is a premium motion design studio.', btn1Text: 'Discuss a project', btn1Link: '#contact', btn2Text: 'View portfolio', btn2Link: '#portfolio' },
+    ru: { badge: 'Студия моушн-дизайна · Швейцария', title: 'Движение,<br>которое <em>запоминается</em>', subtitle: 'Kors Motion — студия моушн-дизайна.', btn1Text: 'Обсудить проект', btn1Link: '#contact', btn2Text: 'Смотреть работы', btn2Link: '#portfolio' },
+    fr: { badge: 'Studio de Motion Design · Suisse', title: 'Un mouvement<br>qui <em>marque les esprits</em>', subtitle: 'Kors Motion est un studio de motion design.', btn1Text: 'Discuter d\'un projet', btn1Link: '#contact', btn2Text: 'Voir le portfolio', btn2Link: '#portfolio' },
+    it: { badge: 'Studio di Motion Design · Svizzera', title: 'Un movimento<br>che <em>lascia il segno</em>', subtitle: 'Kors Motion è uno studio di motion design.', btn1Text: 'Parliamo del progetto', btn1Link: '#contact', btn2Text: 'Vedi il portfolio', btn2Link: '#portfolio' },
+  },
+};
+
 const DEFAULT_SETTINGS = {
   show_portfolio_section: true,
   show_services_section: true,
   show_dev_section: false,
+  show_reviews_section: true,
+  show_hero_section: true,
   apps: [],
 };
 let settingsData = { ...DEFAULT_SETTINGS };
+let reviewsData = { reviews: [] };
+let heroData = JSON.parse(JSON.stringify(DEFAULT_HERO));
+let reviewsActiveTab = 'pending';
+let heroActiveLang = 'ru';
 let saveDirty = false;
 
 function normalizeSettings(raw) {
@@ -213,6 +263,8 @@ function normalizeSettings(raw) {
     show_portfolio_section: s.show_portfolio_section === false ? false : true,
     show_services_section: s.show_services_section === false ? false : true,
     show_dev_section: s.show_dev_section === true,
+    show_reviews_section: s.show_reviews_section === false ? false : true,
+    show_hero_section: s.show_hero_section === false ? false : true,
     apps: Array.isArray(s.apps) ? s.apps : DEFAULT_SETTINGS.apps,
     ui: s.ui && typeof s.ui === 'object' ? s.ui : {},
   };
@@ -222,9 +274,13 @@ function snapshotSectionVisibility() {
   const portfolio = document.getElementById('showPortfolioSection');
   const services = document.getElementById('showServicesSection');
   const dev = document.getElementById('showDevSection');
+  const reviews = document.getElementById('showReviewsSection');
+  const hero = document.getElementById('showHeroSection');
   settingsData.show_portfolio_section = portfolio ? portfolio.checked : settingsData.show_portfolio_section !== false;
   settingsData.show_services_section = services ? services.checked : settingsData.show_services_section !== false;
   settingsData.show_dev_section = dev ? dev.checked : !!settingsData.show_dev_section;
+  settingsData.show_reviews_section = reviews ? reviews.checked : settingsData.show_reviews_section !== false;
+  settingsData.show_hero_section = hero ? hero.checked : settingsData.show_hero_section !== false;
 }
 let servicesData = { services: [] };
 let serviceActiveLang = 'de'; // активный язык в редакторе услуг
@@ -453,6 +509,8 @@ function syncSectionVisibilityToggles() {
     ['showPortfolioSection', settingsData.show_portfolio_section !== false],
     ['showServicesSection', settingsData.show_services_section !== false],
     ['showDevSection', !!settingsData.show_dev_section],
+    ['showReviewsSection', settingsData.show_reviews_section !== false],
+    ['showHeroSection', settingsData.show_hero_section !== false],
   ];
   map.forEach(([id, on]) => {
     const el = document.getElementById(id);
@@ -467,10 +525,10 @@ function initDirtyTracking() {
   if (!app || app.dataset.dirtyBound === '1') return;
   app.dataset.dirtyBound = '1';
   app.addEventListener('input', e => {
-    if (e.target.closest('#projectsList, #devList, #servicesList')) markUnsaved();
+    if (e.target.closest('#projectsList, #devList, #servicesList, #heroSection, #reviewsSection')) markUnsaved();
   });
   app.addEventListener('change', e => {
-    if (['showDevSection', 'showPortfolioSection', 'showServicesSection'].includes(e.target.id)) markUnsaved();
+    if (['showDevSection', 'showPortfolioSection', 'showServicesSection', 'showReviewsSection', 'showHeroSection'].includes(e.target.id)) markUnsaved();
     if (e.target.closest('#devList')) markUnsaved();
   });
 }
@@ -861,6 +919,8 @@ async function loadData() {
   renderAll();
   // Загружаем услуги отдельно из /api/services
   loadServices();
+  loadReviewsAdmin();
+  loadHeroAdmin();
 }
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
@@ -875,6 +935,8 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     });
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
     if (!(await saveServices({ silent: true }))) throw new Error('services');
+    if (!(await saveReviews({ silent: true }))) throw new Error('reviews');
+    if (!(await saveHero({ silent: true }))) throw new Error('hero');
     await markSavedSuccess();
     showToast(u().loadedServer, 'success');
     const now = new Date();
@@ -892,6 +954,8 @@ function bindSectionVisibilityToggles() {
     ['showPortfolioSection', 'show_portfolio_section'],
     ['showServicesSection', 'show_services_section'],
     ['showDevSection', 'show_dev_section'],
+    ['showReviewsSection', 'show_reviews_section'],
+    ['showHeroSection', 'show_hero_section'],
   ];
   pairs.forEach(([id, key]) => {
     const el = document.getElementById(id);
@@ -906,9 +970,11 @@ function bindSectionVisibilityToggles() {
 
 function renderAll() {
   renderDashboard();
+  renderHero();
   renderProjects();
   renderDevelopment();
   renderServices();
+  renderReviewsAdmin();
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -1891,6 +1957,228 @@ function attachServiceEvents(container) {
       const field = e.target.classList.contains('svc-faq-q') ? 'q' : 'a';
       if (!servicesData.services[i].faq[fi][field]) servicesData.services[i].faq[fi][field] = {};
       servicesData.services[i].faq[fi][field][lang] = e.target.value;
+    });
+  });
+}
+
+// ── Hero ──────────────────────────────────────────────────────────────────────
+function normalizeHeroData(raw) {
+  const data = raw && typeof raw === 'object' ? raw : {};
+  const content = { ...DEFAULT_HERO.content };
+  if (data.content && typeof data.content === 'object') {
+    SITE_LANGS.forEach(lang => {
+      if (data.content[lang]) content[lang] = { ...content[lang], ...data.content[lang] };
+    });
+  }
+  return {
+    show: data.show !== false,
+    media: typeof data.media === 'string' ? data.media : '',
+    content,
+  };
+}
+
+async function loadHeroAdmin() {
+  try {
+    const res = await fetch(API_HERO);
+    if (res.ok) heroData = normalizeHeroData(await res.json());
+  } catch (_) {}
+  renderHero();
+}
+
+async function saveHero({ silent } = {}) {
+  snapshotSectionVisibility();
+  heroData.show = settingsData.show_hero_section !== false;
+  try {
+    const res = await fetch(API_HERO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: ADMIN_PASSWORD, hero: heroData }),
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
+    return true;
+  } catch (e) {
+    if (!silent) showToast(u().saveError, 'error');
+    return false;
+  }
+}
+
+function ensureHeroLang(lang) {
+  if (!heroData.content[lang]) heroData.content[lang] = { ...DEFAULT_HERO.content.ru };
+  return heroData.content[lang];
+}
+
+function renderHero() {
+  const container = document.getElementById('heroSection');
+  if (!container) return;
+  const lang = heroActiveLang;
+  const c = ensureHeroLang(lang);
+  const mediaUrl = heroData.media ? adminAssetUrl(heroData.media) : '';
+  const ext = (heroData.media || '').split('.').pop().toLowerCase();
+  const isVideo = ['mp4', 'webm', 'mov'].includes(ext);
+  const mediaPreview = mediaUrl
+    ? (isVideo
+      ? `<video src="${esc(mediaUrl)}" muted loop autoplay playsinline></video>`
+      : `<img src="${esc(mediaUrl)}" alt="">`)
+    : `<div class="thumb-placeholder" style="width:100%;height:100%;border:none">${esc(u().heroMediaNone)}</div>`;
+
+  container.innerHTML = `
+    <div class="lang-section">
+      <div class="lang-section-label">${esc(u().langLabel)}</div>
+      <div class="lang-tabs" id="heroLangTabs">
+        ${SITE_LANGS.map(l => `<button type="button" class="lang-tab${l === lang ? ' active' : ''}" data-hero-lang="${l}">${SITE_LANG_LABELS[l]}</button>`).join('')}
+      </div>
+      <div class="lang-fields">
+        <div class="form-group"><label class="form-label">${esc(u().heroBadge)}</label><input class="form-input hero-field" data-field="badge" value="${esc(c.badge || '')}"></div>
+        <div class="form-group"><label class="form-label">${esc(u().heroMainTitle)}</label><textarea class="form-textarea hero-field" data-field="title" rows="3">${esc(c.title || '')}</textarea></div>
+        <div class="form-group"><label class="form-label">${esc(u().heroSubtitle)}</label><textarea class="form-textarea hero-field" data-field="subtitle" rows="2">${esc(c.subtitle || '')}</textarea></div>
+        <div class="item-fields">
+          <div class="form-group"><label class="form-label">${esc(u().heroBtn1)}</label><input class="form-input hero-field" data-field="btn1Text" value="${esc(c.btn1Text || '')}"></div>
+          <div class="form-group"><label class="form-label">${esc(u().heroBtn1Link)}</label><input class="form-input hero-field" data-field="btn1Link" value="${esc(c.btn1Link || '')}"></div>
+          <div class="form-group"><label class="form-label">${esc(u().heroBtn2)}</label><input class="form-input hero-field" data-field="btn2Text" value="${esc(c.btn2Text || '')}"></div>
+          <div class="form-group"><label class="form-label">${esc(u().heroBtn2Link)}</label><input class="form-input hero-field" data-field="btn2Link" value="${esc(c.btn2Link || '')}"></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px">
+      <div class="form-label">${esc(u().heroMedia)}</div>
+      <div class="hero-media-preview">${mediaPreview}</div>
+      <button type="button" class="upload-btn" style="margin-top:10px" id="heroUploadBtn">${esc(u().uploadBtn)}</button>
+    </div>`;
+
+  container.querySelectorAll('[data-hero-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      heroActiveLang = btn.dataset.heroLang;
+      renderHero();
+    });
+  });
+  container.querySelectorAll('.hero-field').forEach(el => {
+    el.addEventListener('input', e => {
+      const field = e.target.dataset.field;
+      ensureHeroLang(heroActiveLang)[field] = e.target.value;
+      markUnsaved();
+    });
+  });
+  document.getElementById('heroUploadBtn')?.addEventListener('click', () => {
+    pickMediaFile(async (file) => {
+      try {
+        const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+        const relPath = `images/hero/bg.${ext}`;
+        await uploadImageToGitHub(file, `site-cloudflare/${relPath}`);
+        heroData.media = relPath;
+        renderHero();
+        markUnsaved();
+      } catch (_) {}
+    }, 'image/*,video/*,.gif');
+  });
+}
+
+// ── Reviews ─────────────────────────────────────────────────────────────────
+const REVIEW_STAR_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>';
+
+function reviewStarsHtml(n) {
+  const count = Math.min(5, Math.max(0, parseInt(n, 10) || 0));
+  return `<div class="review-stars">${REVIEW_STAR_SVG.repeat(count)}</div>`;
+}
+
+function updateReviewsPendingBadge() {
+  const badge = document.getElementById('reviewsPendingBadge');
+  if (!badge) return;
+  const pending = reviewsData.reviews.filter(r => r.status === 'pending').length;
+  if (pending > 0) {
+    badge.textContent = String(pending);
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+async function loadReviewsAdmin() {
+  try {
+    const res = await fetch(API_REVIEWS, { headers: { 'X-Admin-Password': ADMIN_PASSWORD } });
+    if (res.ok) {
+      const data = await res.json();
+      reviewsData = { reviews: Array.isArray(data.reviews) ? data.reviews : [] };
+    }
+  } catch (_) {}
+  updateReviewsPendingBadge();
+  renderReviewsAdmin();
+}
+
+async function saveReviews({ silent } = {}) {
+  try {
+    const res = await fetch(API_REVIEWS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: ADMIN_PASSWORD, reviews: reviewsData.reviews }),
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
+    updateReviewsPendingBadge();
+    return true;
+  } catch (e) {
+    if (!silent) showToast(u().saveError, 'error');
+    return false;
+  }
+}
+
+function renderReviewCard(review, tab) {
+  const isHidden = review.status === 'hidden';
+  const actions = tab === 'pending'
+    ? `<button type="button" class="btn btn-primary btn-sm" data-review-action="approve" data-review-id="${esc(review.id)}">${esc(u().reviewsApprove)}</button>
+       <button type="button" class="btn btn-danger btn-sm" data-review-action="delete" data-review-id="${esc(review.id)}">${esc(u().reviewsDeleteShort)}</button>`
+    : `<button type="button" class="btn btn-ghost btn-sm" data-review-action="${isHidden ? 'show' : 'hide'}" data-review-id="${esc(review.id)}">${esc(isHidden ? u().reviewsShow : u().reviewsHide)}</button>
+       <button type="button" class="btn btn-danger btn-sm" data-review-action="delete" data-review-id="${esc(review.id)}">${esc(u().reviewsDelete)}</button>`;
+  return `
+    <div class="review-card${isHidden ? ' hidden-review' : ''}">
+      <div class="review-card-head">
+        <div style="flex:1;min-width:0">
+          ${reviewStarsHtml(review.stars)}
+          <div style="font-weight:700;font-size:15px">${esc(review.name)}</div>
+          <div class="review-meta">${esc(review.role || '')}${review.role && review.date ? ' · ' : ''}${esc(review.date || '')}</div>
+        </div>
+        ${isHidden ? `<span class="review-status-badge">${esc(u().reviewsHidden)}</span>` : ''}
+      </div>
+      <div class="review-text">«${esc(review.text)}»</div>
+      <div class="review-actions">${actions}</div>
+    </div>`;
+}
+
+function renderReviewsAdmin() {
+  const container = document.getElementById('reviewsSection');
+  if (!container) return;
+  const pending = reviewsData.reviews.filter(r => r.status === 'pending');
+  const approved = reviewsData.reviews.filter(r => r.status === 'approved' || r.status === 'hidden');
+  const list = reviewsActiveTab === 'pending' ? pending : approved;
+  const emptyMsg = reviewsActiveTab === 'pending' ? u().reviewsEmptyPending : u().reviewsEmptyApproved;
+
+  container.innerHTML = `
+    <div class="admin-tabs">
+      <button type="button" class="admin-tab${reviewsActiveTab === 'pending' ? ' active' : ''}" data-reviews-tab="pending">
+        ${esc(u().reviewsTabPending)}${pending.length ? `<span class="admin-tab-badge">${pending.length}</span>` : ''}
+      </button>
+      <button type="button" class="admin-tab${reviewsActiveTab === 'approved' ? ' active' : ''}" data-reviews-tab="approved">${esc(u().reviewsTabApproved)}</button>
+    </div>
+    ${list.length ? list.map(r => renderReviewCard(r, reviewsActiveTab)).join('') : `<div class="empty-state">${esc(emptyMsg)}</div>`}`;
+
+  updateReviewsPendingBadge();
+
+  container.querySelectorAll('[data-reviews-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      reviewsActiveTab = btn.dataset.reviewsTab;
+      renderReviewsAdmin();
+    });
+  });
+  container.querySelectorAll('[data-review-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.reviewId;
+      const action = btn.dataset.reviewAction;
+      const idx = reviewsData.reviews.findIndex(r => r.id === id);
+      if (idx < 0) return;
+      if (action === 'approve') reviewsData.reviews[idx].status = 'approved';
+      else if (action === 'hide') reviewsData.reviews[idx].status = 'hidden';
+      else if (action === 'show') reviewsData.reviews[idx].status = 'approved';
+      else if (action === 'delete') reviewsData.reviews.splice(idx, 1);
+      markUnsaved();
+      renderReviewsAdmin();
     });
   });
 }
