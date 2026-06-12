@@ -45,7 +45,7 @@ const translations = {
     'form.message':'Расскажите подробнее','form.messagePh':'Краткое описание задачи, сроки...',
     'form.submit':'Отправить заявку',
     'form.successTitle':'Сообщение отправлено!','form.successText':'Свяжусь с вами в течение 24 часов.','form.successClose':'Закрыть',
-    'footer.contact':'Контакты','footer.impressum':'Импрессум','footer.agb':'AGB',
+    'footer.contact':'Контакты',
     'sd.s1.title':'Анимация логотипа','sd.s1.subtitle':'Превращаю ваш логотип в живой, запоминающийся образ.',
     'sd.s1.what':'Что вы получаете','sd.s1.whatText':'Готовую анимацию в форматах MP4 и MOV (с альфа-каналом). Длительность 3-10 секунд.',
     'sd.s1.process':'Процесс работы',
@@ -180,7 +180,7 @@ const translations = {
     'form.message':'Project details','form.messagePh':'Brief description, timeline, goals...',
     'form.submit':'Send inquiry',
     'form.successTitle':'Message sent!','form.successText':"I will contact you within 24 hours.",'form.successClose':'Close',
-    'footer.contact':'Contact','footer.impressum':'Imprint','footer.agb':'Terms & Conditions',
+    'footer.contact':'Contact',
     'sd.s1.title':'Logo Animation','sd.s1.subtitle':'I turn your logo into a living, memorable image.',
     'sd.s1.what':'What you get','sd.s1.whatText':'Ready animation in MP4 and MOV (with alpha channel). Duration 3-10 seconds.',
     'sd.s1.process':'Workflow',
@@ -273,7 +273,7 @@ const translations = {
   de: {
     'nav.services':'Services','nav.portfolio':'Portfolio','nav.development':'Entwicklung','nav.reviews':'Referenzen','nav.cta':'Kontakt',
     'hero.badge':'Motion Design Studio · Schweiz',
-    'hero.title':'Bewegung, die<br><em>beeindruckt</em>',
+    'hero.title':'Bewegung, die<br><em>eindruckt</em>',
     'hero.text':'Kors Motion ist Ihr Spezialist für Motion Design. Ich erstelle Logo-Animationen, Markengrafiken und Websites mit messbarem Erfolg.',
     'hero.btn1':'Projekt anfragen','hero.btn2':'Portfolio ansehen',
     'services.label':'— Mein Angebot','services.title':'Services, bis zur<br><em>Perfektion</em> veredelt',
@@ -315,7 +315,7 @@ const translations = {
     'form.message':'Details zum Projekt','form.messagePh':'Kurze Beschreibung, Ziele, Termine...',
     'form.submit':'Anfrage senden',
     'form.successTitle':'Nachricht gesendet!','form.successText':'Ich melde mich innerhalb von 24 Stunden bei Ihnen.','form.successClose':'Schliessen',
-    'footer.contact':'Kontakt','footer.impressum':'Impressum','footer.agb':'AGB',
+    'footer.contact':'Kontakt',
     'sd.s1.title':'Logo-Animation','sd.s1.subtitle':'Ich verwandle Ihr Logo in ein lebendiges Bild.',
     'sd.s1.what':'Was Sie erhalten','sd.s1.whatText':'Fertige Animation in MP4 und MOV. Dauer 3-10 Sekunden.',
     'sd.s1.process':'Arbeitsprozess',
@@ -450,7 +450,7 @@ const translations = {
     'form.message':'Dettagli del progetto','form.messagePh':'Breve descrizione, scadenze, obiettivi...',
     'form.submit':'Invia richiesta',
     'form.successTitle':'Messaggio inviato!','form.successText':'Ti contatterò entro 24 ore.','form.successClose':'Chiudi',
-    'footer.contact':'Contatti','footer.impressum':'Impronta','footer.agb':'CGC',
+    'footer.contact':'Contatti',
     'sd.s1.title':'Animazione Logo','sd.s1.subtitle':"Trasformo il tuo logo in un'immagine viva.",
     'sd.s1.what':'Cosa ricevi','sd.s1.whatText':'Animazione pronta in MP4 e MOV.',
     'sd.s1.process':'Processo',
@@ -585,7 +585,7 @@ const translations = {
     'form.message':'Détails du projet','form.messagePh':'Brève description, délais, objectifs...',
     'form.submit':'Envoyer la demande',
     'form.successTitle':'Message envoyé !','form.successText':'Je vous recontacterai sous 24 heures.','form.successClose':'Fermer',
-    'footer.contact':'Contact','footer.impressum':'Mentions légales','footer.agb':'CGV',
+    'footer.contact':'Contact',
     'sd.s1.title':'Animation Logo','sd.s1.subtitle':'Je transforme votre logo en image vivante.',
     'sd.s1.what':'Ce que vous recevez','sd.s1.whatText':'Animation prête en MP4 et MOV.',
     'sd.s1.process':'Processus',
@@ -678,14 +678,6 @@ const translations = {
 };
 
 const codes = { ru:'RU', de:'DE', en:'EN', it:'IT', fr:'FR' };
-const FLAG_ICONS = { ru:'ru', de:'de', en:'gb', it:'it', fr:'fr', es:'es' };
-
-function setCurrentFlag(lang) {
-  const flagEl = document.getElementById('currentFlag');
-  if (!flagEl) return;
-  const code = FLAG_ICONS[lang] || FLAG_ICONS.de;
-  flagEl.className = 'fi fi-' + code;
-}
 let currentLanguage = 'ru';
 
 let allProjects = [];
@@ -693,7 +685,7 @@ let siteProjects = [];
 let siteSettings = { show_dev_section: false, apps: [] };
 
 function detectLang() {
-  const saved = localStorage.getItem('korsmotion_lang') || localStorage.getItem('lang');
+  const saved = localStorage.getItem('korsmotion_lang');
   if (saved && translations[saved]) return saved;
   const browserLang = (navigator.language || 'ru').toLowerCase().split('-')[0];
   if (translations[browserLang]) return browserLang;
@@ -717,20 +709,15 @@ function applyLang(lang) {
     const key = el.getAttribute('data-i18n-placeholder');
     if (t[key]) el.placeholder = t[key];
   });
-  updateLangSwitcher(lang);
-  localStorage.setItem('korsmotion_lang', lang);
-  localStorage.setItem('lang', lang);
-  renderPortfolio();
-  renderDevSection();
-}
-
-function updateLangSwitcher(lang) {
-  const langEl = document.getElementById('currentLang');
-  if (langEl) langEl.textContent = codes[lang] || lang.toUpperCase();
-  setCurrentFlag(lang);
+  document.getElementById('currentLang').textContent = codes[lang];
+  const flagEl = document.getElementById('currentFlag');
+  flagEl.className = 'lang-flag flag-' + lang;
   document.querySelectorAll('.lang-option').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
   });
+  localStorage.setItem('korsmotion_lang', lang);
+  renderPortfolio();
+  renderDevSection();
 }
 
 const switcher = document.getElementById('langSwitcher');
@@ -1254,45 +1241,37 @@ function openAppModal(appId) {
   modal.id = 'appModal';
   modal.className = 'modal-overlay';
 
-  const googleBtn = a.showGooglePlay ? (a.googlePlayUrl ? `
+  const googleBtn = a.showGooglePlay && a.googlePlayUrl ? `
     <a href="${escHtml(a.googlePlayUrl)}" class="store-btn store-btn-google" target="_blank" rel="noopener" onclick="event.stopPropagation()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 0 2.07-.22l11.43-6.6-2.57-2.57zM1 2.24A2 2 0 0 0 .5 3.5v17a2 2 0 0 0 .5 1.26l.07.07 9.52-9.52v-.22zM20.34 10.47l-2.63-1.52-2.87 2.87 2.87 2.87 2.65-1.53a2 2 0 0 0 0-3.69zM5.25.46A2 2 0 0 0 3.18.24L14.11 9.6l-2.57-2.56z"/></svg>
       Google Play
-    </a>` : `
-    <span class="store-btn" style="background:#888;opacity:.5;cursor:default" onclick="event.stopPropagation()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 0 2.07-.22l11.43-6.6-2.57-2.57zM1 2.24A2 2 0 0 0 .5 3.5v17a2 2 0 0 0 .5 1.26l.07.07 9.52-9.52v-.22zM20.34 10.47l-2.63-1.52-2.87 2.87 2.87 2.87 2.65-1.53a2 2 0 0 0 0-3.69zM5.25.46A2 2 0 0 0 3.18.24L14.11 9.6l-2.57-2.56z"/></svg>
-      Google Play
-    </span>`) : '';
+    </a>` : '';
 
-  const appleBtn = a.showAppStore ? (a.appStoreUrl ? `
+  const appleBtn = a.showAppStore && a.appStoreUrl ? `
     <a href="${escHtml(a.appStoreUrl)}" class="store-btn store-btn-apple" target="_blank" rel="noopener" onclick="event.stopPropagation()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.14-2.18 1.27-2.16 3.8.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.78M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
       App Store
-    </a>` : `
-    <span class="store-btn" style="background:#888;opacity:.5;cursor:default" onclick="event.stopPropagation()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.14-2.18 1.27-2.16 3.8.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.78M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-      App Store
-    </span>`) : '';
+    </a>` : '';
 
   const aid = escHtml(a.id);
   const screensHtml = screens.length ? `
-    <div style="position:relative;background:#000;overflow:hidden;flex:1;min-height:0">
+    <div style="position:relative;background:#000;overflow:hidden">
       <div id="amtrack-${aid}" style="display:flex;transition:transform .35s ease;will-change:transform">
         ${screens.map(s => `
           <div style="min-width:100%;flex-shrink:0">
-            <img src="${escHtml(s)}" alt="" style="width:100%;display:block;max-height:520px;object-fit:cover">
+            <img src="${escHtml(s)}" alt="" style="width:100%;display:block;max-height:420px;object-fit:contain">
           </div>`).join('')}
       </div>
       ${screens.length > 1 ? `
-        <button onclick="event.stopPropagation();appModalPrev('${aid}',${screens.length})" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.7);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.4)">‹</button>
-        <button onclick="event.stopPropagation();appModalNext('${aid}',${screens.length})" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.7);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.4)">›</button>
+        <button onclick="event.stopPropagation();appModalPrev('${aid}',${screens.length})" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
+        <button onclick="event.stopPropagation();appModalNext('${aid}',${screens.length})" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
         <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px">
           ${screens.map((_, i) => `<span id="amdot-${aid}-${i}" style="width:${i===0?'16px':'6px'};height:6px;border-radius:3px;background:${i===0?'#fff':'rgba(255,255,255,.45)'};cursor:pointer;transition:all .3s" onclick="event.stopPropagation();appModalGo('${aid}',${i},${screens.length})"></span>`).join('')}
         </div>` : ''}
     </div>` : '';
 
   modal.innerHTML = `
-    <div class="modal" style="max-width:1000px;width:95%;max-height:92vh;display:flex;flex-direction:column;padding:0;border-radius:20px;overflow:hidden">
+    <div class="modal" style="max-width:760px;width:94%;max-height:90vh;overflow-y:auto;padding:0;border-radius:20px">
       <div style="padding:20px 24px 16px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid rgba(91,63,191,.1)">
         <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
           ${a.icon ? `<img src="${escHtml(a.icon)}" style="width:56px;height:56px;border-radius:14px;object-fit:cover;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.15)">` : ''}
@@ -1305,7 +1284,7 @@ function openAppModal(appId) {
         <button onclick="closeAppModal()" style="background:rgba(91,63,191,.08);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:20px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:12px">×</button>
       </div>
       ${screensHtml}
-      ${desc ? `<div style="padding:14px 24px 20px;text-align:center;flex-shrink:0"><p style="font-size:15px;color:var(--ink-soft);line-height:1.7;margin:0">${escHtml(desc)}</p></div>` : '<div style="height:16px"></div>'}
+      ${desc ? `<div style="padding:20px 24px 24px"><p style="font-size:15px;color:var(--ink-soft);line-height:1.7;margin:0">${escHtml(desc)}</p></div>` : '<div style="height:8px"></div>'}
     </div>`;
 
   document.body.appendChild(modal);
@@ -1318,7 +1297,7 @@ window.appModalGo = function(appId, idx, total) {
   if (!window._amState) window._amState = {};
   window._amState[appId] = idx;
   const track = document.getElementById('amtrack-' + appId);
-  if (track) track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+  if (track) track.style.transform = `translateX(-${idx * 100}%)`;
   for (let i = 0; i < total; i++) {
     const dot = document.getElementById('amdot-' + appId + '-' + i);
     if (dot) {
@@ -1338,6 +1317,10 @@ window.appModalPrev = function(appId, total) {
   if (!window._amState) window._amState = {};
   const prev = ((window._amState[appId] || 0) - 1 + total) % total;
   window.appModalGo(appId, prev, total);
+};
+window.appModalGo = function(idx, total) {
+  document.querySelectorAll('.app-modal-screen').forEach((el, i) => el.classList.toggle('active', i === idx));
+  document.querySelectorAll('[id^="amdot-"]').forEach((el, i) => el.classList.toggle('active', i === idx));
 };
 
 function closeAppModal() {
@@ -1587,37 +1570,3 @@ window.carouselPrev = carouselPrev;
 window.carouselGo = carouselGo;
 window.openCategoryModal = openCategoryModal;
 window.closeCategoryModal = closeCategoryModal;
-
-// MOBILE NAV MENU
-function setNavMenu(open) {
-  const nav = document.querySelector('nav');
-  const btn = document.getElementById('navHamburger');
-  const backdrop = document.getElementById('navBackdrop');
-  if (!nav) return;
-  nav.classList.toggle('menu-open', open);
-  if (btn) {
-    btn.classList.toggle('open', open);
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  }
-  if (backdrop) backdrop.classList.toggle('open', open);
-  document.body.classList.toggle('modal-open', open);
-}
-
-function toggleNavMenu() {
-  const nav = document.querySelector('nav');
-  setNavMenu(!nav.classList.contains('menu-open'));
-}
-
-function closeNavMenu() {
-  setNavMenu(false);
-}
-
-document.querySelectorAll('.nav-links-wrap .nav-link').forEach(link => {
-  link.addEventListener('click', closeNavMenu);
-});
-
-const navBackdrop = document.getElementById('navBackdrop');
-if (navBackdrop) navBackdrop.addEventListener('click', closeNavMenu);
-
-window.toggleNavMenu = toggleNavMenu;
-window.closeNavMenu = closeNavMenu;
