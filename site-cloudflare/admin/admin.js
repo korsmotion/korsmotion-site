@@ -86,11 +86,19 @@ const UI = {
     reviewsDelete: 'Удалить', reviewsDeleteShort: '✕ Удалить',
     reviewsEmptyPending: 'Нет новых отзывов', reviewsEmptyApproved: 'Нет одобренных отзывов',
     reviewsHidden: 'Скрыт',
-    calcTitle: 'Калькулятор', calcShow: 'ПОКАЗАТЬ НА САЙТЕ',
+    calcTitle: 'Калькулятор', calcShow: 'Показать на сайте',
     calcAddGroup: '+ Добавить группу', calcAddOption: '+ Добавить опцию',
     calcDeleteGroup: 'Удалить группу', calcDeleteOption: 'Удалить',
     calcGroupLabel: 'Название группы', calcActive: 'Активна', calcRequired: 'Обязательная',
     calcIcon: 'Иконка (emoji)', calcPrice: 'Внутренняя цена (CHF)', calcTitleField: 'Заголовок', calcDescField: 'Описание',
+    calcTabOverview: 'Обзор', calcTabEditor: 'Редактор', calcTabGroups: 'Группы',
+    calcColNum: '#', calcColIcon: 'Иконка', calcColName: 'Название', calcColGroup: 'Группа', calcColPrice: 'Цена CHF',
+    calcColActive: 'Активна', calcColRequired: 'Обяз.', calcColActions: 'Действия',
+    calcTotalOpts: 'Всего опций', calcTotalSum: 'Сумма (все активные)', calcSave: 'Сохранить', calcSaveOption: 'Сохранить опцию',
+    calcBackList: '← Назад к списку', calcNotesTitle: 'Внутренние заметки 🔒', calcNotesField: 'Заметки',
+    calcDomainField: 'Где регистрируем домен', calcToolsField: 'Используемые инструменты', calcTimeField: 'Примерное время выполнения',
+    calcGroupColId: 'ID', calcGroupColName: 'Название (RU)', calcGroupColCount: 'Кол-во опций', calcSelectGroup: 'Группа',
+    calcNoOptions: 'Нет опций. Добавьте первую.', calcNoGroups: 'Нет групп. Добавьте первую.',
   },
   de: {
     adminTitle: 'Admin-Panel', viewSite: 'Website ansehen', logout: 'Abmelden',
@@ -145,11 +153,19 @@ const UI = {
     reviewsDelete: 'Löschen', reviewsDeleteShort: '✕ Löschen',
     reviewsEmptyPending: 'Keine neuen Bewertungen', reviewsEmptyApproved: 'Keine genehmigten Bewertungen',
     reviewsHidden: 'Verborgen',
-    calcTitle: 'Kalkulator', calcShow: 'AUF WEBSITE ANZEIGEN',
+    calcTitle: 'Kalkulator', calcShow: 'Auf Website anzeigen',
     calcAddGroup: '+ Gruppe hinzufügen', calcAddOption: '+ Option hinzufügen',
     calcDeleteGroup: 'Gruppe löschen', calcDeleteOption: 'Löschen',
     calcGroupLabel: 'Gruppenname', calcActive: 'Aktiv', calcRequired: 'Pflicht',
     calcIcon: 'Icon (Emoji)', calcPrice: 'Interner Preis (CHF)', calcTitleField: 'Titel', calcDescField: 'Beschreibung',
+    calcTabOverview: 'Übersicht', calcTabEditor: 'Editor', calcTabGroups: 'Gruppen',
+    calcColNum: '#', calcColIcon: 'Icon', calcColName: 'Name', calcColGroup: 'Gruppe', calcColPrice: 'Preis CHF',
+    calcColActive: 'Aktiv', calcColRequired: 'Pflicht', calcColActions: 'Aktionen',
+    calcTotalOpts: 'Optionen gesamt', calcTotalSum: 'Summe (alle aktiv)', calcSave: 'Speichern', calcSaveOption: 'Option speichern',
+    calcBackList: '← Zurück zur Liste', calcNotesTitle: 'Interne Notizen 🔒', calcNotesField: 'Notizen',
+    calcDomainField: 'Domain-Registrierung', calcToolsField: 'Verwendete Tools', calcTimeField: 'Geschätzte Dauer',
+    calcGroupColId: 'ID', calcGroupColName: 'Name (RU)', calcGroupColCount: 'Optionen', calcSelectGroup: 'Gruppe',
+    calcNoOptions: 'Keine Optionen.', calcNoGroups: 'Keine Gruppen.',
   },
   en: {
     adminTitle: 'Admin Panel', viewSite: 'View site', logout: 'Logout',
@@ -204,11 +220,19 @@ const UI = {
     reviewsDelete: 'Delete', reviewsDeleteShort: '✕ Delete',
     reviewsEmptyPending: 'No new reviews', reviewsEmptyApproved: 'No approved reviews',
     reviewsHidden: 'Hidden',
-    calcTitle: 'Calculator', calcShow: 'SHOW ON SITE',
+    calcTitle: 'Calculator', calcShow: 'Show on site',
     calcAddGroup: '+ Add group', calcAddOption: '+ Add option',
     calcDeleteGroup: 'Delete group', calcDeleteOption: 'Delete',
     calcGroupLabel: 'Group label', calcActive: 'Active', calcRequired: 'Required',
     calcIcon: 'Icon (emoji)', calcPrice: 'Internal price (CHF)', calcTitleField: 'Title', calcDescField: 'Description',
+    calcTabOverview: 'Overview', calcTabEditor: 'Editor', calcTabGroups: 'Groups',
+    calcColNum: '#', calcColIcon: 'Icon', calcColName: 'Name', calcColGroup: 'Group', calcColPrice: 'Price CHF',
+    calcColActive: 'Active', calcColRequired: 'Req.', calcColActions: 'Actions',
+    calcTotalOpts: 'Total options', calcTotalSum: 'Sum (all active)', calcSave: 'Save', calcSaveOption: 'Save option',
+    calcBackList: '← Back to list', calcNotesTitle: 'Internal notes 🔒', calcNotesField: 'Notes',
+    calcDomainField: 'Domain registration', calcToolsField: 'Tools used', calcTimeField: 'Estimated time',
+    calcGroupColId: 'ID', calcGroupColName: 'Name (RU)', calcGroupColCount: 'Options', calcSelectGroup: 'Group',
+    calcNoOptions: 'No options yet.', calcNoGroups: 'No groups yet.',
   }
 };
 
@@ -267,8 +291,11 @@ const DEFAULT_SETTINGS = {
 let settingsData = { ...DEFAULT_SETTINGS };
 let reviewsData = { reviews: [] };
 let calculatorData = { visible: false, groups: [] };
-let calcAdminLang = 'ru';
-const calcOptLangTab = {};
+let calcActiveTab = 'overview';
+let calcEditingRef = null;
+let calcEditorLang = 'ru';
+let calcGroupEditGi = null;
+const CALC_EMOJIS = ['📄', '📑', '📱', '⚙️', '🌍', '📬', '📝', '✨', '🔍', '🖼️', '⭐', '📦', '🎨', '💻', '🔒', '🛒', '📊', '🎬', '📷', '🛠️'];
 let heroData = JSON.parse(JSON.stringify(DEFAULT_HERO));
 let reviewsActiveTab = 'pending';
 let heroActiveLang = 'ru';
@@ -2206,6 +2233,12 @@ function renderReviewsAdmin() {
 }
 
 // ── Calculator ────────────────────────────────────────────────────────────────
+function calcLang(obj, lang) {
+  if (!obj) return '';
+  if (typeof obj === 'string') return obj;
+  return obj[lang] || obj.ru || obj.en || obj.de || Object.values(obj)[0] || '';
+}
+
 function ensureCalcLangFields(obj) {
   if (!obj.label) obj.label = {};
   if (!obj.title) obj.title = {};
@@ -2218,22 +2251,79 @@ function ensureCalcLangFields(obj) {
   return obj;
 }
 
-function syncCalculatorVisibilityToggle() {
-  const el = document.getElementById('calcVisible');
-  if (!el) return;
-  el.checked = calculatorData.visible === true;
-  syncPremiumToggle('calcVisible');
+function ensureCalcMetaFields(opt) {
+  if (opt.notes === undefined) opt.notes = '';
+  if (opt.domainWhere === undefined) opt.domainWhere = '';
+  if (opt.tools === undefined) opt.tools = '';
+  if (opt.estimateTime === undefined) opt.estimateTime = '';
+  return opt;
 }
 
-function bindCalculatorVisibleToggle() {
-  const el = document.getElementById('calcVisible');
-  if (!el || el.dataset.bound === '1') return;
-  el.dataset.bound = '1';
-  el.addEventListener('change', e => {
-    calculatorData.visible = e.target.checked;
-    syncPremiumToggle('calcVisible');
-    markUnsaved();
+function getCalcEditingOption() {
+  if (!calcEditingRef) return null;
+  const { gi, oi } = calcEditingRef;
+  return calculatorData.groups[gi]?.options?.[oi] || null;
+}
+
+function calcFlattenOptions() {
+  const rows = [];
+  (calculatorData.groups || []).forEach((group, gi) => {
+    (group.options || []).forEach((opt, oi) => {
+      rows.push({ group, gi, opt, oi });
+    });
   });
+  return rows;
+}
+
+function calcTotalActiveSum() {
+  let sum = 0;
+  (calculatorData.groups || []).forEach(g => {
+    (g.options || []).forEach(o => {
+      if (o.active !== false) sum += parseInt(o.price, 10) || 0;
+    });
+  });
+  return sum;
+}
+
+function openCalcEditor(gi, oi) {
+  calcEditingRef = { gi, oi };
+  calcEditorLang = adminLang || 'ru';
+  calcActiveTab = 'editor';
+  renderCalculatorAdmin();
+}
+
+function addCalcOption(targetGi) {
+  if (!calculatorData.groups.length) {
+    calculatorData.groups.push({
+      id: 'grp_' + Date.now(),
+      label: { de: 'Neue Gruppe', en: 'New group', fr: 'Nouveau groupe', it: 'Nuovo gruppo', ru: 'Новая группа' },
+      options: [],
+    });
+  }
+  const gi = typeof targetGi === 'number' ? targetGi : 0;
+  const g = calculatorData.groups[gi];
+  if (!g.options) g.options = [];
+  const id = 'opt_' + Date.now();
+  const opt = {
+    id, active: true, required: false, icon: '📦', price: 0,
+    title: { de: '', en: '', fr: '', it: '', ru: '' },
+    desc: { de: '', en: '', fr: '', it: '', ru: '' },
+    notes: '', domainWhere: '', tools: '', estimateTime: '',
+  };
+  g.options.push(opt);
+  markUnsaved();
+  openCalcEditor(gi, g.options.length - 1);
+}
+
+function addCalcGroup() {
+  calculatorData.groups.push({
+    id: 'grp_' + Date.now(),
+    label: { de: 'Neue Gruppe', en: 'New group', fr: 'Nouveau groupe', it: 'Nuovo gruppo', ru: 'Новая группа' },
+    options: [],
+  });
+  markUnsaved();
+  calcActiveTab = 'groups';
+  renderCalculatorAdmin();
 }
 
 async function loadCalculatorAdmin() {
@@ -2250,10 +2340,8 @@ async function loadCalculatorAdmin() {
   if (!Array.isArray(calculatorData.groups)) calculatorData.groups = [];
   calculatorData.groups.forEach(g => {
     ensureCalcLangFields(g);
-    (g.options || []).forEach(o => ensureCalcLangFields(o));
+    (g.options || []).forEach(o => { ensureCalcLangFields(o); ensureCalcMetaFields(o); });
   });
-  syncCalculatorVisibilityToggle();
-  bindCalculatorVisibleToggle();
   renderCalculatorAdmin();
 }
 
@@ -2265,6 +2353,7 @@ async function saveCalculator({ silent } = {}) {
       body: JSON.stringify({ password: ADMIN_PASSWORD, calculator: calculatorData }),
     });
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
+    if (!silent) showToast(u().saved, 'success');
     return true;
   } catch (e) {
     if (!silent) showToast(u().saveError, 'error');
@@ -2272,166 +2361,430 @@ async function saveCalculator({ silent } = {}) {
   }
 }
 
-function renderCalcOptionCard(group, gi, opt, oi) {
-  const t = u();
-  const optLang = calcOptLangTab[opt.id] || calcAdminLang;
-  const previewTitle = (opt.title && (opt.title.ru || opt.title.en)) || opt.id;
+function renderCalcToolbar(t) {
   return `
-    <div class="item-card calc-opt-card" data-gi="${gi}" data-oi="${oi}">
-      <div class="item-card-head">
-        <span class="item-card-title">${esc(opt.icon || '📦')} ${esc(previewTitle)}</span>
-        <div class="item-card-actions" style="gap:8px;flex-wrap:wrap">
-          <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600">
-            <input type="checkbox" class="calc-opt-active" data-gi="${gi}" data-oi="${oi}" ${opt.active !== false ? 'checked' : ''}>
-            ${esc(t.calcActive)}
-          </label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600">
-            <input type="checkbox" class="calc-opt-required" data-gi="${gi}" data-oi="${oi}" ${opt.required ? 'checked' : ''}>
-            ${esc(t.calcRequired)}
-          </label>
-          <button type="button" class="btn btn-danger btn-sm calc-opt-del" data-gi="${gi}" data-oi="${oi}">${esc(t.calcDeleteOption)}</button>
+    <div class="calc-toolbar">
+      <div class="calc-toolbar-left">
+        <div class="calc-toolbar-title">${esc(t.calcTitle)}</div>
+        <div class="section-vis-toggle" role="switch">
+          <span>${esc(t.calcShow)}</span>
+          <input type="checkbox" id="calcVisible" class="premium-toggle-input" ${calculatorData.visible === true ? 'checked' : ''}>
+          <div class="premium-toggle-track${calculatorData.visible === true ? ' is-on' : ''}" id="calcVisibleTrack" data-for="calcVisible" role="switch" tabindex="0">
+            <div class="premium-toggle-knob"></div>
+          </div>
         </div>
       </div>
-      <div class="item-card-body item-card-body--plain">
-        <div class="item-fields" style="margin-bottom:12px">
-          <div class="form-group">
-            <label class="form-label">${esc(t.calcIcon)}</label>
-            <input class="form-input calc-opt-field" data-gi="${gi}" data-oi="${oi}" data-field="icon" value="${esc(opt.icon || '')}" style="max-width:80px;font-size:22px;text-align:center">
-          </div>
-          <div class="form-group">
-            <label class="form-label">${esc(t.calcPrice)}</label>
-            <input type="number" class="form-input calc-opt-field" data-gi="${gi}" data-oi="${oi}" data-field="price" value="${esc(String(opt.price ?? 0))}" min="0" step="50">
-          </div>
-        </div>
-        <div class="lang-section">
-          <div class="lang-section-label">${esc(t.langLabel)}:</div>
-          <div class="lang-tabs">
-            ${SITE_LANGS.map(l => `
-              <button type="button" class="lang-tab${l === optLang ? ' active' : ''}" data-calc-opt-lang="${opt.id}" data-lang="${l}">${SITE_LANG_LABELS[l]}</button>
-            `).join('')}
-          </div>
-          <div class="lang-fields">
-            <div class="form-group">
-              <label class="form-label">${esc(t.calcTitleField)}</label>
-              <input class="form-input calc-opt-field" data-gi="${gi}" data-oi="${oi}" data-field="title" data-lang="${optLang}" value="${esc((opt.title && opt.title[optLang]) || '')}">
-            </div>
-            <div class="form-group">
-              <label class="form-label">${esc(t.calcDescField)}</label>
-              <textarea class="form-textarea calc-opt-field" data-gi="${gi}" data-oi="${oi}" data-field="desc" data-lang="${optLang}" rows="2">${esc((opt.desc && opt.desc[optLang]) || '')}</textarea>
-            </div>
-          </div>
-        </div>
+      <div class="calc-toolbar-right">
+        <button type="button" class="btn btn-ghost btn-sm" id="calcToolbarAddOpt">${esc(t.calcAddOption)}</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="calcToolbarAddGroup">${esc(t.calcAddGroup)}</button>
+        <button type="button" class="btn btn-success btn-sm" id="calcToolbarSave">${esc(t.calcSave)}</button>
       </div>
     </div>`;
 }
 
-function renderCalculatorAdmin() {
-  const container = document.getElementById('calculatorSection');
-  if (!container) return;
-  const t = u();
+function renderCalcOverview(t) {
+  const lang = adminLang || 'ru';
+  const rows = calcFlattenOptions();
+  if (!rows.length) return `<div class="calc-empty">${esc(t.calcNoOptions)}</div>`;
+
+  const body = rows.map((row, idx) => {
+    const { gi, oi, opt, group } = row;
+    const name = calcLang(opt.title, lang) || opt.id;
+    const groupName = calcLang(group.label, lang) || group.id;
+    return `
+      <tr class="calc-overview-row" data-gi="${gi}" data-oi="${oi}" draggable="true">
+        <td class="calc-row-num"><span class="calc-drag-handle">⋮⋮</span>${idx + 1}</td>
+        <td class="calc-icon-cell">${opt.icon || '📦'}</td>
+        <td>${esc(name)}</td>
+        <td>${esc(groupName)}</td>
+        <td>${parseInt(opt.price, 10) || 0}</td>
+        <td class="calc-toggle-cell" onclick="event.stopPropagation()">
+          <input type="checkbox" class="calc-overview-active" data-gi="${gi}" data-oi="${oi}" ${opt.active !== false ? 'checked' : ''}>
+        </td>
+        <td class="calc-req-cell">${opt.required ? '☑' : '☐'}</td>
+        <td class="calc-actions-cell" onclick="event.stopPropagation()">
+          <button type="button" class="calc-icon-btn calc-overview-edit" data-gi="${gi}" data-oi="${oi}" title="Edit">✏️</button>
+          <button type="button" class="calc-icon-btn calc-overview-del" data-gi="${gi}" data-oi="${oi}" title="Delete">🗑️</button>
+        </td>
+      </tr>`;
+  }).join('');
+
+  const totalSum = calcTotalActiveSum();
+  return `
+    <div class="calc-table-wrap">
+      <table class="calc-table">
+        <thead>
+          <tr>
+            <th>${esc(t.calcColNum)}</th>
+            <th>${esc(t.calcColIcon)}</th>
+            <th>${esc(t.calcColName)}</th>
+            <th>${esc(t.calcColGroup)}</th>
+            <th>${esc(t.calcColPrice)}</th>
+            <th>${esc(t.calcColActive)}</th>
+            <th>${esc(t.calcColRequired)}</th>
+            <th>${esc(t.calcColActions)}</th>
+          </tr>
+        </thead>
+        <tbody>${body}</tbody>
+      </table>
+    </div>
+    <div class="calc-footer-stats">
+      <span>${esc(t.calcTotalOpts)}: <strong>${rows.length}</strong></span>
+      <span>${esc(t.calcTotalSum)}: <strong>${totalSum} CHF</strong></span>
+    </div>`;
+}
+
+function renderCalcEditor(t) {
+  const opt = getCalcEditingOption();
+  if (!opt) {
+    return `<div class="calc-empty">${esc(t.calcNoOptions)} <button type="button" class="btn btn-ghost btn-sm" id="calcEditorBack">${esc(t.calcBackList)}</button></div>`;
+  }
+  ensureCalcLangFields(opt);
+  ensureCalcMetaFields(opt);
+  const { gi } = calcEditingRef;
+  const lang = calcEditorLang;
   const groups = calculatorData.groups || [];
 
-  container.innerHTML = `
-    ${groups.map((group, gi) => {
-      ensureCalcLangFields(group);
-      const gLang = calcAdminLang;
-      const opts = group.options || [];
-      return `
-        <div class="calc-group-admin" data-gi="${gi}" style="margin-bottom:24px;padding:16px;background:var(--bg-input);border-radius:12px;border:2px solid var(--border)">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-            <div style="flex:1;min-width:200px">
-              <div class="lang-section-label">${esc(t.calcGroupLabel)} (ID: ${esc(group.id || '')})</div>
-              <div class="lang-tabs" style="margin:8px 0">
-                ${SITE_LANGS.map(l => `
-                  <button type="button" class="lang-tab${l === gLang ? ' active' : ''}" data-calc-group-lang="${gi}" data-lang="${l}">${SITE_LANG_LABELS[l]}</button>
-                `).join('')}
-              </div>
-              <input class="form-input calc-group-label" data-gi="${gi}" data-lang="${gLang}" value="${esc((group.label && group.label[gLang]) || '')}">
-            </div>
-            <button type="button" class="btn btn-danger btn-sm calc-group-del" data-gi="${gi}">${esc(t.calcDeleteGroup)}</button>
-          </div>
-          <div class="calc-options-admin">${opts.map((opt, oi) => renderCalcOptionCard(group, gi, opt, oi)).join('')}</div>
-          <button type="button" class="btn btn-ghost btn-sm calc-add-opt" data-gi="${gi}" style="margin-top:12px">${esc(t.calcAddOption)}</button>
-        </div>`;
-    }).join('')}
-    <button type="button" class="btn btn-primary btn-sm" id="calcAddGroupBtn">${esc(t.calcAddGroup)}</button>`;
+  const groupOptions = groups.map((g, i) =>
+    `<option value="${i}"${i === gi ? ' selected' : ''}>${esc(calcLang(g.label, 'ru') || g.id)}</option>`
+  ).join('');
 
-  container.querySelectorAll('[data-calc-group-lang]').forEach(btn => {
+  const emojiBtns = CALC_EMOJIS.map(e =>
+    `<button type="button" class="calc-emoji-btn${opt.icon === e ? ' active' : ''}" data-emoji="${e}">${e}</button>`
+  ).join('');
+
+  return `
+    <div class="calc-editor-grid">
+      <div class="calc-editor-main">
+        <div class="item-fields" style="margin-bottom:12px">
+          <div class="form-group">
+            <label class="form-label">${esc(t.calcIcon)}</label>
+            <input class="form-input" id="calcEditorIcon" value="${esc(opt.icon || '')}" style="max-width:80px;font-size:22px;text-align:center">
+            <div class="calc-emoji-grid">${emojiBtns}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">${esc(t.calcPrice)}</label>
+            <input type="number" class="form-input" id="calcEditorPrice" value="${parseInt(opt.price, 10) || 0}" min="0" step="50">
+          </div>
+        </div>
+        <div style="display:flex;gap:20px;margin-bottom:16px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600">
+            <input type="checkbox" id="calcEditorActive" ${opt.active !== false ? 'checked' : ''}> ${esc(t.calcActive)}
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600">
+            <input type="checkbox" id="calcEditorRequired" ${opt.required ? 'checked' : ''}> ${esc(t.calcRequired)}
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-label">${esc(t.calcSelectGroup)}</label>
+          <select class="form-input" id="calcEditorGroup">${groupOptions}</select>
+        </div>
+        <div class="lang-section" style="margin-top:16px">
+          <div class="lang-tabs">
+            ${SITE_LANGS.map(l => `
+              <button type="button" class="lang-tab${l === lang ? ' active' : ''}" data-calc-editor-lang="${l}">${SITE_LANG_LABELS[l]}</button>
+            `).join('')}
+          </div>
+          <div class="lang-fields" style="margin-top:12px">
+            <div class="form-group">
+              <label class="form-label">${esc(t.calcTitleField)}</label>
+              <input class="form-input" id="calcEditorTitle" value="${esc((opt.title && opt.title[lang]) || '')}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">${esc(t.calcDescField)}</label>
+              <textarea class="form-textarea" id="calcEditorDesc" rows="3">${esc((opt.desc && opt.desc[lang]) || '')}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="calc-editor-notes">
+        <div class="calc-editor-notes-title">${esc(t.calcNotesTitle)}</div>
+        <div class="form-group">
+          <label class="form-label">${esc(t.calcNotesField)}</label>
+          <textarea class="form-textarea" id="calcEditorNotes" rows="4">${esc(opt.notes || '')}</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">${esc(t.calcDomainField)}</label>
+          <input class="form-input" id="calcEditorDomain" value="${esc(opt.domainWhere || '')}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">${esc(t.calcToolsField)}</label>
+          <input class="form-input" id="calcEditorTools" value="${esc(opt.tools || '')}" placeholder="Figma, Cloudflare, ...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">${esc(t.calcTimeField)}</label>
+          <input class="form-input" id="calcEditorTime" value="${esc(opt.estimateTime || '')}" placeholder="3-5 дней">
+        </div>
+      </div>
+    </div>
+    <div class="calc-editor-footer">
+      <button type="button" class="btn btn-ghost btn-sm" id="calcEditorBack">${esc(t.calcBackList)}</button>
+      <button type="button" class="btn btn-success btn-sm" id="calcEditorSave">${esc(t.calcSaveOption)}</button>
+    </div>`;
+}
+
+function renderCalcGroups(t) {
+  const groups = calculatorData.groups || [];
+  if (!groups.length) return `<div class="calc-empty">${esc(t.calcNoGroups)}</div>`;
+
+  const rows = groups.map((group, gi) => {
+    ensureCalcLangFields(group);
+    const count = (group.options || []).length;
+    const ruName = (group.label && group.label.ru) || '';
+    const isEditing = calcGroupEditGi === gi;
+    const mainRow = `
+      <tr class="calc-group-row" data-gi="${gi}" draggable="true">
+        <td class="calc-row-num"><span class="calc-drag-handle">⋮⋮</span>${gi + 1}</td>
+        <td><code style="font-size:12px">${esc(group.id || '')}</code></td>
+        <td>${esc(ruName)}</td>
+        <td>${count}</td>
+        <td class="calc-actions-cell">
+          <button type="button" class="calc-icon-btn calc-group-edit" data-gi="${gi}">✏️</button>
+          <button type="button" class="calc-icon-btn calc-group-del" data-gi="${gi}">🗑️</button>
+        </td>
+      </tr>`;
+    const expandRow = isEditing ? `
+      <tr class="calc-group-expand"><td colspan="5">
+        <div class="lang-section-label" style="margin-bottom:8px">${esc(t.calcGroupLabel)}</div>
+        <div class="lang-fields">
+          ${SITE_LANGS.map(l => `
+            <div class="form-group">
+              <label class="form-label">${SITE_LANG_LABELS[l]}</label>
+              <input class="form-input calc-group-inline" data-gi="${gi}" data-lang="${l}" value="${esc((group.label && group.label[l]) || '')}">
+            </div>
+          `).join('')}
+        </div>
+      </td></tr>` : '';
+    return mainRow + expandRow;
+  }).join('');
+
+  return `
+    <div class="calc-table-wrap">
+      <table class="calc-table">
+        <thead>
+          <tr>
+            <th>${esc(t.calcColNum)}</th>
+            <th>${esc(t.calcGroupColId)}</th>
+            <th>${esc(t.calcGroupColName)}</th>
+            <th>${esc(t.calcGroupColCount)}</th>
+            <th>${esc(t.calcColActions)}</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <button type="button" class="btn btn-ghost btn-sm" id="calcGroupsAddBtn" style="margin-top:12px">${esc(t.calcAddGroup)}</button>`;
+}
+
+function snapshotCalcEditorFields() {
+  const opt = getCalcEditingOption();
+  if (!opt || calcActiveTab !== 'editor') return;
+  const lang = calcEditorLang;
+  const icon = document.getElementById('calcEditorIcon');
+  const price = document.getElementById('calcEditorPrice');
+  const active = document.getElementById('calcEditorActive');
+  const required = document.getElementById('calcEditorRequired');
+  const groupSel = document.getElementById('calcEditorGroup');
+  const title = document.getElementById('calcEditorTitle');
+  const desc = document.getElementById('calcEditorDesc');
+  const notes = document.getElementById('calcEditorNotes');
+  const domain = document.getElementById('calcEditorDomain');
+  const tools = document.getElementById('calcEditorTools');
+  const time = document.getElementById('calcEditorTime');
+
+  if (icon) opt.icon = icon.value;
+  if (price) opt.price = parseInt(price.value, 10) || 0;
+  if (active) opt.active = active.checked;
+  if (required) opt.required = required.checked;
+  if (title) { if (!opt.title) opt.title = {}; opt.title[lang] = title.value; }
+  if (desc) { if (!opt.desc) opt.desc = {}; opt.desc[lang] = desc.value; }
+  if (notes) opt.notes = notes.value;
+  if (domain) opt.domainWhere = domain.value;
+  if (tools) opt.tools = tools.value;
+  if (time) opt.estimateTime = time.value;
+
+  if (groupSel && calcEditingRef) {
+    const newGi = parseInt(groupSel.value, 10);
+    const oldGi = calcEditingRef.gi;
+    const oi = calcEditingRef.oi;
+    if (!isNaN(newGi) && newGi !== oldGi && calculatorData.groups[oldGi]?.options?.[oi]) {
+      const [moved] = calculatorData.groups[oldGi].options.splice(oi, 1);
+      if (!calculatorData.groups[newGi].options) calculatorData.groups[newGi].options = [];
+      calculatorData.groups[newGi].options.push(moved);
+      calcEditingRef = { gi: newGi, oi: calculatorData.groups[newGi].options.length - 1 };
+    }
+  }
+}
+
+function bindCalcOverviewDrag(container) {
+  let dragGi = null;
+  let dragOi = null;
+  container.querySelectorAll('.calc-overview-row').forEach(row => {
+    row.addEventListener('dragstart', e => {
+      dragGi = +row.dataset.gi;
+      dragOi = +row.dataset.oi;
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (+row.dataset.gi === dragGi) row.classList.add('calc-drag-over');
+    });
+    row.addEventListener('dragleave', () => row.classList.remove('calc-drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('calc-drag-over');
+      const targetGi = +row.dataset.gi;
+      const targetOi = +row.dataset.oi;
+      if (targetGi !== dragGi || dragOi === targetOi) return;
+      const opts = calculatorData.groups[dragGi]?.options;
+      if (!opts) return;
+      const [item] = opts.splice(dragOi, 1);
+      opts.splice(targetOi, 0, item);
+      if (calcEditingRef?.gi === dragGi) calcEditingRef.oi = opts.indexOf(item);
+      markUnsaved();
+      renderCalculatorAdmin();
+    });
+    row.addEventListener('dragend', () => {
+      container.querySelectorAll('.calc-drag-over').forEach(r => r.classList.remove('calc-drag-over'));
+    });
+  });
+}
+
+function remapGiAfterGroupMove(from, to) {
+  const remap = gi => {
+    if (gi === from) return to;
+    if (from < to && gi > from && gi <= to) return gi - 1;
+    if (from > to && gi >= to && gi < from) return gi + 1;
+    return gi;
+  };
+  if (calcEditingRef) calcEditingRef.gi = remap(calcEditingRef.gi);
+  if (calcGroupEditGi !== null) calcGroupEditGi = remap(calcGroupEditGi);
+}
+
+function bindCalcGroupsDrag(container) {
+  let dragGi = null;
+  container.querySelectorAll('.calc-group-row').forEach(row => {
+    row.addEventListener('dragstart', e => {
+      dragGi = +row.dataset.gi;
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      row.classList.add('calc-drag-over');
+    });
+    row.addEventListener('dragleave', () => row.classList.remove('calc-drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('calc-drag-over');
+      const targetGi = +row.dataset.gi;
+      if (dragGi === targetGi) return;
+      const [item] = calculatorData.groups.splice(dragGi, 1);
+      calculatorData.groups.splice(targetGi, 0, item);
+      remapGiAfterGroupMove(dragGi, targetGi);
+      markUnsaved();
+      renderCalculatorAdmin();
+    });
+    row.addEventListener('dragend', () => {
+      container.querySelectorAll('.calc-drag-over').forEach(r => r.classList.remove('calc-drag-over'));
+    });
+  });
+}
+
+function bindCalculatorAdminEvents(container) {
+  const t = u();
+
+  document.getElementById('calcVisible')?.addEventListener('change', e => {
+    calculatorData.visible = e.target.checked;
+    syncPremiumToggle('calcVisible');
+    markUnsaved();
+  });
+  syncPremiumToggle('calcVisible');
+
+  document.getElementById('calcToolbarSave')?.addEventListener('click', async () => {
+    snapshotCalcEditorFields();
+    markSaving();
+    if (await saveCalculator({ silent: true })) await markSavedSuccess();
+    else markSaveError(t.saveError);
+  });
+  document.getElementById('calcToolbarAddOpt')?.addEventListener('click', () => addCalcOption());
+  document.getElementById('calcToolbarAddGroup')?.addEventListener('click', () => addCalcGroup());
+
+  container.querySelectorAll('[data-calc-tab]').forEach(btn => {
     btn.addEventListener('click', () => {
-      calcAdminLang = btn.dataset.lang;
+      if (calcActiveTab === 'editor') snapshotCalcEditorFields();
+      calcActiveTab = btn.dataset.calcTab;
       renderCalculatorAdmin();
     });
   });
-  container.querySelectorAll('.calc-group-label').forEach(el => {
-    el.addEventListener('input', e => {
-      const gi = +e.target.dataset.gi;
-      const lang = e.target.dataset.lang;
-      const g = calculatorData.groups[gi];
-      if (!g) return;
-      if (!g.label) g.label = {};
-      g.label[lang] = e.target.value;
-      markUnsaved();
-    });
+
+  container.querySelectorAll('.calc-overview-row').forEach(row => {
+    row.addEventListener('click', () => openCalcEditor(+row.dataset.gi, +row.dataset.oi));
   });
-  container.querySelectorAll('[data-calc-opt-lang]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      calcOptLangTab[btn.dataset.calcOptLang] = btn.dataset.lang;
-      renderCalculatorAdmin();
-    });
+  container.querySelectorAll('.calc-overview-edit').forEach(btn => {
+    btn.addEventListener('click', () => openCalcEditor(+btn.dataset.gi, +btn.dataset.oi));
   });
-  container.querySelectorAll('.calc-opt-field').forEach(el => {
-    el.addEventListener('input', e => {
-      const gi = +e.target.dataset.gi;
-      const oi = +e.target.dataset.oi;
-      const field = e.target.dataset.field;
-      const lang = e.target.dataset.lang;
-      const opt = calculatorData.groups[gi]?.options?.[oi];
-      if (!opt) return;
-      if (lang) {
-        if (!opt[field]) opt[field] = {};
-        opt[field][lang] = e.target.value;
-        if (field === 'title') {
-          const card = e.target.closest('.calc-opt-card');
-          const preview = (opt.title && (opt.title.ru || opt.title.en)) || opt.id;
-          if (card) card.querySelector('.item-card-title').textContent = `${opt.icon || '📦'} ${preview}`;
-        }
-      } else if (field === 'price') {
-        opt.price = parseInt(e.target.value, 10) || 0;
-      } else {
-        opt[field] = e.target.value;
-        if (field === 'icon') {
-          const card = e.target.closest('.calc-opt-card');
-          const preview = (opt.title && (opt.title.ru || opt.title.en)) || opt.id;
-          if (card) card.querySelector('.item-card-title').textContent = `${opt.icon || '📦'} ${preview}`;
-        }
-      }
-      markUnsaved();
-    });
-  });
-  container.querySelectorAll('.calc-opt-active').forEach(el => {
-    el.addEventListener('change', e => {
-      const gi = +e.target.dataset.gi;
-      const oi = +e.target.dataset.oi;
-      const opt = calculatorData.groups[gi]?.options?.[oi];
-      if (opt) opt.active = e.target.checked;
-      markUnsaved();
-    });
-  });
-  container.querySelectorAll('.calc-opt-required').forEach(el => {
-    el.addEventListener('change', e => {
-      const gi = +e.target.dataset.gi;
-      const oi = +e.target.dataset.oi;
-      const opt = calculatorData.groups[gi]?.options?.[oi];
-      if (opt) opt.required = e.target.checked;
-      markUnsaved();
-    });
-  });
-  container.querySelectorAll('.calc-opt-del').forEach(btn => {
+  container.querySelectorAll('.calc-overview-del').forEach(btn => {
     btn.addEventListener('click', () => {
       const gi = +btn.dataset.gi;
       const oi = +btn.dataset.oi;
       calculatorData.groups[gi]?.options?.splice(oi, 1);
+      if (calcEditingRef?.gi === gi && calcEditingRef?.oi === oi) calcEditingRef = null;
       markUnsaved();
+      renderCalculatorAdmin();
+    });
+  });
+  container.querySelectorAll('.calc-overview-active').forEach(el => {
+    el.addEventListener('change', e => {
+      const opt = calculatorData.groups[+e.target.dataset.gi]?.options?.[+e.target.dataset.oi];
+      if (opt) { opt.active = e.target.checked; markUnsaved(); }
+    });
+  });
+  bindCalcOverviewDrag(container);
+
+  document.getElementById('calcEditorBack')?.addEventListener('click', () => {
+    snapshotCalcEditorFields();
+    calcActiveTab = 'overview';
+    renderCalculatorAdmin();
+  });
+  document.getElementById('calcEditorSave')?.addEventListener('click', async () => {
+    snapshotCalcEditorFields();
+    markUnsaved();
+    markSaving();
+    if (await saveCalculator({ silent: true })) {
+      await markSavedSuccess();
+      showToast(t.saved, 'success');
+    } else markSaveError(t.saveError);
+  });
+  container.querySelectorAll('[data-calc-editor-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      snapshotCalcEditorFields();
+      calcEditorLang = btn.dataset.calcEditorLang;
+      renderCalculatorAdmin();
+    });
+  });
+  container.querySelectorAll('.calc-emoji-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const opt = getCalcEditingOption();
+      const iconInput = document.getElementById('calcEditorIcon');
+      if (opt && iconInput) {
+        opt.icon = btn.dataset.emoji;
+        iconInput.value = btn.dataset.emoji;
+        markUnsaved();
+        container.querySelectorAll('.calc-emoji-btn').forEach(b => b.classList.toggle('active', b === btn));
+      }
+    });
+  });
+  ['calcEditorIcon', 'calcEditorPrice', 'calcEditorActive', 'calcEditorRequired', 'calcEditorGroup',
+    'calcEditorTitle', 'calcEditorDesc', 'calcEditorNotes', 'calcEditorDomain', 'calcEditorTools', 'calcEditorTime'
+  ].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', markUnsaved);
+    document.getElementById(id)?.addEventListener('change', markUnsaved);
+  });
+
+  container.querySelectorAll('.calc-group-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const gi = +btn.dataset.gi;
+      calcGroupEditGi = calcGroupEditGi === gi ? null : gi;
       renderCalculatorAdmin();
     });
   });
@@ -2439,35 +2792,43 @@ function renderCalculatorAdmin() {
     btn.addEventListener('click', () => {
       const gi = +btn.dataset.gi;
       calculatorData.groups.splice(gi, 1);
+      if (calcGroupEditGi === gi) calcGroupEditGi = null;
+      if (calcEditingRef?.gi === gi) calcEditingRef = null;
       markUnsaved();
       renderCalculatorAdmin();
     });
   });
-  container.querySelectorAll('.calc-add-opt').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const gi = +btn.dataset.gi;
-      const g = calculatorData.groups[gi];
+  container.querySelectorAll('.calc-group-inline').forEach(el => {
+    el.addEventListener('input', e => {
+      const g = calculatorData.groups[+e.target.dataset.gi];
       if (!g) return;
-      if (!g.options) g.options = [];
-      const id = 'opt_' + Date.now();
-      g.options.push({
-        id, active: true, required: false, icon: '📦', price: 0,
-        title: { de: '', en: '', fr: '', it: '', ru: '' },
-        desc: { de: '', en: '', fr: '', it: '', ru: '' },
-      });
+      if (!g.label) g.label = {};
+      g.label[e.target.dataset.lang] = e.target.value;
       markUnsaved();
-      renderCalculatorAdmin();
     });
   });
-  document.getElementById('calcAddGroupBtn')?.addEventListener('click', () => {
-    const id = 'grp_' + Date.now();
-    calculatorData.groups.push({
-      id,
-      label: { de: 'Neue Gruppe', en: 'New group', fr: 'Nouveau groupe', it: 'Nuovo gruppo', ru: 'Новая группа' },
-      options: [],
-    });
-    markUnsaved();
-    renderCalculatorAdmin();
-  });
+  bindCalcGroupsDrag(container);
+  document.getElementById('calcGroupsAddBtn')?.addEventListener('click', () => addCalcGroup());
+}
+
+function renderCalculatorAdmin() {
+  const container = document.getElementById('calculatorSection');
+  if (!container) return;
+  const t = u();
+
+  container.innerHTML = `
+    ${renderCalcToolbar(t)}
+    <div class="calc-nav-tabs">
+      <button type="button" class="admin-tab${calcActiveTab === 'overview' ? ' active' : ''}" data-calc-tab="overview">${esc(t.calcTabOverview)}</button>
+      <button type="button" class="admin-tab${calcActiveTab === 'editor' ? ' active' : ''}" data-calc-tab="editor">${esc(t.calcTabEditor)}</button>
+      <button type="button" class="admin-tab${calcActiveTab === 'groups' ? ' active' : ''}" data-calc-tab="groups">${esc(t.calcTabGroups)}</button>
+    </div>
+    <div class="calc-tab-panel">
+      ${calcActiveTab === 'overview' ? renderCalcOverview(t) : ''}
+      ${calcActiveTab === 'editor' ? renderCalcEditor(t) : ''}
+      ${calcActiveTab === 'groups' ? renderCalcGroups(t) : ''}
+    </div>`;
+
+  bindCalculatorAdminEvents(container);
 }
 
