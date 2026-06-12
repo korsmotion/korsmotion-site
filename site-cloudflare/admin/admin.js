@@ -632,19 +632,21 @@ async function loadWeatherWidget() {
     const forecastHtml = forecastDays.length
       ? forecastDays.map(d => `
           <div class="weather-forecast-day">
-            <div>${esc(d.day)}</div>
-            <span class="wf-emoji">${d.emoji}</span>
-            <div class="wf-temp">${d.min}° / ${d.max}°</div>
+            <span class="wf-day">${esc(d.day)}</span><span class="wf-emoji">${d.emoji}</span><span class="wf-temp">${d.min}/${d.max}</span>
           </div>`).join('')
       : '';
 
     widget.innerHTML = `
       <div class="weather-widget-bg" style="background-image:url('${esc(bgUrl)}')"></div>
       <div class="weather-widget-overlay">
-        <div class="weather-widget-location">📍 Bischofszell</div>
-        <div class="weather-widget-temp">${temp}°</div>
-        <div class="weather-widget-desc">${esc(w.description)}</div>
-        <div class="weather-widget-meta">💧 ${humidity}% · 💨 ${wind} km/h</div>
+        <div class="weather-widget-current">
+          <div class="weather-widget-main">
+            <span class="weather-widget-location">📍 Bischofszell</span>
+            <span class="weather-widget-temp">${temp}°</span>
+            <span class="weather-widget-desc">${esc(w.description)}</span>
+          </div>
+          <div class="weather-widget-meta">💧 ${humidity}% · 💨 ${wind} km/h</div>
+        </div>
         ${forecastHtml ? `<div class="weather-widget-forecast">${forecastHtml}</div>` : ''}
       </div>`;
   } catch (_) {
