@@ -1010,7 +1010,6 @@ const PORTFOLIO_CATS = [
   { id: 'motion',  labelKey: 'cat.motion',  icon: '🎬' },
   { id: 'graphic', labelKey: 'cat.graphic', icon: '🎨' },
   { id: 'web',     labelKey: 'cat.web',     icon: '🌐' },
-  { id: 'app',     labelKey: 'cat.app',     icon: '📱' },
 ];
 
 function getYouTubeId(url) {

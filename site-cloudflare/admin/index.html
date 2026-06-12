@@ -94,6 +94,10 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .section-body{display:block}
 .section-collapsible.collapsed .section-body{display:none}
 .section-title{font-size:15px;font-weight:700}
+.section-subtitle{font-size:11px;color:var(--text-muted);margin-top:2px;font-weight:500}
+.section-vis-toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:4px 8px;border-radius:8px}
+.section-vis-toggle:hover{background:var(--bg-input)}
+.section-vis-toggle span{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
 .section-count{font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
   padding:3px 10px;border-radius:100px;min-width:24px;text-align:center}
 
@@ -361,16 +365,26 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
     </div>
   </div>
 
-  <!-- Dev Apps -->
+  <!-- Development -->
   <div class="section section-collapsible" data-section="devApps">
     <div class="section-head section-head-toggle">
       <div class="section-head-left">
         <span class="section-chevron">▾</span>
-        <div class="section-title" data-ui="devApps">Dev Apps</div>
+        <div>
+          <div class="section-title" data-ui="devApps">Development</div>
+          <div class="section-subtitle" data-ui="devAppsDesc">Apps and other development projects</div>
+        </div>
         <span class="section-count" id="appsCount">0</span>
       </div>
       <div class="section-head-actions">
-        <button class="btn btn-primary btn-sm" id="addAppBtn" data-ui="add">+ Add</button>
+        <label class="section-vis-toggle" title="Show Development section on the public site">
+          <span data-ui="showDev">Show on site</span>
+          <input type="checkbox" id="showDevSection" class="premium-toggle-input">
+          <div class="premium-toggle-track" id="showDevSectionTrack" data-for="showDevSection" role="switch" tabindex="0" aria-checked="false">
+            <div class="premium-toggle-knob"></div>
+          </div>
+        </label>
+        <button class="btn btn-primary btn-sm" id="addAppBtn" data-ui="addDev">+ Add</button>
       </div>
     </div>
     <div class="section-body">
@@ -468,23 +482,6 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-head">
-        <div class="section-title" data-ui="generalTitle">General</div>
-      </div>
-      <div class="settings-section-body">
-        <div class="settings-row settings-toggle-row">
-          <div class="settings-row-label">
-            <div class="toggle-label" data-ui="showDev">Show Development section</div>
-            <div class="toggle-desc" data-ui="showDevDesc">Shows Dev Apps link in navigation</div>
-          </div>
-          <input type="checkbox" id="showDevSection" class="premium-toggle-input">
-          <div class="premium-toggle-track" id="showDevSectionTrack" data-for="showDevSection" role="switch" tabindex="0" aria-checked="false">
-            <div class="premium-toggle-knob"></div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
