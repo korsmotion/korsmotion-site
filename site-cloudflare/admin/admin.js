@@ -664,7 +664,7 @@ function enOrdinalDay(n) {
     24: 'twenty-fourth', 25: 'twenty-fifth', 26: 'twenty-sixth', 27: 'twenty-seventh', 28: 'twenty-eighth',
     29: 'twenty-ninth', 30: 'thirtieth', 31: 'thirty-first',
   };
-  return words[n] || num;
+  return words[n] || String(n);
 }
 
 function getWeatherDateDisplay() {

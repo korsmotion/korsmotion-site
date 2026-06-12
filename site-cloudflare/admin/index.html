@@ -198,13 +198,13 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 @keyframes dash-pulse{0%,100%{opacity:.4}50%{opacity:1}}
 #weather-widget{grid-column:3;grid-row:1/-1;margin-top:0;width:100%;height:100%;min-height:0;align-self:stretch;border-radius:16px;overflow:hidden;position:relative;background:#1a1a2e}
 .weather-widget-bg{position:absolute;inset:0;background-size:cover;background-position:center}
-.weather-widget-overlay{position:relative;z-index:1;padding:20px;color:#fff;height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(0,0,0,.2) 0%,rgba(0,0,0,.55) 100%)}
-.weather-widget-placeholder{display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,.75);font-size:13px;font-weight:500;text-align:center;padding:20px}
-.weather-widget-header{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:12px}
-.weather-widget-location{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;opacity:.7;white-space:nowrap}
-.weather-widget-date{display:flex;align-items:baseline;gap:8px;text-align:right;flex-shrink:0;max-width:58%}
-.weather-widget-dayname{font-size:17px;font-weight:700;opacity:.95;line-height:1.2;white-space:nowrap}
-.weather-widget-datestr{font-size:15px;font-weight:500;opacity:.8;line-height:1.2;white-space:nowrap}
+.weather-widget-overlay{position:relative;z-index:1;padding:18px 24px 20px;color:#fff;height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(0,0,0,.2) 0%,rgba(0,0,0,.55) 100%)}
+.weather-widget-placeholder{display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,.75);font-size:13px;font-weight:500;text-align:center;padding:18px 24px}
+.weather-widget-header{display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;gap:10px}
+.weather-widget-location{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;opacity:.7;white-space:nowrap;flex-shrink:0;padding-top:5px;max-width:32%}
+.weather-widget-date{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:1;min-width:0;margin-right:8px;padding-right:4px}
+.weather-widget-dayname{font-size:18px;font-weight:700;opacity:.95;line-height:1.2;white-space:nowrap}
+.weather-widget-datestr{font-size:16px;font-weight:500;opacity:.82;line-height:1.2;white-space:nowrap}
 .weather-widget-body{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:0;padding:8px 0}
 .weather-widget-temp{font-size:64px;font-weight:200;line-height:1;letter-spacing:-.02em}
 .weather-widget-desc{font-size:14px;text-transform:capitalize;opacity:.92;margin-top:6px}
