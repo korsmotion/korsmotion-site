@@ -933,8 +933,16 @@ async function renderDashboard() {
       rumViews(acc.total)
     );
   } catch (err) {
-    console.warn('Analytics:', err?.message || err);
+    const msg = err?.message || String(err);
+    console.warn('Analytics:', msg);
     setDashViews('—', '—', '—');
+    ['dash-today', 'dash-week', 'dash-month'].forEach(id => {
+      const card = document.getElementById(id);
+      if (card) {
+        card.title = msg;
+        card.style.cursor = 'help';
+      }
+    });
   }
 }
 

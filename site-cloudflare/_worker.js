@@ -18,35 +18,55 @@ function json(data, status = 200) {
   });
 }
 
-async function getCfAnalytics(cfApiToken) {
-  const sitesResp = await fetch(
+function siteHosts(site) {
+  return [
+    site?.host,
+    site?.site_host,
+    site?.ruleset?.zone_name,
+    ...(site?.rules || []).map(r => r.host),
+  ].filter(Boolean).join(' ').toLowerCase();
+}
+
+async function fetchSiteTag(cfApiToken) {
+  const endpoints = [
+    `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/rum/site_info/list`,
     `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/web-analytics/sites`,
-    { headers: { Authorization: `Bearer ${cfApiToken}` } }
-  );
-  const sitesJson = await sitesResp.json();
-  if (!sitesResp.ok || sitesJson.success === false) {
-    throw new Error(sitesJson.errors?.[0]?.message || 'Failed to fetch Web Analytics sites');
-  }
-  const sites = sitesJson.result || [];
-  const siteTag = sites.find(s => {
-    const host = `${s.host || ''} ${s.site_host || ''}`.toLowerCase();
-    return host.includes('korsmotion');
-  })?.site_tag || sites[0]?.site_tag;
-  if (!siteTag) {
-    throw new Error('No Web Analytics site found');
+  ];
+  let lastError = 'No Web Analytics site found';
+
+  for (const url of endpoints) {
+    const sitesResp = await fetch(url, {
+      headers: { Authorization: `Bearer ${cfApiToken}` },
+    });
+    const sitesJson = await sitesResp.json();
+    if (!sitesResp.ok || sitesJson.success === false) {
+      lastError = sitesJson.errors?.[0]?.message || `Sites API ${sitesResp.status}`;
+      continue;
+    }
+    const sites = sitesJson.result || [];
+    const site = sites.find(s => siteHosts(s).includes('korsmotion')) || sites[0];
+    if (site?.site_tag) return site.site_tag;
   }
 
+  throw new Error(lastError);
+}
+
+async function getCfAnalytics(cfApiToken) {
+  const siteTag = await fetchSiteTag(cfApiToken);
+
   const now = new Date();
+  const nowIso = now.toISOString();
+  const since24h = new Date(now - 24 * 60 * 60 * 1000).toISOString();
   const today = now.toISOString().split('T')[0];
   const since7 = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
   const query = `
-    query RumDashboard($acct: string!, $site: string!, $today: string!, $since7: string!, $since30: string!) {
+    query RumDashboard($acct: string!, $site: string!, $since24h: Time!, $now: Time!, $today: string!, $since7: string!, $since30: string!) {
       viewer {
         accounts(filter: { accountTag: $acct }) {
           todayViews: rumPageloadEventsAdaptiveGroups(
-            filter: { siteTag: $site, date_geq: $today, date_leq: $today }
+            filter: { siteTag: $site, datetime_geq: $since24h, datetime_leq: $now }
             limit: 1
           ) { count sum { visits } }
           week: rumPageloadEventsAdaptiveGroups(
@@ -72,6 +92,8 @@ async function getCfAnalytics(cfApiToken) {
       variables: {
         acct: CF_ACCOUNT_ID,
         site: siteTag,
+        since24h,
+        now: nowIso,
         today,
         since7,
         since30,
@@ -135,7 +157,11 @@ export default {
       if (auth !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
 
       const cfApiToken = env.CF_API_TOKEN;
-      if (!cfApiToken) return json({ error: 'Analytics not configured' }, 503);
+      if (!cfApiToken) {
+        return json({
+          error: 'CF_API_TOKEN not set in Cloudflare Pages → Settings → Environment variables',
+        }, 503);
+      }
 
       try {
         return json(await getCfAnalytics(cfApiToken));
