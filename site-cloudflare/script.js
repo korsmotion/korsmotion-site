@@ -703,6 +703,7 @@ const translations = {
 };
 
 const codes = { ru:'RU', de:'DE', en:'EN', it:'IT', fr:'FR' };
+const FLAG_ICONS = { ru:'ru', de:'de', en:'gb', it:'it', fr:'fr' };
 let currentLanguage = 'ru';
 
 let allProjects = [];
@@ -817,7 +818,7 @@ function applyLang(lang) {
   });
   document.getElementById('currentLang').textContent = codes[lang];
   const flagEl = document.getElementById('currentFlag');
-  flagEl.className = 'lang-flag flag-' + lang;
+  if (flagEl) flagEl.className = 'fi fi-' + (FLAG_ICONS[lang] || 'ru');
   document.querySelectorAll('.lang-option').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
   });
@@ -982,6 +983,7 @@ function renderAllReviewsModal(sorted) {
 }
 
 const REVIEWS_CAROUSEL_GAP = 24;
+let reviewsCarouselGroup = 0;
 
 function getReviewsPerView() {
   if (window.innerWidth <= 640) return 1;
@@ -1022,7 +1024,7 @@ function initReviewsCarousel(cardCount) {
     if (!dots) return;
     const groups = groupCount();
     dots.innerHTML = Array.from({ length: groups }, (_, i) =>
-      `<button type="button" class="reviews-dot${i === activeGroup() ? ' active' : ''}" data-group="${i}" aria-label="Reviews ${i + 1}"></button>`
+      `<button type="button" class="reviews-dot${i === reviewsCarouselGroup ? ' active' : ''}" data-group="${i}" aria-label="Reviews ${i + 1}"></button>`
     ).join('');
     dots.querySelectorAll('.reviews-dot').forEach(dot => {
       dot.addEventListener('click', () => scrollToGroup(+dot.dataset.group));
@@ -1030,18 +1032,28 @@ function initReviewsCarousel(cardCount) {
   }
 
   function updateDots() {
-    const idx = activeGroup();
+    const idx = reviewsCarouselGroup;
+    const maxGroup = groupCount() - 1;
     dots?.querySelectorAll('.reviews-dot').forEach((dot, i) => {
       dot.classList.toggle('active', i === idx);
     });
-    if (prev) prev.disabled = idx <= 0;
-    if (next) next.disabled = idx >= groupCount() - 1;
+    if (prev) {
+      prev.classList.toggle('is-disabled', idx <= 0);
+      prev.setAttribute('aria-disabled', idx <= 0 ? 'true' : 'false');
+    }
+    if (next) {
+      next.classList.toggle('is-disabled', idx >= maxGroup);
+      next.setAttribute('aria-disabled', idx >= maxGroup ? 'true' : 'false');
+    }
   }
 
   function scrollToGroup(groupIdx) {
+    const maxGroup = groupCount() - 1;
+    reviewsCarouselGroup = Math.max(0, Math.min(maxGroup, groupIdx));
     const perView = getReviewsPerView();
     const step = cardStep() * perView;
-    track.scrollTo({ left: step * groupIdx, behavior: 'smooth' });
+    track.scrollTo({ left: step * reviewsCarouselGroup, behavior: 'smooth' });
+    updateDots();
   }
 
   function onCarouselWheel(e) {
@@ -1052,17 +1064,28 @@ function initReviewsCarousel(cardCount) {
 
   if (wrap.dataset.bound !== '1') {
     wrap.dataset.bound = '1';
-    prev?.addEventListener('click', () => scrollToGroup(Math.max(0, activeGroup() - 1)));
-    next?.addEventListener('click', () => scrollToGroup(Math.min(groupCount() - 1, activeGroup() + 1)));
-    track.addEventListener('scroll', updateDots, { passive: true });
+    prev?.addEventListener('click', () => {
+      if (reviewsCarouselGroup <= 0) return;
+      scrollToGroup(reviewsCarouselGroup - 1);
+    });
+    next?.addEventListener('click', () => {
+      if (reviewsCarouselGroup >= groupCount() - 1) return;
+      scrollToGroup(reviewsCarouselGroup + 1);
+    });
+    track.addEventListener('scroll', () => {
+      reviewsCarouselGroup = activeGroup();
+      updateDots();
+    }, { passive: true });
     track.addEventListener('wheel', onCarouselWheel, { passive: false });
     carousel?.addEventListener('wheel', onCarouselWheel, { passive: false });
     window.addEventListener('resize', () => {
+      reviewsCarouselGroup = activeGroup();
       rebuildDots();
       updateDots();
     });
   }
 
+  reviewsCarouselGroup = 0;
   rebuildDots();
   track.scrollLeft = 0;
   updateDots();

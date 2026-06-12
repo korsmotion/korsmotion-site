@@ -73,7 +73,7 @@ nav a.nav-link:hover{color:var(--violet-deep)}
 .reviews-carousel-track::-webkit-scrollbar{display:none}
 .reviews-arrow{flex-shrink:0;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.75);backdrop-filter:blur(12px);color:var(--violet-deep);font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 4px 16px rgba(91,63,191,.1)}
 .reviews-arrow:hover{background:#fff;transform:scale(1.05);box-shadow:0 8px 24px rgba(91,63,191,.18)}
-.reviews-arrow:disabled{opacity:.35;cursor:default;transform:none}
+.reviews-arrow:disabled,.reviews-arrow.is-disabled{opacity:.35;cursor:default;transform:none;pointer-events:none}
 .reviews-dots{display:flex;justify-content:center;gap:8px;margin-top:8px}
 .reviews-dot{width:8px;height:8px;border-radius:50%;background:rgba(91,63,191,.25);border:none;padding:0;cursor:pointer;transition:all .25s}
 .reviews-dot.active{background:var(--violet-deep);transform:scale(1.25)}
@@ -801,7 +801,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
   </div>
 </div>
 
-<script src="script.js?v=10"></script>
+<script src="script.js?v=11"></script>
 <script src="script-patch.js"></script>
 </body>
 </html>
