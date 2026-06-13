@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
-  <title>SchichtPlan — Mein Plan</title>
+  <title>SchichtPlan — Stunden</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/schichtplan/assets/sp-style.css">
 </head>
-<body class="sp-body sp-plan-page" data-sp-page="plan">
+<body class="sp-body sp-stunden-page" data-sp-page="stunden">
 
   <header class="sp-topbar">
     <div class="sp-topbar-brand">SchichtPlan</div>
@@ -43,62 +43,32 @@
     </header>
 
     <nav class="sp-app-tabs" aria-label="Bereiche">
-      <span class="sp-app-tab sp-is-active">📅 Plan</span>
+      <a class="sp-app-tab" href="plan.html">📅 Plan</a>
       <a class="sp-app-tab" href="ferien.html">🏖️ Ferien</a>
-      <a class="sp-app-tab" href="stunden.html">⏱️ Stunden</a>
+      <span class="sp-app-tab sp-is-active">⏱️ Stunden</span>
       <a class="sp-app-tab" href="dokumente.html">📄 Dokumente</a>
       <a class="sp-app-tab" href="profil.html">👤 Profil</a>
     </nav>
 
     <div class="sp-plan-toolbar">
       <div>
-        <div class="sp-plan-kw" id="spWeekLabel">KW 25 · Diese Woche</div>
-        <div class="sp-plan-kw-sub" id="spWeekRange">15.–21.06.2026</div>
-      </div>
-      <div class="sp-plan-view-toggle" role="tablist" aria-label="Ansicht">
-        <button type="button" class="sp-plan-view-btn sp-is-active" data-sp-plan-view="week" role="tab" aria-selected="true">Woche</button>
-        <button type="button" class="sp-plan-view-btn" data-sp-plan-view="month" role="tab" aria-selected="false">Monat</button>
+        <div class="sp-plan-kw" id="spZeitMonthLabel">Juni 2026</div>
+        <div class="sp-plan-kw-sub">Stempelzeiten · Demo</div>
       </div>
     </div>
 
     <main class="sp-app-content">
       <p class="sp-demo-badge" id="spDemoBadge" hidden>Demo-Daten · API folgt später</p>
 
-      <!-- Week view -->
-      <section class="sp-plan-panel sp-is-visible" id="spPanelWeek" role="tabpanel">
-        <div class="sp-notif" id="spNotif">
-          <div class="sp-notif-icon" aria-hidden="true">🔔</div>
-          <div class="sp-notif-body">
-            <div class="sp-notif-title" id="spNotifTitle"></div>
-            <div class="sp-notif-text" id="spNotifText"></div>
-          </div>
-          <span class="sp-notif-time" id="spNotifTime"></span>
-        </div>
-
-        <div class="sp-hero" id="spHero"></div>
-
-        <div class="sp-card">
-          <div class="sp-card-title" id="spWeekCardTitle">KW 25 · Diese Woche</div>
-          <div class="sp-week-strip" id="spWeekStrip"></div>
-        </div>
-
-        <div class="sp-card">
-          <div class="sp-card-title">Meine Schichten</div>
-          <div id="spShiftList"></div>
-        </div>
-      </section>
-
-      <!-- Month view -->
-      <section class="sp-plan-panel" id="spPanelMonth" role="tabpanel" hidden>
-        <div class="sp-card" id="spMonthCard"></div>
-      </section>
+      <div class="sp-card" id="spZeitCard"></div>
+      <button type="button" class="sp-btn sp-btn-ghost sp-btn-block" id="spZeitPrintBtn">🖨️ Monatsausweis drucken</button>
     </main>
   </div>
 
   <nav class="sp-bottom-nav" aria-label="Navigation">
-    <a class="sp-bottom-item sp-is-active" href="plan.html"><span class="sp-bottom-icon" aria-hidden="true">📅</span>Plan</a>
+    <a class="sp-bottom-item" href="plan.html"><span class="sp-bottom-icon" aria-hidden="true">📅</span>Plan</a>
     <a class="sp-bottom-item" href="ferien.html"><span class="sp-bottom-icon" aria-hidden="true">🏖️</span>Ferien</a>
-    <a class="sp-bottom-item" href="stunden.html"><span class="sp-bottom-icon" aria-hidden="true">⏱️</span>Stunden</a>
+    <span class="sp-bottom-item sp-is-active"><span class="sp-bottom-icon" aria-hidden="true">⏱️</span>Stunden</span>
     <a class="sp-bottom-item" href="dokumente.html"><span class="sp-bottom-icon" aria-hidden="true">📄</span>Docs</a>
     <a class="sp-bottom-item" href="profil.html"><span class="sp-bottom-icon" aria-hidden="true">👤</span>Profil</a>
   </nav>

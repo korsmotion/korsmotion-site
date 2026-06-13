@@ -148,6 +148,74 @@
     },
   };
 
+  /** Demo Stunden — Juni 2026 (referenz) */
+  const SP_DEMO_STUNDEN = {
+    month: 'Juni 2026',
+    total: '164.5h',
+    overtime: '+4.5h',
+    rows: [
+      { date: 'Mo 15.06', times: '05:58 → 14:02', hours: '8.1h' },
+      { date: 'Di 16.06', times: '06:00 → 14:00', hours: '8.0h' },
+      { date: 'Mi 17.06', times: '07:55 → 17:05', hours: '9.2h' },
+      { date: 'Do 18.06', times: 'Frei', hours: '—', muted: true },
+      { date: 'Fr 19.06', times: 'Frei', hours: '—', muted: true },
+    ],
+  };
+
+  /** Demo Dokumente (referenz) */
+  const SP_DEMO_DOCS = {
+    payroll: [
+      { icon: '📄', name: 'Lohnabrechnung Mai 2026', date: 'Erstellt: 01.06.2026' },
+      { icon: '📄', name: 'Lohnabrechnung Apr 2026', date: 'Erstellt: 01.05.2026' },
+      { icon: '📄', name: 'Lohnausweis 2025', date: 'Erstellt: 15.01.2026' },
+    ],
+    other: [
+      { icon: '📋', name: 'Arbeitsvertrag', date: 'Gültig ab 01.03.2021' },
+    ],
+  };
+
+  /** Demo Profil (referenz) */
+  const SP_DEMO_PROFIL = {
+    languages: ['DE', 'EN', 'FR', 'IT', 'SQ', 'SR', 'RU'],
+    activeLang: 'RU',
+    notifications: [
+      { label: '📧 Email', on: true },
+      { label: '💬 WhatsApp', on: true },
+      { label: '✈️ Telegram', on: false },
+      { label: '📱 SMS', on: false },
+      { label: '🔔 Push', on: true },
+    ],
+    info: [
+      { key: 'Abteilung', val: 'BIS Jogurt' },
+      { key: 'Kanton', val: 'Thurgau (TG)' },
+      { key: 'Schichttyp', val: 'Wechselschicht' },
+    ],
+  };
+
+  /** Kantonskalender TG 2026 (referenz) */
+  const SP_DEMO_KALENDAR = [
+    {
+      title: 'Januar',
+      rows: [{ date: '01.01', name: 'Neujahr', tag: '🔴 CH' }],
+    },
+    {
+      title: 'April',
+      rows: [
+        { date: '03.04', name: 'Karfreitag', tag: '🔴 CH' },
+        { date: '06.04', name: 'Ostermontag', tag: '🔴 CH' },
+      ],
+    },
+    {
+      title: 'Schulferien TG 🎓',
+      school: true,
+      rows: [
+        { name: 'Sommer KW 28–31', tag: '🎓' },
+        { name: 'Herbst KW 41–42', tag: '🎓' },
+        { name: 'Winter KW 52–53', tag: '🎓' },
+      ],
+    },
+  ];
+
   const VAC_STATUS_LABEL = {
     approved: { text: '✅ Genehmigt', cls: 'sp-is-approved' },
     pending: { text: '⏳ Ausstehend', cls: 'sp-is-pending' },
@@ -455,9 +523,11 @@
 
     const timeLabel = formatShiftTime(shift.time);
     const tags = (shift.tags || []).map(t => `<span class="sp-hero-tag">${esc(t)}</span>`).join('');
+    const isToday = dayKey === SP_DEMO.week.todayKey;
+    const dateLabel = isToday ? `Heute · ${formatDateDE(dayKey)}` : formatDateDE(dayKey);
 
     hero.innerHTML = `
-      <div class="sp-hero-eyebrow">${esc(formatDateDE(dayKey))}</div>
+      <div class="sp-hero-eyebrow">${esc(dateLabel)}</div>
       <div class="sp-hero-machine">${esc(m.name)}</div>
       ${timeLabel ? `<div class="sp-hero-time">${esc(timeLabel)}</div>` : ''}
       ${tags ? `<div class="sp-hero-tags">${tags}</div>` : ''}
@@ -470,6 +540,11 @@
     const { days, todayKey } = SP_DEMO.week;
 
     strip.innerHTML = days.map(day => {
+      const shift = SP_DEMO.week.shifts.find(s => s.dayKey === day.key);
+      const machine = shift ? SP_MACHINES[shift.machine] : null;
+      const dotStyle = machine && shift.machine !== 'free'
+        ? ` style="background:${machine.color}"`
+        : '';
       const cls = [
         'sp-wday',
         day.status === 'work' ? 'sp-is-work' : '',
@@ -482,7 +557,7 @@
         <button type="button" class="${cls}" data-sp-day="${day.key}" aria-label="${esc(day.label)} ${day.num}">
           <span class="sp-wday-name">${esc(WEEKDAYS_SHORT[day.dow])}</span>
           <span class="sp-wday-num">${day.num}</span>
-          <span class="sp-wday-dot"></span>
+          <span class="sp-wday-dot"${dotStyle}></span>
         </button>
       `;
     }).join('');
@@ -775,6 +850,129 @@
     setFerienView('mine');
   }
 
+  /* ── Stunden page ── */
+
+  function renderStundenCard() {
+    const card = $('spZeitCard');
+    if (!card) return;
+    const z = SP_DEMO_STUNDEN;
+    const rows = z.rows.map(r => `
+      <div class="sp-zeit-row${r.muted ? ' sp-is-muted' : ''}">
+        <span class="sp-zeit-date">${esc(r.date)}</span>
+        <span class="sp-zeit-times">${esc(r.times)}</span>
+        <span class="sp-zeit-h">${esc(r.hours)}</span>
+      </div>
+    `).join('');
+    card.innerHTML = `
+      <div class="sp-zeit-month">
+        <div>
+          <div class="sp-zeit-total">${esc(z.total)}</div>
+          <div class="sp-zeit-label">${esc(z.month)} · Gesamt</div>
+        </div>
+        <div style="text-align:right">
+          <div class="sp-zeit-extra">${esc(z.overtime)}</div>
+          <div class="sp-zeit-label">Überstunden</div>
+        </div>
+      </div>
+      ${rows}
+    `;
+  }
+
+  function bindStundenActions() {
+    const btn = $('spZeitPrintBtn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      showToast('Demo: Monatsausweis wird später als PDF verfügbar.');
+    });
+  }
+
+  function initStundenPage() {
+    initAppShell();
+    if ($('spZeitMonthLabel')) $('spZeitMonthLabel').textContent = SP_DEMO_STUNDEN.month;
+    renderStundenCard();
+    bindStundenActions();
+  }
+
+  /* ── Dokumente page ── */
+
+  function renderDocList(containerId, items) {
+    const el = $(containerId);
+    if (!el) return;
+    el.innerHTML = items.map(d => `
+      <div class="sp-doc-item">
+        <div class="sp-doc-icon">${d.icon}</div>
+        <div style="flex:1">
+          <div class="sp-doc-name">${esc(d.name)}</div>
+          <div class="sp-doc-date">${esc(d.date)}</div>
+        </div>
+        <button type="button" class="sp-doc-dl" data-sp-doc-dl="${esc(d.name)}">⬇️ PDF</button>
+      </div>
+    `).join('');
+    el.querySelectorAll('[data-sp-doc-dl]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showToast(`Demo: ${btn.dataset.spDocDl} — Download folgt später.`);
+      });
+    });
+  }
+
+  function initDokumentePage() {
+    initAppShell();
+    renderDocList('spDocsPayroll', SP_DEMO_DOCS.payroll);
+    renderDocList('spDocsOther', SP_DEMO_DOCS.other);
+  }
+
+  /* ── Profil page ── */
+
+  function renderProfilPage(employee) {
+    if ($('spProfAvatar')) $('spProfAvatar').textContent = employee.initials;
+    if ($('spProfName')) $('spProfName').textContent = employee.fullName;
+    if ($('spProfId')) $('spProfId').textContent = `#${employee.id} · BIS Spezialitäten`;
+
+    const langSel = $('spLangSel');
+    if (langSel) {
+      langSel.innerHTML = SP_DEMO_PROFIL.languages.map(code => `
+        <button type="button" class="sp-lang-btn${code === SP_DEMO_PROFIL.activeLang ? ' sp-is-active' : ''}" data-sp-lang="${code}">${code}</button>
+      `).join('');
+      langSel.querySelectorAll('[data-sp-lang]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          SP_DEMO_PROFIL.activeLang = btn.dataset.spLang;
+          langSel.querySelectorAll('[data-sp-lang]').forEach(b => {
+            b.classList.toggle('sp-is-active', b.dataset.spLang === SP_DEMO_PROFIL.activeLang);
+          });
+          showToast(`Sprache: ${SP_DEMO_PROFIL.activeLang} (Demo)`);
+        });
+      });
+    }
+
+    const notif = $('spProfNotif');
+    if (notif) {
+      notif.innerHTML = SP_DEMO_PROFIL.notifications.map(n => `
+        <div class="sp-notif-opt">
+          <span>${n.label}</span>
+          <button type="button" class="sp-prof-toggle${n.on ? ' sp-is-on' : ''}" aria-label="${esc(n.label)}"></button>
+        </div>
+      `).join('');
+      notif.querySelectorAll('.sp-prof-toggle').forEach(toggle => {
+        toggle.addEventListener('click', () => toggle.classList.toggle('sp-is-on'));
+      });
+    }
+
+    const info = $('spProfInfo');
+    if (info) {
+      info.innerHTML = SP_DEMO_PROFIL.info.map(row => `
+        <div class="sp-prof-row">
+          <span class="sp-prof-key">${esc(row.key)}</span>
+          <span class="sp-prof-val">${esc(row.val)}</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  function initProfilPage() {
+    const { employee } = initAppShell();
+    renderProfilPage(employee);
+  }
+
   /* ── Admin dashboard ── */
 
   const ADM_SHIFTS = {
@@ -837,13 +1035,17 @@
     return true;
   }
 
-  function showAdmToast(msg) {
+  function showAdmToast(msg, success) {
     const el = $('spAdmToast');
     if (!el) return;
     el.textContent = msg;
+    el.classList.toggle('sp-is-success', !!success);
     el.classList.add('sp-is-visible');
     clearTimeout(showAdmToast._t);
-    showAdmToast._t = setTimeout(() => el.classList.remove('sp-is-visible'), 2800);
+    showAdmToast._t = setTimeout(() => {
+      el.classList.remove('sp-is-visible');
+      el.classList.remove('sp-is-success');
+    }, 3200);
   }
 
   function admShiftChip(code) {
@@ -918,13 +1120,33 @@
     wrap.innerHTML = html;
   }
 
+  function renderAdminKalender() {
+    const grid = $('spAdmKalGrid');
+    if (!grid) return;
+    grid.innerHTML = SP_DEMO_KALENDAR.map(block => {
+      const rows = block.rows.map(r => `
+        <div class="sp-adm-kal-row">
+          ${r.date ? `<span class="sp-adm-kal-date">${esc(r.date)}</span>` : ''}
+          <span class="sp-adm-kal-name">${esc(r.name)}</span>
+          <span>${r.tag || ''}</span>
+        </div>
+      `).join('');
+      return `
+        <div class="sp-card">
+          <div class="sp-card-title">${esc(block.title)}</div>
+          ${rows}
+        </div>
+      `;
+    }).join('');
+  }
+
   function renderAdminMachines() {
     const grid = $('spAdmMachGrid');
     if (!grid) return;
     grid.innerHTML = ADM_MACHINES.map(m => `
       <div class="sp-adm-mach-card">
         <div class="sp-adm-mach-top">
-          <div class="sp-adm-mach-dot" style="background:${m.color}"></div>
+          <button type="button" class="sp-adm-mach-dot sp-is-clickable" style="background:${m.color}" data-sp-mach-dot="${esc(m.name)}" title="Farbe ändern" aria-label="${esc(m.name)} Farbe"></button>
           <div><div class="sp-adm-mach-name">${esc(m.name)}</div><div class="sp-adm-mach-dept">${esc(m.dept)}</div></div>
         </div>
         <div class="sp-adm-mach-stat">
@@ -933,15 +1155,25 @@
         </div>
       </div>
     `).join('');
+    grid.querySelectorAll('[data-sp-mach-dot]').forEach(dot => {
+      dot.addEventListener('click', () => {
+        showAdmToast(`Demo: ${dot.dataset.spMachDot} — Color Picker folgt später`);
+      });
+    });
 
     const colorsEl = $('spAdmMachColors');
     if (colorsEl) {
       colorsEl.innerHTML = ADM_MACHINES.map(m => `
         <div class="sp-adm-cp-item">
-          <span class="sp-adm-cp-dot sp-is-selected" style="background:${m.color}"></span>
+          <button type="button" class="sp-adm-cp-dot sp-is-selected sp-is-clickable" style="background:${m.color}" data-sp-mach-color="${esc(m.name)}" aria-label="${esc(m.name)} Farbe"></button>
           <span>${esc(m.name)}</span>
         </div>
       `).join('');
+      colorsEl.querySelectorAll('[data-sp-mach-color]').forEach(dot => {
+        dot.addEventListener('click', () => {
+          showAdmToast(`Demo: Farbe ${dot.dataset.spMachColor} — Color Picker folgt später`);
+        });
+      });
     }
   }
 
@@ -1018,6 +1250,28 @@
     });
   }
 
+  function bindAdminPlanSend() {
+    const btn = $('spAdmPlanSend');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      showAdmToast('Plan an 148 Mitarbeiter gesendet', true);
+    });
+  }
+
+  function bindAdminNachrichten() {
+    const btn = $('spAdmMsgSend');
+    const textarea = $('spAdmMsgText');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const text = textarea ? textarea.value.trim() : '';
+      if (!text) {
+        showAdmToast('Bitte Nachricht eingeben.');
+        return;
+      }
+      showAdmToast('Nachricht an 148 Mitarbeiter gesendet', true);
+    });
+  }
+
   function bindAdminLogout() {
     const btn = $('spAdminLogoutBtn');
     if (!btn) return;
@@ -1028,6 +1282,23 @@
   }
 
   function bindAdminSettings() {
+    document.querySelectorAll('[data-sp-adm-theme]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        applyTheme(btn.dataset.spAdmTheme);
+        document.querySelectorAll('[data-sp-adm-theme]').forEach(b => {
+          const on = b.dataset.spAdmTheme === getTheme();
+          b.classList.toggle('sp-is-active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      });
+    });
+    const theme = getTheme();
+    document.querySelectorAll('[data-sp-adm-theme]').forEach(b => {
+      const on = b.dataset.spAdmTheme === theme;
+      b.classList.toggle('sp-is-active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+
     document.querySelectorAll('[data-sp-adm-accent]').forEach(dot => {
       dot.addEventListener('click', () => {
         applyAccent(dot.dataset.spAdmAccent);
@@ -1056,10 +1327,13 @@
     bindAdminNav();
     bindAdminFilters();
     bindAdminToasts();
+    bindAdminPlanSend();
+    bindAdminNachrichten();
     bindAdminLogout();
     bindAdminSettings();
     renderAdminSchichtTable();
     renderAdminVacTable();
+    renderAdminKalender();
     renderAdminMachines();
     renderAdminZeit();
     renderAdminDocs();
@@ -1077,6 +1351,9 @@
       else if (page === 'admin-login') initAdminLoginPage();
       else if (page === 'plan') initPlanPage();
       else if (page === 'ferien') initFerienPage();
+      else if (page === 'stunden') initStundenPage();
+      else if (page === 'dokumente') initDokumentePage();
+      else if (page === 'profil') initProfilPage();
       else if (page === 'admin-dashboard') initAdminDashboard();
     } catch (err) {
       console.error('SchichtPlan init error:', err);

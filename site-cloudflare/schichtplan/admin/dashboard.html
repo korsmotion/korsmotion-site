@@ -65,7 +65,7 @@
           <div><div class="sp-adm-title">Wochenplan · KW 25</div><div class="sp-adm-sub">15.–21.06.2026 · BIS Spezialitäten · 148 MA</div></div>
           <div class="sp-adm-btns">
             <button type="button" class="sp-adm-btn sp-adm-btn-ghost" data-sp-adm-toast="Export vorbereitet (Demo)">📤 Export</button>
-            <button type="button" class="sp-adm-btn sp-adm-btn-primary" data-sp-adm-toast="Plan an 148 Mitarbeiter gesendet ✅">📨 Plan senden</button>
+            <button type="button" class="sp-adm-btn sp-adm-btn-primary" id="spAdmPlanSend">📨 Plan senden</button>
           </div>
         </div>
         <div class="sp-adm-stats">
@@ -113,23 +113,7 @@
             </select>
           </div>
         </div>
-        <div class="sp-adm-kal-grid">
-          <div class="sp-card">
-            <div class="sp-card-title">Januar</div>
-            <div class="sp-adm-kal-row"><span class="sp-adm-kal-date">01.01</span><span class="sp-adm-kal-name">Neujahr</span><span>🔴 CH</span></div>
-          </div>
-          <div class="sp-card">
-            <div class="sp-card-title">April</div>
-            <div class="sp-adm-kal-row"><span class="sp-adm-kal-date">03.04</span><span class="sp-adm-kal-name">Karfreitag</span><span>🔴 CH</span></div>
-            <div class="sp-adm-kal-row"><span class="sp-adm-kal-date">06.04</span><span class="sp-adm-kal-name">Ostermontag</span><span>🔴 CH</span></div>
-          </div>
-          <div class="sp-card">
-            <div class="sp-card-title">Schulferien TG 🎓</div>
-            <div class="sp-adm-kal-row"><span class="sp-adm-kal-name">Sommer KW 28–31</span><span>🎓</span></div>
-            <div class="sp-adm-kal-row"><span class="sp-adm-kal-name">Herbst KW 41–42</span><span>🎓</span></div>
-            <div class="sp-adm-kal-row"><span class="sp-adm-kal-name">Winter KW 52–53</span><span>🎓</span></div>
-          </div>
-        </div>
+        <div class="sp-adm-kal-grid" id="spAdmKalGrid"></div>
       </section>
 
       <!-- Maschinen -->
@@ -162,7 +146,7 @@
             </div>
           </div>
           <textarea class="sp-adm-msg-text" id="spAdmMsgText">Liebe Mitarbeiter, der Wochenplan KW 25 wurde aktualisiert. Bitte überprüfen Sie Ihre Schichten.</textarea>
-          <button type="button" class="sp-adm-btn sp-adm-btn-primary" style="align-self:flex-end" data-sp-adm-toast="Nachricht an 148 MA gesendet ✅">📨 Senden</button>
+          <button type="button" class="sp-adm-btn sp-adm-btn-primary" style="align-self:flex-end" id="spAdmMsgSend">📨 Senden</button>
         </div>
         <div class="sp-adm-msg-log">
           <div class="sp-adm-msg-item">
@@ -212,6 +196,15 @@
           <div><div class="sp-adm-title">Einstellungen</div><div class="sp-adm-sub">Firma, Design, Maschinen-Farben</div></div>
         </div>
         <div class="sp-adm-settings">
+          <div class="sp-adm-settings-sec">
+            <div class="sp-adm-settings-title">🌓 Theme</div>
+            <div class="sp-adm-theme-row">
+              <div class="sp-toggle-pill">
+                <button type="button" class="sp-toggle-btn sp-is-active" data-sp-adm-theme="dark" aria-pressed="true">Dark</button>
+                <button type="button" class="sp-toggle-btn" data-sp-adm-theme="light" aria-pressed="false">Light</button>
+              </div>
+            </div>
+          </div>
           <div class="sp-adm-settings-sec">
             <div class="sp-adm-settings-title">🎨 Akzentfarbe</div>
             <div class="sp-adm-cp-row" id="spAdmAccentPicker">
