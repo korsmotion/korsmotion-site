@@ -10,7 +10,8 @@
   const SESSION_ADMIN = 'sp_admin_auth';
   const SP_DEMO_MODE = true;
   const DEMO_ADMIN_PASSWORD = 'admin2026';
-  const SP_ADMIN_BASE = '/schichtplan/admin';
+  const SP_BASE = '/schichtplan';
+  const SP_ADMIN_BASE = `${SP_BASE}/admin`;
 
   const MONTHS_DE = [
     'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
@@ -155,6 +156,33 @@
 
   const $ = id => document.getElementById(id);
 
+  function safeSessionSet(key, value) {
+    try {
+      sessionStorage.setItem(key, value);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function safeSessionGet(key) {
+    try {
+      return sessionStorage.getItem(key);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function safeSessionRemove(key) {
+    try {
+      sessionStorage.removeItem(key);
+    } catch (_) {}
+  }
+
+  function go(url) {
+    window.location.assign(url);
+  }
+
   function getTheme() {
     return localStorage.getItem(STORAGE_THEME) || 'dark';
   }
@@ -250,13 +278,13 @@
   }
 
   function demoEmployeeLogin(employeeId) {
-    sessionStorage.setItem(SESSION_EMPLOYEE, employeeId);
+    safeSessionSet(SESSION_EMPLOYEE, employeeId);
     if (employeeId === SP_DEMO.employee.id) {
-      sessionStorage.setItem(SESSION_EMPLOYEE_NAME, SP_DEMO.employee.name);
+      safeSessionSet(SESSION_EMPLOYEE_NAME, SP_DEMO.employee.name);
     } else {
-      sessionStorage.removeItem(SESSION_EMPLOYEE_NAME);
+      safeSessionRemove(SESSION_EMPLOYEE_NAME);
     }
-    window.location.href = 'plan.html';
+    go(`${SP_BASE}/plan.html`);
   }
 
   function bindLoginForm() {
@@ -271,30 +299,35 @@
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      const employeeId = normalizeEmployeeId(input.value);
-      if (!employeeId) {
-        showLoginError('Bitte Tabellennummer eingeben.');
-        input.focus();
-        return;
+      try {
+        const employeeId = normalizeEmployeeId(input.value);
+        if (!employeeId) {
+          showLoginError('Bitte Tabellennummer eingeben.');
+          input.focus();
+          return;
+        }
+
+        setLoginLoading(true);
+        showLoginError('');
+
+        if (SP_DEMO_MODE) {
+          demoEmployeeLogin(employeeId);
+          return;
+        }
+
+        showLoginError('Anmeldung derzeit nicht verfügbar.');
+      } catch (err) {
+        showLoginError('Fehler beim Login. Bitte erneut versuchen.');
+      } finally {
+        setLoginLoading(false);
       }
-
-      setLoginLoading(true);
-      showLoginError('');
-
-      if (SP_DEMO_MODE) {
-        demoEmployeeLogin(employeeId);
-        return;
-      }
-
-      setLoginLoading(false);
-      showLoginError('Anmeldung derzeit nicht verfügbar.');
     });
   }
 
   function initLoginPage() {
     bindLoginForm();
-    if (sessionStorage.getItem(SESSION_EMPLOYEE)) {
-      window.location.replace('plan.html');
+    if (safeSessionGet(SESSION_EMPLOYEE)) {
+      go(`${SP_BASE}/plan.html`);
     }
   }
 
@@ -328,33 +361,38 @@
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      const password = input.value.trim();
-      if (!password) {
-        showAdminLoginError('Bitte Passwort eingeben.');
+      try {
+        const password = input.value.trim();
+        if (!password) {
+          showAdminLoginError('Bitte Passwort eingeben.');
+          input.focus();
+          return;
+        }
+
+        setAdminLoginLoading(true);
+        showAdminLoginError('');
+
+        if (password === DEMO_ADMIN_PASSWORD) {
+          safeSessionSet(SESSION_ADMIN, '1');
+          go(`${SP_ADMIN_BASE}/dashboard.html`);
+          return;
+        }
+
+        showAdminLoginError('Falsches Passwort.');
         input.focus();
-        return;
+        input.select();
+      } catch (err) {
+        showAdminLoginError('Fehler beim Login. Bitte erneut versuchen.');
+      } finally {
+        setAdminLoginLoading(false);
       }
-
-      setAdminLoginLoading(true);
-      showAdminLoginError('');
-
-      if (password === DEMO_ADMIN_PASSWORD) {
-        sessionStorage.setItem(SESSION_ADMIN, '1');
-        window.location.href = `${SP_ADMIN_BASE}/dashboard.html`;
-        return;
-      }
-
-      showAdminLoginError('Falsches Passwort.');
-      setAdminLoginLoading(false);
-      input.focus();
-      input.select();
     });
   }
 
   function initAdminLoginPage() {
     bindAdminLoginForm();
-    if (sessionStorage.getItem(SESSION_ADMIN)) {
-      window.location.replace(`${SP_ADMIN_BASE}/dashboard.html`);
+    if (safeSessionGet(SESSION_ADMIN)) {
+      go(`${SP_ADMIN_BASE}/dashboard.html`);
     }
   }
 
@@ -363,8 +401,8 @@
   let planState = { selectedDay: SP_DEMO.week.todayKey, planView: 'week' };
 
   function resolveEmployee() {
-    const id = sessionStorage.getItem(SESSION_EMPLOYEE);
-    const name = sessionStorage.getItem(SESSION_EMPLOYEE_NAME);
+    const id = safeSessionGet(SESSION_EMPLOYEE);
+    const name = safeSessionGet(SESSION_EMPLOYEE_NAME);
     const emp = { ...SP_DEMO.employee };
     if (id) emp.id = id;
     if (name) {
@@ -563,9 +601,9 @@
     const btn = $('spLogoutBtn');
     if (!btn) return;
     btn.addEventListener('click', () => {
-      sessionStorage.removeItem(SESSION_EMPLOYEE);
-      sessionStorage.removeItem(SESSION_EMPLOYEE_NAME);
-      window.location.href = 'index.html';
+      safeSessionRemove(SESSION_EMPLOYEE);
+      safeSessionRemove(SESSION_EMPLOYEE_NAME);
+      go(`${SP_BASE}/index.html`);
     });
   }
 
@@ -789,8 +827,8 @@
   let admState = { filter: 'all', search: '' };
 
   function requireAdminSession() {
-    if (!sessionStorage.getItem(SESSION_ADMIN)) {
-      window.location.replace(`${SP_ADMIN_BASE}/index.html`);
+    if (!safeSessionGet(SESSION_ADMIN)) {
+      go(`${SP_ADMIN_BASE}/index.html`);
       return false;
     }
     return true;
@@ -981,8 +1019,8 @@
     const btn = $('spAdminLogoutBtn');
     if (!btn) return;
     btn.addEventListener('click', () => {
-      sessionStorage.removeItem(SESSION_ADMIN);
-      window.location.href = `${SP_ADMIN_BASE}/index.html`;
+      safeSessionRemove(SESSION_ADMIN);
+      go(`${SP_ADMIN_BASE}/index.html`);
     });
   }
 
@@ -1026,16 +1064,20 @@
   }
 
   function init() {
-    applyTheme(getTheme());
-    applyAccent(getAccent());
-    bindControls();
+    try {
+      applyTheme(getTheme());
+      applyAccent(getAccent());
+      bindControls();
 
-    const page = document.body.dataset.spPage;
-    if (page === 'login') initLoginPage();
-    else if (page === 'admin-login') initAdminLoginPage();
-    else if (page === 'plan') initPlanPage();
-    else if (page === 'ferien') initFerienPage();
-    else if (page === 'admin-dashboard') initAdminDashboard();
+      const page = document.body && document.body.dataset.spPage;
+      if (page === 'login') initLoginPage();
+      else if (page === 'admin-login') initAdminLoginPage();
+      else if (page === 'plan') initPlanPage();
+      else if (page === 'ferien') initFerienPage();
+      else if (page === 'admin-dashboard') initAdminDashboard();
+    } catch (err) {
+      console.error('SchichtPlan init error:', err);
+    }
   }
 
   if (document.readyState === 'loading') {
