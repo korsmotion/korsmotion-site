@@ -10,6 +10,7 @@
   const SESSION_ADMIN = 'sp_admin_auth';
   const API_LOGIN = '/api/schichtplan/login';
   const DEMO_ADMIN_PASSWORD = 'admin2026';
+  const SP_ADMIN_BASE = '/schichtplan/admin';
 
   const MONTHS_DE = [
     'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
@@ -340,7 +341,7 @@
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      const password = input.value;
+      const password = input.value.trim();
       if (!password) {
         showAdminLoginError('Bitte Passwort eingeben.');
         input.focus();
@@ -352,7 +353,7 @@
 
       if (password === DEMO_ADMIN_PASSWORD) {
         sessionStorage.setItem(SESSION_ADMIN, '1');
-        window.location.href = 'dashboard.html';
+        window.location.href = `${SP_ADMIN_BASE}/dashboard.html`;
         return;
       }
 
@@ -366,7 +367,7 @@
   function initAdminLoginPage() {
     bindAdminLoginForm();
     if (sessionStorage.getItem(SESSION_ADMIN)) {
-      window.location.replace('dashboard.html');
+      window.location.replace(`${SP_ADMIN_BASE}/dashboard.html`);
     }
   }
 
@@ -802,7 +803,7 @@
 
   function requireAdminSession() {
     if (!sessionStorage.getItem(SESSION_ADMIN)) {
-      window.location.replace('index.html');
+      window.location.replace(`${SP_ADMIN_BASE}/index.html`);
       return false;
     }
     return true;
@@ -994,7 +995,7 @@
     if (!btn) return;
     btn.addEventListener('click', () => {
       sessionStorage.removeItem(SESSION_ADMIN);
-      window.location.href = 'index.html';
+      window.location.href = `${SP_ADMIN_BASE}/index.html`;
     });
   }
 
