@@ -1,6 +1,6 @@
 /**
  * SchichtPlan — shared UI + page modules
- * Login API and KV will be wired later (schichtplan_data)
+ * Demo mode: no API/KV until schichtplan_data is wired in worker
  */
 (function () {
   const STORAGE_THEME = 'sp_theme';
@@ -8,7 +8,7 @@
   const SESSION_EMPLOYEE = 'sp_employee_id';
   const SESSION_EMPLOYEE_NAME = 'sp_employee_name';
   const SESSION_ADMIN = 'sp_admin_auth';
-  const API_LOGIN = '/api/schichtplan/login';
+  const SP_DEMO_MODE = true;
   const DEMO_ADMIN_PASSWORD = 'admin2026';
   const SP_ADMIN_BASE = '/schichtplan/admin';
 
@@ -249,20 +249,14 @@
     return String(raw || '').replace(/\D/g, '');
   }
 
-  async function apiLogin(employeeId) {
-    const res = await fetch(API_LOGIN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ employeeId }),
-    });
-    let data = {};
-    try {
-      data = await res.json();
-    } catch (_) {}
-    if (!res.ok) {
-      throw new Error(data.error || data.message || 'Anmeldung fehlgeschlagen');
+  function demoEmployeeLogin(employeeId) {
+    sessionStorage.setItem(SESSION_EMPLOYEE, employeeId);
+    if (employeeId === SP_DEMO.employee.id) {
+      sessionStorage.setItem(SESSION_EMPLOYEE_NAME, SP_DEMO.employee.name);
+    } else {
+      sessionStorage.removeItem(SESSION_EMPLOYEE_NAME);
     }
-    return data;
+    window.location.href = 'plan.html';
   }
 
   function bindLoginForm() {
@@ -275,7 +269,7 @@
       showLoginError('');
     });
 
-    form.addEventListener('submit', async e => {
+    form.addEventListener('submit', e => {
       e.preventDefault();
       const employeeId = normalizeEmployeeId(input.value);
       if (!employeeId) {
@@ -283,24 +277,17 @@
         input.focus();
         return;
       }
-      if (employeeId.length < 4) {
-        showLoginError('Tabellennummer zu kurz.');
-        input.focus();
-        return;
-      }
 
       setLoginLoading(true);
       showLoginError('');
-      try {
-        const data = await apiLogin(employeeId);
-        sessionStorage.setItem(SESSION_EMPLOYEE, employeeId);
-        if (data.name) sessionStorage.setItem(SESSION_EMPLOYEE_NAME, data.name);
-        window.location.href = 'plan.html';
-      } catch (err) {
-        showLoginError(err.message || 'Verbindungsfehler. Bitte später erneut versuchen.');
-      } finally {
-        setLoginLoading(false);
+
+      if (SP_DEMO_MODE) {
+        demoEmployeeLogin(employeeId);
+        return;
       }
+
+      setLoginLoading(false);
+      showLoginError('Anmeldung derzeit nicht verfügbar.');
     });
   }
 
