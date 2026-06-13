@@ -21,14 +21,17 @@
   const WEEKDAYS_DE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
   const WEEKDAYS_SHORT = ['MO', 'DI', 'MI', 'DO', 'FR', 'SA', 'SO'];
 
+  const SP_DEPT = 'Produktionsabteilung';
+  const SP_COMPANY = 'Muster AG';
+
   const SP_MACHINES = {
-    waldner2: { name: 'Waldner 10.2', short: 'W10.2', color: '#2563eb', colorEnd: '#1d4ed8', css: 'var(--sp-m-waldner2)' },
-    waldner3: { name: 'Waldner 10.3', short: 'W10.3', color: '#0891b2', colorEnd: '#0e7490', css: 'var(--sp-m-waldner3)' },
-    schmid: { name: 'Schmid', short: 'SCH', color: '#16a34a', colorEnd: '#15803d', css: 'var(--sp-m-schmid)' },
-    jogurt: { name: 'Jogurt OG', short: 'JOG', color: '#7c3aed', colorEnd: '#6d28d9', css: 'var(--sp-m-jogurt)' },
-    t47: { name: 'T47', short: 'T47', color: '#d97706', colorEnd: '#b45309', css: 'var(--sp-m-t47)' },
-    quark: { name: 'Quark', short: 'Q', color: '#db2777', colorEnd: '#be185d', css: 'var(--sp-m-quark)' },
-    reinig: { name: 'Reinigung', short: 'RE', color: '#dc2626', colorEnd: '#b91c1c', css: 'var(--sp-m-reinig)' },
+    waldner2: { name: 'Maschine A', short: 'MA', color: '#2563eb', colorEnd: '#1d4ed8', css: 'var(--sp-m-waldner2)' },
+    waldner3: { name: 'Maschine B', short: 'MB', color: '#0891b2', colorEnd: '#0e7490', css: 'var(--sp-m-waldner3)' },
+    schmid: { name: 'Maschine C', short: 'MC', color: '#16a34a', colorEnd: '#15803d', css: 'var(--sp-m-schmid)' },
+    jogurt: { name: 'Linie 1', short: 'L1', color: '#7c3aed', colorEnd: '#6d28d9', css: 'var(--sp-m-jogurt)' },
+    t47: { name: 'Linie 2', short: 'L2', color: '#d97706', colorEnd: '#b45309', css: 'var(--sp-m-t47)' },
+    quark: { name: 'Linie 3', short: 'L3', color: '#db2777', colorEnd: '#be185d', css: 'var(--sp-m-quark)' },
+    reinig: { name: 'Wartung', short: 'WA', color: '#dc2626', colorEnd: '#b91c1c', css: 'var(--sp-m-reinig)' },
     free: { name: 'Frei', short: '—', color: '#94a3b8', colorEnd: '#64748b', css: 'var(--sp-m-free)' },
     vac: { name: 'Urlaub', short: '🏖️', color: '#22c55e', colorEnd: '#16a34a', css: 'var(--sp-m-vac)' },
   };
@@ -36,15 +39,15 @@
   /** Hardcoded demo plan — KW 25 / Juni 2026 */
   const SP_DEMO = {
     employee: {
-      id: '2104479',
-      name: 'Sergej K.',
-      fullName: 'Sergej Korsakov',
-      initials: 'SK',
-      department: 'BIS Jogurt',
+      id: '1001',
+      name: 'Thomas M.',
+      fullName: 'Müller Thomas',
+      initials: 'MT',
+      department: SP_DEPT,
     },
     notification: {
       title: 'Plan aktualisiert',
-      body: 'Mi 17.06: Waldner 10.2 → Jogurt OG',
+      body: 'Mi 17.06: Maschine A → Linie 1',
       time: '09:41',
     },
     week: {
@@ -61,17 +64,17 @@
         { key: '2026-06-21', dow: 6, label: 'So', num: 21, status: 'vac' },
       ],
       shifts: [
-        { dayKey: '2026-06-15', machine: 'waldner2', product: 'Käfir Coop 180g', time: '00–08', tags: ['🏭 W10.2', '🥛 Käfir Coop 180g'] },
-        { dayKey: '2026-06-16', machine: 'waldner3', product: 'Jogurt LF 73/95', time: '00–08', tags: ['🏭 W10.3'] },
-        { dayKey: '2026-06-17', machine: 'jogurt', product: '⚠️ Geändert', time: '08–17', tags: ['🏭 JOG'], changed: true },
+        { dayKey: '2026-06-15', machine: 'waldner2', product: 'Produkt Alpha', time: '00–08', tags: ['🏭 MA', '🥛 Produkt Alpha'] },
+        { dayKey: '2026-06-16', machine: 'waldner3', product: 'Produkt Beta', time: '00–08', tags: ['🏭 MB', '🥛 Produkt Beta'] },
+        { dayKey: '2026-06-17', machine: 'jogurt', product: '⚠️ Geändert', time: '08–17', tags: ['🏭 L1'], changed: true },
         { dayKey: '2026-06-18', machine: 'free', product: 'Frei', time: '—', muted: true },
         { dayKey: '2026-06-19', machine: 'free', product: 'Frei', time: '—', muted: true },
         { dayKey: '2026-06-20', machine: 'vac', product: 'Urlaub', time: '—', muted: true },
         { dayKey: '2026-06-21', machine: 'vac', product: 'Urlaub', time: '—', muted: true },
       ],
       list: [
-        { machine: 'waldner2', sub: 'Mo · Käfir Coop 180g', time: '00–08' },
-        { machine: 'waldner3', sub: 'Di · Jogurt LF 73/95', time: '00–08' },
+        { machine: 'waldner2', sub: 'Mo · Produkt Alpha', time: '00–08' },
+        { machine: 'waldner3', sub: 'Di · Produkt Beta', time: '00–08' },
         { machine: 'jogurt', sub: 'Mi · ⚠️ Geändert', time: '08–17' },
         { machine: 'free', sub: 'Do + Fr', time: '—', muted: true },
       ],
@@ -130,20 +133,20 @@
       title: 'Ferienplan 2026',
       sub: 'Juli–Dezember · Max. 5 Personen/Woche · 🎓 Schulferien TG',
       maxPerWeek: 5,
-      employeeMatch: 'Korsakov',
+      employeeMatch: 'Müller',
       weeks: [
-        { kw: 28, range: '06–12.07', school: false, people: ['Dürlewanger', 'Ickan Kubilay'] },
-        { kw: 29, range: '13–19.07', school: false, people: ['Dürlewanger', 'Ickan', 'Forster'] },
-        { kw: 30, range: '20–26.07', school: true, people: ['Muaremi', 'Memeti', 'Berschauer'] },
-        { kw: 31, range: '27.07–02.08', school: true, people: ['Muaremi', 'Memeti', 'Berschauer', 'Korsakov'] },
-        { kw: 32, range: '03–09.08', school: true, people: ['Lengwiler', 'Bedeti', 'Alimani F.'] },
-        { kw: 33, range: '10–16.08', school: false, people: ['Kreis', 'Stüssi'] },
-        { kw: 34, range: '17–23.08', school: false, people: ['Kreis', 'Nuhi', 'Barros'] },
-        { kw: 35, range: '24–30.08', school: false, people: ['Alimani V.', 'Kurati', 'Keller S.'] },
-        { kw: 41, range: '05–11.10', school: true, people: ['Thevaraiah', 'Rufener', 'Alimani V.', 'Bedeti', 'Alimani F.'] },
-        { kw: 42, range: '12–18.10', school: true, people: ['Thevaraiah', 'Dürlewanger', 'Mebrahtu', 'Ivicic', 'Muaremi'] },
-        { kw: 52, range: '21–27.12', school: true, people: ['Vadasz', 'Jegatheeswaran', 'Korsakov', 'Rufener', 'Alimani F.'] },
-        { kw: 53, range: '28.12–03.01', school: true, people: ['Vadasz', 'Alimani F.', 'Stüssi', 'Lengwiler', 'Brunner'] },
+        { kw: 28, range: '06–12.07', school: false, people: ['Meyer', 'Keller'] },
+        { kw: 29, range: '13–19.07', school: false, people: ['Meyer', 'Schmidt', 'Weber'] },
+        { kw: 30, range: '20–26.07', school: true, people: ['Fischer', 'Brunner', 'Schneider'] },
+        { kw: 31, range: '27.07–02.08', school: true, people: ['Fischer', 'Brunner', 'Schneider', 'Müller'] },
+        { kw: 32, range: '03–09.08', school: true, people: ['Steiner', 'Zimmermann', 'Meier'] },
+        { kw: 33, range: '10–16.08', school: false, people: ['Roth', 'Wyss'] },
+        { kw: 34, range: '17–23.08', school: false, people: ['Roth', 'Baumann', 'Graf'] },
+        { kw: 35, range: '24–30.08', school: false, people: ['Keller', 'Meier', 'Schneider'] },
+        { kw: 41, range: '05–11.10', school: true, people: ['Zimmermann', 'Steiner', 'Weber', 'Brunner', 'Fischer'] },
+        { kw: 42, range: '12–18.10', school: true, people: ['Zimmermann', 'Meyer', 'Roth', 'Baumann', 'Fischer'] },
+        { kw: 52, range: '21–27.12', school: true, people: ['Graf', 'Wyss', 'Müller', 'Steiner', 'Fischer'] },
+        { kw: 53, range: '28.12–03.01', school: true, people: ['Graf', 'Fischer', 'Wyss', 'Steiner', 'Brunner'] },
       ],
     },
   };
@@ -186,7 +189,7 @@
       { label: '🔔 Push', on: true },
     ],
     info: [
-      { key: 'Abteilung', val: 'BIS Jogurt' },
+      { key: 'Abteilung', val: SP_DEPT },
       { key: 'Kanton', val: 'Thurgau (TG)' },
       { key: 'Schichttyp', val: 'Wechselschicht' },
     ],
@@ -638,7 +641,7 @@
         <button type="button" class="sp-month-nav-btn" aria-label="Vorheriger Monat" disabled>‹</button>
         <div class="sp-month-nav-title">
           <div class="sp-month-name">${esc(MONTHS_DE[month - 1])} ${year}</div>
-          <div class="sp-month-meta">BIS Spezialitäten · Demo</div>
+          <div class="sp-month-meta">${esc(SP_DEPT)} · Demo</div>
         </div>
         <button type="button" class="sp-month-nav-btn" aria-label="Nächster Monat" disabled>›</button>
       </div>
@@ -926,7 +929,7 @@
   function renderProfilPage(employee) {
     if ($('spProfAvatar')) $('spProfAvatar').textContent = employee.initials;
     if ($('spProfName')) $('spProfName').textContent = employee.fullName;
-    if ($('spProfId')) $('spProfId').textContent = `#${employee.id} · BIS Spezialitäten`;
+    if ($('spProfId')) $('spProfId').textContent = `#${employee.id} · ${SP_COMPANY}`;
 
     const langSel = $('spLangSel');
     if (langSel) {
@@ -976,53 +979,53 @@
   /* ── Admin dashboard ── */
 
   const ADM_SHIFTS = {
-    w2: { label: 'Waldner 10.2', color: '#2563eb', time: '00–08', filter: 'w2' },
-    w3: { label: 'Waldner 10.3', color: '#0891b2', time: '08–17', filter: 'w2' },
-    sc: { label: 'Schmid KG', color: '#16a34a', time: '00–08', filter: 'sc' },
-    jo: { label: 'Jogurt OG', color: '#7c3aed', time: '08–17', filter: 'jo' },
-    t4: { label: 'T 47', color: '#d97706', time: '07–16', filter: 't4' },
-    qk: { label: 'Quark', color: '#db2777', time: '00–08', filter: 'qk' },
+    w2: { label: 'Maschine A', color: '#2563eb', time: '00–08', filter: 'w2' },
+    w3: { label: 'Maschine B', color: '#0891b2', time: '08–17', filter: 'w2' },
+    sc: { label: 'Maschine C', color: '#16a34a', time: '00–08', filter: 'sc' },
+    jo: { label: 'Linie 1', color: '#7c3aed', time: '08–17', filter: 'jo' },
+    t4: { label: 'Linie 2', color: '#d97706', time: '07–16', filter: 't4' },
+    qk: { label: 'Linie 3', color: '#db2777', time: '00–08', filter: 'qk' },
     fr: { label: 'Frei', free: true, filter: 'fr' },
     va: { label: 'Urlaub 🏖️', vac: true, filter: 'va' },
   };
 
   const ADM_EMPLOYEES = [
-    { name: 'Korsakov Sergej', id: '2104479', color: '#0d9488', initials: 'SK', shifts: ['w2', 'w3', 'jo', 'fr', 'fr'], status: 'seen' },
-    { name: 'Alimani Gjiltime', id: '9877', color: '#16a34a', initials: 'AG', shifts: ['w2', 'w2', 'w2', 'w2', 'w2'], status: 'seen' },
-    { name: 'Bedeti Desrim', id: '2115901', color: '#d97706', initials: 'BD', shifts: ['fr', 'fr', 'sc', 'sc', 'sc'], status: 'pending' },
-    { name: 'Brunner Daniel', id: '200459', color: '#0891b2', initials: 'BN', shifts: ['w3', 'w3', 'w3', 'w3', 'w3'], status: 'seen' },
-    { name: 'Cattaneo Fermo', id: '2108742', color: '#db2777', initials: 'CF', shifts: ['fr', 'fr', 'jo', 'jo', 'jo'], status: 'changed' },
-    { name: 'Dürlewanger Anton', id: '9901', color: '#059669', initials: 'DA', shifts: ['t4', 't4', 't4', 't4', 'fr'], status: 'seen' },
-    { name: 'Grieble Oliver', id: '2100326', color: '#7c3aed', initials: 'GO', shifts: ['w3', 'w3', 'w3', 'va', 'va'], status: 'seen' },
-    { name: 'Ickan Kubilay', id: '2123339', color: '#1e40af', initials: 'IK', shifts: ['w2', 'w2', 'w2', 'w2', 'w2'], status: 'seen' },
-    { name: 'Katic Marko', id: '2114690', color: '#db2777', initials: 'KM', shifts: ['fr', 'fr', 'fr', 'fr', 'fr'], status: 'seen' },
-    { name: 'Keller Roman', id: '2108447', color: '#7c3aed', initials: 'KR', shifts: ['jo', 'jo', 'jo', 'jo', 'fr'], status: 'seen' },
-    { name: 'Kleeberg Alexander', id: '2100387', color: '#059669', initials: 'KA', shifts: ['w3', 'w3', 'fr', 'fr', 'w3'], status: 'seen' },
-    { name: 'Mansor Karam', id: '9942', color: '#d97706', initials: 'MK', shifts: ['fr', 'w2', 'w2', 'w2', 'w2'], status: 'pending' },
-    { name: 'Mebrahtu Fenkil', id: '2113998', color: '#16a34a', initials: 'MF', shifts: ['w3', 'w3', 'fr', 'fr', 'fr'], status: 'seen' },
-    { name: 'Rufener Nadine', id: '9962', color: '#0891b2', initials: 'RN', shifts: ['sc', 'sc', 'sc', 'sc', 'fr'], status: 'seen' },
-    { name: 'Stüssi Michael', id: '12202', color: '#7c3aed', initials: 'SM', shifts: ['sc', 'sc', 'sc', 'sc', 'sc'], status: 'seen' },
+    { name: 'Müller Thomas', id: '1001', color: '#0d9488', initials: 'MT', shifts: ['w2', 'w3', 'jo', 'fr', 'fr'], status: 'seen' },
+    { name: 'Schmidt Anna', id: '1002', color: '#16a34a', initials: 'SA', shifts: ['w2', 'w2', 'w2', 'w2', 'w2'], status: 'seen' },
+    { name: 'Meyer Peter', id: '1003', color: '#d97706', initials: 'MP', shifts: ['fr', 'fr', 'sc', 'sc', 'sc'], status: 'pending' },
+    { name: 'Weber Sandra', id: '1004', color: '#0891b2', initials: 'WS', shifts: ['w3', 'w3', 'w3', 'w3', 'w3'], status: 'seen' },
+    { name: 'Keller Marco', id: '1005', color: '#db2777', initials: 'KM', shifts: ['fr', 'fr', 'jo', 'jo', 'jo'], status: 'changed' },
+    { name: 'Brunner Lisa', id: '1006', color: '#059669', initials: 'BL', shifts: ['t4', 't4', 't4', 't4', 'fr'], status: 'seen' },
+    { name: 'Schneider David', id: '1007', color: '#7c3aed', initials: 'SD', shifts: ['w3', 'w3', 'w3', 'va', 'va'], status: 'seen' },
+    { name: 'Fischer Maria', id: '1008', color: '#1e40af', initials: 'FM', shifts: ['w2', 'w2', 'w2', 'w2', 'w2'], status: 'seen' },
+    { name: 'Zimmermann Klaus', id: '1009', color: '#db2777', initials: 'ZK', shifts: ['fr', 'fr', 'fr', 'fr', 'fr'], status: 'seen' },
+    { name: 'Steiner Eva', id: '1010', color: '#7c3aed', initials: 'SE', shifts: ['jo', 'jo', 'jo', 'jo', 'fr'], status: 'seen' },
+    { name: 'Meier Hans', id: '1011', color: '#059669', initials: 'MH', shifts: ['w3', 'w3', 'fr', 'fr', 'w3'], status: 'seen' },
+    { name: 'Roth Claudia', id: '1012', color: '#d97706', initials: 'RC', shifts: ['fr', 'w2', 'w2', 'w2', 'w2'], status: 'pending' },
+    { name: 'Baumann Stefan', id: '1013', color: '#16a34a', initials: 'BS', shifts: ['w3', 'w3', 'fr', 'fr', 'fr'], status: 'seen' },
+    { name: 'Graf Patrick', id: '1014', color: '#0891b2', initials: 'GP', shifts: ['sc', 'sc', 'sc', 'sc', 'fr'], status: 'seen' },
+    { name: 'Wyss Andrea', id: '1015', color: '#7c3aed', initials: 'WA', shifts: ['sc', 'sc', 'sc', 'sc', 'sc'], status: 'seen' },
   ];
 
   const ADM_MACHINES = [
-    { name: 'Waldner 10.2', dept: 'BIS Jogurt', color: '#2563eb', badgeBg: 'rgba(37,99,235,0.1)', badgeColor: '#60a5fa', people: 6 },
-    { name: 'Waldner 10.3', dept: 'BIS Jogurt', color: '#0891b2', badgeBg: 'rgba(8,145,178,0.1)', badgeColor: '#22d3ee', people: 5 },
-    { name: 'Schmid KG', dept: 'BIS Jogurt', color: '#16a34a', badgeBg: 'rgba(22,163,74,0.1)', badgeColor: '#4ade80', people: 8 },
-    { name: 'Jogurt OG', dept: 'BIS Jogurt', color: '#7c3aed', badgeBg: 'rgba(124,58,237,0.1)', badgeColor: '#c084fc', people: 4 },
-    { name: 'T 47', dept: 'BIS Jogurt', color: '#d97706', badgeBg: 'rgba(217,119,6,0.1)', badgeColor: '#fbbf24', people: 3 },
-    { name: 'Quark 122–125', dept: 'BIS Jogurt', color: '#db2777', badgeBg: 'rgba(219,39,119,0.1)', badgeColor: '#f472b6', people: 7 },
+    { name: 'Maschine A', dept: SP_DEPT, color: '#2563eb', badgeBg: 'rgba(37,99,235,0.1)', badgeColor: '#60a5fa', people: 6 },
+    { name: 'Maschine B', dept: SP_DEPT, color: '#0891b2', badgeBg: 'rgba(8,145,178,0.1)', badgeColor: '#22d3ee', people: 5 },
+    { name: 'Maschine C', dept: SP_DEPT, color: '#16a34a', badgeBg: 'rgba(22,163,74,0.1)', badgeColor: '#4ade80', people: 8 },
+    { name: 'Linie 1', dept: SP_DEPT, color: '#7c3aed', badgeBg: 'rgba(124,58,237,0.1)', badgeColor: '#c084fc', people: 4 },
+    { name: 'Linie 2', dept: SP_DEPT, color: '#d97706', badgeBg: 'rgba(217,119,6,0.1)', badgeColor: '#fbbf24', people: 3 },
+    { name: 'Linie 3', dept: SP_DEPT, color: '#db2777', badgeBg: 'rgba(219,39,119,0.1)', badgeColor: '#f472b6', people: 7 },
   ];
 
   const ADM_ZEIT = [
-    { name: 'Korsakov Sergej', id: '2104479', initials: 'SK', color: 'linear-gradient(135deg, var(--sp-a), var(--sp-a3))', days: ['05:58–14:02', '06:00–14:00', '07:55–17:05'], total: '164.5h', extra: '+4.5h', extraOk: true },
-    { name: 'Alimani Gjiltime', id: '9877', initials: 'AG', color: 'linear-gradient(135deg, #16a34a, #15803d)', days: ['07:58–16:03', '08:00–16:00', '08:01–16:02'], total: '160.0h', extra: '0h', extraOk: false },
-    { name: 'Bedeti Desrim', id: '2115901', initials: 'BD', color: 'linear-gradient(135deg, #d97706, #b45309)', days: ['Frei', 'Frei', '00:02–08:01'], total: '96.0h', extra: '0h', extraOk: false },
+    { name: 'Müller Thomas', id: '1001', initials: 'MT', color: 'linear-gradient(135deg, var(--sp-a), var(--sp-a3))', days: ['05:58–14:02', '06:00–14:00', '07:55–17:05'], total: '164.5h', extra: '+4.5h', extraOk: true },
+    { name: 'Schmidt Anna', id: '1002', initials: 'SA', color: 'linear-gradient(135deg, #16a34a, #15803d)', days: ['07:58–16:03', '08:00–16:00', '08:01–16:02'], total: '160.0h', extra: '0h', extraOk: false },
+    { name: 'Meyer Peter', id: '1003', initials: 'MP', color: 'linear-gradient(135deg, #d97706, #b45309)', days: ['Frei', 'Frei', '00:02–08:01'], total: '96.0h', extra: '0h', extraOk: false },
   ];
 
   const ADM_DOCS = [
-    { name: 'Korsakov Sergej', initials: 'SK', color: 'linear-gradient(135deg, var(--sp-a), var(--sp-a3))', doc: '📄 Lohnabrechnung', month: 'Mai 2026', uploaded: '01.06.2026' },
-    { name: 'Alimani Gjiltime', initials: 'AG', color: 'linear-gradient(135deg, #16a34a, #15803d)', doc: '📄 Lohnabrechnung', month: 'Mai 2026', uploaded: '01.06.2026' },
-    { name: 'Bedeti Desrim', initials: 'BD', color: 'linear-gradient(135deg, #d97706, #b45309)', doc: '📋 Arbeitsvertrag', month: '—', uploaded: '15.03.2021' },
+    { name: 'Müller Thomas', initials: 'MT', color: 'linear-gradient(135deg, var(--sp-a), var(--sp-a3))', doc: '📄 Lohnabrechnung', month: 'Mai 2026', uploaded: '01.06.2026' },
+    { name: 'Schmidt Anna', initials: 'SA', color: 'linear-gradient(135deg, #16a34a, #15803d)', doc: '📄 Lohnabrechnung', month: 'Mai 2026', uploaded: '01.06.2026' },
+    { name: 'Meyer Peter', initials: 'MP', color: 'linear-gradient(135deg, #d97706, #b45309)', doc: '📋 Arbeitsvertrag', month: '—', uploaded: '15.03.2021' },
   ];
 
   let admState = { filter: 'all', search: '' };

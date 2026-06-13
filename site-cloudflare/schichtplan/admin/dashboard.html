@@ -36,7 +36,7 @@
     <aside class="sp-adm-sidebar">
       <div class="sp-adm-logo">
         <span class="sp-adm-logo-dot" aria-hidden="true"></span>
-        <div><span>SchichtPlan</span><span class="sp-adm-logo-sub">BIS Spezialitäten</span></div>
+        <div><span>SchichtPlan</span><span class="sp-adm-logo-sub">Produktionsabteilung</span></div>
       </div>
       <nav class="sp-adm-nav" aria-label="Admin Navigation">
         <div class="sp-adm-sec-label">Planung</div>
@@ -62,7 +62,7 @@
       <!-- Wochenplan -->
       <section class="sp-adm-panel sp-is-active" data-sp-adm-panel="schicht">
         <div class="sp-adm-header">
-          <div><div class="sp-adm-title">Wochenplan · KW 25</div><div class="sp-adm-sub">15.–21.06.2026 · BIS Spezialitäten · 148 MA</div></div>
+          <div><div class="sp-adm-title">Wochenplan · KW 25</div><div class="sp-adm-sub">15.–21.06.2026 · Produktionsabteilung · 148 MA</div></div>
           <div class="sp-adm-btns">
             <button type="button" class="sp-adm-btn sp-adm-btn-ghost" data-sp-adm-toast="Export vorbereitet (Demo)">📤 Export</button>
             <button type="button" class="sp-adm-btn sp-adm-btn-primary" id="spAdmPlanSend">📨 Plan senden</button>
@@ -76,10 +76,10 @@
         </div>
         <div class="sp-adm-filter">
           <button type="button" class="sp-adm-chip sp-is-active" data-sp-adm-filter="all">Alle</button>
-          <button type="button" class="sp-adm-chip" data-sp-adm-filter="w2">🔵 Waldner</button>
-          <button type="button" class="sp-adm-chip" data-sp-adm-filter="sc">🟢 Schmid KG</button>
-          <button type="button" class="sp-adm-chip" data-sp-adm-filter="jo">🟣 Jogurt OG</button>
-          <button type="button" class="sp-adm-chip" data-sp-adm-filter="t4">🟡 T 47</button>
+          <button type="button" class="sp-adm-chip" data-sp-adm-filter="w2">🔵 Maschine A/B</button>
+          <button type="button" class="sp-adm-chip" data-sp-adm-filter="sc">🟢 Maschine C</button>
+          <button type="button" class="sp-adm-chip" data-sp-adm-filter="jo">🟣 Linie 1</button>
+          <button type="button" class="sp-adm-chip" data-sp-adm-filter="t4">🟡 Linie 2</button>
           <button type="button" class="sp-adm-chip" data-sp-adm-filter="va">🏖️ Urlaub</button>
           <label class="sp-adm-search">🔍 <input type="search" id="spAdmSearch" placeholder="Name suchen…" autocomplete="off"></label>
         </div>
@@ -119,7 +119,7 @@
       <!-- Maschinen -->
       <section class="sp-adm-panel" data-sp-adm-panel="maschinen">
         <div class="sp-adm-header">
-          <div><div class="sp-adm-title">Maschinen · BIS Jogurt</div><div class="sp-adm-sub">Farben & Belegung · Demo-Ansicht</div></div>
+          <div><div class="sp-adm-title">Maschinen · Produktionsabteilung</div><div class="sp-adm-sub">Farben & Belegung · Demo-Ansicht</div></div>
           <div class="sp-adm-btns"><button type="button" class="sp-adm-btn sp-adm-btn-primary" data-sp-adm-toast="Maschine hinzufügen (Demo)">+ Maschine</button></div>
         </div>
         <div class="sp-adm-mach-grid" id="spAdmMachGrid"></div>
@@ -133,7 +133,7 @@
         <div class="sp-adm-msg-compose">
           <div class="sp-adm-msg-row">
             <span class="sp-adm-msg-label">An:</span>
-            <select class="sp-adm-msg-sel"><option>Alle Mitarbeiter (148)</option><option>BIS Jogurt (42)</option><option>Einzelner MA…</option></select>
+            <select class="sp-adm-msg-sel"><option>Alle Mitarbeiter (148)</option><option>Produktionsabteilung (42)</option><option>Einzelner MA…</option></select>
           </div>
           <div class="sp-adm-msg-row">
             <span class="sp-adm-msg-label">Via:</span>
@@ -156,7 +156,7 @@
           </div>
           <div class="sp-adm-msg-item">
             <div class="sp-adm-msg-av">HR</div>
-            <div style="flex:1"><div class="sp-adm-msg-name">Korsakov Sergej</div><div class="sp-adm-msg-text-preview">Mi 17.06 geändert: Waldner 10.2 → Jogurt OG.</div></div>
+            <div style="flex:1"><div class="sp-adm-msg-name">Müller Thomas</div><div class="sp-adm-msg-text-preview">Mi 17.06 geändert: Maschine A → Linie 1.</div></div>
             <span class="sp-adm-msg-meta">gestern 16:45</span>
           </div>
         </div>
@@ -165,7 +165,7 @@
       <!-- Zeiterfassung -->
       <section class="sp-adm-panel" data-sp-adm-panel="zeit">
         <div class="sp-adm-header">
-          <div><div class="sp-adm-title">Zeiterfassung · Juni 2026</div><div class="sp-adm-sub">Stempelzeiten aller Mitarbeiter · BIS Jogurt</div></div>
+          <div><div class="sp-adm-title">Zeiterfassung · Juni 2026</div><div class="sp-adm-sub">Stempelzeiten aller Mitarbeiter · Produktionsabteilung</div></div>
           <div class="sp-adm-btns"><button type="button" class="sp-adm-btn sp-adm-btn-ghost" data-sp-adm-toast="PDF Export (Demo)">📤 Export PDF</button></div>
         </div>
         <div class="sp-adm-table-wrap">
@@ -221,8 +221,8 @@
           </div>
           <div class="sp-adm-settings-sec">
             <div class="sp-adm-settings-title">🏢 Firma</div>
-            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Name</span><span class="sp-adm-settings-val">BIS Spezialitäten</span></div>
-            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Abteilung</span><span class="sp-adm-settings-val">BIS Jogurt</span></div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Name</span><span class="sp-adm-settings-val">Muster AG</span></div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Abteilung</span><span class="sp-adm-settings-val">Produktionsabteilung</span></div>
             <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Kanton</span><span class="sp-adm-settings-val">Thurgau (TG)</span></div>
             <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Max. Urlaub/Woche</span><span class="sp-adm-settings-val">5 Personen</span></div>
             <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Sprache Admin</span><span class="sp-adm-settings-val">Deutsch (DE)</span></div>
