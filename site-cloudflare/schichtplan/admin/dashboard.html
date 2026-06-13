@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="de" data-sp-theme="dark" data-sp-accent="teal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>SchichtPlan — Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/sp-style.css">
+</head>
+<body class="sp-body sp-adm-page" data-sp-page="admin-dashboard">
+
+  <header class="sp-topbar">
+    <div class="sp-topbar-brand">SchichtPlan · Admin</div>
+    <div class="sp-topbar-controls">
+      <div class="sp-control-group">
+        <span class="sp-control-label">Theme</span>
+        <div class="sp-toggle-pill">
+          <button type="button" class="sp-toggle-btn sp-is-active" data-sp-theme-btn="dark" aria-pressed="true">Dark</button>
+          <button type="button" class="sp-toggle-btn" data-sp-theme-btn="light" aria-pressed="false">Light</button>
+        </div>
+      </div>
+      <div class="sp-control-group">
+        <span class="sp-control-label">Accent</span>
+        <button type="button" class="sp-accent-dot sp-is-active" data-sp-accent-pick="teal" aria-label="Teal" title="Teal"></button>
+        <button type="button" class="sp-accent-dot" data-sp-accent-pick="violet" aria-label="Violet" title="Violet"></button>
+        <button type="button" class="sp-accent-dot" data-sp-accent-pick="navy" aria-label="Navy" title="Navy"></button>
+      </div>
+      <button type="button" class="sp-topbar-logout" id="spAdminLogoutBtn" title="Abmelden">Abmelden</button>
+    </div>
+  </header>
+
+  <div class="sp-adm-shell">
+    <aside class="sp-adm-sidebar">
+      <div class="sp-adm-logo">
+        <span class="sp-adm-logo-dot" aria-hidden="true"></span>
+        <div><span>SchichtPlan</span><span class="sp-adm-logo-sub">BIS Spezialitäten</span></div>
+      </div>
+      <nav class="sp-adm-nav" aria-label="Admin Navigation">
+        <div class="sp-adm-sec-label">Planung</div>
+        <button type="button" class="sp-adm-nav-item sp-is-active" data-sp-adm-tab="schicht"><span class="sp-adm-nav-icon">📅</span> Wochenplan</button>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="ferien"><span class="sp-adm-nav-icon">🏖️</span> Ferienplan</button>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="kalender"><span class="sp-adm-nav-icon">🗓️</span> Kantonskalender</button>
+        <div class="sp-adm-sec-label sp-has-gap">Verwaltung</div>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="maschinen"><span class="sp-adm-nav-icon">🏭</span> Maschinen</button>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="nachrichten"><span class="sp-adm-nav-icon">✉️</span> Nachrichten</button>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="zeit"><span class="sp-adm-nav-icon">⏱️</span> Zeiterfassung</button>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="dokumente"><span class="sp-adm-nav-icon">📄</span> Dokumente</button>
+        <div class="sp-adm-sec-label sp-has-gap">System</div>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="einstellungen"><span class="sp-adm-nav-icon">⚙️</span> Einstellungen</button>
+      </nav>
+      <div class="sp-adm-sidebar-foot">
+        <div class="sp-adm-foot-av" aria-hidden="true">HR</div>
+        <div><div class="sp-adm-foot-name">Petra M.</div><div class="sp-adm-foot-role">HR · Admin</div></div>
+      </div>
+    </aside>
+
+    <div class="sp-adm-main">
+
+      <!-- Wochenplan -->
+      <section class="sp-adm-panel sp-is-active" data-sp-adm-panel="schicht">
+        <div class="sp-adm-header">
+          <div><div class="sp-adm-title">Wochenplan · KW 25</div><div class="sp-adm-sub">15.–21.06.2026 · BIS Spezialitäten · 148 MA</div></div>
+          <div class="sp-adm-btns">
+            <button type="button" class="sp-adm-btn sp-adm-btn-ghost" data-sp-adm-toast="Export vorbereitet (Demo)">📤 Export</button>
+            <button type="button" class="sp-adm-btn sp-adm-btn-primary" data-sp-adm-toast="Plan an 148 Mitarbeiter gesendet ✅">📨 Plan senden</button>
+          </div>
+        </div>
+        <div class="sp-adm-stats">
+          <div class="sp-adm-stat"><span class="sp-adm-stat-icon">👥</span><div><div class="sp-adm-stat-val">148</div><div class="sp-adm-stat-lbl">Mitarbeiter</div></div></div>
+          <div class="sp-adm-stat"><span class="sp-adm-stat-icon">✅</span><div><div class="sp-adm-stat-val">139</div><div class="sp-adm-stat-lbl">Plan gesehen</div></div></div>
+          <div class="sp-adm-stat"><span class="sp-adm-stat-icon">🏖️</span><div><div class="sp-adm-stat-val">12</div><div class="sp-adm-stat-lbl">Im Urlaub</div></div></div>
+          <div class="sp-adm-stat"><span class="sp-adm-stat-icon">⚠️</span><div><div class="sp-adm-stat-val">3</div><div class="sp-adm-stat-lbl">Änderungen</div></div></div>
+        </div>
+        <div class="sp-adm-filter">
+          <button type="button" class="sp-adm-chip sp-is-active" data-sp-adm-filter="all">Alle</button>
+          <button type="button" class="sp-adm-chip" data-sp-adm-filter="w2">🔵 Waldner</button>
+          <button type="button" class="sp-adm-chip" data-sp-adm-filter="sc">🟢 Schmid KG</button>
+          <button type="button" class="sp-adm-chip" data-sp-adm-filter="jo">🟣 Jogurt OG</button>
+          <button type="button" class="sp-adm-chip" data-sp-adm-filter="t4">🟡 T 47</button>
+          <button type="button" class="sp-adm-chip" data-sp-adm-filter="va">🏖️ Urlaub</button>
+          <label class="sp-adm-search">🔍 <input type="search" id="spAdmSearch" placeholder="Name suchen…" autocomplete="off"></label>
+        </div>
+        <div class="sp-adm-table-wrap">
+          <table class="sp-adm-table">
+            <thead><tr>
+              <th>Mitarbeiter</th><th>Mo 15.06</th><th>Di 16.06</th><th>Mi 17.06</th><th>Do 18.06</th><th>Fr 19.06</th><th>Status</th>
+            </tr></thead>
+            <tbody id="spAdmSchichtBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Ferienplan -->
+      <section class="sp-adm-panel" data-sp-adm-panel="ferien">
+        <div class="sp-adm-header">
+          <div><div class="sp-adm-title">Ferienplan 2026</div><div class="sp-adm-sub">Juli–Dezember · Max. 5 Personen/Woche · 🎓 Schulferien TG</div></div>
+          <div class="sp-adm-btns"><button type="button" class="sp-adm-btn sp-adm-btn-primary" data-sp-adm-toast="Urlaub eintragen (Demo)">+ Urlaub eintragen</button></div>
+        </div>
+        <div class="sp-adm-vac-wrap" id="spAdmVacWrap"></div>
+      </section>
+
+      <!-- Kantonskalender -->
+      <section class="sp-adm-panel" data-sp-adm-panel="kalender">
+        <div class="sp-adm-header">
+          <div><div class="sp-adm-title">Kantonskalender 2026</div><div class="sp-adm-sub">Feiertage & Schulferien · Kanton Thurgau (TG)</div></div>
+          <div class="sp-adm-btns">
+            <select class="sp-adm-select" aria-label="Kanton">
+              <option>TG – Thurgau</option><option>ZH – Zürich</option><option>BE – Bern</option>
+              <option>SG – St. Gallen</option><option>GE – Genf</option><option>BS – Basel</option>
+            </select>
+          </div>
+        </div>
+        <div class="sp-adm-kal-grid">
+          <div class="sp-card">
+            <div class="sp-card-title">Januar</div>
+            <div class="sp-adm-kal-row"><span class="sp-adm-kal-date">01.01</span><span class="sp-adm-kal-name">Neujahr</span><span>🔴 CH</span></div>
+          </div>
+          <div class="sp-card">
+            <div class="sp-card-title">April</div>
+            <div class="sp-adm-kal-row"><span class="sp-adm-kal-date">03.04</span><span class="sp-adm-kal-name">Karfreitag</span><span>🔴 CH</span></div>
+            <div class="sp-adm-kal-row"><span class="sp-adm-kal-date">06.04</span><span class="sp-adm-kal-name">Ostermontag</span><span>🔴 CH</span></div>
+          </div>
+          <div class="sp-card">
+            <div class="sp-card-title">Schulferien TG 🎓</div>
+            <div class="sp-adm-kal-row"><span class="sp-adm-kal-name">Sommer KW 28–31</span><span>🎓</span></div>
+            <div class="sp-adm-kal-row"><span class="sp-adm-kal-name">Herbst KW 41–42</span><span>🎓</span></div>
+            <div class="sp-adm-kal-row"><span class="sp-adm-kal-name">Winter KW 52–53</span><span>🎓</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Maschinen -->
+      <section class="sp-adm-panel" data-sp-adm-panel="maschinen">
+        <div class="sp-adm-header">
+          <div><div class="sp-adm-title">Maschinen · BIS Jogurt</div><div class="sp-adm-sub">Farben & Belegung · Demo-Ansicht</div></div>
+          <div class="sp-adm-btns"><button type="button" class="sp-adm-btn sp-adm-btn-primary" data-sp-adm-toast="Maschine hinzufügen (Demo)">+ Maschine</button></div>
+        </div>
+        <div class="sp-adm-mach-grid" id="spAdmMachGrid"></div>
+      </section>
+
+      <!-- Nachrichten -->
+      <section class="sp-adm-panel" data-sp-adm-panel="nachrichten">
+        <div class="sp-adm-header">
+          <div><div class="sp-adm-title">Nachrichten senden</div><div class="sp-adm-sub">An alle oder einzelne Mitarbeiter</div></div>
+        </div>
+        <div class="sp-adm-msg-compose">
+          <div class="sp-adm-msg-row">
+            <span class="sp-adm-msg-label">An:</span>
+            <select class="sp-adm-msg-sel"><option>Alle Mitarbeiter (148)</option><option>BIS Jogurt (42)</option><option>Einzelner MA…</option></select>
+          </div>
+          <div class="sp-adm-msg-row">
+            <span class="sp-adm-msg-label">Via:</span>
+            <div class="sp-adm-msg-channels">
+              <button type="button" class="sp-adm-msg-ch sp-is-on">📧 Email</button>
+              <button type="button" class="sp-adm-msg-ch sp-is-on">💬 WhatsApp</button>
+              <button type="button" class="sp-adm-msg-ch">✈️ Telegram</button>
+              <button type="button" class="sp-adm-msg-ch">📱 SMS</button>
+              <button type="button" class="sp-adm-msg-ch sp-is-on">🔔 Push</button>
+            </div>
+          </div>
+          <textarea class="sp-adm-msg-text" id="spAdmMsgText">Liebe Mitarbeiter, der Wochenplan KW 25 wurde aktualisiert. Bitte überprüfen Sie Ihre Schichten.</textarea>
+          <button type="button" class="sp-adm-btn sp-adm-btn-primary" style="align-self:flex-end" data-sp-adm-toast="Nachricht an 148 MA gesendet ✅">📨 Senden</button>
+        </div>
+        <div class="sp-adm-msg-log">
+          <div class="sp-adm-msg-item">
+            <div class="sp-adm-msg-av">HR</div>
+            <div style="flex:1"><div class="sp-adm-msg-name">Alle Mitarbeiter</div><div class="sp-adm-msg-text-preview">Plan KW 25 wurde aktualisiert. Bitte prüfen.</div></div>
+            <span class="sp-adm-msg-meta">heute 08:30</span>
+          </div>
+          <div class="sp-adm-msg-item">
+            <div class="sp-adm-msg-av">HR</div>
+            <div style="flex:1"><div class="sp-adm-msg-name">Korsakov Sergej</div><div class="sp-adm-msg-text-preview">Mi 17.06 geändert: Waldner 10.2 → Jogurt OG.</div></div>
+            <span class="sp-adm-msg-meta">gestern 16:45</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Zeiterfassung -->
+      <section class="sp-adm-panel" data-sp-adm-panel="zeit">
+        <div class="sp-adm-header">
+          <div><div class="sp-adm-title">Zeiterfassung · Juni 2026</div><div class="sp-adm-sub">Stempelzeiten aller Mitarbeiter · BIS Jogurt</div></div>
+          <div class="sp-adm-btns"><button type="button" class="sp-adm-btn sp-adm-btn-ghost" data-sp-adm-toast="PDF Export (Demo)">📤 Export PDF</button></div>
+        </div>
+        <div class="sp-adm-table-wrap">
+          <table class="sp-adm-table">
+            <thead><tr><th>Mitarbeiter</th><th>Mo 15.06</th><th>Di 16.06</th><th>Mi 17.06</th><th>Gesamt Juni</th><th>Überstunden</th></tr></thead>
+            <tbody id="spAdmZeitBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Dokumente -->
+      <section class="sp-adm-panel" data-sp-adm-panel="dokumente">
+        <div class="sp-adm-header">
+          <div><div class="sp-adm-title">Dokumente</div><div class="sp-adm-sub">Lohnabrechnungen & Dokumente hochladen</div></div>
+          <div class="sp-adm-btns"><button type="button" class="sp-adm-btn sp-adm-btn-primary" data-sp-adm-toast="Upload (Demo)">⬆️ Dokument hochladen</button></div>
+        </div>
+        <div class="sp-adm-table-wrap">
+          <table class="sp-adm-table">
+            <thead><tr><th>Mitarbeiter</th><th>Dokument</th><th>Monat</th><th>Hochgeladen</th><th>Aktion</th></tr></thead>
+            <tbody id="spAdmDocsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Einstellungen -->
+      <section class="sp-adm-panel" data-sp-adm-panel="einstellungen">
+        <div class="sp-adm-header">
+          <div><div class="sp-adm-title">Einstellungen</div><div class="sp-adm-sub">Firma, Design, Maschinen-Farben</div></div>
+        </div>
+        <div class="sp-adm-settings">
+          <div class="sp-adm-settings-sec">
+            <div class="sp-adm-settings-title">🎨 Akzentfarbe</div>
+            <div class="sp-adm-cp-row" id="spAdmAccentPicker">
+              <button type="button" class="sp-adm-cp-dot sp-is-selected" data-sp-adm-accent="teal" style="background:#0d9488" aria-label="Teal"></button>
+              <button type="button" class="sp-adm-cp-dot" data-sp-adm-accent="violet" style="background:#7c3aed" aria-label="Violet"></button>
+              <button type="button" class="sp-adm-cp-dot" data-sp-adm-accent="navy" style="background:#1e40af" aria-label="Navy"></button>
+              <span style="font-size:11px;color:var(--sp-text2)">Weitere Farben auf Anfrage</span>
+            </div>
+          </div>
+          <div class="sp-adm-settings-sec">
+            <div class="sp-adm-settings-title">🏭 Maschinenfarben</div>
+            <div class="sp-adm-cp-row" id="spAdmMachColors"></div>
+            <div style="padding:0 12px 10px;font-size:11px;color:var(--sp-text2)">Farben werden im gesamten Plan angezeigt (Demo)</div>
+          </div>
+          <div class="sp-adm-settings-sec">
+            <div class="sp-adm-settings-title">🏢 Firma</div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Name</span><span class="sp-adm-settings-val">BIS Spezialitäten</span></div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Abteilung</span><span class="sp-adm-settings-val">BIS Jogurt</span></div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Kanton</span><span class="sp-adm-settings-val">Thurgau (TG)</span></div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Max. Urlaub/Woche</span><span class="sp-adm-settings-val">5 Personen</span></div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Sprache Admin</span><span class="sp-adm-settings-val">Deutsch (DE)</span></div>
+          </div>
+          <div class="sp-adm-settings-sec">
+            <div class="sp-adm-settings-title">🔔 Standard-Benachrichtigung</div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Email</span><button type="button" class="sp-adm-toggle sp-is-on" aria-label="Email"></button></div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">WhatsApp</span><button type="button" class="sp-adm-toggle sp-is-on" aria-label="WhatsApp"></button></div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Telegram</span><button type="button" class="sp-adm-toggle" aria-label="Telegram"></button></div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">SMS</span><button type="button" class="sp-adm-toggle" aria-label="SMS"></button></div>
+            <div class="sp-adm-settings-row"><span class="sp-adm-settings-key">Push</span><button type="button" class="sp-adm-toggle sp-is-on" aria-label="Push"></button></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="sp-adm-toast" id="spAdmToast" role="status" aria-live="polite"></div>
+
+  <script src="../assets/sp-app.js"></script>
+</body>
+</html>

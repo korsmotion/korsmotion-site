@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de" data-sp-theme="dark" data-sp-accent="teal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>SchichtPlan — Ferien</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/sp-style.css">
+</head>
+<body class="sp-body sp-ferien-page" data-sp-page="ferien">
+
+  <header class="sp-topbar">
+    <div class="sp-topbar-brand">SchichtPlan</div>
+    <div class="sp-topbar-controls">
+      <span class="sp-topbar-user" id="spTopbarUser"></span>
+      <div class="sp-control-group">
+        <span class="sp-control-label">Theme</span>
+        <div class="sp-toggle-pill">
+          <button type="button" class="sp-toggle-btn sp-is-active" data-sp-theme-btn="dark" aria-pressed="true">Dark</button>
+          <button type="button" class="sp-toggle-btn" data-sp-theme-btn="light" aria-pressed="false">Light</button>
+        </div>
+      </div>
+      <div class="sp-control-group">
+        <span class="sp-control-label">Accent</span>
+        <button type="button" class="sp-accent-dot sp-is-active" data-sp-accent-pick="teal" aria-label="Teal" title="Teal"></button>
+        <button type="button" class="sp-accent-dot" data-sp-accent-pick="violet" aria-label="Violet" title="Violet"></button>
+        <button type="button" class="sp-accent-dot" data-sp-accent-pick="navy" aria-label="Navy" title="Navy"></button>
+      </div>
+      <button type="button" class="sp-topbar-logout" id="spLogoutBtn" title="Abmelden">Abmelden</button>
+    </div>
+  </header>
+
+  <div class="sp-app">
+    <header class="sp-app-header">
+      <div>
+        <div class="sp-app-greeting" id="spGreeting">Guten Morgen,</div>
+        <div class="sp-app-name" id="spEmployeeName">—</div>
+      </div>
+      <div class="sp-app-avatar" id="spAvatar" aria-hidden="true">—</div>
+    </header>
+
+    <nav class="sp-app-tabs" aria-label="Bereiche">
+      <a class="sp-app-tab" href="plan.html">📅 Plan</a>
+      <span class="sp-app-tab sp-is-active">🏖️ Ferien</span>
+      <span class="sp-app-tab sp-is-disabled">⏱️ Stunden</span>
+      <span class="sp-app-tab sp-is-disabled">📄 Dokumente</span>
+      <span class="sp-app-tab sp-is-disabled">👤 Profil</span>
+    </nav>
+
+    <div class="sp-plan-toolbar">
+      <div>
+        <div class="sp-plan-kw">Ferien 2026</div>
+        <div class="sp-plan-kw-sub">BIS Spezialitäten · TG</div>
+      </div>
+      <div class="sp-plan-view-toggle" role="tablist" aria-label="Ansicht">
+        <button type="button" class="sp-plan-view-btn sp-is-active" data-sp-ferien-view="mine" role="tab" aria-selected="true">Meine</button>
+        <button type="button" class="sp-plan-view-btn" data-sp-ferien-view="team" role="tab" aria-selected="false">Team</button>
+      </div>
+    </div>
+
+    <main class="sp-app-content">
+      <p class="sp-demo-badge" id="spDemoBadge" hidden>Demo-Daten · API folgt später</p>
+
+      <!-- Personal (phone Ferien tab) -->
+      <section class="sp-ferien-panel sp-is-visible" id="spFerienMine" role="tabpanel">
+        <div class="sp-vac-banner" id="spVacBanner"></div>
+
+        <div class="sp-card">
+          <div class="sp-card-title" id="spBalanceTitle">Meine Urlaubstage 2026</div>
+          <div id="spBalanceList"></div>
+        </div>
+
+        <div class="sp-card">
+          <div class="sp-card-title">Meine Urlaubswochen</div>
+          <div id="spMyWeeksList"></div>
+        </div>
+
+        <button type="button" class="sp-btn sp-btn-primary sp-btn-block" id="spRequestVacBtn">+ Urlaub beantragen</button>
+      </section>
+
+      <!-- Team Ferienplan (desktop reference) -->
+      <section class="sp-ferien-panel" id="spFerienTeam" role="tabpanel" hidden>
+        <div class="sp-ferien-section-head">
+          <div class="sp-ferien-section-title" id="spTeamTitle">Ferienplan 2026</div>
+          <div class="sp-ferien-section-sub" id="spTeamSub"></div>
+        </div>
+        <div class="sp-vac-scroll" id="spVacScroll">
+          <div id="spVacTableWrap"></div>
+        </div>
+        <p class="sp-login-hint" style="margin-top:0">🎓 = Schulferien TG · Max. 5 Personen pro Woche</p>
+      </section>
+    </main>
+  </div>
+
+  <nav class="sp-bottom-nav" aria-label="Navigation">
+    <a class="sp-bottom-item" href="plan.html"><span class="sp-bottom-icon" aria-hidden="true">📅</span>Plan</a>
+    <span class="sp-bottom-item sp-is-active"><span class="sp-bottom-icon" aria-hidden="true">🏖️</span>Ferien</span>
+    <span class="sp-bottom-item"><span class="sp-bottom-icon" aria-hidden="true">⏱️</span>Stunden</span>
+    <span class="sp-bottom-item"><span class="sp-bottom-icon" aria-hidden="true">📄</span>Docs</span>
+    <span class="sp-bottom-item"><span class="sp-bottom-icon" aria-hidden="true">👤</span>Profil</span>
+  </nav>
+
+  <div class="sp-toast" id="spToast" role="status" aria-live="polite"></div>
+
+  <script src="assets/sp-app.js"></script>
+</body>
+</html>

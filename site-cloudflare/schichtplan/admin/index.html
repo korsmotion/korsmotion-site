@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de" data-sp-theme="dark" data-sp-accent="teal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>SchichtPlan — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/sp-style.css">
+</head>
+<body class="sp-body sp-login-page" data-sp-page="admin-login">
+
+  <header class="sp-topbar">
+    <div class="sp-topbar-brand">SchichtPlan · Admin</div>
+    <div class="sp-topbar-controls">
+      <div class="sp-control-group">
+        <span class="sp-control-label">Theme</span>
+        <div class="sp-toggle-pill">
+          <button type="button" class="sp-toggle-btn sp-is-active" data-sp-theme-btn="dark" aria-pressed="true">Dark</button>
+          <button type="button" class="sp-toggle-btn" data-sp-theme-btn="light" aria-pressed="false">Light</button>
+        </div>
+      </div>
+      <div class="sp-control-group">
+        <span class="sp-control-label">Accent</span>
+        <button type="button" class="sp-accent-dot sp-is-active" data-sp-accent-pick="teal" aria-label="Teal" title="Teal"></button>
+        <button type="button" class="sp-accent-dot" data-sp-accent-pick="violet" aria-label="Violet" title="Violet"></button>
+        <button type="button" class="sp-accent-dot" data-sp-accent-pick="navy" aria-label="Navy" title="Navy"></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="sp-login-main">
+    <div class="sp-login-card">
+      <div class="sp-login-icon" aria-hidden="true">🔒</div>
+      <h1 class="sp-login-title">HR / Schichtleitung</h1>
+      <p class="sp-login-subtitle">Anmeldung für Planung, Ferien und Mitarbeiterverwaltung. Nur für autorisiertes Personal.</p>
+
+      <form id="spAdminLoginForm" autocomplete="off" novalidate>
+        <div class="sp-form-group">
+          <label class="sp-label" for="spAdminPassword">Passwort</label>
+          <input
+            type="password"
+            id="spAdminPassword"
+            class="sp-input"
+            placeholder="Passwort eingeben"
+            autocomplete="current-password"
+            required
+            autofocus
+          >
+        </div>
+        <button type="submit" class="sp-btn sp-btn-primary" id="spAdminLoginBtn">
+          <span class="sp-spinner" aria-hidden="true"></span>
+          <span class="sp-btn-text">Anmelden</span>
+        </button>
+      </form>
+
+      <p class="sp-login-error" id="spAdminLoginError" role="alert"></p>
+      <p class="sp-login-hint">
+        Mitarbeiter-Login? <a href="../index.html" class="sp-login-link">Zur Tabellennummer-Anmeldung</a>
+      </p>
+    </div>
+  </main>
+
+  <footer class="sp-footer">BIS Spezialitäten · SchichtPlan Admin</footer>
+
+  <script src="../assets/sp-app.js"></script>
+</body>
+</html>
