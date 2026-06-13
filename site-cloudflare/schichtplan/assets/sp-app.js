@@ -1,6 +1,6 @@
 /**
  * SchichtPlan — shared UI + page modules
- * Demo mode: no API/KV until schichtplan_data is wired in worker
+ * Demo login only (local checks) until schichtplan_data KV/API is wired
  */
 (function () {
   const STORAGE_THEME = 'sp_theme';
@@ -8,8 +8,9 @@
   const SESSION_EMPLOYEE = 'sp_employee_id';
   const SESSION_EMPLOYEE_NAME = 'sp_employee_name';
   const SESSION_ADMIN = 'sp_admin_auth';
-  const SP_DEMO_MODE = true;
   const DEMO_ADMIN_PASSWORD = 'admin2026';
+  const EMPLOYEE_ID_MIN = 4;
+  const EMPLOYEE_ID_MAX = 7;
   const SP_BASE = '/schichtplan';
   const SP_ADMIN_BASE = `${SP_BASE}/admin`;
 
@@ -107,7 +108,6 @@
         '2026-06-30': { machine: 'jogurt' },
       },
     },
-    },
   };
 
   /** Hardcoded demo ferien — Juli–Dez 2026 */
@@ -183,6 +183,11 @@
     window.location.assign(url);
   }
 
+  function redirectAfterLogin(url, label, detail) {
+    console.log('[SchichtPlan] redirect:', label, detail || '', '→', url);
+    window.location.replace(url);
+  }
+
   function getTheme() {
     return localStorage.getItem(STORAGE_THEME) || 'dark';
   }
@@ -252,7 +257,26 @@
     return `⏱ ${parts[0]}:00 – ${parts[1]}:00 Uhr`;
   }
 
-  /* ── Login page ── */
+  /* ── Login (demo only — replace with API/KV later) ── */
+
+  function isValidEmployeeId(id) {
+    return id.length >= EMPLOYEE_ID_MIN && id.length <= EMPLOYEE_ID_MAX;
+  }
+
+  function loginEmployeeDemo(employeeId) {
+    safeSessionSet(SESSION_EMPLOYEE, employeeId);
+    if (employeeId === SP_DEMO.employee.id) {
+      safeSessionSet(SESSION_EMPLOYEE_NAME, SP_DEMO.employee.name);
+    } else {
+      safeSessionRemove(SESSION_EMPLOYEE_NAME);
+    }
+    redirectAfterLogin('plan.html', 'employee-login', { employeeId });
+  }
+
+  function loginAdminDemo() {
+    safeSessionSet(SESSION_ADMIN, '1');
+    redirectAfterLogin('dashboard.html', 'admin-login');
+  }
 
   function showLoginError(msg) {
     const el = $('spLoginError');
@@ -277,16 +301,6 @@
     return String(raw || '').replace(/\D/g, '');
   }
 
-  function demoEmployeeLogin(employeeId) {
-    safeSessionSet(SESSION_EMPLOYEE, employeeId);
-    if (employeeId === SP_DEMO.employee.id) {
-      safeSessionSet(SESSION_EMPLOYEE_NAME, SP_DEMO.employee.name);
-    } else {
-      safeSessionRemove(SESSION_EMPLOYEE_NAME);
-    }
-    go(`${SP_BASE}/plan.html`);
-  }
-
   function bindLoginForm() {
     const form = $('spLoginForm');
     const input = $('spEmployeeId');
@@ -299,39 +313,33 @@
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      try {
-        const employeeId = normalizeEmployeeId(input.value);
-        if (!employeeId) {
-          showLoginError('Bitte Tabellennummer eingeben.');
-          input.focus();
-          return;
-        }
+      const employeeId = normalizeEmployeeId(input.value);
 
-        setLoginLoading(true);
-        showLoginError('');
-
-        if (SP_DEMO_MODE) {
-          demoEmployeeLogin(employeeId);
-          return;
-        }
-
-        showLoginError('Anmeldung derzeit nicht verfügbar.');
-      } catch (err) {
-        showLoginError('Fehler beim Login. Bitte erneut versuchen.');
-      } finally {
-        setLoginLoading(false);
+      if (!employeeId) {
+        showLoginError('Bitte Tabellennummer eingeben.');
+        input.focus();
+        return;
       }
+      if (!isValidEmployeeId(employeeId)) {
+        showLoginError(`Tabellennummer: ${EMPLOYEE_ID_MIN}–${EMPLOYEE_ID_MAX} Ziffern.`);
+        input.focus();
+        return;
+      }
+
+      setLoginLoading(true);
+      showLoginError('');
+      loginEmployeeDemo(employeeId);
     });
   }
 
   function initLoginPage() {
     bindLoginForm();
     if (safeSessionGet(SESSION_EMPLOYEE)) {
-      go(`${SP_BASE}/plan.html`);
+      redirectAfterLogin('plan.html', 'employee-session');
     }
   }
 
-  /* ── Admin login ── */
+  /* ── Admin login (demo only) ── */
 
   function showAdminLoginError(msg) {
     const el = $('spAdminLoginError');
@@ -361,38 +369,33 @@
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      try {
-        const password = input.value.trim();
-        if (!password) {
-          showAdminLoginError('Bitte Passwort eingeben.');
-          input.focus();
-          return;
-        }
+      const password = input.value.trim();
 
-        setAdminLoginLoading(true);
-        showAdminLoginError('');
+      if (!password) {
+        showAdminLoginError('Bitte Passwort eingeben.');
+        input.focus();
+        return;
+      }
 
-        if (password === DEMO_ADMIN_PASSWORD) {
-          safeSessionSet(SESSION_ADMIN, '1');
-          go(`${SP_ADMIN_BASE}/dashboard.html`);
-          return;
-        }
+      setAdminLoginLoading(true);
+      showAdminLoginError('');
 
+      if (password !== DEMO_ADMIN_PASSWORD) {
+        setAdminLoginLoading(false);
         showAdminLoginError('Falsches Passwort.');
         input.focus();
         input.select();
-      } catch (err) {
-        showAdminLoginError('Fehler beim Login. Bitte erneut versuchen.');
-      } finally {
-        setAdminLoginLoading(false);
+        return;
       }
+
+      loginAdminDemo();
     });
   }
 
   function initAdminLoginPage() {
     bindAdminLoginForm();
     if (safeSessionGet(SESSION_ADMIN)) {
-      go(`${SP_ADMIN_BASE}/dashboard.html`);
+      redirectAfterLogin('dashboard.html', 'admin-session');
     }
   }
 
