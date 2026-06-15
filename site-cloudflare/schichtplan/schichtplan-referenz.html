@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/schichtplan/assets/kp-wochenplan.css">
 <link rel="stylesheet" href="/schichtplan/assets/kp-maschinen-display.css">
+<link rel="stylesheet" href="/schichtplan/assets/kp-bilder.css">
 <style>
 /* ════════════════════════════════════════
    CSS TOKENS
@@ -1071,11 +1072,12 @@ tbody td { padding: 8px 12px; vertical-align: middle; }
         <!-- PRODUKTIONSPLAN -->
         <div class="d-panel" id="d-produktionsplan">
           <div class="d-header">
-            <div><div class="d-title">Produktionsplan</div><div class="d-sub">KorsPlan · Wochenplan & Maschinen-Display</div></div>
+            <div><div class="d-title">Produktionsplan</div><div class="d-sub">KorsPlan · Wochenplan, Maschinen-Display & Bilder</div></div>
           </div>
           <div class="kp-prod-tabs" role="tablist" aria-label="Produktionsplan">
             <button type="button" class="kp-prod-tab on" data-kp-prod-tab="wochenplan" onclick="kpProdTab('wochenplan',this)">Wochenplan</button>
             <button type="button" class="kp-prod-tab" data-kp-prod-tab="display" onclick="kpProdTab('display',this)">Maschinen-Display</button>
+            <button type="button" class="kp-prod-tab" data-kp-prod-tab="bilder" onclick="kpProdTab('bilder',this)">Bilder</button>
           </div>
 
           <div class="kp-prod-pane on" id="kp-prod-wochenplan" data-kp-prod-pane="wochenplan">
@@ -1143,6 +1145,29 @@ tbody td { padding: 8px 12px; vertical-align: middle; }
                 </div>
               </div>
               <div class="main" id="kpMdMain"></div>
+            </div>
+          </div>
+
+          <div class="kp-prod-pane" id="kp-prod-bilder" data-kp-prod-pane="bilder">
+            <div id="kp-bilder-root">
+              <div class="kp-bilder-tb">
+                <div class="kp-bilder-logo"><em>Kors</em>Plan</div>
+                <span class="kp-bilder-sub">Maschinen-Display · Referenzbilder</span>
+              </div>
+              <div class="kp-bilder-gallery">
+                <figure class="kp-bilder-item">
+                  <div class="kp-bilder-img-wrap">
+                    <img src="/schichtplan/images/Display_1.jpg" alt="Maschinen-Display Ansicht 1" loading="lazy">
+                  </div>
+                  <figcaption class="kp-bilder-cap">Display_1.jpg</figcaption>
+                </figure>
+                <figure class="kp-bilder-item">
+                  <div class="kp-bilder-img-wrap">
+                    <img src="/schichtplan/images/Display_2.jpg" alt="Maschinen-Display Ansicht 2" loading="lazy">
+                  </div>
+                  <figcaption class="kp-bilder-cap">Display_2.jpg</figcaption>
+                </figure>
+              </div>
             </div>
           </div>
         </div>

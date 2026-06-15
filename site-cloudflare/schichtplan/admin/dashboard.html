@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/schichtplan/assets/sp-style.css">
   <link rel="stylesheet" href="/schichtplan/assets/kp-wochenplan.css">
   <link rel="stylesheet" href="/schichtplan/assets/kp-maschinen-display.css">
+  <link rel="stylesheet" href="/schichtplan/assets/kp-bilder.css">
 </head>
 <body class="sp-body sp-adm-page" data-sp-page="admin-dashboard">
 
@@ -131,11 +132,12 @@
       <!-- Produktionsplan -->
       <section class="sp-adm-panel" data-sp-adm-panel="produktionsplan">
         <div class="sp-adm-header">
-          <div><div class="sp-adm-title">Produktionsplan</div><div class="sp-adm-sub">KorsPlan · Wochenplan & Maschinen-Display</div></div>
+          <div><div class="sp-adm-title">Produktionsplan</div><div class="sp-adm-sub">KorsPlan · Wochenplan, Maschinen-Display & Bilder</div></div>
         </div>
         <div class="kp-prod-tabs" role="tablist" aria-label="Produktionsplan">
           <button type="button" class="kp-prod-tab on" data-kp-prod-tab="wochenplan">Wochenplan</button>
           <button type="button" class="kp-prod-tab" data-kp-prod-tab="display">Maschinen-Display</button>
+          <button type="button" class="kp-prod-tab" data-kp-prod-tab="bilder">Bilder</button>
         </div>
 
         <div class="kp-prod-pane on" data-kp-prod-pane="wochenplan">
@@ -203,6 +205,29 @@
               </div>
             </div>
             <div class="main" id="kpMdMain"></div>
+          </div>
+        </div>
+
+        <div class="kp-prod-pane" data-kp-prod-pane="bilder">
+          <div id="kp-bilder-root">
+            <div class="kp-bilder-tb">
+              <div class="kp-bilder-logo"><em>Kors</em>Plan</div>
+              <span class="kp-bilder-sub">Maschinen-Display · Referenzbilder</span>
+            </div>
+            <div class="kp-bilder-gallery">
+              <figure class="kp-bilder-item">
+                <div class="kp-bilder-img-wrap">
+                  <img src="/schichtplan/images/Display_1.jpg" alt="Maschinen-Display Ansicht 1" loading="lazy">
+                </div>
+                <figcaption class="kp-bilder-cap">Display_1.jpg</figcaption>
+              </figure>
+              <figure class="kp-bilder-item">
+                <div class="kp-bilder-img-wrap">
+                  <img src="/schichtplan/images/Display_2.jpg" alt="Maschinen-Display Ansicht 2" loading="lazy">
+                </div>
+                <figcaption class="kp-bilder-cap">Display_2.jpg</figcaption>
+              </figure>
+            </div>
           </div>
         </div>
       </section>
