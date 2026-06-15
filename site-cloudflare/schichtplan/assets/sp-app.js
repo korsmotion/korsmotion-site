@@ -1220,6 +1220,23 @@
     document.querySelectorAll('[data-sp-adm-panel]').forEach(panel => {
       panel.classList.toggle('sp-is-active', panel.dataset.spAdmPanel === tab);
     });
+    if (tab === 'produktionsplan' && typeof window.kpMdInit === 'function') window.kpMdInit();
+  }
+
+  function setAdminProdTab(tab) {
+    document.querySelectorAll('[data-kp-prod-tab]').forEach(btn => {
+      btn.classList.toggle('on', btn.dataset.kpProdTab === tab);
+    });
+    document.querySelectorAll('[data-kp-prod-pane]').forEach(pane => {
+      pane.classList.toggle('on', pane.dataset.kpProdPane === tab);
+    });
+    if (tab === 'display' && typeof window.kpMdInit === 'function') window.kpMdInit();
+  }
+
+  function bindAdminProduktionsplan() {
+    document.querySelectorAll('[data-kp-prod-tab]').forEach(btn => {
+      btn.addEventListener('click', () => setAdminProdTab(btn.dataset.kpProdTab));
+    });
   }
 
   function bindAdminNav() {
@@ -1328,6 +1345,7 @@
     applyAccent(getAccent());
     bindControls();
     bindAdminNav();
+    bindAdminProduktionsplan();
     bindAdminFilters();
     bindAdminToasts();
     bindAdminPlanSend();

@@ -7,8 +7,10 @@
   <title>SchichtPlan — Admin Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/schichtplan/assets/sp-style.css">
+  <link rel="stylesheet" href="/schichtplan/assets/kp-wochenplan.css">
+  <link rel="stylesheet" href="/schichtplan/assets/kp-maschinen-display.css">
 </head>
 <body class="sp-body sp-adm-page" data-sp-page="admin-dashboard">
 
@@ -45,6 +47,7 @@
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="kalender"><span class="sp-adm-nav-icon">🗓️</span> Kantonskalender</button>
         <div class="sp-adm-sec-label sp-has-gap">Verwaltung</div>
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="maschinen"><span class="sp-adm-nav-icon">🏭</span> Maschinen</button>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="produktionsplan"><span class="sp-adm-nav-icon">🏭</span> Produktionsplan</button>
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="nachrichten"><span class="sp-adm-nav-icon">✉️</span> Nachrichten</button>
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="zeit"><span class="sp-adm-nav-icon">⏱️</span> Zeiterfassung</button>
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="dokumente"><span class="sp-adm-nav-icon">📄</span> Dokumente</button>
@@ -123,6 +126,85 @@
           <div class="sp-adm-btns"><button type="button" class="sp-adm-btn sp-adm-btn-primary" data-sp-adm-toast="Maschine hinzufügen (Demo)">+ Maschine</button></div>
         </div>
         <div class="sp-adm-mach-grid" id="spAdmMachGrid"></div>
+      </section>
+
+      <!-- Produktionsplan -->
+      <section class="sp-adm-panel" data-sp-adm-panel="produktionsplan">
+        <div class="sp-adm-header">
+          <div><div class="sp-adm-title">Produktionsplan</div><div class="sp-adm-sub">KorsPlan · Wochenplan & Maschinen-Display</div></div>
+        </div>
+        <div class="kp-prod-tabs" role="tablist" aria-label="Produktionsplan">
+          <button type="button" class="kp-prod-tab on" data-kp-prod-tab="wochenplan">Wochenplan</button>
+          <button type="button" class="kp-prod-tab" data-kp-prod-tab="display">Maschinen-Display</button>
+        </div>
+
+        <div class="kp-prod-pane on" data-kp-prod-pane="wochenplan">
+          <div id="kp-wp-root">
+            <div class="tb">
+              <div class="logo"><em>Kors</em>Plan</div>
+              <div class="div"></div>
+              <span class="kw-label">KW</span>
+              <select class="kw-select" id="kpWpKwSel" onchange="kpWpChangeKW(this.value)">
+                <option value="24">24 · 09–15.06</option>
+                <option value="25" selected>25 · 16–22.06</option>
+                <option value="26">26 · 23–29.06</option>
+              </select>
+              <div class="div"></div>
+              <span class="last-imp" id="kpWpLastImp">Noch kein Import</span>
+              <div class="tb-right">
+                <button type="button" class="btn btn-gh" onclick="kpWpRunDemo()">▶ Demo starten</button>
+                <button type="button" class="btn btn-pu">
+                  <input type="file" accept=".xlsx,.xls" onchange="kpWpHandleFile(this)">
+                  ⬆ Excel importieren
+                </button>
+              </div>
+            </div>
+            <div class="gantt-outer" id="kpWpGanttOuter">
+              <div class="empty">
+                <div class="empty-icon">📋</div>
+                <div class="empty-title">Wochenplan noch nicht geladen</div>
+                <div class="empty-sub">Excel importieren oder Demo starten</div>
+              </div>
+            </div>
+            <div class="legend">
+              <div class="li"><div class="ld" style="background:#F59E0B"></div>Quark</div>
+              <div class="li"><div class="ld" style="background:#2563EB"></div>Jogurt</div>
+              <div class="li"><div class="ld" style="background:#DB2777"></div>Skyr</div>
+              <div class="li"><div class="ld" style="background:#7C3AED"></div>Rahm</div>
+              <div class="li"><div class="ld" style="background:#059669"></div>RAS</div>
+              <div class="li"><div class="ld" style="background:#EA580C"></div>Kefir</div>
+              <div class="li"><div class="ld" style="background:#16A34A"></div>Vegan</div>
+              <div class="li"><div class="ld" style="background:#CA8A04"></div>Ziege</div>
+              <div class="li"><div class="ld" style="background:#DC2626"></div>Reinigung (R)</div>
+              <div class="li"><div class="ld" style="background:#6B7280"></div>Pause</div>
+              <div style="margin-left:auto;font-size:10px;color:var(--mu2);font-weight:500;">KorsPlan · Emmi Bischofszell</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kp-prod-pane" data-kp-prod-pane="display">
+          <div id="kp-md-root">
+            <div class="tb">
+              <div class="logo"><em>Kors</em>Plan</div>
+              <div class="div"></div>
+              <span class="sel-label">Maschine:</span>
+              <div class="machine-btns">
+                <button type="button" class="mbtn active" onclick="kpMdShow(0)">Waldner 10.2</button>
+                <button type="button" class="mbtn" onclick="kpMdShow(1)">Schmidt 1kg</button>
+                <button type="button" class="mbtn" onclick="kpMdShow(2)">Waldner 10.3</button>
+              </div>
+              <div class="tb-right">
+                <button type="button" class="alert-btn" onclick="kpMdToggleAlert()">⚠ Alert testen</button>
+                <div class="div"></div>
+                <div class="clock-wrap">
+                  <div class="clock" id="kpMdClockEl">--:--:--</div>
+                  <div class="date-lbl" id="kpMdDateEl">--</div>
+                </div>
+              </div>
+            </div>
+            <div class="main" id="kpMdMain"></div>
+          </div>
+        </div>
       </section>
 
       <!-- Nachrichten -->
@@ -243,6 +325,27 @@
 
   <div class="sp-adm-toast" id="spAdmToast" role="status" aria-live="polite"></div>
 
+  <div class="kp-wp-ov" id="kpWpOv">
+    <div class="kp-wp-ov-card">
+      <div class="kp-wp-ov-icon">📂</div>
+      <div class="kp-wp-ov-title">Excel wird <span>eingelesen</span></div>
+      <div class="kp-wp-ov-file" id="kpWpOvFile">Wochenplan_KW25.xlsx</div>
+      <div class="kp-wp-prog-wrap"><div class="kp-wp-prog-bar" id="kpWpProgBar"></div></div>
+      <div class="kp-wp-prog-lbl" id="kpWpProgLbl">Starte Import... <span>0%</span></div>
+    </div>
+  </div>
+
+  <div class="kp-wp-tip" id="kpWpTip">
+    <div class="kp-wp-tip-name" id="kpWpTipName"></div>
+    <div class="kp-wp-tip-row">⏱ <b id="kpWpTipTime"></b></div>
+    <div class="kp-wp-tip-row" id="kpWpTipQtyRow">📦 <b id="kpWpTipQty"></b></div>
+    <div class="kp-wp-tip-row">🏭 <b id="kpWpTipLine"></b></div>
+  </div>
+
+  <div class="kp-wp-toast" id="kpWpToast"></div>
+
+  <script src="/schichtplan/assets/kp-wochenplan.js"></script>
+  <script src="/schichtplan/assets/kp-maschinen-display.js"></script>
   <script src="/schichtplan/assets/sp-app.js"></script>
 </body>
 </html>

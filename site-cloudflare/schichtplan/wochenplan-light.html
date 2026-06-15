@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KorsPlan · Wochenplan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F0EEF8;--s1:#FFFFFF;--s2:#F7F5FF;--s3:#EDE9FE;
+  --bd:#D4CFF0;--bd2:#C4BDED;
+  --pu:#7C3AED;--pl:#6D28D9;--pll:#EDE9FE;
+  --tx:#1E1B2E;--mu:#6B7280;--mu2:#9CA3AF;
+  --gn:#059669;--red:#DC2626;
+  --HOUR_W:54px;--LABEL_W:136px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;}
+body{display:flex;flex-direction:column;}
+
+/* TOPBAR */
+.tb{height:52px;background:var(--s1);border-bottom:2px solid var(--bd);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;z-index:60;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--tx);}
+.logo em{color:var(--pu);font-style:normal;}
+.div{width:1px;height:24px;background:var(--bd);}
+.kw-label{font-size:12px;font-weight:600;color:var(--mu);}
+.kw-select{background:var(--pll);border:1.5px solid var(--bd2);color:var(--pl);padding:4px 10px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;outline:none;cursor:pointer;}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.last-imp{font-size:11px;color:var(--mu);}
+.last-imp b{color:var(--gn);}
+.btn{padding:7px 16px;border-radius:9px;border:none;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.btn-pu{background:var(--pu);color:#fff;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(124,58,237,.3);}
+.btn-pu input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0;}
+.btn-pu:hover{background:var(--pl);box-shadow:0 4px 12px rgba(124,58,237,.4);}
+.btn-gh{background:var(--s2);border:1.5px solid var(--bd);color:var(--pu);}
+.btn-gh:hover{background:var(--pll);border-color:var(--pu);}
+
+/* DAY TABS */
+.day-tabs{display:flex;background:var(--s1);border-bottom:2px solid var(--bd);flex-shrink:0;padding:0 20px;gap:2px;padding-top:8px;}
+.day-tab{padding:7px 14px;border-radius:8px 8px 0 0;font-size:12px;font-weight:600;cursor:pointer;color:var(--mu);border:1.5px solid transparent;border-bottom:none;transition:all .15s;line-height:1.3;}
+.day-tab:hover{color:var(--pu);background:var(--pll);}
+.day-tab.active{background:var(--s2);border-color:var(--bd);color:var(--pu);}
+.day-tab.today-tab{color:var(--pu);}
+.day-tab.active.today-tab{color:#fff;background:var(--pu);border-color:var(--pu);}
+.day-tab small{font-weight:400;font-size:10px;display:block;color:inherit;opacity:.75;}
+
+/* GANTT */
+.gantt-outer{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.gantt-area{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+
+/* TIME HEADER */
+.time-header{display:flex;flex-shrink:0;border-bottom:2px solid var(--bd);background:var(--s2);position:relative;z-index:20;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.th-corner{width:var(--LABEL_W);flex-shrink:0;border-right:2px solid var(--bd);padding:8px 12px;display:flex;flex-direction:column;justify-content:flex-end;}
+.th-corner-title{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.08em;}
+.th-corner-date{font-size:12px;color:var(--pu);font-weight:700;margin-top:2px;}
+.time-cells{display:flex;overflow:hidden;}
+.time-cell{width:var(--HOUR_W);flex-shrink:0;padding:5px 4px 4px;text-align:center;border-right:1px solid var(--bd);}
+.time-cell:last-child{border-right:none;}
+.time-cell.major{border-right:1.5px solid var(--bd2);}
+.time-cell .th{font-size:10px;font-weight:700;color:var(--mu);}
+.time-cell.major .th{color:var(--pu);}
+.time-cell .tm{font-size:8px;color:var(--mu2);}
+
+/* ROWS */
+.rows-scroll{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--s1);}
+.rows-scroll::-webkit-scrollbar{width:4px;}
+.rows-scroll::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:4px;}
+
+.g-row{display:flex;border-bottom:1px solid var(--bd);min-height:60px;}
+.g-row:last-child{border-bottom:none;}
+.g-row:nth-child(even){background:#FAFAFD;}
+.g-row:hover{background:var(--pll);}
+
+.row-lbl{width:var(--LABEL_W);flex-shrink:0;border-right:2px solid var(--bd);padding:8px 12px;display:flex;flex-direction:column;justify-content:center;gap:2px;}
+.row-lbl-name{font-size:11px;font-weight:700;color:var(--tx);line-height:1.2;}
+.row-lbl-sub{font-size:9px;color:var(--mu);}
+
+.row-timeline{flex:1;position:relative;display:flex;overflow:hidden;}
+.hour-bg{width:var(--HOUR_W);flex-shrink:0;border-right:1px solid #E9E7F5;height:100%;}
+.hour-bg.major{border-right:1.5px solid #C4BDED;background:#FAFAFF;}
+
+/* BLOCKS — BRIGHT SOLID COLORS */
+.blk{position:absolute;top:6px;bottom:6px;border-radius:7px;display:flex;flex-direction:column;justify-content:center;padding:0 8px;overflow:hidden;cursor:default;transition:filter .12s,box-shadow .12s;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.12);}
+.blk:hover{filter:brightness(.93);box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:10;}
+.blk-name{font-size:10px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.blk-time{font-size:9px;opacity:.8;margin-top:1px;white-space:nowrap;font-weight:500;}
+.blk-qty{font-size:9px;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* BRIGHT DISTINCT COLORS */
+.cq{background:#F59E0B;color:#1C1003;}          /* Amber — Quark */
+.cj{background:#2563EB;color:#FFFFFF;}           /* Blue — Jogurt */
+.cs{background:#DB2777;color:#FFFFFF;}           /* Pink — Skyr */
+.cr{background:#7C3AED;color:#FFFFFF;}           /* Purple — Rahm */
+.cra{background:#059669;color:#FFFFFF;}          /* Emerald — RAS */
+.ck{background:#EA580C;color:#FFFFFF;}           /* Orange — Kefir */
+.cc{background:#DC2626;color:#FFFFFF;}           /* Red — Reinigung */
+.cp{background:#6B7280;color:#FFFFFF;}           /* Gray — Pause */
+.cv{background:#16A34A;color:#FFFFFF;}           /* Green — Vegan */
+.cy{background:#CA8A04;color:#FFFFFF;}           /* Yellow — Ziege */
+
+/* NOW LINE */
+.now-line{position:absolute;top:0;bottom:0;width:2px;background:#7C3AED;z-index:15;pointer-events:none;}
+.now-line::before{content:'JETZT';position:absolute;top:2px;left:4px;font-size:8px;font-weight:800;color:#7C3AED;background:#EDE9FE;padding:1px 4px;border-radius:3px;letter-spacing:.04em;}
+
+/* LEGEND */
+.legend{height:36px;background:var(--s1);border-top:2px solid var(--bd);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
+.li{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--mu);font-weight:500;}
+.ld{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+
+/* OVERLAY */
+.ov{position:fixed;inset:0;background:rgba(30,27,46,.7);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;}
+.ov.show{display:flex;}
+.ov-card{background:#fff;border:2px solid var(--bd);border-radius:20px;padding:36px 44px;text-align:center;min-width:320px;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.ov-icon{font-size:44px;margin-bottom:14px;}
+.ov-title{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--tx);margin-bottom:5px;}
+.ov-title span{color:var(--pu);}
+.ov-file{font-size:11px;color:var(--mu);margin-bottom:18px;background:var(--pll);padding:5px 12px;border-radius:7px;display:inline-block;font-weight:500;}
+.prog-wrap{background:var(--s3);border-radius:99px;height:6px;overflow:hidden;margin-bottom:8px;}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--pu),#A78BFA);border-radius:99px;width:0%;transition:width .35s ease;}
+.prog-lbl{font-size:11px;color:var(--mu);}
+.prog-lbl span{color:var(--pu);font-weight:700;}
+
+/* TOOLTIP */
+.tip{position:fixed;background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:12px 16px;font-size:11px;pointer-events:none;z-index:100;display:none;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+.tip-name{font-weight:700;font-size:13px;color:var(--tx);margin-bottom:5px;}
+.tip-row{color:var(--mu);margin-top:3px;}
+.tip-row b{color:var(--tx);}
+
+/* TOAST */
+.toast{position:fixed;top:62px;right:20px;background:#fff;border:1.5px solid #A7F3D0;color:var(--gn);padding:10px 18px;border-radius:12px;font-size:12px;font-weight:700;z-index:300;transform:translateX(140%);transition:transform .3s;box-shadow:0 4px 16px rgba(0,0,0,.1);}
+.toast.show{transform:translateX(0);}
+
+/* EMPTY */
+.empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:var(--mu);background:var(--s1);}
+.empty-icon{font-size:56px;opacity:.2;}
+.empty-title{font-size:15px;font-weight:700;color:var(--tx);}
+.empty-sub{font-size:12px;}
+</style>
+</head>
+<body>
+
+<div class="tb">
+  <div class="logo"><em>Kors</em>Plan</div>
+  <div class="div"></div>
+  <span class="kw-label">KW</span>
+  <select class="kw-select" id="kwSel" onchange="changeKW(this.value)">
+    <option value="24">24 · 09–15.06</option>
+    <option value="25" selected>25 · 16–22.06</option>
+    <option value="26">26 · 23–29.06</option>
+  </select>
+  <div class="div"></div>
+  <span class="last-imp" id="lastImp">Noch kein Import</span>
+  <div class="tb-right">
+    <button class="btn btn-gh" onclick="runDemo()">▶ Demo starten</button>
+    <button class="btn btn-pu">
+      <input type="file" accept=".xlsx,.xls" onchange="handleFile(this)">
+      ⬆ Excel importieren
+    </button>
+  </div>
+</div>
+
+<div class="gantt-outer" id="ganttOuter">
+  <div class="empty">
+    <div class="empty-icon">📋</div>
+    <div class="empty-title">Wochenplan noch nicht geladen</div>
+    <div class="empty-sub">Excel importieren oder Demo starten</div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="li"><div class="ld" style="background:#F59E0B"></div>Quark</div>
+  <div class="li"><div class="ld" style="background:#2563EB"></div>Jogurt</div>
+  <div class="li"><div class="ld" style="background:#DB2777"></div>Skyr</div>
+  <div class="li"><div class="ld" style="background:#7C3AED"></div>Rahm</div>
+  <div class="li"><div class="ld" style="background:#059669"></div>RAS</div>
+  <div class="li"><div class="ld" style="background:#EA580C"></div>Kefir</div>
+  <div class="li"><div class="ld" style="background:#16A34A"></div>Vegan</div>
+  <div class="li"><div class="ld" style="background:#CA8A04"></div>Ziege</div>
+  <div class="li"><div class="ld" style="background:#DC2626"></div>Reinigung (R)</div>
+  <div class="li"><div class="ld" style="background:#6B7280"></div>Pause</div>
+  <div style="margin-left:auto;font-size:10px;color:var(--mu2);font-weight:500;">KorsPlan · Emmi Bischofszell</div>
+</div>
+
+<div class="ov" id="ov">
+  <div class="ov-card">
+    <div class="ov-icon">📂</div>
+    <div class="ov-title">Excel wird <span>eingelesen</span></div>
+    <div class="ov-file" id="ovFile">Wochenplan_KW25.xlsx</div>
+    <div class="prog-wrap"><div class="prog-bar" id="progBar"></div></div>
+    <div class="prog-lbl" id="progLbl">Starte Import... <span>0%</span></div>
+  </div>
+</div>
+
+<div class="tip" id="tip">
+  <div class="tip-name" id="tipName"></div>
+  <div class="tip-row">⏱ <b id="tipTime"></b></div>
+  <div class="tip-row" id="tipQtyRow">📦 <b id="tipQty"></b></div>
+  <div class="tip-row">🏭 <b id="tipLine"></b></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const HOURS=24, HOUR_W=54;
+
+const DATA={
+  25:{
+    days:[
+      {l:'Montag',d:'16.06',today:true},{l:'Dienstag',d:'17.06',today:false},
+      {l:'Mittwoch',d:'18.06',today:false},{l:'Donnerstag',d:'19.06',today:false},
+      {l:'Freitag',d:'20.06',today:false},{l:'Samstag',d:'21.06',today:false},
+      {l:'Sonntag',d:'22.06',today:false},
+    ],
+    lines:[
+      {n:'Waldner 19.2',s:'Rahm / Kefir',days:[
+        [{n:'Rahm',s:0,e:3,c:'cr'},{n:'Kefir Coop 180g',s:3,e:14,c:'ck'},{n:'R',s:14,e:15,c:'cc'},{n:'Glas-Prod. Stichtlest',s:15,e:22,c:'cj',q:'450 kg/h'}],
+        [{n:'Glas-Prod. gesüßt',s:6,e:20,c:'cj',q:'350 kg/h'}],
+        [{n:'Rahm',s:0,e:4,c:'cr'},{n:'Ziege',s:4,e:8,c:'cy'},{n:'LF Jog CNP',s:8,e:18,c:'cj'}],
+        [{n:'Calier',s:6,e:16,c:'ck',q:'430 kg/h'},{n:'R',s:16,e:17,c:'cc'}],
+        [{n:'R',s:0,e:2,c:'cc'},{n:'Yacs',s:2,e:14,c:'cj',q:'560 kg/h'}],
+        [{n:'Rahm',s:2,e:8,c:'cr'},{n:'Ziege',s:8,e:12,c:'cy'},{n:'Kefir Enum',s:14,e:22,c:'ck'}],
+        [],
+      ]},
+      {n:'Bemasor Klär',s:'Quark Hauptlinie',days:[
+        [{n:'7000 kg CO NP',s:0,e:8,c:'cq',q:'6x1kg Tr'},{n:'R',s:8,e:9,c:'cc'},{n:'4620 kg Kalko',s:9,e:18,c:'cq',q:'5x500g Tr'}],
+        [{n:'6000 kg CO',s:0,e:8,c:'cq',q:'Jng Net 3.5%'},{n:'R',s:8,e:9,c:'cc'},{n:'Quark 1 KG',s:10,e:18,c:'cq'}],
+        [{n:'70 000 kg CO OAP',s:0,e:14,c:'cq',q:'Jng Whlm 3.5%'},{n:'R',s:14,e:16,c:'cc'}],
+        [{n:'7000 kg CO NP',s:0,e:10,c:'cq',q:'6x1kg'},{n:'R',s:10,e:11,c:'cc'}],
+        [{n:'6000 kg CO',s:0,e:10,c:'cq',q:'Jng Net 3.5%'},{n:'R',s:10,e:11,c:'cc'}],
+        [],[],
+      ]},
+      {n:'Druckner 15.2',s:'Jogurt / Skyr',days:[
+        [{n:'Latzel LF 1.5% "75"',s:4,e:10,c:'cj'},{n:'Jogurt laktosefrei "73" Frucht',s:10,e:20,c:'cj'}],
+        [{n:'PG Sansa 9000 kg',s:0,e:10,c:'cj'},{n:'PG Cappu 9400 kg',s:10,e:20,c:'cj'}],
+        [{n:'PG CwCh March 18700 kg',s:0,e:16,c:'cj'},{n:'PauseCola',s:16,e:18,c:'cp'}],
+        [{n:'Schafsmilchjogurt "73" Frucht',s:0,e:12,c:'cj'},{n:'Kokos Frucht',s:12,e:20,c:'cv'}],
+        [{n:'Skyr Bieder 1%',s:6,e:12,c:'cs'},{n:'Vegan Latei "75"',s:12,e:20,c:'cv'},{n:'Kefir 500g',s:20,e:24,c:'ck'}],
+        [],[{n:'Jogurt laktosefrei "73" Frucht',s:18,e:24,c:'cj'}],
+      ]},
+      {n:'10.3-2 ungerade W',s:'Quark / RAS / Skyr',days:[
+        [{n:'Sauerrahm',s:0,e:8,c:'cr'},{n:'Jogurt LF "73/95"',s:8,e:18,c:'cj'}],
+        [{n:'LF Quark',s:0,e:14,c:'cq'},{n:'RAS Quark',s:14,e:20,c:'cra'},{n:'R',s:20,e:21,c:'cc'}],
+        [{n:'RAS Quark',s:0,e:8,c:'cra'},{n:'Küchenhilfer "95"',s:8,e:16,c:'cq'},{n:'Griechisch Qua',s:16,e:24,c:'cq'}],
+        [{n:'Griechisch Qua',s:0,e:12,c:'cq'},{n:'Dem Quark "95"',s:12,e:20,c:'cq'}],
+        [{n:'RAS 1.5%',s:0,e:8,c:'cra'},{n:'Schafsgurt Nature',s:8,e:16,c:'cj'},{n:'Yacs 10%',s:16,e:24,c:'cj'}],
+        [{n:'Kokos Nature',s:6,e:14,c:'cv'},{n:'Skyr 0% "95"',s:14,e:24,c:'cs'}],
+        [],
+      ]},
+      {n:'T 47',s:'Quark OMU',days:[
+        [{n:'Quark OMU',s:6,e:20,c:'cq'}],
+        [{n:'Quark OMU',s:0,e:16,c:'cq'}],
+        [],
+        [{n:'Quark OMU',s:8,e:20,c:'cq'}],
+        [],[],[],
+      ]},
+      {n:'Quark 122',s:'LF Quark Nature',days:[
+        [{n:'Quark OMU',s:0,e:10,c:'cq'},{n:'R',s:10,e:11,c:'cc'},{n:'LF Quark Nature',s:11,e:22,c:'cq'}],
+        [{n:'LF Quark Nature',s:0,e:10,c:'cq'},{n:'RAS Quark',s:10,e:18,c:'cra'},{n:'Quark OMU',s:18,e:24,c:'cq'}],
+        [{n:'QUARK Schmid',s:0,e:14,c:'cq'},{n:'R',s:14,e:15,c:'cc'},{n:'Yacs',s:16,e:24,c:'cj'}],
+        [{n:'Griechisch Que',s:0,e:10,c:'cq'},{n:'Quark OMU',s:10,e:20,c:'cq'},{n:'Demetei Quark',s:20,e:24,c:'cq'}],
+        [{n:'GG-Que',s:0,e:10,c:'cq'},{n:'Schafmilch Quark',s:10,e:20,c:'cq'}],
+        [{n:'Demetei Quark',s:6,e:18,c:'cq'}],
+        [],
+      ]},
+      {n:'Quark 123–125',s:'RAS / OMU / Nature',days:[
+        [{n:'Quark OMU',s:0,e:8,c:'cq'},{n:'LF Quark Nature',s:8,e:18,c:'cq'}],
+        [{n:'RAS Quark',s:0,e:10,c:'cra'},{n:'Quark OMU',s:10,e:20,c:'cq'}],
+        [{n:'Quark OMU',s:0,e:10,c:'cq'},{n:'R',s:10,e:11,c:'cc'},{n:'RAS Quark',s:12,e:22,c:'cra'}],
+        [{n:'Yacs',s:0,e:10,c:'cj'},{n:'R',s:10,e:11,c:'cc'},{n:'Griechisch Que',s:12,e:22,c:'cq'}],
+        [{n:'Quark OMU',s:0,e:12,c:'cq'},{n:'Schafmilch h Quark',s:12,e:20,c:'cq'}],
+        [{n:'R',s:0,e:1,c:'cc'},{n:'Skyr Bieder 1%',s:2,e:10,c:'cs'},{n:'Schafmilch h Quark',s:10,e:20,c:'cq'}],
+        [],
+      ]},
+    ]
+  }
+};
+// Copy KW24 and KW26 from previous (simplified)
+DATA[24]=JSON.parse(JSON.stringify(DATA[25]));
+DATA[24].days=[
+  {l:'Montag',d:'09.06',today:false},{l:'Dienstag',d:'10.06',today:false},
+  {l:'Mittwoch',d:'11.06',today:false},{l:'Donnerstag',d:'12.06',today:false},
+  {l:'Freitag',d:'13.06',today:false},{l:'Samstag',d:'14.06',today:false},
+  {l:'Sonntag',d:'15.06',today:false},
+];
+DATA[26]=JSON.parse(JSON.stringify(DATA[25]));
+DATA[26].days=[
+  {l:'Montag',d:'23.06',today:false},{l:'Dienstag',d:'24.06',today:false},
+  {l:'Mittwoch',d:'25.06',today:false},{l:'Donnerstag',d:'26.06',today:false},
+  {l:'Freitag',d:'27.06',today:false},{l:'Samstag',d:'28.06',today:false},
+  {l:'Sonntag',d:'29.06',today:false},
+];
+
+let currentKW=25, currentDay=0;
+
+function fmtH(h){return String(Math.floor(h)).padStart(2,'0')+':'+String(Math.round((h%1)*60)).padStart(2,'0');}
+
+function buildGantt(){
+  const kw=DATA[currentKW], day=kw.days[currentDay];
+  const tabs=kw.days.map((d,i)=>`<div class="day-tab ${i===currentDay?'active':''} ${d.today?'today-tab':''}" onclick="selectDay(${i})">${d.l}<small>${d.d}.2026</small></div>`).join('');
+  const timeCells=Array.from({length:HOURS},(_,h)=>`<div class="time-cell ${h%6===0&&h>0?'major':''}""><div class="th">${String(h).padStart(2,'0')}</div><div class="tm">:00</div></div>`).join('');
+  const hourGrid=Array.from({length:HOURS},(_,h)=>`<div class="hour-bg ${h%6===0&&h>0?'major':''}"></div>`).join('');
+  const now=new Date(), nowH=now.getHours()+now.getMinutes()/60;
+  const nowLine=day.today?`<div class="now-line" style="left:${nowH*HOUR_W}px"></div>`:'';
+  const rowsHTML=kw.lines.map(line=>{
+    const blks=(line.days[currentDay]||[]).map(b=>{
+      const left=b.s*HOUR_W, width=Math.max((b.e-b.s)*HOUR_W-3,20);
+      return `<div class="blk ${b.c}" style="left:${left}px;width:${width}px"
+        onmouseenter="showTip(event,'${b.n.replace(/'/g,"\\'")}','${fmtH(b.s)} – ${fmtH(b.e)}','${b.q||''}','${line.n}')"
+        onmouseleave="hideTip()">
+        <div class="blk-name">${b.n}</div>
+        <div class="blk-time">${fmtH(b.s)} – ${fmtH(b.e)}</div>
+        ${b.q?`<div class="blk-qty">${b.q}</div>`:''}
+      </div>`;
+    }).join('');
+    return `<div class="g-row"><div class="row-lbl"><div class="row-lbl-name">${line.n}</div><div class="row-lbl-sub">${line.s}</div></div><div class="row-timeline">${hourGrid}${nowLine}${blks}</div></div>`;
+  }).join('');
+
+  document.getElementById('ganttOuter').innerHTML=`
+    <div class="day-tabs">${tabs}</div>
+    <div class="gantt-area">
+      <div class="time-header">
+        <div class="th-corner"><div class="th-corner-title">Linie</div><div class="th-corner-date">${day.d}.2026</div></div>
+        <div class="time-cells" id="tc">${timeCells}</div>
+      </div>
+      <div class="rows-scroll">${rowsHTML}</div>
+    </div>`;
+}
+
+function selectDay(i){currentDay=i;buildGantt();}
+function changeKW(v){currentKW=parseInt(v);currentDay=0;if(document.querySelector('.g-row'))buildGantt();}
+
+function showTip(e,name,time,qty,line){
+  const t=document.getElementById('tip');
+  document.getElementById('tipName').textContent=name;
+  document.getElementById('tipTime').textContent=time;
+  document.getElementById('tipQty').textContent=qty;
+  document.getElementById('tipQtyRow').style.display=qty?'':'none';
+  document.getElementById('tipLine').textContent=line;
+  t.style.display='block';moveTip(e);
+}
+function moveTip(e){
+  const t=document.getElementById('tip');
+  let x=e.clientX+14,y=e.clientY-10;
+  if(x+200>window.innerWidth)x=e.clientX-200;
+  t.style.left=x+'px';t.style.top=y+'px';
+}
+function hideTip(){document.getElementById('tip').style.display='none';}
+document.addEventListener('mousemove',e=>{if(document.getElementById('tip').style.display==='block')moveTip(e);});
+
+function handleFile(inp){const f=inp.files[0];if(f)runImport(f.name);}
+function runDemo(){runImport('Wochenplan_KW'+currentKW+'_Emmi.xlsx');}
+function runImport(fname){
+  document.getElementById('ovFile').textContent=fname;
+  document.getElementById('ov').classList.add('show');
+  const bar=document.getElementById('progBar'),lbl=document.getElementById('progLbl');
+  bar.style.width='0%';
+  const steps=[
+    {p:12,m:'Öffne Excel-Datei...'},
+    {p:28,m:'Erkenne Tabellenstruktur...'},
+    {p:45,m:'Lese Produktionslinien ein...'},
+    {p:60,m:'Verarbeite Zeitblöcke...'},
+    {p:75,m:'Weise Produkttypen zu...'},
+    {p:90,m:'Weise Farben zu...'},
+    {p:100,m:'Fertig!'},
+  ];
+  let i=0;
+  const tick=()=>{
+    if(i>=steps.length){
+      setTimeout(()=>{
+        document.getElementById('ov').classList.remove('show');
+        currentDay=0;buildGantt();
+        const t=new Date().toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+        document.getElementById('lastImp').innerHTML=`Importiert: <b>${t} · KW ${currentKW} · ${DATA[currentKW].lines.length} Linien</b>`;
+        toast(`✓ KW ${currentKW} erfolgreich geladen — ${DATA[currentKW].lines.length} Linien, 7 Tage`);
+      },500);return;
+    }
+    const s=steps[i++];
+    bar.style.width=s.p+'%';
+    lbl.innerHTML=`${s.m} <span>${s.p}%</span>`;
+    setTimeout(tick,i===steps.length?700:280+Math.random()*200);
+  };
+  setTimeout(tick,150);
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>

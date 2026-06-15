@@ -1596,6 +1596,20 @@ button { cursor: pointer; border: none; background: none; }
 .sp-adm-cp-dot.sp-is-clickable { cursor: pointer; transition: transform 0.12s; }
 .sp-adm-cp-dot.sp-is-clickable:hover { transform: scale(1.15); }
 .sp-adm-mono { font-family: var(--sp-mono); font-size: 11px; }
+
+/* Produktionsplan sub-tabs (KorsPlan modules) */
+.kp-prod-tabs { display: flex; gap: 4px; padding: 0 16px; background: var(--sp-bg2); border-bottom: 1px solid var(--sp-border); flex-shrink: 0; }
+.kp-prod-tab {
+  padding: 8px 14px; border-radius: 8px 8px 0 0; font-size: 12px; font-weight: 600;
+  border: 1px solid transparent; border-bottom: none; color: var(--sp-text2); cursor: pointer;
+  background: transparent; transition: all 0.12s; font-family: var(--sp-sans);
+}
+.kp-prod-tab:hover { color: var(--sp-text); background: var(--sp-bg3); }
+.kp-prod-tab.on { color: var(--sp-a2); background: var(--sp-bg); border-color: var(--sp-border); }
+[data-sp-theme="light"] .kp-prod-tab.on { color: var(--sp-a3); }
+.kp-prod-pane { display: none; flex: 1; min-height: 0; overflow: hidden; flex-direction: column; }
+.kp-prod-pane.on { display: flex; }
+
 @media (max-width: 900px) {
   .sp-adm-stats { grid-template-columns: repeat(2, 1fr); }
   .sp-adm-stat:nth-child(2) { border-right: none; }
