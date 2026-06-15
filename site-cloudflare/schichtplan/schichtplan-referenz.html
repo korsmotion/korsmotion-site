@@ -1155,18 +1155,12 @@ tbody td { padding: 8px 12px; vertical-align: middle; }
                 <span class="kp-bilder-sub">Maschinen-Display · Referenzbilder</span>
               </div>
               <div class="kp-bilder-gallery">
-                <figure class="kp-bilder-item">
-                  <div class="kp-bilder-img-wrap">
-                    <img src="/schichtplan/images/Display_1.jpg" alt="Maschinen-Display Ansicht 1" loading="lazy">
-                  </div>
-                  <figcaption class="kp-bilder-cap">Display_1.jpg</figcaption>
-                </figure>
-                <figure class="kp-bilder-item">
-                  <div class="kp-bilder-img-wrap">
-                    <img src="/schichtplan/images/Display_2.jpg" alt="Maschinen-Display Ansicht 2" loading="lazy">
-                  </div>
-                  <figcaption class="kp-bilder-cap">Display_2.jpg</figcaption>
-                </figure>
+                <button type="button" class="kp-bilder-card" data-kp-bilder-src="/schichtplan/images/Display_1.jpg" data-kp-bilder-alt="Maschinen-Display Ansicht 1">
+                  <img src="/schichtplan/images/Display_1.jpg" alt="Maschinen-Display Ansicht 1" loading="lazy">
+                </button>
+                <button type="button" class="kp-bilder-card" data-kp-bilder-src="/schichtplan/images/Display_2.jpg" data-kp-bilder-alt="Maschinen-Display Ansicht 2">
+                  <img src="/schichtplan/images/Display_2.jpg" alt="Maschinen-Display Ansicht 2" loading="lazy">
+                </button>
               </div>
             </div>
           </div>
@@ -1320,6 +1314,7 @@ tbody td { padding: 8px 12px; vertical-align: middle; }
 
 <script src="/schichtplan/assets/kp-wochenplan.js"></script>
 <script src="/schichtplan/assets/kp-maschinen-display.js"></script>
+<script src="/schichtplan/assets/kp-bilder.js"></script>
 <script>
 /* ══ DATA ══ */
 const EMP = [
