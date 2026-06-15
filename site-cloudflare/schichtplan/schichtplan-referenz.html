@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark" data-accent="teal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchichtPlan · Referenz-Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/schichtplan/assets/kp-wochenplan.css">
+<link rel="stylesheet" href="/schichtplan/assets/kp-maschinen-display.css">
+<style>
+/* ════════════════════════════════════════
+   CSS TOKENS
+════════════════════════════════════════ */
+:root {
+  --r: 10px; --r-sm: 6px; --r-lg: 16px;
+  --sans: 'Inter', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --trans: background 0.2s, color 0.2s, border-color 0.2s;
+
+  /* Machine colors (user-customizable) */
+  --m-waldner2: #2563eb;
+  --m-waldner3: #0891b2;
+  --m-schmid:   #16a34a;
+  --m-jogurt:   #7c3aed;
+  --m-t47:      #d97706;
+  --m-quark:    #db2777;
+  --m-reinig:   #dc2626;
+  --m-free:     #94a3b8;
+}
+
+/* Accent palettes */
+[data-accent="teal"]   { --a: #0d9488; --a2: #14b8a6; --a3: #0f766e; --a-rgb: 13,148,136; }
+[data-accent="violet"] { --a: #7c3aed; --a2: #8b5cf6; --a3: #6d28d9; --a-rgb: 124,58,237; }
+[data-accent="navy"]   { --a: #1e40af; --a2: #2563eb; --a3: #1e3a8a; --a-rgb: 30,64,175; }
+
+/* Dark theme */
+[data-theme="dark"] {
+  --bg:      #0d1117;
+  --bg2:     #161b22;
+  --bg3:     #21262d;
+  --bg4:     #2d333b;
+  --border:  #30363d;
+  --text:    #e6edf3;
+  --text2:   #8b949e;
+  --text3:   #484f58;
+  --shadow:  rgba(0,0,0,0.5);
+}
+/* Light theme */
+[data-theme="light"] {
+  --bg:      #f0f4f8;
+  --bg2:     #ffffff;
+  --bg3:     #f4f6f9;
+  --bg4:     #eaecf0;
+  --border:  #d0d7de;
+  --text:    #0f1724;
+  --text2:   #57606a;
+  --text3:   #afb8c1;
+  --shadow:  rgba(0,0,0,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: var(--trans);
+}
+button { cursor: pointer; font-family: var(--sans); }
+
+/* ════════════════════════════════════════
+   CONTROL BAR (outside the app)
+════════════════════════════════════════ */
+.ctrl {
+  background: var(--bg2);
+  border-bottom: 2px solid var(--a);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+.ctrl-logo {
+  font-weight: 700; font-size: 15px;
+  letter-spacing: -0.02em;
+  color: var(--a);
+  margin-right: 8px;
+}
+.ctrl-group { display: flex; align-items: center; gap: 6px; }
+.ctrl-label { font-size: 10px; color: var(--text2); font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.ctrl-btn {
+  padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500;
+  border: 1px solid var(--border); background: var(--bg3); color: var(--text2);
+  transition: all 0.15s;
+}
+.ctrl-btn:hover { color: var(--text); }
+.ctrl-btn.on { background: var(--a); color: #fff; border-color: var(--a); }
+.ctrl-sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+.accent-dot {
+  width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent;
+  cursor: pointer; transition: all 0.15s;
+}
+.accent-dot.on { border-color: var(--text); transform: scale(1.15); }
+.view-toggle {
+  margin-left: auto;
+  display: flex; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 3px; gap: 2px;
+}
+.vt-btn {
+  padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500;
+  border: none; background: transparent; color: var(--text2); transition: all 0.15s;
+}
+.vt-btn.on { background: var(--a); color: #fff; }
+
+/* ════════════════════════════════════════
+   LAYOUT WRAPPER
+════════════════════════════════════════ */
+.app-wrap { display: flex; gap: 32px; padding: 24px 16px; max-width: 1400px; margin: 0 auto; align-items: flex-start; }
+
+/* ════════════════════════════════════════
+   PHONE FRAME
+════════════════════════════════════════ */
+.phone-wrap { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.phone-label { font-size: 10px; font-family: var(--mono); letter-spacing: 0.12em; color: var(--text3); text-transform: uppercase; }
+.phone {
+  width: 335px; height: 680px;
+  background: var(--bg2);
+  border-radius: 40px;
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 24px 60px var(--shadow);
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.phone-notch {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 100px; height: 26px;
+  background: var(--bg2); border-radius: 0 0 16px 16px;
+  z-index: 10;
+}
+.phone-screen { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; }
+.phone-screen::-webkit-scrollbar { display: none; }
+
+/* Phone status bar */
+.p-status {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 18px 0; font-size: 11px; font-weight: 600; color: var(--text2);
+  margin-top: 6px;
+}
+
+/* Phone top bar */
+.p-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px 6px;
+}
+.p-greeting { font-size: 11px; color: var(--text2); }
+.p-name { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+.p-av {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--a), var(--a3));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+
+/* Phone nav tabs */
+.p-navtabs {
+  display: flex; padding: 0 12px 8px; gap: 4px; overflow-x: auto;
+}
+.p-navtabs::-webkit-scrollbar { display: none; }
+.p-ntab {
+  padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  border: 1px solid var(--border); background: transparent; color: var(--text2);
+  white-space: nowrap; transition: all 0.15s;
+}
+.p-ntab.on { background: var(--a); color: #fff; border-color: var(--a); }
+
+/* Phone content area */
+.p-content { flex: 1; overflow-y: auto; padding: 0 12px 70px; }
+.p-content::-webkit-scrollbar { display: none; }
+
+/* Phone panels */
+.p-panel { display: none; }
+.p-panel.on { display: block; }
+
+/* Today hero */
+.hero {
+  border-radius: var(--r-lg);
+  padding: 18px;
+  margin-bottom: 12px;
+  position: relative; overflow: hidden; color: #fff;
+}
+.hero::after {
+  content: ''; position: absolute; top: -30px; right: -30px;
+  width: 100px; height: 100px; background: rgba(255,255,255,0.07); border-radius: 50%;
+}
+.hero-eyebrow { font-size: 9px; font-family: var(--mono); letter-spacing: 0.14em; opacity: 0.6; text-transform: uppercase; margin-bottom: 5px; }
+.hero-machine { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 3px; }
+.hero-time { font-size: 13px; opacity: 0.75; margin-bottom: 12px; }
+.hero-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.hero-tag { font-size: 10px; font-weight: 500; padding: 3px 9px; border-radius: 20px; background: rgba(255,255,255,0.18); }
+
+/* Card */
+.p-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r); margin-bottom: 10px; overflow: hidden;
+}
+.p-card-title {
+  font-size: 10px; font-family: var(--mono); letter-spacing: 0.1em;
+  color: var(--text2); text-transform: uppercase; padding: 10px 12px 6px;
+}
+
+/* Week strip */
+.week-strip { display: flex; gap: 4px; padding: 0 12px 10px; }
+.wday {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 7px 2px; border-radius: 8px; border: 1px solid transparent;
+  font-size: 9px; cursor: pointer;
+}
+.wday.today { background: var(--a); border-color: var(--a); }
+.wday.today .wdn, .wday.today .wdd { color: #fff; }
+.wday.today .wdot { background: rgba(255,255,255,0.6); }
+.wday.work { background: rgba(var(--a-rgb), 0.06); border-color: rgba(var(--a-rgb), 0.25); }
+.wday.work .wdot { background: var(--a2); }
+.wday.free { opacity: 0.4; }
+.wday.vac { background: rgba(22,163,74,0.07); border-color: rgba(22,163,74,0.25); }
+.wday.vac .wdot { background: #22c55e; }
+.wdn { font-family: var(--mono); font-size: 9px; color: var(--text2); }
+.wdd { font-size: 13px; font-weight: 600; color: var(--text); margin: 2px 0; }
+.wdot { width: 4px; height: 4px; border-radius: 50%; background: var(--text3); margin-top: 3px; }
+
+/* Shift item */
+.sh-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 12px; border-bottom: 1px solid var(--border);
+}
+.sh-item:last-child { border-bottom: none; }
+.sh-bar { width: 3px; height: 32px; border-radius: 2px; flex-shrink: 0; }
+.sh-machine { font-size: 13px; font-weight: 600; color: var(--text); }
+.sh-sub { font-size: 10px; color: var(--text2); margin-top: 1px; }
+.sh-time {
+  font-family: var(--mono); font-size: 10px; color: var(--text2);
+  background: var(--bg3); border: 1px solid var(--border);
+  padding: 3px 7px; border-radius: 5px; margin-left: auto; flex-shrink: 0;
+}
+
+/* Notif */
+.notif {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--a);
+  background: rgba(var(--a-rgb), 0.04);
+  margin-bottom: 10px; border-radius: 0 var(--r) var(--r) 0;
+}
+.notif-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: rgba(var(--a-rgb), 0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.notif-title { font-size: 12px; font-weight: 600; color: var(--text); }
+.notif-body { font-size: 10px; color: var(--text2); margin-top: 1px; line-height: 1.4; }
+.notif-time { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-left: auto; white-space: nowrap; }
+
+/* Vacation banner */
+.vac-banner {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px;
+  background: rgba(22,163,74,0.07);
+  border: 1px solid rgba(22,163,74,0.2);
+  border-radius: var(--r); margin-bottom: 10px;
+}
+.vac-icon { font-size: 20px; }
+.vac-title { font-size: 12px; font-weight: 600; color: var(--text); }
+.vac-sub { font-size: 10px; color: var(--text2); margin-top: 1px; }
+
+/* Zeit card */
+.zeit-month {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+}
+.zeit-total { font-size: 22px; font-weight: 700; font-family: var(--mono); color: var(--a); }
+.zeit-label { font-size: 10px; color: var(--text2); }
+.zeit-row {
+  display: flex; align-items: center; padding: 8px 12px;
+  border-bottom: 1px solid var(--border); gap: 8px;
+}
+.zeit-row:last-child { border-bottom: none; }
+.zeit-date { font-size: 11px; font-family: var(--mono); color: var(--text2); width: 70px; flex-shrink: 0; }
+.zeit-times { font-size: 12px; font-weight: 500; color: var(--text); }
+.zeit-h { font-family: var(--mono); font-size: 11px; color: var(--a); margin-left: auto; }
+
+/* Doc item */
+.doc-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 12px; border-bottom: 1px solid var(--border);
+}
+.doc-item:last-child { border-bottom: none; }
+.doc-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: rgba(var(--a-rgb), 0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.doc-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.doc-date { font-size: 10px; color: var(--text2); margin-top: 1px; }
+.doc-dl {
+  margin-left: auto; padding: 5px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 500; border: 1px solid var(--border);
+  background: var(--bg3); color: var(--text2);
+}
+
+/* Profil */
+.prof-av {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--a), var(--a3));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; color: #fff; margin: 16px auto 8px;
+}
+.prof-name { text-align: center; font-size: 17px; font-weight: 700; }
+.prof-id { text-align: center; font-size: 11px; color: var(--text2); font-family: var(--mono); margin-bottom: 14px; }
+.prof-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+}
+.prof-row:last-child { border-bottom: none; }
+.prof-key { font-size: 12px; color: var(--text2); }
+.prof-val { font-size: 12px; font-weight: 500; color: var(--text); }
+.lang-sel { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px 12px; }
+.lang-btn {
+  padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  border: 1px solid var(--border); background: var(--bg3); color: var(--text2);
+}
+.lang-btn.on { background: var(--a); color: #fff; border-color: var(--a); }
+.notif-ch { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; }
+.notif-opt {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: var(--text);
+}
+.toggle {
+  width: 36px; height: 20px; border-radius: 10px; position: relative;
+  background: var(--bg4); border: 1px solid var(--border); cursor: pointer;
+}
+.toggle.on { background: var(--a); border-color: var(--a); }
+.toggle::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 14px; height: 14px; border-radius: 50%; background: #fff;
+  transition: left 0.2s;
+}
+.toggle.on::after { left: 18px; }
+
+/* Phone bottom nav */
+.p-bottom {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--bg2); border-top: 1px solid var(--border);
+  display: flex; padding: 6px 0 10px;
+}
+.p-navitem {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 2px; font-size: 9px; color: var(--text3); cursor: pointer;
+}
+.p-navitem.on { color: var(--a); }
+.p-ni { font-size: 18px; }
+
+/* ════════════════════════════════════════
+   DESKTOP
+════════════════════════════════════════ */
+.desktop-wrap { flex: 1; min-width: 0; }
+.desktop-label { font-size: 10px; font-family: var(--mono); letter-spacing: 0.12em; color: var(--text3); text-transform: uppercase; margin-bottom: 10px; }
+
+.browser {
+  background: var(--bg2); border-radius: 12px;
+  border: 1px solid var(--border); overflow: hidden;
+  box-shadow: 0 12px 40px var(--shadow);
+}
+.browser-bar {
+  background: var(--bg3); padding: 9px 14px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.bdots { display: flex; gap: 5px; }
+.bdot { width: 10px; height: 10px; border-radius: 50%; }
+.burl {
+  flex: 1; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 5px; padding: 4px 10px; font-family: var(--mono);
+  font-size: 11px; color: var(--text2);
+}
+
+.d-app { display: flex; height: 560px; }
+
+/* Desktop sidebar */
+.d-sidebar {
+  width: 195px; background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0;
+}
+.d-logo {
+  padding: 14px 14px 10px;
+  font-size: 14px; font-weight: 700; letter-spacing: -0.02em;
+  display: flex; align-items: center; gap: 7px;
+  border-bottom: 1px solid var(--border);
+}
+.d-logo-dot { width: 8px; height: 8px; background: var(--a); border-radius: 50%; }
+.d-logo-sub { font-size: 10px; color: var(--text3); font-weight: 400; display: block; }
+.d-nav { flex: 1; padding: 8px; overflow-y: auto; }
+.d-sec-label {
+  font-size: 9px; font-family: var(--mono); letter-spacing: 0.1em;
+  color: var(--text3); text-transform: uppercase; padding: 8px 6px 4px;
+}
+.d-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px; border-radius: 7px; font-size: 12px;
+  color: var(--text2); cursor: pointer; border: 1px solid transparent;
+  transition: all 0.12s; margin-bottom: 1px;
+}
+.d-item:hover { background: var(--bg3); color: var(--text); }
+.d-item.on { background: rgba(var(--a-rgb), 0.1); color: var(--a2); border-color: rgba(var(--a-rgb), 0.2); }
+.d-item .di { font-size: 14px; }
+.d-footer {
+  padding: 10px 12px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.d-fav {
+  width: 26px; height: 26px; border-radius: 6px; flex-shrink: 0;
+  background: linear-gradient(135deg, #d97706, #dc2626);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #fff;
+}
+.d-fname { font-size: 11px; font-weight: 500; color: var(--text); }
+.d-frole { font-size: 9px; color: var(--text3); }
+
+/* Desktop main */
+.d-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.d-panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+.d-panel.on { display: flex; }
+
+/* Desktop header */
+.d-header {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg2); flex-shrink: 0;
+}
+.d-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.d-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.d-btns { display: flex; gap: 6px; }
+.btn {
+  padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 500;
+  border: none; transition: all 0.15s;
+}
+.btn-p { background: var(--a); color: #fff; }
+.btn-p:hover { background: var(--a3); }
+.btn-g { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+.btn-g:hover { color: var(--text); }
+
+/* Stats row */
+.d-stats { display: grid; grid-template-columns: repeat(4,1fr); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.d-stat { padding: 10px 14px; border-right: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.d-stat:last-child { border-right: none; }
+.d-stat-icon { font-size: 16px; }
+.d-stat-val { font-size: 18px; font-weight: 700; font-family: var(--mono); color: var(--text); }
+.d-stat-lbl { font-size: 10px; color: var(--text2); }
+
+/* Filter bar */
+.d-filter {
+  display: flex; align-items: center; gap: 5px; padding: 8px 12px;
+  border-bottom: 1px solid var(--border); background: var(--bg2); flex-shrink: 0; flex-wrap: wrap;
+}
+.f-chip {
+  padding: 4px 9px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  border: 1px solid var(--border); background: var(--bg3); color: var(--text2);
+  cursor: pointer; transition: all 0.12s; white-space: nowrap;
+}
+.f-chip:hover { color: var(--text); }
+.f-chip.on { background: var(--a); color: #fff; border-color: var(--a); }
+.d-search {
+  margin-left: auto; display: flex; align-items: center; gap: 5px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 7px; padding: 5px 9px; font-size: 11px; color: var(--text2);
+}
+
+/* Table */
+.d-table-wrap { flex: 1; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--bg3); padding: 8px 12px; text-align: left;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em;
+  color: var(--text3); text-transform: uppercase;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:hover { background: var(--bg3); }
+tbody td { padding: 8px 12px; vertical-align: middle; }
+.e-cell { display: flex; align-items: center; gap: 8px; }
+.e-av {
+  width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: #fff;
+}
+.e-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.e-id { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+.sc {
+  display: inline-flex; flex-direction: column; align-items: flex-start;
+  padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 500;
+  line-height: 1.3; white-space: nowrap;
+}
+.sc small { font-size: 8px; opacity: 0.65; font-family: var(--mono); }
+.sc-f { background: var(--bg3); color: var(--text3); }
+.sc-v { background: rgba(22,163,74,0.1); color: #22c55e; }
+[data-theme="light"] .sc-v { color: #15803d; }
+.s-badge { font-size: 10px; font-weight: 500; }
+
+/* Vacation grid */
+.vac-wrap { flex: 1; overflow: auto; padding: 12px; }
+.vac-tbl { border-collapse: collapse; font-size: 11px; min-width: 700px; width: 100%; }
+.vac-tbl th {
+  padding: 6px 8px; text-align: center;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
+  color: var(--text3); text-transform: uppercase;
+  border-bottom: 2px solid var(--border); background: var(--bg2);
+  white-space: nowrap;
+}
+.vac-tbl th.school { background: rgba(219,39,119,0.08); color: #db2777; }
+.vac-tbl td {
+  padding: 5px 8px; border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border); text-align: center;
+}
+.vac-tbl td:first-child { text-align: left; font-weight: 600; white-space: nowrap; border-right: 2px solid var(--border); font-size: 11px; color: var(--text); }
+.vac-filled {
+  background: rgba(var(--a-rgb), 0.12); color: var(--a2);
+  border-radius: 4px; padding: 1px 5px; font-size: 10px; font-weight: 500;
+}
+[data-theme="light"] .vac-filled { background: rgba(var(--a-rgb),0.1); color: var(--a3); }
+.vac-school { background: rgba(219,39,119,0.05); }
+.vac-count { font-size: 9px; font-family: var(--mono); }
+.vc-ok { color: #22c55e; } .vc-warn { color: #f59e0b; } .vc-full { color: #ef4444; }
+
+/* Maschinen panel */
+.mach-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; padding: 12px; overflow-y: auto; flex: 1; }
+.mach-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+  padding: 14px; display: flex; flex-direction: column; gap: 8px;
+}
+.mach-top { display: flex; align-items: center; gap: 10px; }
+.mach-color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); }
+.mach-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.mach-dept { font-size: 10px; color: var(--text2); }
+.mach-stat { display: flex; align-items: center; gap: 6px; }
+.mach-badge {
+  padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 500;
+}
+.mach-people { font-size: 11px; color: var(--text2); }
+
+/* Produktionsplan sub-tabs */
+.kp-prod-tabs { display: flex; gap: 4px; padding: 0 16px; background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.kp-prod-tab {
+  padding: 8px 14px; border-radius: 8px 8px 0 0; font-size: 12px; font-weight: 600;
+  border: 1px solid transparent; border-bottom: none; color: var(--text2); cursor: pointer;
+  background: transparent; transition: all 0.12s;
+}
+.kp-prod-tab:hover { color: var(--text); background: var(--bg3); }
+.kp-prod-tab.on { color: var(--a2); background: var(--bg); border-color: var(--border); }
+[data-theme="light"] .kp-prod-tab.on { color: var(--a3); }
+.kp-prod-pane { display: none; flex: 1; min-height: 0; overflow: hidden; flex-direction: column; }
+.kp-prod-pane.on { display: flex; }
+
+/* Nachrichten */
+.msg-compose {
+  padding: 12px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.msg-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.msg-label { font-size: 11px; color: var(--text2); width: 60px; flex-shrink: 0; }
+.msg-sel {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 8px; font-size: 11px; color: var(--text);
+  font-family: var(--sans);
+}
+.msg-ch-row { display: flex; gap: 5px; }
+.msg-ch {
+  padding: 4px 9px; border-radius: 20px; font-size: 10px; font-weight: 500;
+  border: 1px solid var(--border); background: var(--bg3); color: var(--text2); cursor: pointer;
+}
+.msg-ch.on { background: var(--a); color: #fff; border-color: var(--a); }
+.msg-textarea {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 7px; padding: 8px; font-size: 12px; color: var(--text);
+  font-family: var(--sans); resize: none; height: 70px; outline: none;
+}
+.msg-log { flex: 1; overflow-y: auto; }
+.msg-item {
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.msg-av {
+  width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--a), var(--a3));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #fff;
+}
+.msg-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.msg-text { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.msg-meta { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-left: auto; white-space: nowrap; }
+
+/* Einstellungen */
+.settings-wrap { flex: 1; overflow-y: auto; padding: 12px; }
+.s-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 10px; overflow: hidden; }
+.s-sec-title { font-size: 11px; font-weight: 600; color: var(--text); padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.s-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-bottom: 1px solid var(--border); }
+.s-row:last-child { border-bottom: none; }
+.s-key { font-size: 12px; color: var(--text); }
+.s-val { font-size: 12px; color: var(--text2); }
+.color-picker-row { display: flex; gap: 6px; padding: 10px 12px; align-items: center; flex-wrap: wrap; }
+.cp-dot {
+  width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.15s;
+}
+.cp-dot:hover, .cp-dot.sel { border-color: var(--text); transform: scale(1.15); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #22c55e; color: #fff;
+  padding: 9px 18px; border-radius: 8px; font-size: 12px; font-weight: 500;
+  opacity: 0; transition: all 0.3s; z-index: 999; pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .app-wrap { flex-direction: column; align-items: center; }
+  .desktop-wrap { width: 100%; }
+  .mach-grid { grid-template-columns: repeat(2,1fr); }
+  .d-stats { grid-template-columns: repeat(2,1fr); }
+  .d-stat:nth-child(2) { border-right: none; }
+}
+@media (max-width: 600px) {
+  .phone { width: 100%; max-width: 380px; height: 640px; }
+  .d-sidebar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ CONTROL BAR ══ -->
+<div class="ctrl">
+  <div class="ctrl-logo">⚙️ SchichtPlan</div>
+  <div class="ctrl-sep"></div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Theme</span>
+    <button class="ctrl-btn on" id="btnDark" onclick="setTheme('dark')">🌙 Dunkel</button>
+    <button class="ctrl-btn" id="btnLight" onclick="setTheme('light')">☀️ Hell</button>
+  </div>
+  <div class="ctrl-sep"></div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Akzent</span>
+    <div class="accent-dot on" style="background:#0d9488" onclick="setAccent('teal',this)" title="Izumrud"></div>
+    <div class="accent-dot" style="background:#7c3aed" onclick="setAccent('violet',this)" title="Violet"></div>
+    <div class="accent-dot" style="background:#1e40af" onclick="setAccent('navy',this)" title="Navy"></div>
+  </div>
+  <div class="view-toggle">
+    <button class="vt-btn on" onclick="setView('both')">Beide</button>
+    <button class="vt-btn" onclick="setView('phone')">📱</button>
+    <button class="vt-btn" onclick="setView('desktop')">🖥️</button>
+  </div>
+</div>
+
+<div class="app-wrap" id="appWrap">
+
+<!-- ════════════════════════════════════
+     📱 PHONE
+════════════════════════════════════ -->
+<div class="phone-wrap" id="phoneWrap">
+  <div class="phone-label">📱 Mitarbeiter-App</div>
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+
+      <!-- Status -->
+      <div class="p-status"><span>09:41</span><span>●●● WiFi 🔋</span></div>
+
+      <!-- Top bar -->
+      <div class="p-topbar">
+        <div>
+          <div class="p-greeting">Guten Morgen,</div>
+          <div class="p-name">Sergej K.</div>
+        </div>
+        <div class="p-av">SK</div>
+      </div>
+
+      <!-- Nav tabs -->
+      <div class="p-navtabs">
+        <button class="p-ntab on" onclick="pTab('plan',this)">📅 Plan</button>
+        <button class="p-ntab" onclick="pTab('ferien',this)">🏖️ Ferien</button>
+        <button class="p-ntab" onclick="pTab('zeit',this)">⏱️ Stunden</button>
+        <button class="p-ntab" onclick="pTab('docs',this)">📄 Dokumente</button>
+        <button class="p-ntab" onclick="pTab('profil',this)">👤 Profil</button>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="p-content">
+
+        <!-- PLAN -->
+        <div class="p-panel on" id="p-plan">
+          <div class="notif">
+            <div class="notif-icon">🔔</div>
+            <div style="flex:1">
+              <div class="notif-title">Plan aktualisiert</div>
+              <div class="notif-body">Mi 17.06: Waldner 10.2 → Jogurt OG</div>
+            </div>
+            <span class="notif-time">09:41</span>
+          </div>
+
+          <div class="hero" style="background:linear-gradient(135deg,var(--m-waldner2),#1d4ed8)">
+            <div class="hero-eyebrow">Heute · Mo 15.06.2026</div>
+            <div class="hero-machine">Waldner 10.2</div>
+            <div class="hero-time">⏱ 00:00 – 08:00 Uhr</div>
+            <div class="hero-tags">
+              <span class="hero-tag">🏭 W10.2</span>
+              <span class="hero-tag">🥛 Käfir Coop 180g</span>
+            </div>
+          </div>
+
+          <div class="p-card">
+            <div class="p-card-title">KW 25 · Diese Woche</div>
+            <div class="week-strip">
+              <div class="wday today"><span class="wdn">MO</span><span class="wdd">15</span><div class="wdot"></div></div>
+              <div class="wday work"><span class="wdn">DI</span><span class="wdd">16</span><div class="wdot"></div></div>
+              <div class="wday work"><span class="wdn">MI</span><span class="wdd">17</span><div class="wdot"></div></div>
+              <div class="wday free"><span class="wdn">DO</span><span class="wdd">18</span><div class="wdot"></div></div>
+              <div class="wday free"><span class="wdn">FR</span><span class="wdd">19</span><div class="wdot"></div></div>
+              <div class="wday vac"><span class="wdn">SA</span><span class="wdd">20</span><div class="wdot"></div></div>
+              <div class="wday vac"><span class="wdn">SO</span><span class="wdd">21</span><div class="wdot"></div></div>
+            </div>
+          </div>
+
+          <div class="p-card">
+            <div class="p-card-title">Meine Schichten</div>
+            <div class="sh-item">
+              <div class="sh-bar" style="background:var(--m-waldner2)"></div>
+              <div style="flex:1"><div class="sh-machine">Waldner 10.2</div><div class="sh-sub">Mo · Käfir Coop 180g</div></div>
+              <div class="sh-time">00–08</div>
+            </div>
+            <div class="sh-item">
+              <div class="sh-bar" style="background:var(--m-waldner3)"></div>
+              <div style="flex:1"><div class="sh-machine">Waldner 10.3</div><div class="sh-sub">Di · Jogurt LF 73/95</div></div>
+              <div class="sh-time">00–08</div>
+            </div>
+            <div class="sh-item">
+              <div class="sh-bar" style="background:var(--m-jogurt)"></div>
+              <div style="flex:1"><div class="sh-machine">Jogurt OG</div><div class="sh-sub">Mi · ⚠️ Geändert</div></div>
+              <div class="sh-time">08–17</div>
+            </div>
+            <div class="sh-item" style="opacity:0.4">
+              <div class="sh-bar" style="background:var(--m-free)"></div>
+              <div style="flex:1"><div class="sh-machine">Frei</div><div class="sh-sub">Do + Fr</div></div>
+              <div class="sh-time">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FERIEN -->
+        <div class="p-panel" id="p-ferien">
+          <div class="vac-banner">
+            <div class="vac-icon">🏖️</div>
+            <div><div class="vac-title">Urlaub genehmigt · KW 52</div><div class="vac-sub">21.–27. Dez 2026 · Weihnachten ✅</div></div>
+          </div>
+          <div class="p-card">
+            <div class="p-card-title">Meine Urlaubstage 2026</div>
+            <div class="sh-item"><span style="font-size:12px;color:var(--text)">Verfügbar</span><span style="margin-left:auto;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--a)">18 Tage</span></div>
+            <div class="sh-item"><span style="font-size:12px;color:var(--text)">Geplant</span><span style="margin-left:auto;font-family:var(--mono);font-size:14px;font-weight:700;color:#f59e0b">7 Tage</span></div>
+            <div class="sh-item"><span style="font-size:12px;color:var(--text)">Verbleibend</span><span style="margin-left:auto;font-family:var(--mono);font-size:14px;font-weight:700;color:#22c55e">11 Tage</span></div>
+          </div>
+          <div class="p-card">
+            <div class="p-card-title">Meine Urlaubswochen</div>
+            <div class="sh-item"><div style="flex:1"><div class="sh-machine">KW 31 · 27.07–02.08</div><div class="sh-sub">Schulferien TG 🎓</div></div><span style="font-size:11px;color:#22c55e;font-weight:600">✅ Genehmigt</span></div>
+            <div class="sh-item"><div style="flex:1"><div class="sh-machine">KW 52 · 21.–27.12</div><div class="sh-sub">Weihnachten 🎄</div></div><span style="font-size:11px;color:#22c55e;font-weight:600">✅ Genehmigt</span></div>
+          </div>
+          <button class="btn btn-p" style="width:100%;margin-top:4px;padding:10px;border-radius:var(--r);font-size:13px">+ Urlaub beantragen</button>
+        </div>
+
+        <!-- STUNDEN -->
+        <div class="p-panel" id="p-zeit">
+          <div class="p-card">
+            <div class="zeit-month">
+              <div><div class="zeit-total">164.5h</div><div class="zeit-label">Juni 2026 · Gesamt</div></div>
+              <div style="text-align:right"><div style="font-size:12px;font-weight:600;color:#22c55e">+4.5h</div><div class="zeit-label">Überstunden</div></div>
+            </div>
+            <div class="zeit-row"><span class="zeit-date">Mo 15.06</span><span class="zeit-times">05:58 → 14:02</span><span class="zeit-h">8.1h</span></div>
+            <div class="zeit-row"><span class="zeit-date">Di 16.06</span><span class="zeit-times">06:00 → 14:00</span><span class="zeit-h">8.0h</span></div>
+            <div class="zeit-row"><span class="zeit-date">Mi 17.06</span><span class="zeit-times">07:55 → 17:05</span><span class="zeit-h">9.2h</span></div>
+            <div class="zeit-row" style="opacity:0.4"><span class="zeit-date">Do 18.06</span><span class="zeit-times">Frei</span><span class="zeit-h">—</span></div>
+            <div class="zeit-row" style="opacity:0.4"><span class="zeit-date">Fr 19.06</span><span class="zeit-times">Frei</span><span class="zeit-h">—</span></div>
+          </div>
+          <button class="btn btn-g" style="width:100%;margin-top:4px;padding:10px;border-radius:var(--r);font-size:13px;border:1px solid var(--border)">🖨️ Monatsausweis drucken</button>
+        </div>
+
+        <!-- DOKUMENTE -->
+        <div class="p-panel" id="p-docs">
+          <div class="p-card">
+            <div class="p-card-title">Lohnabrechnungen</div>
+            <div class="doc-item">
+              <div class="doc-icon">📄</div>
+              <div style="flex:1"><div class="doc-name">Lohnabrechnung Mai 2026</div><div class="doc-date">Erstellt: 01.06.2026</div></div>
+              <button class="doc-dl">⬇️ PDF</button>
+            </div>
+            <div class="doc-item">
+              <div class="doc-icon">📄</div>
+              <div style="flex:1"><div class="doc-name">Lohnabrechnung Apr 2026</div><div class="doc-date">Erstellt: 01.05.2026</div></div>
+              <button class="doc-dl">⬇️ PDF</button>
+            </div>
+            <div class="doc-item">
+              <div class="doc-icon">📄</div>
+              <div style="flex:1"><div class="doc-name">Lohnausweis 2025</div><div class="doc-date">Erstellt: 15.01.2026</div></div>
+              <button class="doc-dl">⬇️ PDF</button>
+            </div>
+          </div>
+          <div class="p-card">
+            <div class="p-card-title">Weitere Dokumente</div>
+            <div class="doc-item">
+              <div class="doc-icon">📋</div>
+              <div style="flex:1"><div class="doc-name">Arbeitsvertrag</div><div class="doc-date">Gültig ab 01.03.2021</div></div>
+              <button class="doc-dl">⬇️ PDF</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFIL -->
+        <div class="p-panel" id="p-profil">
+          <div class="prof-av">SK</div>
+          <div class="prof-name">Sergej Korsakov</div>
+          <div class="prof-id">#2104479 · BIS Spezialitäten</div>
+
+          <div class="p-card">
+            <div class="p-card-title">Sprache</div>
+            <div class="lang-sel">
+              <button class="lang-btn">DE</button>
+              <button class="lang-btn">EN</button>
+              <button class="lang-btn">FR</button>
+              <button class="lang-btn">IT</button>
+              <button class="lang-btn">SQ</button>
+              <button class="lang-btn">SR</button>
+              <button class="lang-btn on">RU</button>
+            </div>
+          </div>
+
+          <div class="p-card">
+            <div class="p-card-title">Benachrichtigungen</div>
+            <div class="notif-ch">
+              <div class="notif-opt"><span>📧 Email</span><div class="toggle on"></div></div>
+              <div class="notif-opt"><span>💬 WhatsApp</span><div class="toggle on"></div></div>
+              <div class="notif-opt"><span>✈️ Telegram</span><div class="toggle"></div></div>
+              <div class="notif-opt"><span>📱 SMS</span><div class="toggle"></div></div>
+              <div class="notif-opt"><span>🔔 Push</span><div class="toggle on"></div></div>
+            </div>
+          </div>
+
+          <div class="p-card">
+            <div class="p-card-title">Info</div>
+            <div class="prof-row"><span class="prof-key">Abteilung</span><span class="prof-val">BIS Jogurt</span></div>
+            <div class="prof-row"><span class="prof-key">Kanton</span><span class="prof-val">Thurgau (TG)</span></div>
+            <div class="prof-row"><span class="prof-key">Schichttyp</span><span class="prof-val">Wechselschicht</span></div>
+          </div>
+        </div>
+
+      </div><!-- /p-content -->
+
+      <!-- Bottom nav -->
+      <div class="p-bottom">
+        <div class="p-navitem on" onclick="pNavItem('plan',this)"><span class="p-ni">📅</span>Plan</div>
+        <div class="p-navitem" onclick="pNavItem('ferien',this)"><span class="p-ni">🏖️</span>Ferien</div>
+        <div class="p-navitem" onclick="pNavItem('zeit',this)"><span class="p-ni">⏱️</span>Stunden</div>
+        <div class="p-navitem" onclick="pNavItem('docs',this)"><span class="p-ni">📄</span>Docs</div>
+        <div class="p-navitem" onclick="pNavItem('profil',this)"><span class="p-ni">👤</span>Profil</div>
+      </div>
+
+    </div><!-- /phone-screen -->
+  </div><!-- /phone -->
+</div><!-- /phone-wrap -->
+
+<!-- ════════════════════════════════════
+     🖥️ DESKTOP
+════════════════════════════════════ -->
+<div class="desktop-wrap" id="desktopWrap">
+  <div class="desktop-label">🖥️ Chef / HR Ansicht</div>
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="bdots">
+        <div class="bdot" style="background:#ef4444"></div>
+        <div class="bdot" style="background:#f59e0b"></div>
+        <div class="bdot" style="background:#22c55e"></div>
+      </div>
+      <div class="burl">🔒 korsmotion.ch/schichtplan/admin</div>
+    </div>
+
+    <div class="d-app">
+      <!-- SIDEBAR -->
+      <div class="d-sidebar">
+        <div class="d-logo">
+          <div class="d-logo-dot"></div>
+          <div><span>SchichtPlan</span><span class="d-logo-sub">BIS Spezialitäten</span></div>
+        </div>
+        <div class="d-nav">
+          <div class="d-sec-label">Planung</div>
+          <div class="d-item on" onclick="dTab('schicht',this)"><span class="di">📅</span> Wochenplan</div>
+          <div class="d-item" onclick="dTab('ferien',this)"><span class="di">🏖️</span> Ferienplan</div>
+          <div class="d-item" onclick="dTab('kalender',this)"><span class="di">🗓️</span> Kantonskalender</div>
+          <div class="d-sec-label" style="margin-top:8px">Verwaltung</div>
+          <div class="d-item" onclick="dTab('maschinen',this)"><span class="di">🏭</span> Maschinen</div>
+          <div class="d-item" onclick="dTab('produktionsplan',this)"><span class="di">🏭</span> Produktionsplan</div>
+          <div class="d-item" onclick="dTab('nachrichten',this)"><span class="di">✉️</span> Nachrichten</div>
+          <div class="d-item" onclick="dTab('zeit',this)"><span class="di">⏱️</span> Zeiterfassung</div>
+          <div class="d-item" onclick="dTab('dokumente',this)"><span class="di">📄</span> Dokumente</div>
+          <div class="d-sec-label" style="margin-top:8px">System</div>
+          <div class="d-item" onclick="dTab('einstellungen',this)"><span class="di">⚙️</span> Einstellungen</div>
+        </div>
+        <div class="d-footer">
+          <div class="d-fav">HR</div>
+          <div><div class="d-fname">Petra M.</div><div class="d-frole">HR · Admin</div></div>
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <div class="d-main">
+
+        <!-- SCHICHTPLAN -->
+        <div class="d-panel on" id="d-schicht">
+          <div class="d-header">
+            <div><div class="d-title">Wochenplan · KW 25</div><div class="d-sub">15.–21.06.2026 · BIS Spezialitäten · 148 MA</div></div>
+            <div class="d-btns">
+              <button class="btn btn-g">📤 Export</button>
+              <button class="btn btn-p" onclick="toast('Plan an 148 Mitarbeiter gesendet ✅')">📨 Plan senden</button>
+            </div>
+          </div>
+          <div class="d-stats">
+            <div class="d-stat"><span class="d-stat-icon">👥</span><div><div class="d-stat-val">148</div><div class="d-stat-lbl">Mitarbeiter</div></div></div>
+            <div class="d-stat"><span class="d-stat-icon">✅</span><div><div class="d-stat-val">139</div><div class="d-stat-lbl">Plan gesehen</div></div></div>
+            <div class="d-stat"><span class="d-stat-icon">🏖️</span><div><div class="d-stat-val">12</div><div class="d-stat-lbl">Im Urlaub</div></div></div>
+            <div class="d-stat"><span class="d-stat-icon">⚠️</span><div><div class="d-stat-val">3</div><div class="d-stat-lbl">Änderungen</div></div></div>
+          </div>
+          <div class="d-filter">
+            <button class="f-chip on" onclick="fChip(this)">Alle</button>
+            <button class="f-chip" onclick="fChip(this)" style="border-color:rgba(37,99,235,0.4)">🔵 Waldner</button>
+            <button class="f-chip" onclick="fChip(this)" style="border-color:rgba(22,163,74,0.4)">🟢 Schmid KG</button>
+            <button class="f-chip" onclick="fChip(this)" style="border-color:rgba(124,58,237,0.4)">🟣 Jogurt OG</button>
+            <button class="f-chip" onclick="fChip(this)" style="border-color:rgba(217,119,6,0.4)">🟡 T 47</button>
+            <button class="f-chip" onclick="fChip(this)">🏖️ Urlaub</button>
+            <div class="d-search">🔍 Name suchen...</div>
+          </div>
+          <div class="d-table-wrap">
+            <table>
+              <thead><tr>
+                <th>Mitarbeiter</th><th>Mo 15.06</th><th>Di 16.06</th><th>Mi 17.06</th><th>Do 18.06</th><th>Fr 19.06</th><th>Status</th>
+              </tr></thead>
+              <tbody id="tBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- FERIENPLAN -->
+        <div class="d-panel" id="d-ferien">
+          <div class="d-header">
+            <div><div class="d-title">Ferienplan 2026</div><div class="d-sub">Juli–Dezember · Max. 5 Personen/Woche · 🎓 Schulferien TG</div></div>
+            <div class="d-btns"><button class="btn btn-p">+ Urlaub eintragen</button></div>
+          </div>
+          <div class="vac-wrap" id="vacWrap"></div>
+        </div>
+
+        <!-- KANTONSKALENDER -->
+        <div class="d-panel" id="d-kalender">
+          <div class="d-header">
+            <div><div class="d-title">Kantonskalender 2026</div><div class="d-sub">Feiertage & Schulferien · Kanton Thurgau (TG)</div></div>
+            <div class="d-btns">
+              <select class="btn btn-g" style="padding:6px 10px">
+                <option>TG – Thurgau</option><option>ZH – Zürich</option><option>BE – Bern</option>
+                <option>SG – St. Gallen</option><option>GE – Genf</option><option>BS – Basel</option>
+              </select>
+            </div>
+          </div>
+          <div style="padding:16px;flex:1;overflow-y:auto">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+              <div class="p-card"><div class="p-card-title">Januar</div>
+                <div class="sh-item"><span style="font-size:11px;font-family:var(--mono);color:var(--text2)">01.01</span><span style="font-size:12px;font-weight:500;color:var(--text);flex:1;margin-left:8px">Neujahr</span><span style="font-size:10px;color:#dc2626">🔴 CH</span></div>
+              </div>
+              <div class="p-card"><div class="p-card-title">April</div>
+                <div class="sh-item"><span style="font-size:11px;font-family:var(--mono);color:var(--text2)">03.04</span><span style="font-size:12px;font-weight:500;color:var(--text);flex:1;margin-left:8px">Karfreitag</span><span style="font-size:10px;color:#dc2626">🔴 CH</span></div>
+                <div class="sh-item"><span style="font-size:11px;font-family:var(--mono);color:var(--text2)">06.04</span><span style="font-size:12px;font-weight:500;color:var(--text);flex:1;margin-left:8px">Ostermontag</span><span style="font-size:10px;color:#dc2626">🔴 CH</span></div>
+              </div>
+              <div class="p-card"><div class="p-card-title">Schulferien TG 🎓</div>
+                <div class="sh-item"><span style="font-size:11px;color:var(--text);flex:1">Sommer KW 28–31</span><span style="font-size:10px;color:#db2777">🎓</span></div>
+                <div class="sh-item"><span style="font-size:11px;color:var(--text);flex:1">Herbst KW 41–42</span><span style="font-size:10px;color:#db2777">🎓</span></div>
+                <div class="sh-item"><span style="font-size:11px;color:var(--text);flex:1">Winter KW 52–53</span><span style="font-size:10px;color:#db2777">🎓</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MASCHINEN -->
+        <div class="d-panel" id="d-maschinen">
+          <div class="d-header">
+            <div><div class="d-title">Maschinen · BIS Jogurt</div><div class="d-sub">Farben & Belegung · Klick auf Farbpunkt zum Ändern</div></div>
+            <div class="d-btns"><button class="btn btn-p">+ Maschine</button></div>
+          </div>
+          <div class="mach-grid">
+            <div class="mach-card">
+              <div class="mach-top">
+                <div class="mach-color-dot" style="background:var(--m-waldner2)" title="Farbe ändern"></div>
+                <div><div class="mach-name">Waldner 10.2</div><div class="mach-dept">BIS Jogurt</div></div>
+              </div>
+              <div class="mach-stat">
+                <span class="mach-badge" style="background:rgba(37,99,235,0.1);color:#60a5fa">Aktiv</span>
+                <span class="mach-people">👤 6 Mitarbeiter heute</span>
+              </div>
+            </div>
+            <div class="mach-card">
+              <div class="mach-top">
+                <div class="mach-color-dot" style="background:var(--m-waldner3)"></div>
+                <div><div class="mach-name">Waldner 10.3</div><div class="mach-dept">BIS Jogurt</div></div>
+              </div>
+              <div class="mach-stat">
+                <span class="mach-badge" style="background:rgba(8,145,178,0.1);color:#22d3ee">Aktiv</span>
+                <span class="mach-people">👤 5 Mitarbeiter heute</span>
+              </div>
+            </div>
+            <div class="mach-card">
+              <div class="mach-top">
+                <div class="mach-color-dot" style="background:var(--m-schmid)"></div>
+                <div><div class="mach-name">Schmid KG</div><div class="mach-dept">BIS Jogurt</div></div>
+              </div>
+              <div class="mach-stat">
+                <span class="mach-badge" style="background:rgba(22,163,74,0.1);color:#4ade80">Aktiv</span>
+                <span class="mach-people">👤 8 Mitarbeiter heute</span>
+              </div>
+            </div>
+            <div class="mach-card">
+              <div class="mach-top">
+                <div class="mach-color-dot" style="background:var(--m-jogurt)"></div>
+                <div><div class="mach-name">Jogurt OG</div><div class="mach-dept">BIS Jogurt</div></div>
+              </div>
+              <div class="mach-stat">
+                <span class="mach-badge" style="background:rgba(124,58,237,0.1);color:#c084fc">Aktiv</span>
+                <span class="mach-people">👤 4 Mitarbeiter heute</span>
+              </div>
+            </div>
+            <div class="mach-card">
+              <div class="mach-top">
+                <div class="mach-color-dot" style="background:var(--m-t47)"></div>
+                <div><div class="mach-name">T 47</div><div class="mach-dept">BIS Jogurt</div></div>
+              </div>
+              <div class="mach-stat">
+                <span class="mach-badge" style="background:rgba(217,119,6,0.1);color:#fbbf24">Aktiv</span>
+                <span class="mach-people">👤 3 Mitarbeiter heute</span>
+              </div>
+            </div>
+            <div class="mach-card">
+              <div class="mach-top">
+                <div class="mach-color-dot" style="background:var(--m-quark)"></div>
+                <div><div class="mach-name">Quark 122–125</div><div class="mach-dept">BIS Jogurt</div></div>
+              </div>
+              <div class="mach-stat">
+                <span class="mach-badge" style="background:rgba(219,39,119,0.1);color:#f472b6">Aktiv</span>
+                <span class="mach-people">👤 7 Mitarbeiter heute</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRODUKTIONSPLAN -->
+        <div class="d-panel" id="d-produktionsplan">
+          <div class="d-header">
+            <div><div class="d-title">Produktionsplan</div><div class="d-sub">KorsPlan · Wochenplan & Maschinen-Display</div></div>
+          </div>
+          <div class="kp-prod-tabs" role="tablist" aria-label="Produktionsplan">
+            <button type="button" class="kp-prod-tab on" data-kp-prod-tab="wochenplan" onclick="kpProdTab('wochenplan',this)">Wochenplan</button>
+            <button type="button" class="kp-prod-tab" data-kp-prod-tab="display" onclick="kpProdTab('display',this)">Maschinen-Display</button>
+          </div>
+
+          <div class="kp-prod-pane on" id="kp-prod-wochenplan" data-kp-prod-pane="wochenplan">
+            <div id="kp-wp-root">
+              <div class="tb">
+                <div class="logo"><em>Kors</em>Plan</div>
+                <div class="div"></div>
+                <span class="kw-label">KW</span>
+                <select class="kw-select" id="kpWpKwSel" onchange="kpWpChangeKW(this.value)">
+                  <option value="24">24 · 09–15.06</option>
+                  <option value="25" selected>25 · 16–22.06</option>
+                  <option value="26">26 · 23–29.06</option>
+                </select>
+                <div class="div"></div>
+                <span class="last-imp" id="kpWpLastImp">Noch kein Import</span>
+                <div class="tb-right">
+                  <button type="button" class="btn btn-gh" onclick="kpWpRunDemo()">▶ Demo starten</button>
+                  <button type="button" class="btn btn-pu">
+                    <input type="file" accept=".xlsx,.xls" onchange="kpWpHandleFile(this)">
+                    ⬆ Excel importieren
+                  </button>
+                </div>
+              </div>
+              <div class="gantt-outer" id="kpWpGanttOuter">
+                <div class="empty">
+                  <div class="empty-icon">📋</div>
+                  <div class="empty-title">Wochenplan noch nicht geladen</div>
+                  <div class="empty-sub">Excel importieren oder Demo starten</div>
+                </div>
+              </div>
+              <div class="legend">
+                <div class="li"><div class="ld" style="background:#F59E0B"></div>Quark</div>
+                <div class="li"><div class="ld" style="background:#2563EB"></div>Jogurt</div>
+                <div class="li"><div class="ld" style="background:#DB2777"></div>Skyr</div>
+                <div class="li"><div class="ld" style="background:#7C3AED"></div>Rahm</div>
+                <div class="li"><div class="ld" style="background:#059669"></div>RAS</div>
+                <div class="li"><div class="ld" style="background:#EA580C"></div>Kefir</div>
+                <div class="li"><div class="ld" style="background:#16A34A"></div>Vegan</div>
+                <div class="li"><div class="ld" style="background:#CA8A04"></div>Ziege</div>
+                <div class="li"><div class="ld" style="background:#DC2626"></div>Reinigung (R)</div>
+                <div class="li"><div class="ld" style="background:#6B7280"></div>Pause</div>
+                <div style="margin-left:auto;font-size:10px;color:var(--mu2);font-weight:500;">KorsPlan · Emmi Bischofszell</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="kp-prod-pane" id="kp-prod-display" data-kp-prod-pane="display">
+            <div id="kp-md-root">
+              <div class="tb">
+                <div class="logo"><em>Kors</em>Plan</div>
+                <div class="div"></div>
+                <span class="sel-label">Maschine:</span>
+                <div class="machine-btns">
+                  <button type="button" class="mbtn active" onclick="kpMdShow(0)">Waldner 10.2</button>
+                  <button type="button" class="mbtn" onclick="kpMdShow(1)">Schmidt 1kg</button>
+                  <button type="button" class="mbtn" onclick="kpMdShow(2)">Waldner 10.3</button>
+                </div>
+                <div class="tb-right">
+                  <button type="button" class="alert-btn" onclick="kpMdToggleAlert()">⚠ Alert testen</button>
+                  <div class="div"></div>
+                  <div class="clock-wrap">
+                    <div class="clock" id="kpMdClockEl">--:--:--</div>
+                    <div class="date-lbl" id="kpMdDateEl">--</div>
+                  </div>
+                </div>
+              </div>
+              <div class="main" id="kpMdMain"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NACHRICHTEN -->
+        <div class="d-panel" id="d-nachrichten">
+          <div class="d-header">
+            <div><div class="d-title">Nachrichten senden</div><div class="d-sub">An alle oder einzelne Mitarbeiter</div></div>
+          </div>
+          <div class="msg-compose">
+            <div class="msg-row">
+              <span class="msg-label">An:</span>
+              <select class="msg-sel"><option>Alle Mitarbeiter (148)</option><option>BIS Jogurt (42)</option><option>Einzelner MA...</option></select>
+            </div>
+            <div class="msg-row">
+              <span class="msg-label">Via:</span>
+              <div class="msg-ch-row">
+                <button class="msg-ch on">📧 Email</button>
+                <button class="msg-ch on">💬 WhatsApp</button>
+                <button class="msg-ch">✈️ Telegram</button>
+                <button class="msg-ch">📱 SMS</button>
+                <button class="msg-ch">🔔 Push</button>
+              </div>
+            </div>
+            <textarea class="msg-textarea" placeholder="Nachricht eingeben...">Liebe Mitarbeiter, der Wochenplan KW 25 wurde aktualisiert. Bitte überprüfen Sie Ihre Schichten.</textarea>
+            <button class="btn btn-p" style="align-self:flex-end" onclick="toast('Nachricht an 148 MA gesendet ✅')">📨 Senden</button>
+          </div>
+          <div class="msg-log">
+            <div class="msg-item">
+              <div class="msg-av">HR</div>
+              <div style="flex:1"><div class="msg-name">Alle Mitarbeiter</div><div class="msg-text">Plan KW 25 wurde aktualisiert. Bitte prüfen.</div></div>
+              <span class="msg-meta">heute 08:30</span>
+            </div>
+            <div class="msg-item">
+              <div class="msg-av">HR</div>
+              <div style="flex:1"><div class="msg-name">Korsakov Sergej</div><div class="msg-text">Mi 17.06 geändert: Waldner 10.2 → Jogurt OG.</div></div>
+              <span class="msg-meta">gestern 16:45</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ZEITERFASSUNG -->
+        <div class="d-panel" id="d-zeit">
+          <div class="d-header">
+            <div><div class="d-title">Zeiterfassung · Juni 2026</div><div class="d-sub">Stempelzeiten aller Mitarbeiter · BIS Jogurt</div></div>
+            <div class="d-btns"><button class="btn btn-g">📤 Export PDF</button></div>
+          </div>
+          <div class="d-table-wrap">
+            <table>
+              <thead><tr><th>Mitarbeiter</th><th>Mo 15.06</th><th>Di 16.06</th><th>Mi 17.06</th><th>Gesamt Juni</th><th>Überstunden</th></tr></thead>
+              <tbody>
+                <tr><td><div class="e-cell"><div class="e-av" style="background:linear-gradient(135deg,var(--a),var(--a3))">SK</div><div><div class="e-name">Korsakov Sergej</div><div class="e-id">#2104479</div></div></div></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text)">05:58–14:02</span></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text)">06:00–14:00</span></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text)">07:55–17:05</span></td><td><span style="font-family:var(--mono);font-weight:600;color:var(--a)">164.5h</span></td><td><span style="font-size:11px;color:#22c55e;font-weight:600">+4.5h</span></td></tr>
+                <tr><td><div class="e-cell"><div class="e-av" style="background:linear-gradient(135deg,#16a34a,#15803d)">AG</div><div><div class="e-name">Alimani Gjiltime</div><div class="e-id">#9877</div></div></div></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text)">07:58–16:03</span></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text)">08:00–16:00</span></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text)">08:01–16:02</span></td><td><span style="font-family:var(--mono);font-weight:600;color:var(--a)">160.0h</span></td><td><span style="font-size:11px;color:var(--text3)">0h</span></td></tr>
+                <tr><td><div class="e-cell"><div class="e-av" style="background:linear-gradient(135deg,#d97706,#b45309)">BD</div><div><div class="e-name">Bedeti Desrim</div><div class="e-id">#2115901</div></div></div></td><td><span style="font-size:11px;color:var(--text3)">Frei</span></td><td><span style="font-size:11px;color:var(--text3)">Frei</span></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text)">00:02–08:01</span></td><td><span style="font-family:var(--mono);font-weight:600;color:var(--a)">96.0h</span></td><td><span style="font-size:11px;color:var(--text3)">0h</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- DOKUMENTE -->
+        <div class="d-panel" id="d-dokumente">
+          <div class="d-header">
+            <div><div class="d-title">Dokumente</div><div class="d-sub">Lohnabrechnungen & Dokumente hochladen</div></div>
+            <div class="d-btns"><button class="btn btn-p">⬆️ Dokument hochladen</button></div>
+          </div>
+          <div class="d-table-wrap">
+            <table>
+              <thead><tr><th>Mitarbeiter</th><th>Dokument</th><th>Monat</th><th>Hochgeladen</th><th>Aktion</th></tr></thead>
+              <tbody>
+                <tr><td><div class="e-cell"><div class="e-av" style="background:linear-gradient(135deg,var(--a),var(--a3))">SK</div><div><div class="e-name">Korsakov Sergej</div></div></div></td><td>📄 Lohnabrechnung</td><td><span style="font-family:var(--mono);font-size:11px">Mai 2026</span></td><td><span style="font-size:11px;color:var(--text2)">01.06.2026</span></td><td><button class="btn btn-g" style="font-size:11px;padding:4px 8px">⬇️ PDF</button></td></tr>
+                <tr><td><div class="e-cell"><div class="e-av" style="background:linear-gradient(135deg,#16a34a,#15803d)">AG</div><div><div class="e-name">Alimani Gjiltime</div></div></div></td><td>📄 Lohnabrechnung</td><td><span style="font-family:var(--mono);font-size:11px">Mai 2026</span></td><td><span style="font-size:11px;color:var(--text2)">01.06.2026</span></td><td><button class="btn btn-g" style="font-size:11px;padding:4px 8px">⬇️ PDF</button></td></tr>
+                <tr><td><div class="e-cell"><div class="e-av" style="background:linear-gradient(135deg,#d97706,#b45309)">BD</div><div><div class="e-name">Bedeti Desrim</div></div></div></td><td>📋 Arbeitsvertrag</td><td><span style="font-family:var(--mono);font-size:11px">—</span></td><td><span style="font-size:11px;color:var(--text2)">15.03.2021</span></td><td><button class="btn btn-g" style="font-size:11px;padding:4px 8px">⬇️ PDF</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- EINSTELLUNGEN -->
+        <div class="d-panel" id="d-einstellungen">
+          <div class="d-header">
+            <div><div class="d-title">Einstellungen</div><div class="d-sub">Firma, Design, Maschinen-Farben</div></div>
+          </div>
+          <div class="settings-wrap">
+            <div class="s-section">
+              <div class="s-sec-title">🎨 Akzentfarbe</div>
+              <div class="color-picker-row">
+                <div class="cp-dot sel" style="background:#0d9488" onclick="setAccentFromSettings('teal',this)"></div>
+                <div class="cp-dot" style="background:#7c3aed" onclick="setAccentFromSettings('violet',this)"></div>
+                <div class="cp-dot" style="background:#1e40af" onclick="setAccentFromSettings('navy',this)"></div>
+                <span style="font-size:11px;color:var(--text2);margin-left:4px">Weitere Farben auf Anfrage</span>
+              </div>
+            </div>
+            <div class="s-section">
+              <div class="s-sec-title">🏭 Maschinenfarben</div>
+              <div class="color-picker-row" style="gap:12px;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:6px"><div class="cp-dot sel" style="background:var(--m-waldner2)"></div><span style="font-size:11px;color:var(--text)">Waldner 10.2</span></div>
+                <div style="display:flex;align-items:center;gap:6px"><div class="cp-dot" style="background:var(--m-waldner3)"></div><span style="font-size:11px;color:var(--text)">Waldner 10.3</span></div>
+                <div style="display:flex;align-items:center;gap:6px"><div class="cp-dot" style="background:var(--m-schmid)"></div><span style="font-size:11px;color:var(--text)">Schmid KG</span></div>
+                <div style="display:flex;align-items:center;gap:6px"><div class="cp-dot" style="background:var(--m-jogurt)"></div><span style="font-size:11px;color:var(--text)">Jogurt OG</span></div>
+                <div style="display:flex;align-items:center;gap:6px"><div class="cp-dot" style="background:var(--m-t47)"></div><span style="font-size:11px;color:var(--text)">T 47</span></div>
+                <div style="display:flex;align-items:center;gap:6px"><div class="cp-dot" style="background:var(--m-quark)"></div><span style="font-size:11px;color:var(--text)">Quark</span></div>
+              </div>
+              <div style="padding:0 12px 10px;font-size:11px;color:var(--text2)">Klick auf den Farbpunkt öffnet Color Picker → Farbe wird im gesamten Plan aktualisiert</div>
+            </div>
+            <div class="s-section">
+              <div class="s-sec-title">🏢 Firma</div>
+              <div class="s-row"><span class="s-key">Name</span><span class="s-val">BIS Spezialitäten</span></div>
+              <div class="s-row"><span class="s-key">Abteilung</span><span class="s-val">BIS Jogurt</span></div>
+              <div class="s-row"><span class="s-key">Kanton</span><span class="s-val">Thurgau (TG)</span></div>
+              <div class="s-row"><span class="s-key">Max. Urlaub/Woche</span><span class="s-val">5 Personen</span></div>
+              <div class="s-row"><span class="s-key">Sprache Admin</span><span class="s-val">Deutsch (DE)</span></div>
+            </div>
+            <div class="s-section">
+              <div class="s-sec-title">🔔 Standard-Benachrichtigung</div>
+              <div class="s-row"><span class="s-key">Email</span><div class="toggle on"></div></div>
+              <div class="s-row"><span class="s-key">WhatsApp</span><div class="toggle on"></div></div>
+              <div class="s-row"><span class="s-key">Telegram</span><div class="toggle"></div></div>
+              <div class="s-row"><span class="s-key">SMS</span><div class="toggle"></div></div>
+              <div class="s-row"><span class="s-key">Push</span><div class="toggle on"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /d-main -->
+    </div><!-- /d-app -->
+  </div><!-- /browser -->
+</div><!-- /desktop-wrap -->
+</div><!-- /app-wrap -->
+
+<div class="toast" id="toast"></div>
+
+<div class="kp-wp-ov" id="kpWpOv">
+  <div class="kp-wp-ov-card">
+    <div class="kp-wp-ov-icon">📂</div>
+    <div class="kp-wp-ov-title">Excel wird <span>eingelesen</span></div>
+    <div class="kp-wp-ov-file" id="kpWpOvFile">Wochenplan_KW25.xlsx</div>
+    <div class="kp-wp-prog-wrap"><div class="kp-wp-prog-bar" id="kpWpProgBar"></div></div>
+    <div class="kp-wp-prog-lbl" id="kpWpProgLbl">Starte Import... <span>0%</span></div>
+  </div>
+</div>
+
+<div class="kp-wp-tip" id="kpWpTip">
+  <div class="kp-wp-tip-name" id="kpWpTipName"></div>
+  <div class="kp-wp-tip-row">⏱ <b id="kpWpTipTime"></b></div>
+  <div class="kp-wp-tip-row" id="kpWpTipQtyRow">📦 <b id="kpWpTipQty"></b></div>
+  <div class="kp-wp-tip-row">🏭 <b id="kpWpTipLine"></b></div>
+</div>
+
+<div class="kp-wp-toast" id="kpWpToast"></div>
+
+<script src="/schichtplan/assets/kp-wochenplan.js"></script>
+<script src="/schichtplan/assets/kp-maschinen-display.js"></script>
+<script>
+/* ══ DATA ══ */
+const EMP = [
+  {n:'Korsakov Sergej',   id:'2104479', c:'#0d9488', i:'SK', sh:['w2','w3','jo','fr','fr'], st:'seen'},
+  {n:'Alimani Gjiltime',  id:'9877',    c:'#16a34a', i:'AG', sh:['w2','w2','w2','w2','w2'], st:'seen'},
+  {n:'Bedeti Desrim',     id:'2115901', c:'#d97706', i:'BD', sh:['fr','fr','sc','sc','sc'], st:'pending'},
+  {n:'Brunner Daniel',    id:'200459',  c:'#0891b2', i:'BD', sh:['w3','w3','w3','w3','w3'], st:'seen'},
+  {n:'Cattaneo Fermo',    id:'2108742', c:'#db2777', i:'CF', sh:['fr','fr','jo','jo','jo'], st:'changed'},
+  {n:'Dürlewanger Anton', id:'9901',    c:'#059669', i:'DA', sh:['t4','t4','t4','t4','fr'], st:'seen'},
+  {n:'Grieble Oliver',    id:'2100326', c:'#7c3aed', i:'GO', sh:['w3','w3','w3','va','va'], st:'seen'},
+  {n:'Ickan Kubilay',     id:'2123339', c:'#1e40af', i:'IK', sh:['w2','w2','w2','w2','w2'], st:'seen'},
+  {n:'Katic Marko',       id:'2114690', c:'#db2777', i:'KM', sh:['fr','fr','fr','fr','fr'], st:'seen', vac:true},
+  {n:'Keller Roman',      id:'2108447', c:'#7c3aed', i:'KR', sh:['jo','jo','jo','jo','fr'], st:'seen'},
+  {n:'Kleeberg Alexander',id:'2100387', c:'#059669', i:'KA', sh:['w3','w3','fr','fr','w3'], st:'seen'},
+  {n:'Mansor Karam',      id:'9942',    c:'#d97706', i:'MK', sh:['fr','w2','w2','w2','w2'], st:'pending'},
+  {n:'Mebrahtu Fenkil',   id:'2113998', c:'#16a34a', i:'MF', sh:['w3','w3','fr','fr','fr'], st:'seen'},
+  {n:'Rufener Nadine',    id:'9962',    c:'#0891b2', i:'RN', sh:['sc','sc','sc','sc','fr'], st:'seen'},
+  {n:'Stüssi Michael',    id:'12202',   c:'#7c3aed', i:'SM', sh:['sc','sc','sc','sc','sc'], st:'seen'},
+];
+
+const SH = {
+  w2:{l:'Waldner 10.2', cls:'', mc:'var(--m-waldner2)', t:'00–08'},
+  w3:{l:'Waldner 10.3', cls:'', mc:'var(--m-waldner3)', t:'08–17'},
+  sc:{l:'Schmid KG',    cls:'', mc:'var(--m-schmid)',   t:'00–08'},
+  jo:{l:'Jogurt OG',   cls:'', mc:'var(--m-jogurt)',   t:'08–17'},
+  t4:{l:'T 47',         cls:'', mc:'var(--m-t47)',      t:'07–16'},
+  qk:{l:'Quark',        cls:'', mc:'var(--m-quark)',    t:'00–08'},
+  fr:{l:'Frei',         cls:'sc-f', mc:'', t:''},
+  va:{l:'Urlaub 🏖️',   cls:'sc-v', mc:'', t:''},
+};
+
+function shiftChip(code) {
+  const s = SH[code] || SH.fr;
+  if (s.mc) {
+    return `<span class="sc" style="background:color-mix(in srgb,${s.mc} 12%,transparent);color:${s.mc}">${s.l}<small>${s.t}</small></span>`;
+  }
+  return `<span class="sc ${s.cls}">${s.l}</span>`;
+}
+
+function statusBadge(st) {
+  if (st==='seen')    return `<span class="s-badge" style="color:#22c55e">✅ gesehen</span>`;
+  if (st==='pending') return `<span class="s-badge" style="color:var(--text3)">⏳ ausstehend</span>`;
+  if (st==='changed') return `<span class="s-badge" style="color:#f59e0b">⚠️ geändert</span>`;
+}
+
+function renderTable() {
+  document.getElementById('tBody').innerHTML = EMP.map(e => `
+    <tr>
+      <td><div class="e-cell">
+        <div class="e-av" style="background:${e.c}">${e.i}</div>
+        <div><div class="e-name">${e.n}</div><div class="e-id">#${e.id}</div></div>
+      </div></td>
+      ${e.sh.map(s=>`<td>${shiftChip(s)}</td>`).join('')}
+      <td>${statusBadge(e.st)}</td>
+    </tr>`).join('');
+}
+renderTable();
+
+/* ══ VACATION TABLE ══ */
+const VWEEKS = [
+  {kw:28,d:'06–12.07',sch:false,p:['Dürlewanger','Ickan Kubilay']},
+  {kw:29,d:'13–19.07',sch:false,p:['Dürlewanger','Ickan','Forster']},
+  {kw:30,d:'20–26.07',sch:true, p:['Muaremi','Memeti','Berschauer']},
+  {kw:31,d:'27.07–02.08',sch:true,p:['Muaremi','Memeti','Berschauer','Korsakov']},
+  {kw:32,d:'03–09.08',sch:true, p:['Lengwiler','Bedeti','Alimani F.']},
+  {kw:33,d:'10–16.08',sch:false,p:['Kreis','Stüssi']},
+  {kw:34,d:'17–23.08',sch:false,p:['Kreis','Nuhi','Barros']},
+  {kw:35,d:'24–30.08',sch:false,p:['Alimani V.','Kurati','Keller S.']},
+  {kw:41,d:'05–11.10',sch:true, p:['Thevaraiah','Rufener','Alimani V.','Bedeti','Alimani F.']},
+  {kw:42,d:'12–18.10',sch:true, p:['Thevaraiah','Dürlewanger','Mebrahtu','Ivicic','Muaremi']},
+  {kw:52,d:'21–27.12',sch:true, p:['Vadasz','Jegatheeswaran','Korsakov','Rufener','Alimani F.']},
+  {kw:53,d:'28.12–03.01',sch:true,p:['Vadasz','Alimani F.','Stüssi','Lengwiler','Brunner']},
+];
+
+function renderVac() {
+  const people = [...new Set(VWEEKS.flatMap(w=>w.p))].sort();
+  let h = '<table class="vac-tbl"><thead><tr><th>Mitarbeiter</th>';
+  VWEEKS.forEach(w => {
+    h += `<th class="${w.sch?'school':''}">KW${w.kw}${w.sch?' 🎓':''}<br><small>${w.d}</small></th>`;
+  });
+  h += '</tr><tr><th>Anzahl</th>';
+  VWEEKS.forEach(w => {
+    const n=w.p.length, cls=n>=5?'vc-full':n>=4?'vc-warn':'vc-ok';
+    h += `<td class="${w.sch?'vac-school':''}"><span class="vac-count ${cls}">${n}/5</span></td>`;
+  });
+  h += '</tr></thead><tbody>';
+  people.forEach(p => {
+    h += `<tr><td>${p}</td>`;
+    VWEEKS.forEach(w => {
+      h += `<td class="${w.sch?'vac-school':''}">`;
+      if (w.p.includes(p)) h += `<span class="vac-filled">🏖️</span>`;
+      h += '</td>';
+    });
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  document.getElementById('vacWrap').innerHTML = h;
+}
+renderVac();
+
+/* ══ THEME ══ */
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('btnDark').className = 'ctrl-btn' + (t==='dark'?' on':'');
+  document.getElementById('btnLight').className = 'ctrl-btn' + (t==='light'?' on':'');
+}
+
+/* ══ ACCENT ══ */
+function setAccent(a, el) {
+  document.documentElement.setAttribute('data-accent', a);
+  document.querySelectorAll('.accent-dot').forEach(d=>d.classList.remove('on'));
+  if(el) el.classList.add('on');
+  document.querySelectorAll('.cp-dot').forEach((d,i)=>d.classList.toggle('sel',i===(['teal','violet','navy'].indexOf(a))));
+}
+function setAccentFromSettings(a, el) {
+  setAccent(a, null);
+  document.querySelectorAll('.cp-dot').forEach(d=>d.classList.remove('sel'));
+  el.classList.add('sel');
+  document.querySelectorAll('.accent-dot')[['teal','violet','navy'].indexOf(a)].classList.add('on');
+  document.querySelectorAll('.accent-dot').forEach((d,i)=>d.classList.toggle('on',i===['teal','violet','navy'].indexOf(a)));
+}
+
+/* ══ VIEW ══ */
+function setView(v) {
+  const pw = document.getElementById('phoneWrap');
+  const dw = document.getElementById('desktopWrap');
+  const wrap = document.getElementById('appWrap');
+  pw.style.display = v==='desktop' ? 'none' : '';
+  dw.style.display = v==='phone' ? 'none' : '';
+  document.querySelectorAll('.vt-btn').forEach((b,i)=>b.classList.toggle('on',['both','phone','desktop'][i]===v));
+}
+
+/* ══ PHONE NAV ══ */
+function pTab(id, btn) {
+  document.querySelectorAll('.p-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.p-ntab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.p-navitem').forEach(b=>b.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+function pNavItem(id, el) {
+  document.querySelectorAll('.p-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.p-ntab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.p-navitem').forEach(b=>b.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('on');
+  el.classList.add('on');
+  const tabMap={plan:0,ferien:1,zeit:2,docs:3,profil:4};
+  const tabs=document.querySelectorAll('.p-ntab');
+  if(tabs[tabMap[id]]) tabs[tabMap[id]].classList.add('on');
+}
+
+/* ══ DESKTOP NAV ══ */
+function dTab(id, el) {
+  document.querySelectorAll('.d-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.d-item').forEach(b=>b.classList.remove('on'));
+  document.getElementById('d-'+id).classList.add('on');
+  el.classList.add('on');
+  if (id === 'produktionsplan' && typeof kpMdInit === 'function') kpMdInit();
+}
+
+function kpProdTab(tab, el) {
+  document.querySelectorAll('[data-kp-prod-tab]').forEach(btn => btn.classList.toggle('on', btn === el));
+  document.querySelectorAll('[data-kp-prod-pane]').forEach(pane => {
+    pane.classList.toggle('on', pane.dataset.kpProdPane === tab);
+  });
+  if (tab === 'display' && typeof kpMdInit === 'function') kpMdInit();
+}
+
+/* ══ FILTER CHIPS ══ */
+function fChip(el) {
+  document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+/* ══ TOAST ══ */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
