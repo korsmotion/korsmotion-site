@@ -322,9 +322,9 @@ const translations = {
     'portfolio.p1':'Apex Core — Dynamische Präsentation','portfolio.p2':'Soft Identity Series',
     'portfolio.p3':'Promo Reel','portfolio.p4':'Studio Landingpage','portfolio.p5':'Premium Mark',
     'reviews.label':'— Kundenstimmen','reviews.title':'Vertrauen in<br><em>Professionalität</em>',
-    'reviews.t1':'«Sergej hat unser Logo in nur einer Woche animiert – es sieht aus wie ein Kinofilm.»',
-    'reviews.t2':'«Ein Profi auf höchstem Niveau. Versteht Aufgaben sofort.»','reviews.t2role':'Marketing Director',
-    'reviews.t3':'«Perfektes Ergebnis beim ersten Anlauf. Keine endlosen Korrekturschleifen.»','reviews.t3role':'Brand Director',
+    'reviews.t1':'«Sergej hat unsere Logo-Animation in einer Woche erstellt — sieht aus wie ein Kinofilm.»',
+    'reviews.t2':'«Ein Profi auf höchstem Niveau. Versteht die Aufgabe auf Anhieb.»','reviews.t2role':'Marketing Director',
+    'reviews.t3':'«Ideales Ergebnis vom ersten Versuch. Keine endlosen Korrekturen.»','reviews.t3role':'Brand Director',
     'reviews.submitBtn':'Bewertung abgeben →','reviews.formLabel':'— Bewertung','reviews.formTitle':'Bewertung abgeben',
     'reviews.formName':'Name *','reviews.formRole':'Position / Unternehmen','reviews.formStars':'Bewertung',
     'reviews.formText':'Ihre Bewertung *','reviews.formSubmit':'Senden',
@@ -947,6 +947,24 @@ function reviewInitials(name) {
   return name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
 
+const SEED_REVIEW_TEXTS = {
+  rev_seed_1: '«Sergej hat unsere Logo-Animation in einer Woche erstellt — sieht aus wie ein Kinofilm.»',
+  rev_seed_2: '«Ein Profi auf höchstem Niveau. Versteht die Aufgabe auf Anhieb.»',
+  rev_seed_3: '«Ideales Ergebnis vom ersten Versuch. Keine endlosen Korrekturen.»',
+};
+
+function isBlockedReview(review) {
+  const name = (review?.name || '').trim().toLowerCase();
+  const role = (review?.role || '').trim().toLowerCase();
+  return name === 'sergej korsakov' && (role.includes('bauinginier') || role.includes('bauingenieur'));
+}
+
+function sanitizeSiteReviews(reviews) {
+  return (Array.isArray(reviews) ? reviews : [])
+    .filter(r => !isBlockedReview(r))
+    .map(r => (SEED_REVIEW_TEXTS[r.id] ? { ...r, text: SEED_REVIEW_TEXTS[r.id] } : r));
+}
+
 function sortReviewsByDate(reviews) {
   return [...reviews].sort((a, b) => {
     const da = Date.parse(a.date) || 0;
@@ -1454,7 +1472,7 @@ async function loadSiteData() {
     const revRes = await fetch('/api/reviews');
     if (revRes.ok) {
       const revData = await revRes.json();
-      siteReviews = Array.isArray(revData.reviews) ? revData.reviews : [];
+      siteReviews = sanitizeSiteReviews(revData.reviews);
     }
   } catch (_) {}
 

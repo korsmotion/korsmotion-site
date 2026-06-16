@@ -52,11 +52,29 @@ const DEFAULT_SETTINGS = {
 
 const DEFAULT_REVIEWS = {
   reviews: [
-    { id: 'rev_seed_1', name: 'Alex Weber', role: 'Co-founder, Apex Core', text: 'Сергей сделал анимацию нашего логотипа за неделю — выглядит как кинофильм.', stars: 5, date: '2024-06-12', status: 'approved' },
-    { id: 'rev_seed_2', name: 'Maria Klein', role: 'Marketing Director', text: 'Профессионал высокого уровня. Понимает задачу с полуслова.', stars: 5, date: '2024-08-03', status: 'approved' },
-    { id: 'rev_seed_3', name: 'Daniel Roth', role: 'Brand Director', text: 'Идеальный результат и с первого раза. Никаких бесконечных правок.', stars: 5, date: '2024-10-21', status: 'approved' },
+    { id: 'rev_seed_1', name: 'Alex Weber', role: 'Co-founder, Apex Core', text: '«Sergej hat unsere Logo-Animation in einer Woche erstellt — sieht aus wie ein Kinofilm.»', stars: 5, date: '2024-06-12', status: 'approved' },
+    { id: 'rev_seed_2', name: 'Maria Klein', role: 'Marketing Director', text: '«Ein Profi auf höchstem Niveau. Versteht die Aufgabe auf Anhieb.»', stars: 5, date: '2024-08-03', status: 'approved' },
+    { id: 'rev_seed_3', name: 'Daniel Roth', role: 'Brand Director', text: '«Ideales Ergebnis vom ersten Versuch. Keine endlosen Korrekturen.»', stars: 5, date: '2024-10-21', status: 'approved' },
   ],
 };
+
+const SEED_REVIEW_TEXTS = {
+  rev_seed_1: '«Sergej hat unsere Logo-Animation in einer Woche erstellt — sieht aus wie ein Kinofilm.»',
+  rev_seed_2: '«Ein Profi auf höchstem Niveau. Versteht die Aufgabe auf Anhieb.»',
+  rev_seed_3: '«Ideales Ergebnis vom ersten Versuch. Keine endlosen Korrekturen.»',
+};
+
+function isBlockedReview(review) {
+  const name = (review?.name || '').trim().toLowerCase();
+  const role = (review?.role || '').trim().toLowerCase();
+  return name === 'sergej korsakov' && (role.includes('bauinginier') || role.includes('bauingenieur'));
+}
+
+function sanitizeReviewsList(reviews) {
+  return (Array.isArray(reviews) ? reviews : [])
+    .filter(r => !isBlockedReview(r))
+    .map(r => (SEED_REVIEW_TEXTS[r.id] ? { ...r, text: SEED_REVIEW_TEXTS[r.id] } : r));
+}
 
 const DEFAULT_HERO = {
   show: true,
@@ -124,7 +142,7 @@ async function persistSectionFlags(env, settings) {
 function normalizeReviews(raw) {
   const data = raw && typeof raw === 'object' ? raw : {};
   const reviews = Array.isArray(data.reviews) ? data.reviews : DEFAULT_REVIEWS.reviews;
-  return { reviews };
+  return { reviews: sanitizeReviewsList(reviews) };
 }
 
 function normalizeHero(raw) {
