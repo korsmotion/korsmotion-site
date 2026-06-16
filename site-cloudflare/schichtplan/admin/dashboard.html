@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/schichtplan/assets/kp-wochenplan.css">
   <link rel="stylesheet" href="/schichtplan/assets/kp-maschinen-display.css">
   <link rel="stylesheet" href="/schichtplan/assets/kp-bilder.css">
+  <link rel="stylesheet" href="/schichtplan/assets/kp-logistik-embed.css">
 </head>
 <body class="sp-body sp-adm-page" data-sp-page="admin-dashboard">
 
@@ -52,6 +53,11 @@
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="nachrichten"><span class="sp-adm-nav-icon">✉️</span> Nachrichten</button>
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="zeit"><span class="sp-adm-nav-icon">⏱️</span> Zeiterfassung</button>
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="dokumente"><span class="sp-adm-nav-icon">📄</span> Dokumente</button>
+        <div class="sp-adm-sec-label sp-has-gap">Logistik</div>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="material-bestellungen"><span class="sp-adm-nav-icon">📦</span> Material Bestellungen</button>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="paletten"><span class="sp-adm-nav-icon">🚚</span> Palettenverwaltung</button>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="warenuebersicht"><span class="sp-adm-nav-icon">📊</span> Warenübersicht</button>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="qr-scanner"><span class="sp-adm-nav-icon">📷</span> QR Scanner</button>
         <div class="sp-adm-sec-label sp-has-gap">System</div>
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="einstellungen"><span class="sp-adm-nav-icon">⚙️</span> Einstellungen</button>
       </nav>
@@ -293,6 +299,26 @@
             <tbody id="spAdmDocsBody"></tbody>
           </table>
         </div>
+      </section>
+
+      <!-- Logistik: Material Bestellungen -->
+      <section class="sp-adm-panel" data-sp-adm-panel="material-bestellungen">
+        <iframe class="kp-logistik-frame" src="/schichtplan/REF-material-bestellungen.html" title="Material Bestellungen"></iframe>
+      </section>
+
+      <!-- Logistik: Palettenverwaltung -->
+      <section class="sp-adm-panel" data-sp-adm-panel="paletten">
+        <iframe class="kp-logistik-frame" src="/schichtplan/REF-palette-multi.html" title="Palettenverwaltung"></iframe>
+      </section>
+
+      <!-- Logistik: Warenübersicht -->
+      <section class="sp-adm-panel" data-sp-adm-panel="warenuebersicht">
+        <iframe class="kp-logistik-frame" src="/schichtplan/REF-warenuebersicht.html" title="Warenübersicht"></iframe>
+      </section>
+
+      <!-- Logistik: QR Scanner -->
+      <section class="sp-adm-panel" data-sp-adm-panel="qr-scanner">
+        <iframe class="kp-logistik-frame" src="/schichtplan/DEMO-qr-scanner.html" title="QR Scanner"></iframe>
       </section>
 
       <!-- Einstellungen -->

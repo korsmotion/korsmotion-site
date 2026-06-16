@@ -1,0 +1,9 @@
+/* Embedded logistics REF pages in SchichtPlan panels */
+.kp-logistik-frame {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: none;
+  display: block;
+  background: #F0EEF8;
+}
