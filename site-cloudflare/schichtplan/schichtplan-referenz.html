@@ -917,10 +917,7 @@ tbody td { padding: 8px 12px; vertical-align: middle; }
           <div class="d-item" onclick="dTab('zeit',this)"><span class="di">⏱️</span> Zeiterfassung</div>
           <div class="d-item" onclick="dTab('dokumente',this)"><span class="di">📄</span> Dokumente</div>
           <div class="d-sec-label" style="margin-top:8px">Logistik</div>
-          <div class="d-item" onclick="dTab('material-bestellungen',this)"><span class="di">📦</span> Material Bestellungen</div>
-          <div class="d-item" onclick="dTab('paletten',this)"><span class="di">🚚</span> Palettenverwaltung</div>
-          <div class="d-item" onclick="dTab('warenuebersicht',this)"><span class="di">📊</span> Warenübersicht</div>
-          <div class="d-item" onclick="dTab('qr-scanner',this)"><span class="di">📷</span> QR Scanner</div>
+          <div class="d-item" onclick="dTab('logistikverwaltung',this)"><span class="di">📦</span> Logistikverwaltung</div>
           <div class="d-sec-label" style="margin-top:8px">System</div>
           <div class="d-item" onclick="dTab('einstellungen',this)"><span class="di">⚙️</span> Einstellungen</div>
         </div>
@@ -1249,24 +1246,29 @@ tbody td { padding: 8px 12px; vertical-align: middle; }
           </div>
         </div>
 
-        <!-- LOGISTIK: Material Bestellungen -->
-        <div class="d-panel" id="d-material-bestellungen">
-          <iframe class="kp-logistik-frame" src="/schichtplan/REF-material-bestellungen.html" title="Material Bestellungen"></iframe>
-        </div>
-
-        <!-- LOGISTIK: Palettenverwaltung -->
-        <div class="d-panel" id="d-paletten">
-          <iframe class="kp-logistik-frame" src="/schichtplan/REF-palette-multi.html" title="Palettenverwaltung"></iframe>
-        </div>
-
-        <!-- LOGISTIK: Warenübersicht -->
-        <div class="d-panel" id="d-warenuebersicht">
-          <iframe class="kp-logistik-frame" src="/schichtplan/REF-warenuebersicht.html" title="Warenübersicht"></iframe>
-        </div>
-
-        <!-- LOGISTIK: QR Scanner -->
-        <div class="d-panel" id="d-qr-scanner">
-          <iframe class="kp-logistik-frame" src="/schichtplan/DEMO-qr-scanner.html" title="QR Scanner"></iframe>
+        <!-- LOGISTIK: Logistikverwaltung -->
+        <div class="d-panel" id="d-logistikverwaltung">
+          <div class="d-header">
+            <div><div class="d-title">Logistikverwaltung</div><div class="d-sub">Material · Paletten · Waren · QR Scanner</div></div>
+          </div>
+          <div class="kp-prod-tabs" role="tablist" aria-label="Logistikverwaltung">
+            <button type="button" class="kp-prod-tab on" data-kp-log-tab="material" onclick="kpLogTab('material',this)">📦 Material Bestellungen</button>
+            <button type="button" class="kp-prod-tab" data-kp-log-tab="paletten" onclick="kpLogTab('paletten',this)">🚚 Palettenverwaltung</button>
+            <button type="button" class="kp-prod-tab" data-kp-log-tab="waren" onclick="kpLogTab('waren',this)">📊 Warenübersicht</button>
+            <button type="button" class="kp-prod-tab" data-kp-log-tab="qr" onclick="kpLogTab('qr',this)">📷 QR Scanner</button>
+          </div>
+          <div class="kp-prod-pane on" data-kp-log-pane="material">
+            <iframe class="kp-logistik-frame" src="/schichtplan/logistik/REF-material-bestellungen.html?embed=1" title="Material Bestellungen"></iframe>
+          </div>
+          <div class="kp-prod-pane" data-kp-log-pane="paletten">
+            <iframe class="kp-logistik-frame" src="/schichtplan/logistik/REF-palette-multi.html?embed=1" title="Palettenverwaltung"></iframe>
+          </div>
+          <div class="kp-prod-pane" data-kp-log-pane="waren">
+            <iframe class="kp-logistik-frame" src="/schichtplan/logistik/REF-warenuebersicht.html?embed=1" title="Warenübersicht"></iframe>
+          </div>
+          <div class="kp-prod-pane" data-kp-log-pane="qr">
+            <iframe class="kp-logistik-frame" src="/schichtplan/logistik/REF-qr-scan.html?embed=1" title="QR Scanner"></iframe>
+          </div>
         </div>
 
         <!-- EINSTELLUNGEN -->
@@ -1503,6 +1505,18 @@ function dTab(id, el) {
   document.getElementById('d-'+id).classList.add('on');
   el.classList.add('on');
   if (id === 'produktionsplan' && typeof kpMdInit === 'function') kpMdInit();
+  if (id === 'logistikverwaltung' && typeof initBestellungen === 'function') initBestellungen();
+}
+
+function kpLogTab(tab, el) {
+  document.querySelectorAll('[data-kp-log-tab]').forEach(btn => btn.classList.toggle('on', btn === el));
+  document.querySelectorAll('[data-kp-log-pane]').forEach(pane => {
+    pane.classList.toggle('on', pane.dataset.kpLogPane === tab);
+  });
+  if (tab === 'material' && typeof initBestellungen === 'function') {
+    const iframe = document.querySelector('[data-kp-log-pane="material"] iframe');
+    if (iframe && iframe.contentWindow && iframe.contentWindow.initBestellungen) iframe.contentWindow.initBestellungen();
+  }
 }
 
 function kpProdTab(tab, el) {

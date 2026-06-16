@@ -196,8 +196,22 @@ export default {
       return new Response(null, { headers: CORS });
     }
 
-    // GET /api/data — load projects + settings from KV
+    // GET /api/data — load projects + settings from KV, or a single key via ?key=
     if (url.pathname === '/api/data' && request.method === 'GET') {
+      const kvKey = url.searchParams.get('key');
+      if (kvKey) {
+        const raw = await env.KORSMOTION_DATA.get(kvKey);
+        let value = null;
+        if (raw) {
+          try {
+            value = JSON.parse(raw);
+          } catch {
+            value = raw;
+          }
+        }
+        return json({ key: kvKey, value });
+      }
+
       const [pRaw, sRaw] = await Promise.all([
         env.KORSMOTION_DATA.get('projects'),
         env.KORSMOTION_DATA.get('settings'),
@@ -208,13 +222,24 @@ export default {
       return json({ projects, settings, sectionVisibility: sectionVisibilityPayload(settings) });
     }
 
-    // POST /api/save — save projects + settings to KV
+    // POST /api/save — save projects + settings to KV, or a generic key/value pair
     if (url.pathname === '/api/save' && request.method === 'POST') {
       let body;
       try {
         body = await request.json();
       } catch {
         return json({ error: 'Invalid JSON' }, 400);
+      }
+
+      if (body.key != null && body.value !== undefined) {
+        const key = String(body.key);
+        const ordersKey = 'bestellungen:waldner_10_3:orders';
+        if (key !== ordersKey && body.password !== ADMIN_PASSWORD) {
+          return json({ error: 'Unauthorized' }, 401);
+        }
+        const val = typeof body.value === 'string' ? body.value : JSON.stringify(body.value);
+        await env.KORSMOTION_DATA.put(key, val);
+        return json({ ok: true });
       }
 
       if (body.password !== ADMIN_PASSWORD) {

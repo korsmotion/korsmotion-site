@@ -1221,6 +1221,30 @@
       panel.classList.toggle('sp-is-active', panel.dataset.spAdmPanel === tab);
     });
     if (tab === 'produktionsplan' && typeof window.kpMdInit === 'function') window.kpMdInit();
+    if (tab === 'logistikverwaltung') refreshLogistikIframe();
+  }
+
+  function setAdminLogTab(tab) {
+    document.querySelectorAll('[data-kp-log-tab]').forEach(btn => {
+      btn.classList.toggle('on', btn.dataset.kpLogTab === tab);
+    });
+    document.querySelectorAll('[data-kp-log-pane]').forEach(pane => {
+      pane.classList.toggle('on', pane.dataset.kpLogPane === tab);
+    });
+    if (tab === 'material') refreshLogistikIframe();
+  }
+
+  function refreshLogistikIframe() {
+    const iframe = document.querySelector('[data-kp-log-pane="material"] iframe');
+    if (iframe && iframe.contentWindow && typeof iframe.contentWindow.initBestellungen === 'function') {
+      iframe.contentWindow.initBestellungen();
+    }
+  }
+
+  function bindAdminLogistik() {
+    document.querySelectorAll('[data-kp-log-tab]').forEach(btn => {
+      btn.addEventListener('click', () => setAdminLogTab(btn.dataset.kpLogTab));
+    });
   }
 
   function setAdminProdTab(tab) {
@@ -1346,6 +1370,7 @@
     bindControls();
     bindAdminNav();
     bindAdminProduktionsplan();
+    bindAdminLogistik();
     bindAdminFilters();
     bindAdminToasts();
     bindAdminPlanSend();

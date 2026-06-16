@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REF: Warenübersicht — Materialfluss</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --accent:#7C3AED;--accent-light:#ede9fe;
+  --surface:rgba(255,255,255,0.78);--glass:rgba(255,255,255,0.55);
+  --border:rgba(124,58,237,0.12);--text:#1e1b4b;--muted:#7c6fa0;--radius:14px;
+  --green:#16a34a;--green-bg:#dcfce7;
+  --red:#dc2626;--red-bg:#fee2e2;
+  --orange:#ea580c;--orange-bg:#fff7ed;
+  --blue:#1d4ed8;--blue-bg:#dbeafe;
+  --yellow:#d97706;--yellow-bg:#fef3c7;
+  --gray:#6b7280;--gray-bg:#f3f4f6;
+}
+html,body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#ede9fe 0%,#e0f2fe 60%,#f5f0ff 100%);min-height:100vh;color:var(--text);}
+
+.ref-banner{background:linear-gradient(90deg,#1e1b4b,#3730a3);color:#fff;padding:8px 16px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.ref-banner span{opacity:0.5;font-weight:400;}
+body.embed .ref-banner{display:none;}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.85);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.page-title{font-size:14px;font-weight:800;color:var(--text);}
+.live{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#ef4444;}
+.live::before{content:'';width:6px;height:6px;border-radius:50%;background:#ef4444;animation:lp 1.5s infinite;}
+@keyframes lp{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.clock{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--text);}
+
+/* KPI ROW */
+.kpi-row{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;scrollbar-width:none;}
+.kpi{background:var(--glass);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.88);border-radius:12px;padding:10px 14px;flex-shrink:0;box-shadow:0 2px 10px rgba(100,80,200,0.05);}
+.kpi-label{font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+.kpi-val{font-size:22px;font-weight:900;line-height:1.1;}
+.kpi-sub{font-size:9px;color:var(--muted);margin-top:1px;}
+.kpi.accent .kpi-val{color:var(--accent);}
+.kpi.green .kpi-val{color:var(--green);}
+.kpi.orange .kpi-val{color:var(--orange);}
+.kpi.red .kpi-val{color:var(--red);}
+.kpi.blue .kpi-val{color:var(--blue);}
+
+/* VIEW TABS */
+.view-tabs{display:flex;gap:0;padding:0 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.5);backdrop-filter:blur(8px);}
+.vt{padding:10px 14px;font-size:11px;font-weight:800;color:var(--muted);cursor:pointer;border:none;background:transparent;border-bottom:3px solid transparent;font-family:'Inter',sans-serif;white-space:nowrap;}
+.vt.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* DATE FILTER */
+.date-row{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;align-items:center;}
+.date-btn{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--glass);font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;}
+.date-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.date-sep{color:var(--border);font-size:14px;}
+
+.content{padding:0 16px 100px;}
+
+/* ── SECTION HEADER ── */
+.sh{font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);padding:10px 0 5px;display:flex;align-items:center;gap:8px;}
+.sh::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── MATERIAL CARD ── */
+.mat-card{background:var(--surface);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.88);border-radius:var(--radius);box-shadow:0 2px 12px rgba(100,80,200,0.05);margin-bottom:8px;overflow:hidden;}
+.mat-card-header{padding:11px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;}
+.mat-card-header:hover{background:rgba(255,255,255,0.4);}
+.mat-left{flex:1;min-width:0;}
+.mat-top{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;}
+.matnr{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--muted);background:rgba(124,58,237,0.06);padding:2px 6px;border-radius:4px;}
+.mat-name{font-size:12px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mat-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.meta-chip{font-size:10px;color:var(--muted);font-weight:600;}
+.meta-chip strong{color:var(--text);}
+
+/* STOCK BAR */
+.stock-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.stock-nums{display:flex;align-items:baseline;gap:3px;}
+.stock-current{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:900;}
+.stock-total{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);}
+.stock-unit{font-size:9px;color:var(--muted);font-weight:700;}
+.stock-bar-wrap{width:90px;}
+.stock-bar-bg{height:5px;background:rgba(124,58,237,0.1);border-radius:3px;overflow:hidden;}
+.stock-bar-fill{height:100%;border-radius:3px;transition:width 0.3s;}
+.stock-bar-fill.high{background:var(--green);}
+.stock-bar-fill.mid{background:var(--yellow);}
+.stock-bar-fill.low{background:var(--red);}
+.stock-pct{font-size:9px;font-weight:700;text-align:right;}
+.stock-pct.high{color:var(--green);}
+.stock-pct.mid{color:var(--yellow);}
+.stock-pct.low{color:var(--red);}
+
+/* EXPAND PANEL */
+.mat-expand{display:none;border-top:1px solid var(--border);padding:12px 14px;background:rgba(248,247,255,0.7);}
+.mat-expand.open{display:block;}
+
+/* MOVEMENT TABLE */
+.mv-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px;}
+.mv-table th{font-size:8px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:5px 8px;text-align:left;border-bottom:1px solid var(--border);}
+.mv-table td{padding:6px 8px;border-bottom:1px solid rgba(124,58,237,0.05);vertical-align:middle;}
+.mv-table tr:last-child td{border-bottom:none;}
+.mv-table tr:hover td{background:rgba(255,255,255,0.5);}
+.mv-type{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:800;}
+.mv-type.eingang{background:var(--green-bg);color:var(--green);}
+.mv-type.ausgang{background:var(--red-bg);color:var(--red);}
+.mv-type.bestand{background:var(--blue-bg);color:var(--blue);}
+.mv-qty{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11px;}
+.mv-qty.plus{color:var(--green);}
+.mv-qty.minus{color:var(--red);}
+.mv-mono{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+
+/* LOS / MHD TAGS */
+.los-tag{display:inline-flex;align-items:center;gap:3px;background:var(--accent-light);border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--accent);}
+.mhd-tag{display:inline-flex;align-items:center;gap:3px;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:800;}
+.mhd-tag.ok{background:var(--green-bg);color:var(--green);}
+.mhd-tag.warn{background:var(--yellow-bg);color:var(--yellow);}
+
+/* MACHINE BREAKDOWN */
+.machine-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(124,58,237,0.05);}
+.machine-row:last-child{border-bottom:none;}
+.machine-name{font-size:10px;font-weight:700;color:var(--text);min-width:80px;}
+.machine-bar-wrap{flex:1;}
+.machine-bar-bg{height:6px;background:rgba(124,58,237,0.08);border-radius:3px;overflow:hidden;}
+.machine-bar-fill{height:100%;background:var(--accent);border-radius:3px;opacity:0.7;}
+.machine-qty{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;color:var(--accent);min-width:60px;text-align:right;}
+
+/* ── MACHINE VIEW ── */
+.machine-card{background:var(--surface);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.88);border-radius:var(--radius);box-shadow:0 2px 12px rgba(100,80,200,0.05);margin-bottom:10px;overflow:hidden;}
+.mc-header{padding:12px 14px;background:linear-gradient(90deg,rgba(124,58,237,0.06),transparent);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.mc-pill{background:var(--accent-light);color:var(--accent);border:1px solid rgba(124,58,237,0.2);border-radius:7px;padding:3px 10px;font-size:11px;font-weight:800;letter-spacing:0.08em;}
+.mc-stats{display:flex;gap:12px;}
+.mc-stat{display:flex;flex-direction:column;align-items:flex-end;}
+.mc-stat-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:900;color:var(--text);}
+.mc-stat-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);}
+.mc-body{padding:10px 14px;}
+.mc-item{display:grid;grid-template-columns:1fr auto auto;gap:6px 10px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(124,58,237,0.05);}
+.mc-item:last-child{border-bottom:none;}
+.mc-item-name{font-size:11px;font-weight:700;color:var(--text);}
+.mc-item-matnr{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);}
+.mc-item-qty{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:900;color:var(--accent);text-align:right;}
+.mc-item-status{display:flex;justify-content:flex-end;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot.green{background:var(--green);}
+.dot.yellow{background:#f59e0b;}
+.dot.red{background:var(--red);}
+
+/* ── HISTORY VIEW ── */
+.hist-day{margin-bottom:16px;}
+.hist-day-header{font-size:11px;font-weight:800;color:var(--text);padding:6px 0 8px;display:flex;align-items:center;gap:8px;}
+.hist-day-header::after{content:'';flex:1;height:1px;background:var(--border);}
+.hist-item{background:var(--surface);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.88);border-radius:10px;padding:10px 13px;margin-bottom:6px;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;}
+.hist-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.hist-icon.eingang{background:var(--green-bg);}
+.hist-icon.ausgang{background:var(--red-bg);}
+.hist-icon.scan{background:var(--accent-light);}
+.hist-body{}
+.hist-action{font-size:11px;font-weight:800;color:var(--text);}
+.hist-detail{font-size:10px;color:var(--muted);margin-top:1px;}
+.hist-right{text-align:right;}
+.hist-qty{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:900;}
+.hist-qty.plus{color:var(--green);}
+.hist-qty.minus{color:var(--red);}
+.hist-time{font-size:9px;color:var(--muted);font-weight:600;}
+
+/* BOTTOM BAR */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.9);backdrop-filter:blur(18px);border-top:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;z-index:50;}
+.bb{flex:1;padding:12px;border-radius:12px;border:none;font-family:'Inter',sans-serif;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.bb.primary{background:var(--accent);color:#fff;}
+.bb.sec{background:var(--glass);color:var(--muted);border:1.5px solid var(--border);flex:0;padding:12px 14px;}
+
+.toggle-arrow{font-size:10px;color:var(--muted);transition:transform 0.2s;}
+.toggle-arrow.open{transform:rotate(180deg);}
+</style>
+</head>
+<body>
+
+<div class="ref-banner">
+  📊 REFERENZ — Warenübersicht · Materialfluss · Kors Motion
+  <span>Eingang → Bestand → Ausgang</span>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="page-title">📊 Warenübersicht</div>
+    <span class="live">Live</span>
+  </div>
+  <div class="clock" id="clock">—</div>
+</div>
+
+<!-- KPI -->
+<div class="kpi-row">
+  <div class="kpi accent">
+    <div class="kpi-label">Artikeln heute</div>
+    <div class="kpi-val">14</div>
+    <div class="kpi-sub">verschiedene Materialien</div>
+  </div>
+  <div class="kpi green">
+    <div class="kpi-label">Eingegangen</div>
+    <div class="kpi-val">47.820</div>
+    <div class="kpi-sub">ST heute gesamt</div>
+  </div>
+  <div class="kpi orange">
+    <div class="kpi-label">Verbraucht</div>
+    <div class="kpi-val">31.206</div>
+    <div class="kpi-sub">ST heute gesamt</div>
+  </div>
+  <div class="kpi blue">
+    <div class="kpi-label">Restbestand</div>
+    <div class="kpi-val">16.614</div>
+    <div class="kpi-sub">ST noch verfügbar</div>
+  </div>
+  <div class="kpi red">
+    <div class="kpi-label">Kritisch</div>
+    <div class="kpi-val">2</div>
+    <div class="kpi-sub">Artikel unter 20%</div>
+  </div>
+</div>
+
+<!-- VIEW TABS -->
+<div class="view-tabs">
+  <button class="vt active" onclick="switchView('material',this)">📦 Nach Material</button>
+  <button class="vt" onclick="switchView('maschine',this)">⚙️ Nach Maschine</button>
+  <button class="vt" onclick="switchView('history',this)">📋 Verlauf</button>
+</div>
+
+<!-- DATE FILTER -->
+<div class="date-row">
+  <button class="date-btn active">Heute</button>
+  <button class="date-btn">Gestern</button>
+  <button class="date-btn">Diese Woche</button>
+  <span class="date-sep">|</span>
+  <button class="date-btn">KW 24</button>
+  <button class="date-btn">KW 23</button>
+</div>
+
+<!-- ══ VIEW: MATERIAL ══════════════════════════════════ -->
+<div id="view-material" class="content">
+
+  <div class="sh">⚠️ Kritischer Bestand (2)</div>
+
+  <!-- LOW STOCK -->
+  <div class="mat-card" style="border-left:3px solid var(--red);">
+    <div class="mat-card-header" onclick="toggleExpand('m1')">
+      <div class="mat-left">
+        <div class="mat-top">
+          <span class="matnr">1341648</span>
+          <span style="background:var(--red-bg);color:var(--red);font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;">⚠️ Kritisch</span>
+        </div>
+        <div class="mat-name">VP PLA MOBi Las neutral D95 400g</div>
+        <div class="mat-meta">
+          <span class="meta-chip">Los: <strong>1004550391</strong></span>
+          <span class="meta-chip">MHD: <strong style="color:var(--green);">01.05.27</strong></span>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-nums">
+          <span class="stock-current" style="color:var(--red);">134</span>
+          <span class="stock-total">/1.348</span>
+        </div>
+        <span class="stock-unit">ST</span>
+        <div class="stock-bar-wrap">
+          <div class="stock-bar-bg"><div class="stock-bar-fill low" style="width:10%;"></div></div>
+          <div class="stock-pct low">10%</div>
+        </div>
+        <span class="toggle-arrow" id="arr-m1">▼</span>
+      </div>
+    </div>
+    <div class="mat-expand" id="exp-m1">
+      <div style="font-size:10px;font-weight:800;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em;">Bewegungen heute</div>
+      <table class="mv-table">
+        <tr><th>Zeit</th><th>Typ</th><th>Menge</th><th>Los-Nr.</th><th>MHD</th><th>Von/An</th></tr>
+        <tr>
+          <td class="mv-mono">06:00</td>
+          <td><span class="mv-type eingang">▲ Eingang</span></td>
+          <td class="mv-qty plus">+1.348</td>
+          <td><span class="los-tag">1004550391</span></td>
+          <td><span class="mhd-tag ok">01.05.27</span></td>
+          <td style="font-size:10px;">Lager → Waldner 10.3</td>
+        </tr>
+        <tr>
+          <td class="mv-mono">08:12</td>
+          <td><span class="mv-type ausgang">▼ Ausgang</span></td>
+          <td class="mv-qty minus">-614</td>
+          <td><span class="los-tag">1004550391</span></td>
+          <td><span class="mhd-tag ok">01.05.27</span></td>
+          <td style="font-size:10px;">Waldner 10.3 → Produktion</td>
+        </tr>
+        <tr>
+          <td class="mv-mono">10:45</td>
+          <td><span class="mv-type ausgang">▼ Ausgang</span></td>
+          <td class="mv-qty minus">-600</td>
+          <td><span class="los-tag">1004550391</span></td>
+          <td><span class="mhd-tag ok">01.05.27</span></td>
+          <td style="font-size:10px;">Waldner 10.3 → Produktion</td>
+        </tr>
+        <tr style="background:rgba(220,252,231,0.3);">
+          <td class="mv-mono" colspan="2" style="font-weight:800;font-size:10px;color:var(--text);">📊 Restbestand</td>
+          <td class="mv-qty" style="color:var(--red);">134 ST</td>
+          <td colspan="3" style="font-size:10px;color:var(--red);font-weight:700;">⚠️ Nachbestellen!</td>
+        </tr>
+      </table>
+      <div style="font-size:10px;font-weight:800;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em;">Verbrauch nach Maschine</div>
+      <div class="machine-row"><span class="machine-name">Waldner 10.3</span><div class="machine-bar-wrap"><div class="machine-bar-bg"><div class="machine-bar-fill" style="width:100%;"></div></div></div><span class="machine-qty">1.214 ST</span></div>
+    </div>
+  </div>
+
+  <div class="sh">✅ Normaler Bestand (12)</div>
+
+  <!-- NORMAL STOCK -->
+  <div class="mat-card">
+    <div class="mat-card-header" onclick="toggleExpand('m2')">
+      <div class="mat-left">
+        <div class="mat-top">
+          <span class="matnr">1333416</span>
+          <span style="background:var(--green-bg);color:var(--green);font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;">✅ OK</span>
+        </div>
+        <div class="mat-name">VP KARTST 6er Lassi/Jog weiss 238x154</div>
+        <div class="mat-meta">
+          <span class="meta-chip">Los: <strong>1004550388</strong></span>
+          <span class="meta-chip">MHD: <strong style="color:var(--green);">15.08.27</strong></span>
+          <span class="meta-chip">Waldner <strong>10.3</strong></span>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-nums">
+          <span class="stock-current" style="color:var(--green);">7.420</span>
+          <span class="stock-total">/10.608</span>
+        </div>
+        <span class="stock-unit">ST</span>
+        <div class="stock-bar-wrap">
+          <div class="stock-bar-bg"><div class="stock-bar-fill high" style="width:70%;"></div></div>
+          <div class="stock-pct high">70%</div>
+        </div>
+        <span class="toggle-arrow" id="arr-m2">▼</span>
+      </div>
+    </div>
+    <div class="mat-expand" id="exp-m2">
+      <table class="mv-table">
+        <tr><th>Zeit</th><th>Typ</th><th>Menge</th><th>Los-Nr.</th><th>MHD</th><th>Von/An</th></tr>
+        <tr>
+          <td class="mv-mono">05:30</td>
+          <td><span class="mv-type eingang">▲ Eingang</span></td>
+          <td class="mv-qty plus">+10.608</td>
+          <td><span class="los-tag">1004550388</span></td>
+          <td><span class="mhd-tag ok">15.08.27</span></td>
+          <td style="font-size:10px;">Lager → Waldner 10.3</td>
+        </tr>
+        <tr>
+          <td class="mv-mono">07:15</td>
+          <td><span class="mv-type ausgang">▼ Ausgang</span></td>
+          <td class="mv-qty minus">-1.596</td>
+          <td><span class="los-tag">1004550388</span></td>
+          <td><span class="mhd-tag ok">15.08.27</span></td>
+          <td style="font-size:10px;">Waldner 10.3 → Produktion</td>
+        </tr>
+        <tr>
+          <td class="mv-mono">09:44</td>
+          <td><span class="mv-type ausgang">▼ Ausgang</span></td>
+          <td class="mv-qty minus">-1.592</td>
+          <td><span class="los-tag">1004550388</span></td>
+          <td><span class="mhd-tag ok">15.08.27</span></td>
+          <td style="font-size:10px;">Waldner 10.3 → Produktion</td>
+        </tr>
+        <tr style="background:rgba(220,252,231,0.3);">
+          <td class="mv-mono" colspan="2" style="font-weight:800;font-size:10px;">📊 Restbestand</td>
+          <td class="mv-qty" style="color:var(--green);">7.420 ST</td>
+          <td colspan="3" style="font-size:10px;color:var(--green);font-weight:700;">✅ Ausreichend</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- MID STOCK -->
+  <div class="mat-card" style="border-left:3px solid var(--yellow);">
+    <div class="mat-card-header" onclick="toggleExpand('m3')">
+      <div class="mat-left">
+        <div class="mat-top">
+          <span class="matnr">1339535</span>
+          <span style="background:var(--yellow-bg);color:var(--yellow);font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;">⚡ Mittel</span>
+        </div>
+        <div class="mat-name">VP Den Bio Las ErdHim LF 1.5% D75 250g</div>
+        <div class="mat-meta">
+          <span class="meta-chip">SSCC: <strong>17610900049039364</strong></span>
+          <span class="meta-chip">MHD: <strong style="color:var(--yellow);">03.02.26</strong></span>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-nums">
+          <span class="stock-current" style="color:var(--yellow);">2.835</span>
+          <span class="stock-total">/9.450</span>
+        </div>
+        <span class="stock-unit">ST</span>
+        <div class="stock-bar-wrap">
+          <div class="stock-bar-bg"><div class="stock-bar-fill mid" style="width:30%;"></div></div>
+          <div class="stock-pct mid">30%</div>
+        </div>
+        <span class="toggle-arrow" id="arr-m3">▼</span>
+      </div>
+    </div>
+    <div class="mat-expand" id="exp-m3">
+      <table class="mv-table">
+        <tr><th>Zeit</th><th>Typ</th><th>Menge</th><th>Los-Nr.</th><th>MHD</th><th>Von/An</th></tr>
+        <tr>
+          <td class="mv-mono">05:31</td>
+          <td><span class="mv-type eingang">▲ Eingang</span></td>
+          <td class="mv-qty plus">+9.450</td>
+          <td><span class="los-tag">1004550390</span></td>
+          <td><span class="mhd-tag warn">03.02.26</span></td>
+          <td style="font-size:10px;">Lager → Waldner 10.3</td>
+        </tr>
+        <tr>
+          <td class="mv-mono">06:40</td>
+          <td><span class="mv-type ausgang">▼ Ausgang</span></td>
+          <td class="mv-qty minus">-3.150</td>
+          <td><span class="los-tag">1004550390</span></td>
+          <td><span class="mhd-tag warn">03.02.26</span></td>
+          <td style="font-size:10px;">Waldner 10.3 → Produktion</td>
+        </tr>
+        <tr>
+          <td class="mv-mono">08:55</td>
+          <td><span class="mv-type ausgang">▼ Ausgang</span></td>
+          <td class="mv-qty minus">-3.465</td>
+          <td><span class="los-tag">1004550390</span></td>
+          <td><span class="mhd-tag warn">03.02.26</span></td>
+          <td style="font-size:10px;">Waldner 10.3 → Produktion</td>
+        </tr>
+        <tr style="background:rgba(254,243,199,0.5);">
+          <td class="mv-mono" colspan="2" style="font-weight:800;font-size:10px;">📊 Restbestand</td>
+          <td class="mv-qty" style="color:var(--yellow);">2.835 ST</td>
+          <td colspan="3" style="font-size:10px;color:var(--yellow);font-weight:700;">⚡ Bald nachbestellen</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VIEW: MASCHINE ══════════════════════════════════ -->
+<div id="view-maschine" class="content" style="display:none;">
+
+  <div class="machine-card">
+    <div class="mc-header">
+      <span class="mc-pill">Waldner 10.3</span>
+      <div class="mc-stats">
+        <div class="mc-stat">
+          <div class="mc-stat-val" style="color:var(--green);">+28.450</div>
+          <div class="mc-stat-label">Eingang ST</div>
+        </div>
+        <div class="mc-stat">
+          <div class="mc-stat-val" style="color:var(--red);">-19.206</div>
+          <div class="mc-stat-label">Verbraucht</div>
+        </div>
+        <div class="mc-stat">
+          <div class="mc-stat-val" style="color:var(--accent);">9.244</div>
+          <div class="mc-stat-label">Bestand</div>
+        </div>
+      </div>
+    </div>
+    <div class="mc-body">
+      <div class="mc-item">
+        <div>
+          <div class="mc-item-name">VP KARTST 6er Lassi/Jog weiss 238x154</div>
+          <div class="mc-item-matnr">1333416 · Los 1004550388</div>
+        </div>
+        <div class="mc-item-qty">7.420 ST</div>
+        <div class="mc-item-status"><div class="dot green"></div></div>
+      </div>
+      <div class="mc-item">
+        <div>
+          <div class="mc-item-name">VP Den Bio Las ErdHim LF 1.5% D75 250g</div>
+          <div class="mc-item-matnr">1339535 · Los 1004550390</div>
+        </div>
+        <div class="mc-item-qty">2.835 ST</div>
+        <div class="mc-item-status"><div class="dot yellow"></div></div>
+      </div>
+      <div class="mc-item">
+        <div>
+          <div class="mc-item-name">VP PLA MOBi Las neutral D95 400g</div>
+          <div class="mc-item-matnr">1341648 · Los 1004550391</div>
+        </div>
+        <div class="mc-item-qty" style="color:var(--red);">134 ST</div>
+        <div class="mc-item-status"><div class="dot red"></div></div>
+      </div>
+      <div class="mc-item">
+        <div>
+          <div class="mc-item-name">VP BE CO PG COLDCOF CAPPU PPD75 330M</div>
+          <div class="mc-item-matnr">1359426 · Los 1004550392</div>
+        </div>
+        <div class="mc-item-qty">600 ST</div>
+        <div class="mc-item-status"><div class="dot green"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="machine-card" style="opacity:0.7;">
+    <div class="mc-header">
+      <span class="mc-pill">Waldner 10.2</span>
+      <div class="mc-stats">
+        <div class="mc-stat"><div class="mc-stat-val" style="color:var(--green);">+12.600</div><div class="mc-stat-label">Eingang ST</div></div>
+        <div class="mc-stat"><div class="mc-stat-val" style="color:var(--red);">-8.400</div><div class="mc-stat-label">Verbraucht</div></div>
+        <div class="mc-stat"><div class="mc-stat-val" style="color:var(--accent);">4.200</div><div class="mc-stat-label">Bestand</div></div>
+      </div>
+    </div>
+    <div class="mc-body">
+      <div class="mc-item">
+        <div><div class="mc-item-name">VP KARTST 6er Lassi/Jog weiss 238x154</div><div class="mc-item-matnr">1333416 · Los 1004550388</div></div>
+        <div class="mc-item-qty">4.200 ST</div>
+        <div class="mc-item-status"><div class="dot green"></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ VIEW: HISTORY ═══════════════════════════════════ -->
+<div id="view-history" class="content" style="display:none;">
+
+  <div class="hist-day">
+    <div class="hist-day-header">📅 Heute — 16.06.2026</div>
+
+    <div class="hist-item">
+      <div class="hist-icon eingang">▲</div>
+      <div class="hist-body">
+        <div class="hist-action">Eingang — VP BE CO PG COLDCOF CAPPU PPD75</div>
+        <div class="hist-detail">Artikel 1359426 · Los 1004550392 · MHD 01.05.27 · SSCC 176109000490393 6437 · Waldner 10.3</div>
+      </div>
+      <div class="hist-right">
+        <div class="hist-qty plus">+600</div>
+        <div class="hist-time">09:43</div>
+      </div>
+    </div>
+
+    <div class="hist-item">
+      <div class="hist-icon ausgang">▼</div>
+      <div class="hist-body">
+        <div class="hist-action">Verbrauch — VP Den Bio Las ErdHim LF</div>
+        <div class="hist-detail">Artikel 1339535 · Los 1004550390 · Waldner 10.3 → Produktion</div>
+      </div>
+      <div class="hist-right">
+        <div class="hist-qty minus">-3.465</div>
+        <div class="hist-time">08:55</div>
+      </div>
+    </div>
+
+    <div class="hist-item">
+      <div class="hist-icon scan">📷</div>
+      <div class="hist-body">
+        <div class="hist-action">Scan — Empfang bestätigt</div>
+        <div class="hist-detail">VP KARTST 6er Lassi/Jog · SSCC 176109000049039 36437 · Waldner 10.3 · 👷 Produktion</div>
+      </div>
+      <div class="hist-right">
+        <div class="hist-qty" style="color:var(--green);">✅</div>
+        <div class="hist-time">10:45</div>
+      </div>
+    </div>
+
+    <div class="hist-item">
+      <div class="hist-icon eingang">▲</div>
+      <div class="hist-body">
+        <div class="hist-action">Eingang — VP KARTST 6er Lassi/Jog weiss</div>
+        <div class="hist-detail">Artikel 1333416 · Los 1004550388 · MHD 15.08.27 · Waldner 10.3</div>
+      </div>
+      <div class="hist-right">
+        <div class="hist-qty plus">+10.608</div>
+        <div class="hist-time">05:30</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hist-day">
+    <div class="hist-day-header">📅 Gestern — 15.06.2026</div>
+
+    <div class="hist-item" style="opacity:0.7;">
+      <div class="hist-icon eingang">▲</div>
+      <div class="hist-body">
+        <div class="hist-action">Eingang — VP PLA MOBi Bio Jog Van lakf ALU</div>
+        <div class="hist-detail">Artikel 1325884 · Los 1004550385 · MHD 20.11.26 · Waldner 10.3</div>
+      </div>
+      <div class="hist-right">
+        <div class="hist-qty plus">+6.865</div>
+        <div class="hist-time">06:15</div>
+      </div>
+    </div>
+
+    <div class="hist-item" style="opacity:0.7;">
+      <div class="hist-icon ausgang">▼</div>
+      <div class="hist-body">
+        <div class="hist-action">Verbrauch — VP PLA MOBi Bio Jog Van lakf ALU</div>
+        <div class="hist-detail">Artikel 1325884 · Los 1004550385 · Waldner 10.3 → Produktion</div>
+      </div>
+      <div class="hist-right">
+        <div class="hist-qty minus">-6.865</div>
+        <div class="hist-time">17:30</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="bottom-bar">
+  <button class="bb sec">📤 Export</button>
+  <button class="bb primary">📷 Bewegung scannen</button>
+</div>
+
+<div id="toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e1b4b;color:#fff;padding:11px 18px;border-radius:12px;font-size:12px;font-weight:700;opacity:0;transition:all 0.3s;z-index:300;white-space:nowrap;pointer-events:none;"></div>
+
+<script>
+function tick(){
+  const t=new Date().toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('clock').textContent=t;
+}
+tick();setInterval(tick,1000);
+
+function switchView(v,btn){
+  ['material','maschine','history'].forEach(id=>{
+    document.getElementById('view-'+id).style.display=id===v?'block':'none';
+  });
+  document.querySelectorAll('.vt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleExpand(id){
+  const el=document.getElementById('exp-'+id);
+  const arr=document.getElementById('arr-'+id);
+  const open=el.classList.toggle('open');
+  arr.classList.toggle('open',open);
+}
+</script>
+<script>if(new URLSearchParams(location.search).get('embed')==='1'||window.parent!==window)document.body.classList.add('embed');</script>
+</body>
+</html>
