@@ -81,7 +81,7 @@ const UI = {
     heroBadge: 'Бейдж', heroMainTitle: 'Заголовок (HTML: &lt;br&gt;, &lt;em&gt;)',
     heroSubtitle: 'Подзаголовок', heroBtn1: 'Кнопка 1 — текст', heroBtn1Link: 'Кнопка 1 — ссылка',
     heroBtn2: 'Кнопка 2 — текст', heroBtn2Link: 'Кнопка 2 — ссылка',
-    heroMedia: 'Фон (GIF / видео / изображение)', heroMediaNone: 'Фон не загружен',
+    heroMedia: 'Анимация в карточке (GIF / видео / изображение)', heroMediaNone: 'Медиа не загружено — показывается логотип',
     reviewsTitle: 'Отзывы', reviewsTabPending: '📬 Новые', reviewsTabApproved: '✅ Одобренные',
     reviewsApprove: '✓ Одобрить', reviewsHide: 'Скрыть', reviewsShow: 'Показать',
     reviewsDelete: 'Удалить', reviewsDeleteShort: '✕ Удалить',
@@ -171,7 +171,7 @@ const UI = {
     heroBadge: 'Badge', heroMainTitle: 'Titel (HTML: &lt;br&gt;, &lt;em&gt;)',
     heroSubtitle: 'Untertitel', heroBtn1: 'Button 1 — Text', heroBtn1Link: 'Button 1 — Link',
     heroBtn2: 'Button 2 — Text', heroBtn2Link: 'Button 2 — Link',
-    heroMedia: 'Hintergrund (GIF / Video / Bild)', heroMediaNone: 'Kein Hintergrund',
+    heroMedia: 'Animation in der Karte (GIF / Video / Bild)', heroMediaNone: 'Kein Medium — Logo wird angezeigt',
     reviewsTitle: 'Bewertungen', reviewsTabPending: '📬 Neu', reviewsTabApproved: '✅ Genehmigt',
     reviewsApprove: '✓ Genehmigen', reviewsHide: 'Verbergen', reviewsShow: 'Anzeigen',
     reviewsDelete: 'Löschen', reviewsDeleteShort: '✕ Löschen',
@@ -261,7 +261,7 @@ const UI = {
     heroBadge: 'Badge', heroMainTitle: 'Title (HTML: &lt;br&gt;, &lt;em&gt;)',
     heroSubtitle: 'Subtitle', heroBtn1: 'Button 1 — text', heroBtn1Link: 'Button 1 — link',
     heroBtn2: 'Button 2 — text', heroBtn2Link: 'Button 2 — link',
-    heroMedia: 'Background (GIF / video / image)', heroMediaNone: 'No background uploaded',
+    heroMedia: 'Animation in card (GIF / video / image)', heroMediaNone: 'No media — logo is shown',
     reviewsTitle: 'Reviews', reviewsTabPending: '📬 New', reviewsTabApproved: '✅ Approved',
     reviewsApprove: '✓ Approve', reviewsHide: 'Hide', reviewsShow: 'Show',
     reviewsDelete: 'Delete', reviewsDeleteShort: '✕ Delete',
@@ -1128,6 +1128,7 @@ function bindSectionVisibilityToggles() {
     el.addEventListener('change', e => {
       settingsData[key] = e.target.checked;
       syncPremiumToggle(id);
+      markUnsaved();
     });
   });
 }

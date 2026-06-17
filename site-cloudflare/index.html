@@ -62,8 +62,7 @@ nav a.nav-link:hover{color:var(--violet-deep)}
 }
 .container{max-width:1280px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
 .hero{min-height:100vh;display:flex;align-items:center;padding:140px 0 80px;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;z-index:0;opacity:.32;pointer-events:none}
-.hero-bg img,.hero-bg video{width:100%;height:100%;object-fit:cover;display:block}
+.hero-bg{display:none}
 .hero>.container{position:relative;z-index:1}
 .reviews-actions{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:32px}
 #calculator{display:none}
@@ -137,7 +136,12 @@ h1 em{font-style:normal;font-weight:400;background:linear-gradient(135deg,var(--
 .btn-ghost:hover{gap:14px}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 .hero-visual{position:relative;height:500px;display:flex;align-items:center;justify-content:center;animation:fadeInUp 1s ease .4s both}
-.logo-card{background:rgba(255,255,255,.4);backdrop-filter:blur(30px);border:1.5px solid rgba(255,255,255,.8);border-radius:32px;padding:60px;width:100%;aspect-ratio:1;max-width:460px;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 60px rgba(91,63,191,.15),inset 0 1px 0 rgba(255,255,255,.9);position:relative;overflow:hidden}
+.logo-card{background:rgba(255,255,255,.4);backdrop-filter:blur(30px);border:1.5px solid rgba(255,255,255,.8);border-radius:32px;padding:0;width:100%;aspect-ratio:1;max-width:460px;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 60px rgba(91,63,191,.15),inset 0 1px 0 rgba(255,255,255,.9);position:relative;overflow:hidden}
+.logo-card.has-media .hero-card-default{display:none}
+.hero-card-media{display:none;position:absolute;inset:0;border-radius:32px;overflow:hidden;background:#000}
+.logo-card.has-media .hero-card-media{display:block}
+.hero-card-media img,.hero-card-media video{width:100%;height:100%;object-fit:cover;display:block}
+.hero-card-default{position:relative;width:100%;height:100%;padding:60px;display:flex;align-items:center;justify-content:center}
 .logo-card::before{content:'';position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:linear-gradient(135deg,transparent,rgba(139,111,232,.4),transparent);border-radius:32px;z-index:-1;animation:rotate 8s linear infinite}
 @keyframes rotate{to{transform:rotate(360deg)}}
 .hero-logo{width:75%;height:auto;filter:drop-shadow(0 12px 30px rgba(91,63,191,.25));animation:heroLogoIntro 2s cubic-bezier(.34,1.56,.64,1) both,heroLogoFloat 6s ease-in-out 2s infinite}
@@ -570,11 +574,14 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
           </a>
         </div>
       </div>
-      <div class="hero-visual">
-        <div class="logo-card">
-          <div class="logo-ring logo-ring-1"></div>
-          <div class="logo-ring logo-ring-2"></div>
-          <img src="logo.png" alt="Kors Motion" class="hero-logo">
+      <div class="hero-visual" id="heroVisual">
+        <div class="logo-card" id="heroLogoCard">
+          <div class="hero-card-media" id="heroCardMedia" aria-hidden="true"></div>
+          <div class="hero-card-default" id="heroCardDefault">
+            <div class="logo-ring logo-ring-1"></div>
+            <div class="logo-ring logo-ring-2"></div>
+            <img src="logo.png" alt="Kors Motion" class="hero-logo">
+          </div>
         </div>
       </div>
     </div>

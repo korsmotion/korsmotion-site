@@ -897,7 +897,7 @@ function bindHeroButton(el, link, isPrimary) {
 }
 
 function applyHero() {
-  const show = isSiteSectionVisible('show_hero_section') && siteHeroData?.show !== false;
+  const show = isSiteSectionVisible('show_hero_section');
   setSiteSectionVisible('hero', [], show);
   if (!show) return;
 
@@ -910,7 +910,9 @@ function applyHero() {
   const textEl = document.getElementById('heroText');
   const btn1 = document.getElementById('heroBtn1');
   const btn2 = document.getElementById('heroBtn2');
-  const bgEl = document.getElementById('heroBg');
+  const cardMedia = document.getElementById('heroCardMedia');
+  const logoCard = document.getElementById('heroLogoCard');
+  const heroVisual = document.getElementById('heroVisual');
 
   if (badgeEl) badgeEl.textContent = c?.badge || t['hero.badge'] || '';
   if (titleEl) titleEl.innerHTML = c?.title || t['hero.title'] || '';
@@ -926,19 +928,20 @@ function applyHero() {
     bindHeroButton(btn2, c?.btn2Link || '#portfolio', false);
   }
 
-  if (bgEl) {
-    const media = siteHeroData?.media || '';
-    if (!media) {
-      bgEl.innerHTML = '';
-    } else {
-      const ext = media.split('.').pop().toLowerCase();
-      const url = media.startsWith('http') ? media : media;
-      if (['mp4', 'webm', 'mov'].includes(ext)) {
-        bgEl.innerHTML = `<video src="${url}" muted loop autoplay playsinline></video>`;
-      } else {
-        bgEl.innerHTML = `<img src="${url}" alt="">`;
-      }
-    }
+  const media = siteHeroData?.media || '';
+  if (media && cardMedia && logoCard) {
+    const ext = media.split('.').pop().toLowerCase();
+    const url = media.startsWith('http') ? media : media;
+    const isVideo = ['mp4', 'webm', 'mov'].includes(ext);
+    cardMedia.innerHTML = isVideo
+      ? `<video src="${url}" muted loop autoplay playsinline></video>`
+      : `<img src="${url}" alt="">`;
+    logoCard.classList.add('has-media');
+    if (heroVisual) heroVisual.style.display = '';
+  } else {
+    if (cardMedia) cardMedia.innerHTML = '';
+    if (logoCard) logoCard.classList.remove('has-media');
+    if (heroVisual) heroVisual.style.display = '';
   }
 }
 
