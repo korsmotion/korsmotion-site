@@ -820,6 +820,35 @@ function pickMediaFile(onSelect, accept) {
   document.body.appendChild(input);
   input.click();
 }
+async function uploadFileToKV(file, relPath) {
+  showToast(adminLang === 'de' ? 'Hochladen...' : adminLang === 'en' ? 'Uploading...' : 'Загрузка...', '');
+  const data = await readFileAsBase64(file);
+  const mime = file.type || mimeFromUploadPath(relPath);
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: ADMIN_PASSWORD, path: relPath, mime, data }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    showToast(adminLang === 'de' ? 'Upload-Fehler' : adminLang === 'en' ? 'Upload error' : 'Ошибка загрузки', 'error');
+    throw new Error(err.error || 'Upload failed');
+  }
+  showToast(adminLang === 'de' ? 'Hochgeladen ✓' : adminLang === 'en' ? 'Uploaded ✓' : 'Загружено ✓', 'success');
+  return relPath;
+}
+function mimeFromUploadPath(path) {
+  const ext = (String(path).split('.').pop() || '').toLowerCase();
+  const map = {
+    webm: 'video/webm',
+    mp4: 'video/mp4',
+    gif: 'image/gif',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+  };
+  return map[ext] || 'application/octet-stream';
+}
 async function uploadImageToGitHub(file, targetPath) {
   const githubToken = getGithubToken();
   if (!githubToken) {
@@ -2200,7 +2229,7 @@ function renderHero() {
       try {
         const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
         const relPath = `images/hero/bg.${ext}`;
-        await uploadImageToGitHub(file, `site-cloudflare/${relPath}`);
+        await uploadFileToKV(file, relPath);
         heroData.media = relPath;
         renderHero();
         markUnsaved();

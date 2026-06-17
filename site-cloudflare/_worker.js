@@ -12,6 +12,126 @@ const CORS = {
 
 const SKIP_EXTENSIONS = ['js', 'css', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'ico', 'svg', 'woff', 'woff2', 'mp4', 'webm'];
 
+const MIME_BY_EXT = {
+  webm: 'video/webm',
+  mp4: 'video/mp4',
+  gif: 'image/gif',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+};
+
+function mimeFromPath(path) {
+  const ext = (path.split('.').pop() || '').toLowerCase();
+  return MIME_BY_EXT[ext] || 'application/octet-stream';
+}
+
+function isMediaPath(path) {
+  const ext = (path.split('.').pop() || '').toLowerCase();
+  return ext in MIME_BY_EXT;
+}
+
+function normalizeFilePath(path) {
+  return String(path || '')
+    .replace(/^site-cloudflare\//, '')
+    .replace(/^\//, '');
+}
+
+function kvFileKey(path) {
+  return `file:${normalizeFilePath(path)}`;
+}
+
+function parseKvFileRaw(raw, path) {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object') {
+      if (typeof parsed.data === 'string') {
+        return {
+          mime: parsed.mime || parsed.contentType || mimeFromPath(path),
+          data: parsed.data,
+        };
+      }
+      if (typeof parsed.base64 === 'string') {
+        return {
+          mime: parsed.mime || parsed.contentType || mimeFromPath(path),
+          data: parsed.base64,
+        };
+      }
+    }
+  } catch (_) {}
+  return { mime: mimeFromPath(path), data: raw };
+}
+
+function base64ToBytes(b64) {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+function kvFileResponse(file, path) {
+  const mime = file.mime || mimeFromPath(path);
+  const bytes = base64ToBytes(file.data);
+  return new Response(bytes, {
+    headers: {
+      'Content-Type': mime,
+      'Cache-Control': 'public, max-age=3600',
+    },
+  });
+}
+
+async function getKvFile(env, path) {
+  const normalized = normalizeFilePath(path);
+  const keys = [kvFileKey(normalized), normalized, `media:${normalized}`];
+  for (const key of keys) {
+    const raw = await env.KORSMOTION_DATA.get(key);
+    if (raw) return parseKvFileRaw(raw, normalized);
+  }
+  return null;
+}
+
+async function putKvFile(env, path, mime, dataB64) {
+  const normalized = normalizeFilePath(path);
+  const payload = JSON.stringify({
+    mime: mime || mimeFromPath(normalized),
+    data: dataB64,
+  });
+  await env.KORSMOTION_DATA.put(kvFileKey(normalized), payload);
+  return { path: normalized, mime: mime || mimeFromPath(normalized) };
+}
+
+async function serveKvFileIfPresent(env, pathname) {
+  const path = normalizeFilePath(pathname);
+  if (!path || path.startsWith('api/')) return null;
+  const file = await getKvFile(env, path);
+  if (!file?.data) return null;
+  return kvFileResponse(file, path);
+}
+
+async function serveAssetOrKv(request, env) {
+  const url = new URL(request.url);
+  const path = normalizeFilePath(url.pathname);
+
+  if (request.method === 'GET' && isMediaPath(path)) {
+    const kvRes = await serveKvFileIfPresent(env, url.pathname);
+    if (kvRes) return kvRes;
+  }
+
+  const assetRes = await env.ASSETS.fetch(request);
+
+  if (
+    request.method === 'GET' &&
+    isMediaPath(path) &&
+    assetRes.headers.get('Content-Type')?.includes('text/html')
+  ) {
+    const kvRes = await serveKvFileIfPresent(env, url.pathname);
+    if (kvRes) return kvRes;
+  }
+
+  return assetRes;
+}
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -236,6 +356,16 @@ export default {
         const ordersKey = 'bestellungen:waldner_10_3:orders';
         if (key !== ordersKey && body.password !== ADMIN_PASSWORD) {
           return json({ error: 'Unauthorized' }, 401);
+        }
+        if (key.startsWith('file:') || key.startsWith('media:')) {
+          const filePath = key.replace(/^(file:|media:)/, '');
+          const mime = body.mime || body.contentType || mimeFromPath(filePath);
+          const dataB64 = typeof body.value === 'string'
+            ? body.value
+            : (body.value?.data || body.value?.base64 || '');
+          if (!dataB64) return json({ error: 'File data required' }, 400);
+          const saved = await putKvFile(env, filePath, mime, dataB64);
+          return json({ ok: true, ...saved });
         }
         const val = typeof body.value === 'string' ? body.value : JSON.stringify(body.value);
         await env.KORSMOTION_DATA.put(key, val);
@@ -476,6 +606,49 @@ export default {
       });
     }
 
+    // POST /api/upload — save binary media to KV with MIME metadata
+    if (url.pathname === '/api/upload' && request.method === 'POST') {
+      const ct = request.headers.get('Content-Type') || '';
+      let password;
+      let path;
+      let mime;
+      let dataB64;
+
+      try {
+        if (ct.includes('application/json')) {
+          const body = await request.json();
+          password = body.password;
+          path = body.path;
+          mime = body.mime || body.contentType;
+          dataB64 = body.data || body.base64;
+        } else if (ct.includes('multipart/form-data')) {
+          const form = await request.formData();
+          password = form.get('password');
+          path = form.get('path');
+          const file = form.get('file');
+          if (file && typeof file === 'object' && 'arrayBuffer' in file) {
+            mime = file.type || mimeFromPath(path || file.name || '');
+            if (!path) path = file.name;
+            const buf = await file.arrayBuffer();
+            const bytes = new Uint8Array(buf);
+            let binary = '';
+            for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+            dataB64 = btoa(binary);
+          }
+        } else {
+          return json({ error: 'Unsupported Content-Type' }, 415);
+        }
+      } catch {
+        return json({ error: 'Invalid upload payload' }, 400);
+      }
+
+      if (password !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
+      if (!path || !dataB64) return json({ error: 'path and data required' }, 400);
+
+      const saved = await putKvFile(env, path, mime, dataB64);
+      return json({ ok: true, ...saved });
+    }
+
     // POST /api/hero — admin save
     if (url.pathname === '/api/hero' && request.method === 'POST') {
       let body;
@@ -490,7 +663,7 @@ export default {
       return json({ ok: true });
     }
 
-    // Everything else — serve static assets from Pages
-    return env.ASSETS.fetch(request);
+    // Everything else — KV media first, then static assets from Pages
+    return serveAssetOrKv(request, env);
   },
 };
