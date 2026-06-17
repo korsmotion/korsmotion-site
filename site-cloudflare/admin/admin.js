@@ -81,7 +81,8 @@ const UI = {
     heroBadge: 'Бейдж', heroMainTitle: 'Заголовок (HTML: &lt;br&gt;, &lt;em&gt;)',
     heroSubtitle: 'Подзаголовок', heroBtn1: 'Кнопка 1 — текст', heroBtn1Link: 'Кнопка 1 — ссылка',
     heroBtn2: 'Кнопка 2 — текст', heroBtn2Link: 'Кнопка 2 — ссылка',
-    heroMedia: 'Анимация в карточке (GIF / видео / изображение)', heroMediaNone: 'Медиа не загружено — показывается логотип',
+    heroMedia: 'Фон-заставка (карточка сзади)', heroMediaNone: 'Заставка не загружена',
+    heroCardMedia: 'Карточка справа (отдельно)', heroCardMediaNone: 'Показывается логотип KM',
     reviewsTitle: 'Отзывы', reviewsTabPending: '📬 Новые', reviewsTabApproved: '✅ Одобренные',
     reviewsApprove: '✓ Одобрить', reviewsHide: 'Скрыть', reviewsShow: 'Показать',
     reviewsDelete: 'Удалить', reviewsDeleteShort: '✕ Удалить',
@@ -171,7 +172,8 @@ const UI = {
     heroBadge: 'Badge', heroMainTitle: 'Titel (HTML: &lt;br&gt;, &lt;em&gt;)',
     heroSubtitle: 'Untertitel', heroBtn1: 'Button 1 — Text', heroBtn1Link: 'Button 1 — Link',
     heroBtn2: 'Button 2 — Text', heroBtn2Link: 'Button 2 — Link',
-    heroMedia: 'Animation in der Karte (GIF / Video / Bild)', heroMediaNone: 'Kein Medium — Logo wird angezeigt',
+    heroMedia: 'Hintergrund-Karte (hinten)', heroMediaNone: 'Keine Hintergrund-Karte',
+    heroCardMedia: 'Karte rechts (separat)', heroCardMediaNone: 'KM-Logo wird angezeigt',
     reviewsTitle: 'Bewertungen', reviewsTabPending: '📬 Neu', reviewsTabApproved: '✅ Genehmigt',
     reviewsApprove: '✓ Genehmigen', reviewsHide: 'Verbergen', reviewsShow: 'Anzeigen',
     reviewsDelete: 'Löschen', reviewsDeleteShort: '✕ Löschen',
@@ -261,7 +263,8 @@ const UI = {
     heroBadge: 'Badge', heroMainTitle: 'Title (HTML: &lt;br&gt;, &lt;em&gt;)',
     heroSubtitle: 'Subtitle', heroBtn1: 'Button 1 — text', heroBtn1Link: 'Button 1 — link',
     heroBtn2: 'Button 2 — text', heroBtn2Link: 'Button 2 — link',
-    heroMedia: 'Animation in card (GIF / video / image)', heroMediaNone: 'No media — logo is shown',
+    heroMedia: 'Backdrop card (behind)', heroMediaNone: 'No backdrop uploaded',
+    heroCardMedia: 'Right card (separate)', heroCardMediaNone: 'KM logo is shown',
     reviewsTitle: 'Reviews', reviewsTabPending: '📬 New', reviewsTabApproved: '✅ Approved',
     reviewsApprove: '✓ Approve', reviewsHide: 'Hide', reviewsShow: 'Show',
     reviewsDelete: 'Delete', reviewsDeleteShort: '✕ Delete',
@@ -341,6 +344,7 @@ let projectsData = { projects: [] };
 const DEFAULT_HERO = {
   show: true,
   media: '',
+  cardMedia: '',
   content: {
     de: { badge: 'Motion Design Studio · Schweiz', title: 'Bewegung, die<br><em>eindruckt</em>', subtitle: 'Kors Motion ist Ihr Spezialist für Motion Design.', btn1Text: 'Projekt anfragen', btn1Link: '#contact', btn2Text: 'Portfolio ansehen', btn2Link: '#portfolio' },
     en: { badge: 'Motion Design Studio · Switzerland', title: 'Motion<br>that <em>resonates</em>', subtitle: 'Kors Motion is a premium motion design studio.', btn1Text: 'Discuss a project', btn1Link: '#contact', btn2Text: 'View portfolio', btn2Link: '#portfolio' },
@@ -2140,6 +2144,7 @@ function normalizeHeroData(raw) {
   return {
     show: data.show !== false,
     media: typeof data.media === 'string' ? data.media : '',
+    cardMedia: typeof data.cardMedia === 'string' ? data.cardMedia : '',
     content,
   };
 }
@@ -2187,6 +2192,14 @@ function renderHero() {
       ? `<video src="${esc(mediaUrl)}" muted loop autoplay playsinline></video>`
       : `<img src="${esc(mediaUrl)}" alt="">`)
     : `<div class="thumb-placeholder" style="width:100%;height:100%;border:none">${esc(u().heroMediaNone)}</div>`;
+  const cardUrl = heroData.cardMedia ? adminAssetUrl(heroData.cardMedia) : '';
+  const cardExt = (heroData.cardMedia || '').split('.').pop().toLowerCase();
+  const cardIsVideo = ['mp4', 'webm', 'mov'].includes(cardExt);
+  const cardPreview = cardUrl
+    ? (cardIsVideo
+      ? `<video src="${esc(cardUrl)}" muted loop autoplay playsinline></video>`
+      : `<img src="${esc(cardUrl)}" alt="">`)
+    : `<div class="thumb-placeholder" style="width:100%;height:100%;border:none">${esc(u().heroCardMediaNone)}</div>`;
 
   container.innerHTML = `
     <div class="lang-section">
@@ -2206,10 +2219,17 @@ function renderHero() {
         </div>
       </div>
     </div>
-    <div style="margin-top:16px">
-      <div class="form-label">${esc(u().heroMedia)}</div>
-      <div class="hero-media-preview">${mediaPreview}</div>
-      <button type="button" class="upload-btn" style="margin-top:10px" id="heroUploadBtn">${esc(u().uploadBtn)}</button>
+    <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div class="form-label">${esc(u().heroMedia)}</div>
+        <div class="hero-media-preview">${mediaPreview}</div>
+        <button type="button" class="upload-btn" style="margin-top:10px" id="heroUploadBtn">${esc(u().uploadBtn)}</button>
+      </div>
+      <div>
+        <div class="form-label">${esc(u().heroCardMedia)}</div>
+        <div class="hero-media-preview">${cardPreview}</div>
+        <button type="button" class="upload-btn" style="margin-top:10px" id="heroCardUploadBtn">${esc(u().uploadBtn)}</button>
+      </div>
     </div>`;
 
   container.querySelectorAll('[data-hero-lang]').forEach(btn => {
@@ -2232,6 +2252,18 @@ function renderHero() {
         const relPath = `images/hero/bg.${ext}`;
         await uploadFileToKV(file, relPath);
         heroData.media = relPath;
+        renderHero();
+        markUnsaved();
+      } catch (_) {}
+    }, 'image/*,video/*,.gif');
+  });
+  document.getElementById('heroCardUploadBtn')?.addEventListener('click', () => {
+    pickMediaFile(async (file) => {
+      try {
+        const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+        const relPath = `images/hero/card.${ext}`;
+        await uploadFileToKV(file, relPath);
+        heroData.cardMedia = relPath;
         renderHero();
         markUnsaved();
       } catch (_) {}

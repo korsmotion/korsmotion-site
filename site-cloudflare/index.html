@@ -61,9 +61,14 @@ nav a.nav-link:hover{color:var(--violet-deep)}
   .nav-cta-mobile{display:inline-flex;justify-content:center;width:100%;padding:16px 28px;font-size:16px;margin-top:auto;flex-shrink:0}
 }
 .container{max-width:1280px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
-.hero{min-height:100vh;display:flex;align-items:center;padding:140px 0 80px;position:relative;overflow:hidden}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:100px 0 72px;position:relative;overflow:hidden}
+.hero-backdrop-wrap{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:min(94%,1180px);height:clamp(260px,46vh,520px);z-index:0;pointer-events:none;animation:heroBackdropIn 1.1s cubic-bezier(.22,1,.36,1) both}
+.hero-backdrop-wrap.is-empty{display:none}
+@keyframes heroBackdropIn{from{opacity:0;transform:translateX(-50%) translateY(28px) scale(.95)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+.hero-backdrop-card{width:100%;height:100%;border-radius:28px;overflow:hidden;border:1.5px solid rgba(255,255,255,.78);box-shadow:0 28px 90px rgba(91,63,191,.2),inset 0 1px 0 rgba(255,255,255,.55);background:linear-gradient(135deg,rgba(255,255,255,.22),rgba(237,233,254,.35))}
+.hero-backdrop-card img,.hero-backdrop-card video{width:100%;height:100%;object-fit:cover;display:block}
+.hero-content{position:relative;z-index:2;padding-top:34vh;width:100%}
 .hero-bg{display:none}
-.hero>.container{position:relative;z-index:1}
 .reviews-actions{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:32px}
 #calculator{display:none}
 .calculator-subtitle{font-size:18px;color:var(--ink-soft);max-width:640px;margin-bottom:48px;line-height:1.55}
@@ -136,12 +141,12 @@ h1 em{font-style:normal;font-weight:400;background:linear-gradient(135deg,var(--
 .btn-ghost:hover{gap:14px}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 .hero-visual{position:relative;height:500px;display:flex;align-items:center;justify-content:center;animation:fadeInUp 1s ease .4s both}
-.logo-card{background:rgba(255,255,255,.4);backdrop-filter:blur(30px);border:1.5px solid rgba(255,255,255,.8);border-radius:32px;padding:0;width:100%;aspect-ratio:1;max-width:460px;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 60px rgba(91,63,191,.15),inset 0 1px 0 rgba(255,255,255,.9);position:relative;overflow:hidden}
-.logo-card.has-media .hero-card-default{display:none}
+.logo-card{background:rgba(255,255,255,.4);backdrop-filter:blur(30px);border:1.5px solid rgba(255,255,255,.8);border-radius:32px;padding:60px;width:100%;aspect-ratio:1;max-width:460px;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 60px rgba(91,63,191,.15),inset 0 1px 0 rgba(255,255,255,.9);position:relative;overflow:hidden}
+.logo-card.has-card-media .hero-card-default{display:none}
 .hero-card-media{display:none;position:absolute;inset:0;border-radius:32px;overflow:hidden;background:#000}
-.logo-card.has-media .hero-card-media{display:block}
+.logo-card.has-card-media .hero-card-media{display:block}
 .hero-card-media img,.hero-card-media video{width:100%;height:100%;object-fit:cover;display:block}
-.hero-card-default{position:relative;width:100%;height:100%;padding:60px;display:flex;align-items:center;justify-content:center}
+.hero-card-default{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
 .logo-card::before{content:'';position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:linear-gradient(135deg,transparent,rgba(139,111,232,.4),transparent);border-radius:32px;z-index:-1;animation:rotate 8s linear infinite}
 @keyframes rotate{to{transform:rotate(360deg)}}
 .hero-logo{width:75%;height:auto;filter:drop-shadow(0 12px 30px rgba(91,63,191,.25));animation:heroLogoIntro 2s cubic-bezier(.34,1.56,.64,1) both,heroLogoFloat 6s ease-in-out 2s infinite}
@@ -358,7 +363,7 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
 .portfolio-detail-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:20px;background:var(--violet-whisper);border-radius:16px;margin-bottom:24px}
 .meta-item-label{font-size:11px;font-weight:600;color:var(--ink-mute);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
 .meta-item-value{font-weight:600;color:var(--ink);font-size:14px}
-@media (max-width:968px){.hero-grid{grid-template-columns:1fr;gap:60px}.hero-visual{height:400px}.service-card{grid-template-columns:1fr;gap:24px}.service-window{max-width:280px;margin:0 auto}.portfolio-item.large,.portfolio-item.small,.portfolio-item.third{grid-column:span 12}.reviews-arrow{width:36px;height:36px;font-size:15px}.all-reviews-featured-grid{grid-template-columns:repeat(2,1fr)}.cta-card{padding:48px 24px}.form-row{grid-template-columns:1fr}.modal{max-height:95vh;border-radius:20px}.modal-scroll{border-radius:20px}.modal-header-gradient,.service-detail-hero{padding:32px 24px 24px;border-radius:20px 20px 0 0}.modal-body,.service-detail-body,.portfolio-detail-body{padding:24px}.modal-header-title,.service-detail-title{font-size:28px}.contact-info-row{grid-template-columns:1fr;gap:12px}.portfolio-detail-meta{grid-template-columns:1fr}.all-reviews-header,.all-reviews-featured,.all-reviews-older{padding-left:24px;padding-right:24px}#allReviewsModal .modal,#allReviewsModal .modal-scroll{max-height:85vh}}
+@media (max-width:968px){.hero-backdrop-wrap{top:8%;height:clamp(200px,36vh,360px);width:min(92%,100%)}.hero-content{padding-top:30vh}.hero-grid{grid-template-columns:1fr;gap:60px}.hero-visual{height:400px}.service-card{grid-template-columns:1fr;gap:24px}.service-window{max-width:280px;margin:0 auto}.portfolio-item.large,.portfolio-item.small,.portfolio-item.third{grid-column:span 12}.reviews-arrow{width:36px;height:36px;font-size:15px}.all-reviews-featured-grid{grid-template-columns:repeat(2,1fr)}.cta-card{padding:48px 24px}.form-row{grid-template-columns:1fr}.modal{max-height:95vh;border-radius:20px}.modal-scroll{border-radius:20px}.modal-header-gradient,.service-detail-hero{padding:32px 24px 24px;border-radius:20px 20px 0 0}.modal-body,.service-detail-body,.portfolio-detail-body{padding:24px}.modal-header-title,.service-detail-title{font-size:28px}.contact-info-row{grid-template-columns:1fr;gap:12px}.portfolio-detail-meta{grid-template-columns:1fr}.all-reviews-header,.all-reviews-featured,.all-reviews-older{padding-left:24px;padding-right:24px}#allReviewsModal .modal,#allReviewsModal .modal-scroll{max-height:85vh}}
 @media (max-width:640px){.all-reviews-featured-grid{grid-template-columns:1fr}.all-reviews-compact{flex-direction:column;align-items:flex-start;gap:6px}}
 .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s ease,transform .8s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
@@ -556,8 +561,10 @@ footer{padding:60px 0 40px;border-top:1px solid rgba(91,63,191,.15);margin-top:8
 </nav>
 
 <section class="hero" id="hero">
-  <div class="hero-bg" id="heroBg"></div>
-  <div class="container">
+  <div class="hero-backdrop-wrap is-empty" id="heroBackdropWrap">
+    <div class="hero-backdrop-card" id="heroBg"></div>
+  </div>
+  <div class="container hero-content">
     <div class="hero-grid">
       <div>
         <div class="hero-badge" id="heroBadge" data-i18n="hero.badge">Studio · Switzerland</div>

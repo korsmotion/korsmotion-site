@@ -896,6 +896,13 @@ function bindHeroButton(el, link, isPrimary) {
   }
 }
 
+function heroMediaElement(url, ext) {
+  const isVideo = ['mp4', 'webm', 'mov'].includes(ext);
+  return isVideo
+    ? `<video src="${url}" muted loop autoplay playsinline></video>`
+    : `<img src="${url}" alt="">`;
+}
+
 function applyHero() {
   const show = isSiteSectionVisible('show_hero_section');
   setSiteSectionVisible('hero', [], show);
@@ -910,9 +917,10 @@ function applyHero() {
   const textEl = document.getElementById('heroText');
   const btn1 = document.getElementById('heroBtn1');
   const btn2 = document.getElementById('heroBtn2');
-  const cardMedia = document.getElementById('heroCardMedia');
+  const bgWrap = document.getElementById('heroBackdropWrap');
+  const bgEl = document.getElementById('heroBg');
+  const cardMediaEl = document.getElementById('heroCardMedia');
   const logoCard = document.getElementById('heroLogoCard');
-  const heroVisual = document.getElementById('heroVisual');
 
   if (badgeEl) badgeEl.textContent = c?.badge || t['hero.badge'] || '';
   if (titleEl) titleEl.innerHTML = c?.title || t['hero.title'] || '';
@@ -928,20 +936,26 @@ function applyHero() {
     bindHeroButton(btn2, c?.btn2Link || '#portfolio', false);
   }
 
-  const media = siteHeroData?.media || '';
-  if (media && cardMedia && logoCard) {
-    const ext = media.split('.').pop().toLowerCase();
-    const url = media.startsWith('http') ? media : media;
-    const isVideo = ['mp4', 'webm', 'mov'].includes(ext);
-    cardMedia.innerHTML = isVideo
-      ? `<video src="${url}" muted loop autoplay playsinline></video>`
-      : `<img src="${url}" alt="">`;
-    logoCard.classList.add('has-media');
-    if (heroVisual) heroVisual.style.display = '';
+  const backdrop = siteHeroData?.media || '';
+  if (backdrop && bgEl) {
+    const ext = backdrop.split('.').pop().toLowerCase();
+    const url = backdrop.startsWith('http') ? backdrop : backdrop;
+    bgEl.innerHTML = heroMediaElement(url, ext);
+    bgWrap?.classList.remove('is-empty');
   } else {
-    if (cardMedia) cardMedia.innerHTML = '';
-    if (logoCard) logoCard.classList.remove('has-media');
-    if (heroVisual) heroVisual.style.display = '';
+    if (bgEl) bgEl.innerHTML = '';
+    bgWrap?.classList.add('is-empty');
+  }
+
+  const cardMedia = siteHeroData?.cardMedia || '';
+  if (cardMedia && cardMediaEl && logoCard) {
+    const ext = cardMedia.split('.').pop().toLowerCase();
+    const url = cardMedia.startsWith('http') ? cardMedia : cardMedia;
+    cardMediaEl.innerHTML = heroMediaElement(url, ext);
+    logoCard.classList.add('has-card-media');
+  } else {
+    if (cardMediaEl) cardMediaEl.innerHTML = '';
+    if (logoCard) logoCard.classList.remove('has-card-media');
   }
 }
 

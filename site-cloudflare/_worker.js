@@ -199,6 +199,7 @@ function sanitizeReviewsList(reviews) {
 const DEFAULT_HERO = {
   show: true,
   media: '',
+  cardMedia: '',
   content: {
     de: { badge: 'Motion Design Studio · Schweiz', title: 'Bewegung, die<br><em>eindruckt</em>', subtitle: 'Kors Motion ist Ihr Spezialist für Motion Design.', btn1Text: 'Projekt anfragen', btn1Link: '#contact', btn2Text: 'Portfolio ansehen', btn2Link: '#portfolio' },
     en: { badge: 'Motion Design Studio · Switzerland', title: 'Motion<br>that <em>resonates</em>', subtitle: 'Kors Motion is a premium motion design studio.', btn1Text: 'Discuss a project', btn1Link: '#contact', btn2Text: 'View portfolio', btn2Link: '#portfolio' },
@@ -270,6 +271,7 @@ function normalizeHero(raw) {
   return {
     show: data.show !== false,
     media: typeof data.media === 'string' ? data.media : '',
+    cardMedia: typeof data.cardMedia === 'string' ? data.cardMedia : '',
     content: { ...DEFAULT_HERO.content, ...(data.content || {}) },
   };
 }
