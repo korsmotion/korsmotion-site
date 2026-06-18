@@ -896,6 +896,12 @@ function bindHeroButton(el, link, isPrimary) {
   }
 }
 
+function heroMediaOpacity(data) {
+  const n = Number(data?.mediaOpacity);
+  if (Number.isFinite(n)) return Math.min(100, Math.max(0, n)) / 100;
+  return 0.44;
+}
+
 function heroMediaElement(url, ext) {
   const isVideo = ['mp4', 'webm', 'mov'].includes(ext);
   return isVideo
@@ -937,6 +943,10 @@ function applyHero() {
   }
 
   const backdrop = siteHeroData?.media || '';
+  const mediaOp = heroMediaOpacity(siteHeroData);
+  const heroEl = document.getElementById('hero');
+  if (bgWrap) bgWrap.style.setProperty('--hero-media-opacity', String(mediaOp));
+  heroEl?.style.setProperty('--hero-media-opacity', String(mediaOp));
   if (backdrop && bgEl) {
     const ext = backdrop.split('.').pop().toLowerCase();
     const url = backdrop.startsWith('http') ? backdrop : backdrop;
@@ -2136,10 +2146,7 @@ window.appModalPrev = function(appId, total) {
   const prev = ((window._amState[appId] || 0) - 1 + total) % total;
   window.appModalGo(appId, prev, total);
 };
-window.appModalGo = function(idx, total) {
-  document.querySelectorAll('.app-modal-screen').forEach((el, i) => el.classList.toggle('active', i === idx));
-  document.querySelectorAll('[id^="amdot-"]').forEach((el, i) => el.classList.toggle('active', i === idx));
-};
+
 
 function closeAppModal() {
   const modal = document.getElementById('appModal');
