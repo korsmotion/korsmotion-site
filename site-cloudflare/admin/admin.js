@@ -82,6 +82,7 @@ const UI = {
     heroSubtitle: 'Подзаголовок', heroBtn1: 'Кнопка 1 — текст', heroBtn1Link: 'Кнопка 1 — ссылка',
     heroBtn2: 'Кнопка 2 — текст', heroBtn2Link: 'Кнопка 2 — ссылка',
     heroMedia: 'Фон-заставка (карточка сзади)', heroMediaNone: 'Заставка не загружена',
+    heroMediaOpacity: 'Прозрачность фона',
     heroCardMedia: 'Карточка справа (отдельно)', heroCardMediaNone: 'Показывается логотип KM',
     reviewsTitle: 'Отзывы', reviewsTabPending: '📬 Новые', reviewsTabApproved: '✅ Одобренные',
     reviewsApprove: '✓ Одобрить', reviewsHide: 'Скрыть', reviewsShow: 'Показать',
@@ -173,6 +174,7 @@ const UI = {
     heroSubtitle: 'Untertitel', heroBtn1: 'Button 1 — Text', heroBtn1Link: 'Button 1 — Link',
     heroBtn2: 'Button 2 — Text', heroBtn2Link: 'Button 2 — Link',
     heroMedia: 'Hintergrund-Karte (hinten)', heroMediaNone: 'Keine Hintergrund-Karte',
+    heroMediaOpacity: 'Hintergrund-Transparenz',
     heroCardMedia: 'Karte rechts (separat)', heroCardMediaNone: 'KM-Logo wird angezeigt',
     reviewsTitle: 'Bewertungen', reviewsTabPending: '📬 Neu', reviewsTabApproved: '✅ Genehmigt',
     reviewsApprove: '✓ Genehmigen', reviewsHide: 'Verbergen', reviewsShow: 'Anzeigen',
@@ -264,6 +266,7 @@ const UI = {
     heroSubtitle: 'Subtitle', heroBtn1: 'Button 1 — text', heroBtn1Link: 'Button 1 — link',
     heroBtn2: 'Button 2 — text', heroBtn2Link: 'Button 2 — link',
     heroMedia: 'Backdrop card (behind)', heroMediaNone: 'No backdrop uploaded',
+    heroMediaOpacity: 'Backdrop opacity',
     heroCardMedia: 'Right card (separate)', heroCardMediaNone: 'KM logo is shown',
     reviewsTitle: 'Reviews', reviewsTabPending: '📬 New', reviewsTabApproved: '✅ Approved',
     reviewsApprove: '✓ Approve', reviewsHide: 'Hide', reviewsShow: 'Show',
@@ -345,6 +348,7 @@ const DEFAULT_HERO = {
   show: true,
   media: '',
   cardMedia: '',
+  mediaOpacity: 44,
   content: {
     de: { badge: 'Motion Design Studio · Schweiz', title: 'Bewegung, die<br><em>eindruckt</em>', subtitle: 'Kors Motion ist Ihr Spezialist für Motion Design.', btn1Text: 'Projekt anfragen', btn1Link: '#contact', btn2Text: 'Portfolio ansehen', btn2Link: '#portfolio' },
     en: { badge: 'Motion Design Studio · Switzerland', title: 'Motion<br>that <em>resonates</em>', subtitle: 'Kors Motion is a premium motion design studio.', btn1Text: 'Discuss a project', btn1Link: '#contact', btn2Text: 'View portfolio', btn2Link: '#portfolio' },
@@ -2133,6 +2137,12 @@ function attachServiceEvents(container) {
 }
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
+function heroMediaOpacityPct(data) {
+  const n = Number(data?.mediaOpacity);
+  if (Number.isFinite(n)) return Math.min(100, Math.max(0, Math.round(n)));
+  return 44;
+}
+
 function normalizeHeroData(raw) {
   const data = raw && typeof raw === 'object' ? raw : {};
   const content = { ...DEFAULT_HERO.content };
@@ -2145,6 +2155,7 @@ function normalizeHeroData(raw) {
     show: data.show !== false,
     media: typeof data.media === 'string' ? data.media : '',
     cardMedia: typeof data.cardMedia === 'string' ? data.cardMedia : '',
+    mediaOpacity: heroMediaOpacityPct(data),
     content,
   };
 }
@@ -2200,6 +2211,7 @@ function renderHero() {
       ? `<video src="${esc(cardUrl)}" muted loop autoplay playsinline></video>`
       : `<img src="${esc(cardUrl)}" alt="">`)
     : `<div class="thumb-placeholder" style="width:100%;height:100%;border:none">${esc(u().heroCardMediaNone)}</div>`;
+  const opacityPct = heroMediaOpacityPct(heroData);
 
   container.innerHTML = `
     <div class="lang-section">
@@ -2222,7 +2234,12 @@ function renderHero() {
     <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div>
         <div class="form-label">${esc(u().heroMedia)}</div>
-        <div class="hero-media-preview">${mediaPreview}</div>
+        <div class="hero-opacity-row">
+          <label class="form-label" for="heroMediaOpacity">${esc(u().heroMediaOpacity)}</label>
+          <input type="range" id="heroMediaOpacity" min="0" max="100" step="1" value="${opacityPct}">
+          <span class="hero-opacity-value" id="heroMediaOpacityVal">${opacityPct}%</span>
+        </div>
+        <div class="hero-media-preview hero-backdrop-preview" id="heroMediaPreview" style="--hero-preview-opacity:${opacityPct / 100}">${mediaPreview}</div>
         <button type="button" class="upload-btn" style="margin-top:10px" id="heroUploadBtn">${esc(u().uploadBtn)}</button>
       </div>
       <div>
@@ -2268,6 +2285,13 @@ function renderHero() {
         markUnsaved();
       } catch (_) {}
     }, 'image/*,video/*,.gif');
+  });
+  document.getElementById('heroMediaOpacity')?.addEventListener('input', e => {
+    const v = Math.min(100, Math.max(0, parseInt(e.target.value, 10) || 0));
+    heroData.mediaOpacity = v;
+    document.getElementById('heroMediaOpacityVal').textContent = `${v}%`;
+    document.getElementById('heroMediaPreview')?.style.setProperty('--hero-preview-opacity', String(v / 100));
+    markUnsaved();
   });
 }
 
