@@ -3,7 +3,7 @@
     esc, stock, imgHtml, toast, fmtDt, partPhotos, partMatchesSearch, findPart, PHOTO_SLOTS,
     fetchParts, fetchEmployees, fetchLog,
     savePart, deletePart, saveEmployee, deleteEmployee,
-    MACHINES, CATEGORIES,
+    MACHINES, CATEGORIES, openPartView, bindPartView,
   } = window.L4;
 
   let parts = [];
@@ -15,7 +15,6 @@
   let selectedMachines = [];
   let photoPollTimer = null;
   let activePhotoSession = null;
-  let activeQrSlot = null;
 
   const $ = id => document.getElementById(id);
 
@@ -29,7 +28,6 @@
       photoPollTimer = null;
     }
     activePhotoSession = null;
-    activeQrSlot = null;
   }
 
   function resetPhotoQrUi() {
@@ -74,10 +72,7 @@
     formPhotos[index] = dataUrl;
     updateSlotUi(index);
     if (fromQr) {
-      const slot = slotEl(index);
-      slot?.querySelector('[data-received]')?.removeAttribute('hidden');
-      $('l4QrPanel').hidden = true;
-      stopPhotoPoll();
+      slotEl(index)?.querySelector('[data-received]')?.removeAttribute('hidden');
     }
   }
 
@@ -97,17 +92,20 @@
     });
   }
 
-  function startQrUpload(slotIndex) {
+  function startQrSession() {
     if (typeof QRCode === 'undefined') {
       toast('❗ QR-Bibliothek nicht geladen');
       return;
     }
+    if (activePhotoSession) {
+      $('l4QrPanel').hidden = false;
+      return;
+    }
     resetPhotoQrUi();
-    activeQrSlot = slotIndex;
     const sessionId = newPhotoSessionId();
     activePhotoSession = sessionId;
     const uploadUrl = `${location.origin}/schichtplan/lager/upload?session=${encodeURIComponent(sessionId)}`;
-    $('l4QrHint').textContent = `QR scannen — Foto wird in Slot ${slotIndex + 1} übernommen.`;
+    $('l4QrHint').textContent = 'QR scannen — bis zu 3 Fotos nacheinander vom Handy übertragen.';
     $('l4QrPanel').hidden = false;
     $('l4QrCanvas').innerHTML = '';
     new QRCode($('l4QrCanvas'), {
@@ -118,20 +116,32 @@
       colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.M,
     });
-    $('l4QrStatus').textContent = 'Warte auf Foto vom Handy…';
-    photoPollTimer = setInterval(() => pollPhotoSession(sessionId, slotIndex), 2000);
-    pollPhotoSession(sessionId, slotIndex);
+    $('l4QrStatus').textContent = 'Warte auf Fotos vom Handy…';
+    photoPollTimer = setInterval(() => pollPhotoSession(sessionId), 2000);
+    pollPhotoSession(sessionId);
   }
 
-  async function pollPhotoSession(sessionId, slotIndex) {
-    if (!activePhotoSession || activePhotoSession !== sessionId || activeQrSlot !== slotIndex) return;
+  async function pollPhotoSession(sessionId) {
+    if (!activePhotoSession || activePhotoSession !== sessionId) return;
     try {
       const res = await fetch(`/api/lager/photo-poll?session=${encodeURIComponent(sessionId)}`);
       if (!res.ok) return;
       const data = await res.json();
-      if (data.ready && data.imageBase64) {
-        setSlotPhoto(slotIndex, data.imageBase64, true);
-        toast(`✅ Foto ${slotIndex + 1} erhalten!`);
+      if (!data.slots) return;
+      for (let slot = 1; slot <= 3; slot++) {
+        const s = data.slots[String(slot)];
+        const index = slot - 1;
+        if (s?.ready && s.imageBase64 && !formPhotos[index]) {
+          setSlotPhoto(index, s.imageBase64, true);
+          toast(`✅ Foto ${slot} erhalten!`);
+        }
+      }
+      const filled = formPhotos.filter(Boolean).length;
+      $('l4QrStatus').textContent = filled
+        ? `${filled} von 3 Fotos übernommen${filled < 3 ? ' — weitere möglich' : ''}`
+        : 'Warte auf Fotos vom Handy…';
+      if (filled >= 3) {
+        $('l4QrStatus').textContent = '✅ Alle 3 Fotos übernommen';
       }
     } catch { /* retry */ }
   }
@@ -170,8 +180,8 @@
     $('l4PartsList').innerHTML = list.map(p => {
       const s = stock(p.bestand, p.minBestand);
       const lowBadge = s.low ? `<span class="card-stock stock-out" style="position:static;display:inline-block;margin-left:6px">!</span>` : '';
-      return `<div class="admin-item">
-        <div class="admin-item-row">
+      return `<div class="admin-item" data-part-id="${p.id}">
+        <div class="admin-item-row" data-view-part="${p.id}" role="button" tabindex="0">
           <div class="admin-item-thumb">${imgHtml(p, 22)}</div>
           <div class="admin-item-info">
             <div class="admin-item-name">${esc(p.name)}${lowBadge}</div>
@@ -373,20 +383,17 @@
     $('l4PartSave').addEventListener('click', savePartForm);
 
     $('l4PhotoSlots')?.addEventListener('click', e => {
-      const qrBtn = e.target.closest('[data-qr]');
       const clearBtn = e.target.closest('[data-clear]');
       const slot = e.target.closest('.l4-photo-slot');
       if (!slot) return;
       const index = parseInt(slot.dataset.slot, 10);
-      if (qrBtn) {
-        e.preventDefault();
-        startQrUpload(index);
-      }
       if (clearBtn) {
         e.preventDefault();
         clearSlotPhoto(index);
       }
     });
+
+    $('l4QrStart')?.addEventListener('click', startQrSession);
 
     $('l4PhotoSlots')?.addEventListener('change', e => {
       const input = e.target.closest('[data-file]');
@@ -416,15 +423,28 @@
     $('l4PartsList').addEventListener('click', async e => {
       const edit = e.target.closest('[data-edit-part]');
       const del = e.target.closest('[data-del-part]');
-      if (edit) openPartForm(parseInt(edit.dataset.editPart, 10));
-      if (del && confirm('Teil löschen?')) {
-        const id = parseInt(del.dataset.delPart, 10);
-        try {
-          await deletePart(id);
-          parts = parts.filter(p => p.id !== id);
-          renderParts();
-          toast('Gelöscht');
-        } catch { toast('Fehler'); }
+      const view = e.target.closest('[data-view-part]');
+      if (edit) {
+        e.stopPropagation();
+        openPartForm(parseInt(edit.dataset.editPart, 10));
+        return;
+      }
+      if (del) {
+        e.stopPropagation();
+        if (confirm('Teil löschen?')) {
+          const id = parseInt(del.dataset.delPart, 10);
+          try {
+            await deletePart(id);
+            parts = parts.filter(p => p.id !== id);
+            renderParts();
+            toast('Gelöscht');
+          } catch { toast('Fehler'); }
+        }
+        return;
+      }
+      if (view) {
+        const p = findPart(parts, parseInt(view.dataset.viewPart, 10));
+        if (p) openPartView(p, { mode: 'admin' });
       }
     });
 
@@ -448,6 +468,7 @@
     if (new URLSearchParams(location.search).has('embed')) {
       document.body.classList.add('l4-embed');
     }
+    bindPartView();
     bind();
     await loadAll();
   }

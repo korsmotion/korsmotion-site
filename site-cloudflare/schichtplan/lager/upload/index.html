@@ -19,9 +19,11 @@ body{min-height:100vh;font-family:'Inter',sans-serif;background:linear-gradient(
 .brand-sub{font-size:11px;color:var(--text-muted)}
 h1{font-size:18px;font-weight:700;margin-bottom:6px}
 .sub{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:22px}
-.upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border:none;border-radius:var(--r);background:var(--accent);color:#fff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,.25)}
-.upload-btn:disabled{opacity:.55;cursor:not-allowed}
-.upload-btn:not(:disabled):active{transform:scale(.98)}
+.upload-btn,.slot-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border:none;border-radius:var(--r);background:var(--accent);color:#fff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,.25);margin-bottom:8px}
+.slot-btn{background:#fff;color:var(--text);border:1.5px solid var(--border);box-shadow:none;font-size:15px}
+.slot-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 14px rgba(37,99,235,.25)}
+.upload-btn:disabled,.slot-btn:disabled{opacity:.55;cursor:not-allowed}
+.upload-btn:not(:disabled):active,.slot-btn:not(:disabled):active{transform:scale(.98)}
 .file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
 .preview{margin-top:16px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);display:none}
 .preview img{width:100%;max-height:220px;object-fit:cover;display:block}
@@ -29,6 +31,8 @@ h1{font-size:18px;font-weight:700;margin-bottom:6px}
 .status.ok{color:var(--green)}
 .status.err{color:#dc2626}
 .status.wait{color:var(--text-muted)}
+.actions{display:none;flex-direction:column;gap:0;margin-top:8px}
+.actions.show{display:flex}
 .footer{margin-top:20px;font-size:11px;color:var(--text-muted)}
 </style>
 </head>
@@ -41,12 +45,19 @@ h1{font-size:18px;font-weight:700;margin-bottom:6px}
       <div class="brand-sub">Lager 4.OG · Foto-Upload</div>
     </div>
   </div>
-  <h1>Foto aufnehmen</h1>
-  <p class="sub">Foto wird automatisch an den geöffneten Teile-Formular übertragen.</p>
+  <h1 id="title">Foto 1 aufnehmen</h1>
+  <p class="sub" id="subtitle">Fotos werden automatisch an das geöffnete Teile-Formular übertragen.</p>
   <input type="file" id="fileInput" class="file-input" accept="image/*" capture="environment">
-  <button type="button" class="upload-btn" id="pickBtn">📷 Foto aufnehmen</button>
+  <div id="captureBlock">
+    <button type="button" class="upload-btn" id="pickBtn">📷 Foto aufnehmen</button>
+  </div>
   <div class="preview" id="preview"><img id="previewImg" alt=""></div>
   <div class="status wait" id="status"></div>
+  <div class="actions" id="actions">
+    <button type="button" class="slot-btn" id="btnSlot2" hidden>📷 Foto 2 aufnehmen</button>
+    <button type="button" class="slot-btn" id="btnSlot3" hidden>📷 Foto 3 aufnehmen</button>
+    <button type="button" class="slot-btn primary" id="btnDone">✅ Fertig</button>
+  </div>
   <p class="footer">Session läuft 5 Minuten ab</p>
 </div>
 <script>
@@ -60,6 +71,17 @@ h1{font-size:18px;font-weight:700;margin-bottom:6px}
   const statusEl = document.getElementById('status');
   const preview = document.getElementById('preview');
   const previewImg = document.getElementById('previewImg');
+  const titleEl = document.getElementById('title');
+  const subtitleEl = document.getElementById('subtitle');
+  const captureBlock = document.getElementById('captureBlock');
+  const actions = document.getElementById('actions');
+  const btnSlot2 = document.getElementById('btnSlot2');
+  const btnSlot3 = document.getElementById('btnSlot3');
+  const btnDone = document.getElementById('btnDone');
+
+  let currentSlot = 1;
+  const uploaded = new Set();
+  let pendingPick = null;
 
   function setStatus(msg, type) {
     statusEl.textContent = msg;
@@ -100,38 +122,67 @@ h1{font-size:18px;font-weight:700;margin-bottom:6px}
     });
   }
 
-  async function upload(dataUrl) {
-    pickBtn.disabled = true;
+  async function upload(dataUrl, slot) {
     setStatus('Wird übertragen…', 'wait');
+    const res = await fetch('/api/lager/photo-upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, imageBase64: dataUrl, slot }),
+    });
+    if (!res.ok) throw new Error('upload');
+    uploaded.add(slot);
+  }
+
+  function updateUiAfterUpload(slot) {
+    setStatus(`✅ Foto ${slot} erhalten!`, 'ok');
+    captureBlock.hidden = true;
+    actions.classList.add('show');
+    btnSlot2.hidden = uploaded.has(2) || !uploaded.has(1) || uploaded.size >= 3;
+    btnSlot3.hidden = uploaded.has(3) || !uploaded.has(2) || uploaded.size >= 3;
+    titleEl.textContent = uploaded.size >= 3 ? 'Alle Fotos übertragen' : 'Weitere Fotos?';
+    subtitleEl.textContent = uploaded.size >= 3
+      ? 'Alle 3 Fotos wurden übertragen. Sie können die Seite schließen.'
+      : 'Optional weitere Fotos aufnehmen oder abschliessen.';
+  }
+
+  function startCapture(slot) {
+    currentSlot = slot;
+    pendingPick = slot;
+    fileInput.value = '';
+    fileInput.click();
+  }
+
+  async function handleFile(file, slot) {
     try {
-      const res = await fetch('/api/lager/photo-upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, imageBase64: dataUrl }),
-      });
-      if (!res.ok) throw new Error('upload');
-      setStatus('✅ Foto wurde übertragen', 'ok');
+      setStatus('Wird komprimiert…', 'wait');
+      const dataUrl = await compressImage(file);
+      previewImg.src = dataUrl;
+      preview.style.display = 'block';
+      await upload(dataUrl, slot);
+      updateUiAfterUpload(slot);
     } catch {
       setStatus('Fehler beim Übertragen. Bitte erneut versuchen.', 'err');
       pickBtn.disabled = false;
     }
   }
 
-  pickBtn.addEventListener('click', () => fileInput.click());
+  pickBtn.addEventListener('click', () => startCapture(1));
+  btnSlot2.addEventListener('click', () => startCapture(2));
+  btnSlot3.addEventListener('click', () => startCapture(3));
+  btnDone.addEventListener('click', () => {
+    setStatus('✅ Fertig — Sie können die Seite schliessen.', 'ok');
+    actions.classList.remove('show');
+    btnDone.disabled = true;
+  });
 
   fileInput.addEventListener('change', async () => {
     const file = fileInput.files?.[0];
-    if (!file) return;
-    try {
-      setStatus('Wird komprimiert…', 'wait');
-      const dataUrl = await compressImage(file);
-      previewImg.src = dataUrl;
-      preview.style.display = 'block';
-      await upload(dataUrl);
-    } catch {
-      setStatus('Bild konnte nicht verarbeitet werden.', 'err');
-      pickBtn.disabled = false;
-    }
+    if (!file || !pendingPick) return;
+    const slot = pendingPick;
+    pendingPick = null;
+    pickBtn.disabled = true;
+    await handleFile(file, slot);
+    pickBtn.disabled = false;
   });
 })();
 </script>

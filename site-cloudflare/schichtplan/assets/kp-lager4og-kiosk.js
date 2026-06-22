@@ -1,7 +1,8 @@
 (function () {
   const {
-    esc, stock, imgHtml, hl, galleryHtml, partPhotos, findPart,
+    esc, stock, imgHtml, hl, findPart,
     partMatchesSearchWorker, collectMachines, fetchParts, fetchEmployees, withdraw, toast,
+    openPartView, closePartView, bindPartView,
   } = window.L4;
 
   let parts = [];
@@ -9,7 +10,6 @@
   let session = { badge4: '', employee: null, machine: '' };
   let badgeDigits = '';
   let searchQuery = '';
-  let selectedPart = null;
 
   const $ = id => document.getElementById(id);
 
@@ -35,11 +35,10 @@
     session = { badge4: '', employee: null, machine: '' };
     badgeDigits = '';
     searchQuery = '';
-    selectedPart = null;
     $('l4BadgeErr').textContent = '';
     if ($('l4SearchInput')) $('l4SearchInput').value = '';
     syncBadgeUi();
-    closeDetail();
+    closePartView();
     showScreen('l4ScreenBadge');
     $('l4ScanInput')?.focus();
   }
@@ -147,41 +146,8 @@
     }).join('');
   }
 
-  function openDetail(id) {
-    const p = findPart(parts, id);
-    if (!p) return;
-    selectedPart = p;
-    const bestand = parseInt(p.bestand, 10) || 0;
-    $('l4ModalGallery').innerHTML = galleryHtml(p);
-    $('l4ModalCat').textContent = p.category || '—';
-    $('l4ModalName').textContent = p.name || '—';
-    $('l4ModalType').textContent = p.type || '—';
-    $('l4ModalDesc').textContent = p.desc || '—';
-    $('l4ModalNr').textContent = p.nr || '—';
-    $('l4ModalBestNr').textContent = p.bestNr || '—';
-    $('l4ModalLoc').textContent = p.location || '—';
-    $('l4ModalBestand').textContent = `${bestand} Stk.`;
-    const machines = Array.isArray(p.machines) ? p.machines : [];
-    $('l4ModalMachines').innerHTML = machines.length
-      ? machines.map(m => `<span class="machine-tag">${esc(m)}</span>`).join('')
-      : '<span style="font-size:13px;color:var(--text-muted)">—</span>';
-    const qtyInput = $('l4WithdrawQty');
-    qtyInput.min = '1';
-    qtyInput.max = String(Math.max(1, bestand));
-    qtyInput.value = bestand > 0 ? '1' : '0';
-    qtyInput.disabled = bestand < 1;
-    $('l4EntnehmenBtn').disabled = bestand < 1;
-    $('l4DetailModal').classList.add('open');
-  }
-
-  function closeDetail() {
-    $('l4DetailModal').classList.remove('open');
-    selectedPart = null;
-  }
-
-  async function confirmWithdraw() {
-    if (!selectedPart) return;
-    const bestand = parseInt(selectedPart.bestand, 10) || 0;
+  async function confirmWithdraw(part) {
+    const bestand = parseInt(part.bestand, 10) || 0;
     const qty = Math.max(1, parseInt($('l4WithdrawQty').value, 10) || 1);
     if (qty > bestand) {
       toast('❗ Nicht genug auf Lager');
@@ -189,14 +155,14 @@
     }
     try {
       const data = await withdraw({
-        partId: selectedPart.id,
+        partId: part.id,
         qty,
         badge4: session.badge4,
         machine: session.machine,
       });
       const idx = parts.findIndex(p => parseInt(p.id, 10) === parseInt(data.part.id, 10));
       if (idx >= 0) parts[idx] = data.part;
-      closeDetail();
+      closePartView();
       $('l4SuccessDetail').innerHTML = `
         <strong>${esc(data.entry.qty)}× ${esc(data.entry.partName)}</strong><br>
         Maschine: <strong>${esc(data.entry.machine)}</strong><br>
@@ -215,7 +181,9 @@
     });
     $('l4Grid')?.addEventListener('click', e => {
       const card = e.target.closest('[data-part]');
-      if (card) openDetail(parseInt(card.dataset.part, 10));
+      if (!card) return;
+      const p = findPart(parts, parseInt(card.dataset.part, 10));
+      if (p) openPartView(p, { mode: 'worker' });
     });
   }
 
@@ -251,6 +219,7 @@
 
   async function init() {
     if (isEmbed()) document.body.classList.add('l4-embed');
+    bindPartView({ onWithdraw: confirmWithdraw });
     buildKeypad();
     bindMachines();
     bindSearch();
@@ -260,25 +229,7 @@
     $('l4BadgeWeiter')?.addEventListener('click', submitBadge);
     $('l4MachineBack')?.addEventListener('click', () => showScreen('l4ScreenBadge'));
     $('l4SearchBack')?.addEventListener('click', () => showScreen('l4ScreenMachine'));
-    $('l4DetailClose')?.addEventListener('click', closeDetail);
-    $('l4DetailModal')?.addEventListener('click', e => {
-      if (e.target === $('l4DetailModal')) closeDetail();
-    });
-    $('l4DetailDialog')?.addEventListener('click', e => e.stopPropagation());
-    $('l4EntnehmenBtn')?.addEventListener('click', confirmWithdraw);
     $('l4SuccessNew')?.addEventListener('click', resetSession);
-
-    $('l4ModalGallery')?.addEventListener('click', e => {
-      const thumb = e.target.closest('[data-l4-idx]');
-      if (!thumb || !selectedPart) return;
-      e.stopPropagation();
-      const idx = parseInt(thumb.dataset.l4Idx, 10);
-      const src = partPhotos(selectedPart)[idx];
-      if (!src) return;
-      $('l4LightboxImg').src = src;
-      $('l4Lightbox').classList.add('open');
-    });
-    $('l4Lightbox')?.addEventListener('click', () => $('l4Lightbox').classList.remove('open'));
 
     try {
       [parts, employees] = await Promise.all([fetchParts(), fetchEmployees()]);

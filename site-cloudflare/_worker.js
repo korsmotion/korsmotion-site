@@ -286,7 +286,9 @@ const LAGER_KV = {
 };
 const LAGER_PHOTO_TTL = 300;
 
-function lagerPhotoKey(sessionId) {
+function lagerPhotoKey(sessionId, slot) {
+  const s = parseInt(slot, 10);
+  if (s >= 1 && s <= 3) return `lager4og:photo:${sessionId}:${s}`;
   return `lager4og:photo:${sessionId}`;
 }
 
@@ -930,31 +932,44 @@ export default {
       try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
       const sessionId = String(body.sessionId || '').trim();
       const imageBase64 = String(body.imageBase64 || '').trim();
+      const slot = parseInt(body.slot, 10);
       if (!isValidLagerSessionId(sessionId)) return json({ error: 'Invalid session' }, 400);
       if (!imageBase64 || imageBase64.length > 2_500_000) {
         return json({ error: 'imageBase64 required' }, 400);
       }
+      if (!Number.isInteger(slot) || slot < 1 || slot > 3) {
+        return json({ error: 'slot must be 1, 2, or 3' }, 400);
+      }
       const payload = JSON.stringify({
         imageBase64,
+        slot,
         timestamp: new Date().toISOString(),
       });
-      await env.KORSMOTION_DATA.put(lagerPhotoKey(sessionId), payload, { expirationTtl: LAGER_PHOTO_TTL });
-      return json({ ok: true });
+      await env.KORSMOTION_DATA.put(lagerPhotoKey(sessionId, slot), payload, { expirationTtl: LAGER_PHOTO_TTL });
+      return json({ ok: true, slot });
     }
 
     if (url.pathname === '/api/lager/photo-poll' && request.method === 'GET') {
       const sessionId = String(url.searchParams.get('session') || '').trim();
       if (!isValidLagerSessionId(sessionId)) return json({ error: 'Invalid session' }, 400);
-      const key = lagerPhotoKey(sessionId);
-      const raw = await env.KORSMOTION_DATA.get(key);
-      if (!raw) return json({ ready: false });
-      await env.KORSMOTION_DATA.delete(key);
-      try {
-        const data = JSON.parse(raw);
-        return json({ ready: true, imageBase64: data.imageBase64 || '' });
-      } catch {
-        return json({ ready: false });
+      const slots = {};
+      for (let slot = 1; slot <= 3; slot++) {
+        const key = lagerPhotoKey(sessionId, slot);
+        const raw = await env.KORSMOTION_DATA.get(key);
+        if (!raw) {
+          slots[String(slot)] = { ready: false };
+          continue;
+        }
+        try {
+          const data = JSON.parse(raw);
+          slots[String(slot)] = { ready: true, imageBase64: data.imageBase64 || '' };
+          await env.KORSMOTION_DATA.delete(key);
+        } catch {
+          slots[String(slot)] = { ready: false };
+        }
       }
+      const anyReady = Object.values(slots).some(s => s.ready);
+      return json({ slots, anyReady });
     }
 
     // Everything else — KV media first, then static assets from Pages

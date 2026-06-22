@@ -76,15 +76,16 @@
     return hay.includes(ql);
   }
 
-  function l4GalleryHtml(part) {
+  function l4GalleryHtml(part, variant) {
     const photos = l4PartPhotos(part);
     const hasAny = photos.some(Boolean);
-    if (!hasAny) return `<div class="l4-gallery-empty-slot">🔧</div>`;
+    const cls = variant === 'view' ? ' l4-gallery-thumb-view' : '';
+    if (!hasAny) return `<div class="l4-gallery-empty-slot l4-gallery-empty-view">🔧</div>`;
     return photos.map((src, i) => {
       if (src) {
-        return `<button type="button" class="l4-gallery-thumb" data-l4-idx="${i}" aria-label="Foto ${i + 1}"><img src="${l4Esc(src)}" alt=""></button>`;
+        return `<button type="button" class="l4-gallery-thumb${cls}" data-l4-idx="${i}" aria-label="Foto ${i + 1}"><img src="${l4Esc(src)}" alt=""></button>`;
       }
-      return `<div class="l4-gallery-empty-slot" aria-hidden="true">—</div>`;
+      return `<div class="l4-gallery-empty-slot l4-gallery-empty-view" aria-hidden="true">—</div>`;
     }).join('');
   }
 

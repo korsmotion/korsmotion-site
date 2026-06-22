@@ -118,36 +118,44 @@
   </div>
 </div>
 
-<!-- Detail modal (Suche) -->
-<div class="modal-overlay" id="l4DetailModal">
-  <div class="modal" role="dialog" id="l4DetailDialog">
-    <div class="l4-modal-gallery" id="l4ModalGallery"></div>
-    <div class="modal-body">
-      <div class="modal-cat" id="l4ModalCat"></div>
-      <div class="modal-name" id="l4ModalName"></div>
-      <div class="modal-type" id="l4ModalType"></div>
-      <div class="modal-desc" id="l4ModalDesc"></div>
-      <div class="modal-fields">
-        <div class="modal-field"><div class="modal-field-label">Dynawin Nr.</div><div class="modal-field-value" id="l4ModalNr"></div></div>
-        <div class="modal-field"><div class="modal-field-label">Best.-Nr.</div><div class="modal-field-value" id="l4ModalBestNr"></div></div>
-        <div class="modal-field"><div class="modal-field-label">Lagerort</div><div class="modal-field-value" id="l4ModalLoc"></div></div>
-        <div class="modal-field"><div class="modal-field-label">Bestand</div><div class="modal-field-value" id="l4ModalBestand"></div></div>
+<!-- Part detail view (Admin + Suche) -->
+<div class="modal-overlay" id="l4PartViewModal">
+  <div class="modal l4-view-modal" role="dialog" id="l4PartViewDialog" aria-labelledby="l4ViewName">
+    <div class="l4-view-header">
+      <h2 class="l4-view-title" id="l4ViewName"></h2>
+      <span class="l4-view-cat-badge" id="l4ViewCat"></span>
+    </div>
+    <div class="l4-view-gallery" id="l4ViewGallery"></div>
+    <div class="modal-body l4-view-body">
+      <div class="l4-view-info">
+        <div class="l4-view-row"><span class="l4-view-label">Typ</span><span class="l4-view-value" id="l4ViewType"></span></div>
+        <div class="l4-view-row l4-view-row-full"><span class="l4-view-label">Beschreibung</span><span class="l4-view-value" id="l4ViewDesc"></span></div>
+        <div class="l4-view-row"><span class="l4-view-label">Dynawin Nr.</span><span class="l4-view-value l4-mono" id="l4ViewNr"></span></div>
+        <div class="l4-view-row"><span class="l4-view-label">Best.-Nr.</span><span class="l4-view-value l4-mono" id="l4ViewBestNr"></span></div>
+        <div class="l4-view-row"><span class="l4-view-label">Lagerort</span><span class="l4-view-value l4-mono" id="l4ViewLoc"></span></div>
+        <div class="l4-view-row"><span class="l4-view-label">Bestand</span><span class="l4-view-value" id="l4ViewBestand"></span></div>
+        <div class="l4-view-row"><span class="l4-view-label">Min. Bestand</span><span class="l4-view-value" id="l4ViewMin"></span></div>
       </div>
       <div class="modal-machines">
         <div class="modal-machines-label">Maschinen</div>
-        <div class="machine-tags" id="l4ModalMachines"></div>
+        <div class="machine-tags" id="l4ViewMachines"></div>
       </div>
-      <div class="form-row" style="margin-top:12px">
-        <label class="form-label" for="l4WithdrawQty">Anzahl entnehmen</label>
-        <input type="number" class="form-input l4-qty-input" id="l4WithdrawQty" min="1" value="1" inputmode="numeric">
+      <div class="l4-view-worker" id="l4ViewWorker" hidden>
+        <div class="form-row" style="margin-top:12px">
+          <label class="form-label" for="l4WithdrawQty">Anzahl entnehmen</label>
+          <input type="number" class="form-input l4-qty-input" id="l4WithdrawQty" min="1" value="1" inputmode="numeric">
+        </div>
+        <button type="button" class="btn-primary l4-btn-weiter" id="l4EntnehmenBtn" style="margin-bottom:8px">✅ Entnehmen</button>
       </div>
-      <button type="button" class="btn-primary l4-btn-weiter" id="l4EntnehmenBtn" style="margin:12px 0 8px">✅ Entnehmen</button>
-      <button type="button" class="btn-secondary l4-btn-weiter" id="l4DetailClose" style="width:100%">Abbrechen</button>
+    </div>
+    <div class="l4-view-footer">
+      <button type="button" class="btn-secondary l4-btn-weiter" id="l4ViewClose">Schließen</button>
     </div>
   </div>
 </div>
 
 <div class="l4-lightbox" id="l4Lightbox" role="dialog" aria-label="Foto vergrößern">
+  <button type="button" class="l4-lightbox-close" id="l4LightboxClose" aria-label="Schließen">✕</button>
   <img id="l4LightboxImg" alt="">
 </div>
 
@@ -161,13 +169,13 @@
     <div class="form-body">
       <div class="form-row">
         <label class="form-label">Fotos <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+        <button type="button" class="btn-secondary l4-qr-start" id="l4QrStart">📷 Fotos per QR (bis zu 3)</button>
         <div class="l4-photo-slots" id="l4PhotoSlots">
           <div class="l4-photo-slot" data-slot="0">
             <div class="l4-photo-slot-label">Foto 1</div>
             <div class="l4-photo-slot-preview" data-preview hidden><img alt=""><button type="button" class="l4-photo-clear" data-clear title="Entfernen">✕</button></div>
             <div class="l4-photo-slot-actions">
               <label class="btn-secondary l4-photo-pick"><input type="file" accept="image/*" capture="environment" data-file hidden>Foto wählen</label>
-              <button type="button" class="btn-secondary l4-photo-qr" data-qr>📷 QR</button>
             </div>
             <p class="l4-photo-received" data-received hidden>✅ Foto erhalten!</p>
           </div>
@@ -176,7 +184,6 @@
             <div class="l4-photo-slot-preview" data-preview hidden><img alt=""><button type="button" class="l4-photo-clear" data-clear title="Entfernen">✕</button></div>
             <div class="l4-photo-slot-actions">
               <label class="btn-secondary l4-photo-pick"><input type="file" accept="image/*" capture="environment" data-file hidden>Foto wählen</label>
-              <button type="button" class="btn-secondary l4-photo-qr" data-qr>📷 QR</button>
             </div>
             <p class="l4-photo-received" data-received hidden>✅ Foto erhalten!</p>
           </div>
@@ -185,13 +192,12 @@
             <div class="l4-photo-slot-preview" data-preview hidden><img alt=""><button type="button" class="l4-photo-clear" data-clear title="Entfernen">✕</button></div>
             <div class="l4-photo-slot-actions">
               <label class="btn-secondary l4-photo-pick"><input type="file" accept="image/*" capture="environment" data-file hidden>Foto wählen</label>
-              <button type="button" class="btn-secondary l4-photo-qr" data-qr>📷 QR</button>
             </div>
             <p class="l4-photo-received" data-received hidden>✅ Foto erhalten!</p>
           </div>
         </div>
         <div class="l4-qr-panel" id="l4QrPanel" hidden>
-          <p class="l4-qr-hint" id="l4QrHint">QR-Code scannen — Foto erscheint automatisch im gewählten Slot.</p>
+          <p class="l4-qr-hint" id="l4QrHint">QR scannen — bis zu 3 Fotos nacheinander vom Handy übertragen.</p>
           <div class="l4-qr-canvas-wrap" id="l4QrCanvas"></div>
           <p class="l4-qr-status" id="l4QrStatus">Warte auf Foto vom Handy…</p>
         </div>
@@ -243,6 +249,7 @@
 <div class="toast" id="l4Toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="/schichtplan/assets/kp-lager4og-common.js"></script>
+<script src="/schichtplan/assets/kp-lager4og-view.js"></script>
 <script src="/schichtplan/assets/kp-lager4og-main.js"></script>
 <script src="/schichtplan/assets/kp-lager4og-kiosk.js"></script>
 <script src="/schichtplan/assets/kp-lager4og-admin.js"></script>
