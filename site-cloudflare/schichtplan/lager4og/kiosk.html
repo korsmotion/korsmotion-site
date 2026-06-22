@@ -81,8 +81,7 @@
 
 <!-- Detail modal -->
 <div class="modal-overlay" id="l4DetailModal">
-  <div class="modal" role="dialog">
-    <div class="modal-img" id="l4ModalImg"></div>
+  <div class="modal" role="dialog" id="l4DetailDialog">
     <div class="l4-modal-gallery" id="l4ModalGallery"></div>
     <div class="modal-body">
       <div class="modal-cat" id="l4ModalCat"></div>
@@ -91,8 +90,13 @@
       <div class="modal-desc" id="l4ModalDesc"></div>
       <div class="modal-fields">
         <div class="modal-field"><div class="modal-field-label">Dynawin Nr.</div><div class="modal-field-value" id="l4ModalNr"></div></div>
+        <div class="modal-field"><div class="modal-field-label">Best.-Nr.</div><div class="modal-field-value" id="l4ModalBestNr"></div></div>
         <div class="modal-field"><div class="modal-field-label">Lagerort</div><div class="modal-field-value" id="l4ModalLoc"></div></div>
         <div class="modal-field"><div class="modal-field-label">Bestand</div><div class="modal-field-value" id="l4ModalBestand"></div></div>
+      </div>
+      <div class="modal-machines">
+        <div class="modal-machines-label">Maschinen</div>
+        <div class="machine-tags" id="l4ModalMachines"></div>
       </div>
       <button type="button" class="btn-primary" id="l4EntnehmenBtn" style="margin-bottom:10px">Entnehmen</button>
       <button type="button" class="btn-secondary" id="l4DetailClose" style="width:100%">Schließen</button>

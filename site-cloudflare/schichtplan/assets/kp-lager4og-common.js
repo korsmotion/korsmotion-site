@@ -5,7 +5,7 @@
     'Station 2', '10.2', '10.3', '10.3-2', 'Sonstiges',
   ];
   const L4_KIOSK_MACHINES = L4_MACHINES.filter(m => m !== 'Sonstiges');
-  const L4_CATEGORIES = ['Sensor', 'Pneumatik', 'Dichtung', 'Vakuum', 'Antrieb', 'Elektrik', 'Sonstiges'];
+  const L4_CATEGORIES = ['Sensor', 'Pneumatik', 'Dichtung', 'Vakuum', 'Antrieb', 'Elektrik', 'Befestigung', 'Kupplung', 'Sonstiges'];
   const L4_ADMIN_PW = 'korsmotion2026';
 
   function l4Esc(s) {
@@ -44,12 +44,31 @@
     return `<span class="emoji-placeholder" style="font-size:${size}px">🔧</span>`;
   }
 
-  function l4GalleryHtml(part, thumbSize) {
-    const photos = l4PartPhotos(part).filter(Boolean);
-    if (!photos.length) return `<span class="emoji-placeholder" style="font-size:${thumbSize || 68}px">🔧</span>`;
-    return photos.map((src, i) =>
-      `<button type="button" class="l4-gallery-thumb" data-l4-img="${l4Esc(src)}" aria-label="Foto ${i + 1}"><img src="${l4Esc(src)}" alt=""></button>`
-    ).join('');
+  function l4FindPart(parts, id) {
+    const pid = parseInt(id, 10);
+    return parts.find(p => parseInt(p.id, 10) === pid) || null;
+  }
+
+  function l4PartMatchesSearch(p, q) {
+    if (!q) return true;
+    const ql = String(q).toLowerCase();
+    const hay = [
+      p.name, p.type, p.category, p.desc, p.nr, p.bestNr, p.location,
+      ...(p.keywords || []),
+    ].map(v => String(v ?? '').toLowerCase()).join(' ');
+    return hay.includes(ql);
+  }
+
+  function l4GalleryHtml(part) {
+    const photos = l4PartPhotos(part);
+    const hasAny = photos.some(Boolean);
+    if (!hasAny) return `<div class="l4-gallery-empty-slot">🔧</div>`;
+    return photos.map((src, i) => {
+      if (src) {
+        return `<button type="button" class="l4-gallery-thumb" data-l4-idx="${i}" aria-label="Foto ${i + 1}"><img src="${l4Esc(src)}" alt=""></button>`;
+      }
+      return `<div class="l4-gallery-empty-slot" aria-hidden="true">—</div>`;
+    }).join('');
   }
 
   function l4Hl(text, q) {
@@ -159,6 +178,8 @@
     stock: l4Stock,
     partPhotos: l4PartPhotos,
     primaryPhoto: l4PrimaryPhoto,
+    findPart: l4FindPart,
+    partMatchesSearch: l4PartMatchesSearch,
     imgHtml: l4ImgHtml,
     galleryHtml: l4GalleryHtml,
     PHOTO_SLOTS: 3,

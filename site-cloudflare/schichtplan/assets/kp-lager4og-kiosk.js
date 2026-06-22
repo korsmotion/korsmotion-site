@@ -1,5 +1,5 @@
 (function () {
-  const { esc, stock, imgHtml, hl, galleryHtml, partPhotos, fetchParts, fetchEmployees, withdraw, toast, KIOSK_MACHINES, CATEGORIES } = window.L4;
+  const { esc, stock, imgHtml, hl, galleryHtml, partPhotos, findPart, partMatchesSearch, fetchParts, fetchEmployees, withdraw, toast, KIOSK_MACHINES, CATEGORIES } = window.L4;
 
   let parts = [];
   let employees = [];
@@ -131,12 +131,7 @@
   function filteredParts() {
     return parts.filter(p => {
       if (activeFilter !== 'all' && p.category !== activeFilter) return false;
-      if (!searchQuery) return true;
-      const q = searchQuery.toLowerCase();
-      return p.name.toLowerCase().includes(q) || p.type.toLowerCase().includes(q) ||
-        String(p.nr).includes(q) || p.location.toLowerCase().includes(q) ||
-        (p.desc && p.desc.toLowerCase().includes(q)) ||
-        (p.keywords || []).some(k => k.includes(q));
+      return partMatchesSearch(p, searchQuery);
     });
   }
 
@@ -171,11 +166,7 @@
 
   function buildAc(q) {
     if (!q || q.length < 1) return [];
-    const ql = q.toLowerCase();
-    return parts.filter(p =>
-      p.name.toLowerCase().includes(ql) || p.type.toLowerCase().includes(ql) ||
-      (p.keywords || []).some(k => k.includes(ql)) || p.category.toLowerCase().includes(ql)
-    ).slice(0, 6);
+    return parts.filter(p => partMatchesSearch(p, q)).slice(0, 6);
   }
 
   function renderAc() {
@@ -196,29 +187,29 @@
   }
 
   function openDetail(id) {
-    const p = parts.find(x => x.id === id);
+    const p = findPart(parts, id);
     if (!p) return;
     selectedPart = p;
-    const photos = partPhotos(p).filter(Boolean);
-    if (photos.length) {
-      $('l4ModalGallery').innerHTML = galleryHtml(p, 72);
-      $('l4ModalImg').style.display = 'none';
-      $('l4ModalImg').innerHTML = '';
-    } else {
-      $('l4ModalGallery').innerHTML = '';
-      $('l4ModalImg').style.display = '';
-      $('l4ModalImg').innerHTML = imgHtml(p, 68);
-    }
-    $('l4ModalCat').textContent = p.category;
-    $('l4ModalName').textContent = p.name;
-    $('l4ModalType').textContent = p.type;
+    $('l4ModalGallery').innerHTML = galleryHtml(p);
+    $('l4ModalCat').textContent = p.category || '—';
+    $('l4ModalName').textContent = p.name || '—';
+    $('l4ModalType').textContent = p.type || '—';
     $('l4ModalDesc').textContent = p.desc || '—';
-    $('l4ModalNr').textContent = p.nr;
-    $('l4ModalLoc').textContent = p.location;
-    $('l4ModalBestand').textContent = `${p.bestand} Stk.`;
-    $('l4EntnehmenBtn').disabled = p.bestand < 1;
+    $('l4ModalNr').textContent = p.nr || '—';
+    $('l4ModalBestNr').textContent = p.bestNr || '—';
+    $('l4ModalLoc').textContent = p.location || '—';
+    $('l4ModalBestand').textContent = `${p.bestand ?? 0} Stk.`;
+    const machines = Array.isArray(p.machines) ? p.machines : [];
+    $('l4ModalMachines').innerHTML = machines.length
+      ? machines.map(m => `<span class="machine-tag">${esc(m)}</span>`).join('')
+      : '<span style="font-size:13px;color:var(--text-muted)">—</span>';
+    $('l4EntnehmenBtn').disabled = (parseInt(p.bestand, 10) || 0) < 1;
     $('l4DetailModal').classList.add('open');
     $('l4AcDropdown').classList.remove('open');
+  }
+
+  function closeDetail() {
+    $('l4DetailModal').classList.remove('open');
   }
 
   function openWithdraw() {
@@ -298,7 +289,11 @@
       }
       if (e.key.length === 1) buf += e.key;
     });
-    document.addEventListener('click', () => scan.focus());
+    document.addEventListener('click', e => {
+      if (!$('l4ScreenBadge')?.classList.contains('on')) return;
+      if (e.target.closest('#l4Keypad') || e.target.closest('.l4-key')) return;
+      scan.focus();
+    });
     scan.focus();
   }
 
@@ -311,13 +306,21 @@
     bindScanInput();
 
     $('l4Logout').addEventListener('click', resetSession);
-    $('l4DetailClose').addEventListener('click', () => $('l4DetailModal').classList.remove('open'));
+    $('l4DetailClose').addEventListener('click', closeDetail);
+    $('l4DetailModal').addEventListener('click', e => {
+      if (e.target === $('l4DetailModal')) closeDetail();
+    });
+    $('l4DetailDialog')?.addEventListener('click', e => e.stopPropagation());
     $('l4EntnehmenBtn').addEventListener('click', openWithdraw);
 
     $('l4ModalGallery').addEventListener('click', e => {
-      const thumb = e.target.closest('[data-l4-img]');
-      if (!thumb) return;
-      $('l4LightboxImg').src = thumb.dataset.l4Img;
+      const thumb = e.target.closest('[data-l4-idx]');
+      if (!thumb || !selectedPart) return;
+      e.stopPropagation();
+      const idx = parseInt(thumb.dataset.l4Idx, 10);
+      const src = partPhotos(selectedPart)[idx];
+      if (!src) return;
+      $('l4LightboxImg').src = src;
       $('l4Lightbox').classList.add('open');
     });
     $('l4Lightbox').addEventListener('click', () => $('l4Lightbox').classList.remove('open'));

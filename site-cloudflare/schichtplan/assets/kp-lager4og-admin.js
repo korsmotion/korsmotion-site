@@ -1,6 +1,6 @@
 (function () {
   const {
-    esc, stock, imgHtml, toast, fmtDt, partPhotos, PHOTO_SLOTS,
+    esc, stock, imgHtml, toast, fmtDt, partPhotos, partMatchesSearch, findPart, PHOTO_SLOTS,
     fetchParts, fetchEmployees, fetchLog,
     savePart, deletePart, saveEmployee, deleteEmployee,
     MACHINES, CATEGORIES,
@@ -164,10 +164,8 @@
   }
 
   function renderParts() {
-    const q = ($('l4AdminPartSearch')?.value || '').toLowerCase();
-    const list = parts.filter(p =>
-      !q || p.name.toLowerCase().includes(q) || p.location.toLowerCase().includes(q) || String(p.nr).includes(q)
-    );
+    const q = ($('l4AdminPartSearch')?.value || '').trim();
+    const list = parts.filter(p => partMatchesSearch(p, q));
     $('l4PartsCount').textContent = `(${parts.length})`;
     $('l4PartsList').innerHTML = list.map(p => {
       const s = stock(p.bestand, p.minBestand);
@@ -234,6 +232,19 @@
     URL.revokeObjectURL(a.href);
   }
 
+  function toggleMachineCheck(lbl) {
+    const m = lbl.dataset.m;
+    const input = lbl.querySelector('input[type=checkbox]');
+    const next = !lbl.classList.contains('checked');
+    lbl.classList.toggle('checked', next);
+    if (input) input.checked = next;
+    if (next) {
+      if (!selectedMachines.includes(m)) selectedMachines.push(m);
+    } else {
+      selectedMachines = selectedMachines.filter(x => x !== m);
+    }
+  }
+
   function buildMachineChecks(checked) {
     selectedMachines = [...(checked || [])];
     $('l4FMachines').innerHTML = MACHINES.filter(m => m !== 'Sonstiges').map(m => `
@@ -253,7 +264,7 @@
     sel.innerHTML = '<option value="">—</option>' + CATEGORIES.map(c => `<option>${esc(c)}</option>`).join('');
 
     if (id) {
-      const p = parts.find(x => x.id === id);
+      const p = findPart(parts, id);
       if (!p) return;
       $('l4FName').value = p.name;
       $('l4FType').value = p.type;
@@ -355,6 +366,7 @@
     $('l4NewPart').addEventListener('click', () => openPartForm(null));
     $('l4NewEmp').addEventListener('click', () => openEmpForm(null));
     $('l4AdminPartSearch')?.addEventListener('input', renderParts);
+    $('l4AdminPartSearch')?.addEventListener('search', renderParts);
     $('l4ExportCsv').addEventListener('click', exportCsv);
     $('l4PartFormClose').addEventListener('click', closePartForm);
     $('l4PartCancel').addEventListener('click', closePartForm);
@@ -397,13 +409,8 @@
     $('l4FMachines').addEventListener('click', e => {
       const lbl = e.target.closest('[data-m]');
       if (!lbl) return;
-      const m = lbl.dataset.m;
-      lbl.classList.toggle('checked');
-      if (lbl.classList.contains('checked')) {
-        if (!selectedMachines.includes(m)) selectedMachines.push(m);
-      } else {
-        selectedMachines = selectedMachines.filter(x => x !== m);
-      }
+      e.preventDefault();
+      toggleMachineCheck(lbl);
     });
 
     $('l4PartsList').addEventListener('click', async e => {
