@@ -49,6 +49,23 @@
     return parts.find(p => parseInt(p.id, 10) === pid) || null;
   }
 
+  function l4PartMatchesSearchWorker(p, q) {
+    if (!q) return true;
+    const ql = String(q).toLowerCase();
+    return [p.name, p.category, p.desc].some(v => String(v ?? '').toLowerCase().includes(ql));
+  }
+
+  function l4CollectMachines(parts) {
+    const set = new Set(L4_KIOSK_MACHINES);
+    (parts || []).forEach(p => {
+      (p.machines || []).forEach(m => { if (m) set.add(String(m)); });
+    });
+    const list = [...set].filter(m => m !== 'Sonstiges');
+    list.sort((a, b) => a.localeCompare(b, 'de'));
+    list.push('Sonstiges');
+    return list;
+  }
+
   function l4PartMatchesSearch(p, q) {
     if (!q) return true;
     const ql = String(q).toLowerCase();
@@ -180,6 +197,8 @@
     primaryPhoto: l4PrimaryPhoto,
     findPart: l4FindPart,
     partMatchesSearch: l4PartMatchesSearch,
+    partMatchesSearchWorker: l4PartMatchesSearchWorker,
+    collectMachines: l4CollectMachines,
     imgHtml: l4ImgHtml,
     galleryHtml: l4GalleryHtml,
     PHOTO_SLOTS: 3,

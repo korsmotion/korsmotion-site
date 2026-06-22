@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Lager 4.OG</title>
+<link rel="stylesheet" href="/schichtplan/assets/kp-lager4og.css">
+</head>
+<body class="l4-body l4-unified" id="l4Body">
+<header class="l4-topbar">
+  <div class="l4-logo">
+    <div class="l4-logo-icon">🏭</div>
+    <div><div class="l4-logo-text">Lager 4.OG</div><div class="l4-logo-sub">Ersatzteile</div></div>
+  </div>
+  <nav class="l4-main-tabs" aria-label="Lager 4.OG Bereiche">
+    <button type="button" class="l4-main-tab on" data-l4-main="suche">🔍 Suche</button>
+    <button type="button" class="l4-main-tab" data-l4-main="verwaltung">⚙️ Verwaltung</button>
+  </nav>
+</header>
+
+<!-- ═══ TAB: SUCHE (Worker Kiosk) ═══ -->
+<div class="l4-main-pane on" id="l4PaneSuche">
+  <section class="l4-screen on" id="l4ScreenBadge">
+    <div class="l4-kiosk-center">
+      <div class="l4-badge-title">Badge</div>
+      <label class="l4-badge-label" for="l4BadgeDisplay">Letzten 4 Ziffern Ihres Badges eingeben</label>
+      <input type="text" id="l4BadgeDisplay" class="l4-badge-display" readonly inputmode="numeric" maxlength="4" placeholder="••••" aria-label="Badge 4 Ziffern">
+      <input type="text" class="l4-scan-input" id="l4ScanInput" inputmode="numeric" autocomplete="off" aria-hidden="true" tabindex="-1">
+      <div class="l4-keypad" id="l4Keypad"></div>
+      <p id="l4BadgeErr" class="l4-badge-err"></p>
+      <button type="button" class="btn-primary l4-btn-weiter" id="l4BadgeWeiter" disabled>Weiter</button>
+    </div>
+  </section>
+
+  <section class="l4-screen" id="l4ScreenMachine">
+    <div class="l4-step-head">
+      <h2>Für welche Maschine?</h2>
+    </div>
+    <div class="l4-machine-grid" id="l4MachineGrid"></div>
+    <div class="l4-step-nav">
+      <button type="button" class="btn-secondary l4-step-back" id="l4MachineBack">← Zurück</button>
+    </div>
+  </section>
+
+  <section class="l4-screen" id="l4ScreenSearch">
+    <div class="l4-context-bar" id="l4ContextBar"></div>
+    <div class="l4-step-nav l4-step-nav-top">
+      <button type="button" class="btn-secondary l4-step-back" id="l4SearchBack">← Zurück</button>
+    </div>
+    <div class="search-section">
+      <div class="search-label">Teil suchen</div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input l4-search-input-lg" id="l4SearchInput" type="search" placeholder="Bezeichnung, Kategorie, Beschreibung…" autocomplete="off">
+      </div>
+    </div>
+    <div class="results-header">
+      <div class="results-count">Gefunden: <span id="l4ResultCount">0</span> Teile</div>
+    </div>
+    <div class="grid" id="l4Grid"></div>
+    <div class="no-results" id="l4NoResults">
+      <div style="font-size:38px;margin-bottom:12px">🔧</div>
+      <h3>Keine Teile gefunden</h3>
+      <p style="font-size:14px;color:var(--text-muted)">Anderen Suchbegriff versuchen.</p>
+    </div>
+  </section>
+
+  <section class="l4-screen" id="l4ScreenSuccess">
+    <div class="l4-kiosk-center">
+      <div class="l4-success-screen">
+        <div class="l4-success-icon">✅</div>
+        <div class="l4-success-title">Entnahme erfasst!</div>
+        <div class="l4-success-detail" id="l4SuccessDetail"></div>
+        <button type="button" class="btn-primary l4-btn-weiter" id="l4SuccessNew">Neue Entnahme</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══ TAB: VERWALTUNG ═══ -->
+<div class="l4-main-pane" id="l4PaneVerwaltung">
+  <div class="l4-admin-wrap">
+    <div class="l4-admin-tabs" role="tablist">
+      <button type="button" class="l4-admin-tab on" data-l4-tab="parts">Teile</button>
+      <button type="button" class="l4-admin-tab" data-l4-tab="employees">Mitarbeiter</button>
+      <button type="button" class="l4-admin-tab" data-l4-tab="journal">Journal</button>
+    </div>
+    <div class="l4-admin-pane on" data-l4-pane="parts">
+      <div class="l4-admin-toolbar">
+        <div class="l4-admin-title">Ersatzteile <span id="l4PartsCount" style="font-size:13px;font-weight:400;color:var(--text-muted)"></span></div>
+        <button type="button" class="btn-primary" id="l4NewPart" style="width:auto;height:38px;padding:0 18px;font-size:13px">＋ Neues Teil</button>
+      </div>
+      <input class="form-input" id="l4AdminPartSearch" type="search" placeholder="Suchen…" style="margin-bottom:12px">
+      <div class="admin-list" id="l4PartsList"></div>
+    </div>
+    <div class="l4-admin-pane" data-l4-pane="employees" hidden>
+      <div class="l4-admin-toolbar">
+        <div class="l4-admin-title">Mitarbeiter</div>
+        <button type="button" class="btn-primary" id="l4NewEmp" style="width:auto;height:38px;padding:0 18px;font-size:13px">＋ Neu</button>
+      </div>
+      <div class="admin-list" id="l4EmpList"></div>
+    </div>
+    <div class="l4-admin-pane" data-l4-pane="journal" hidden>
+      <div class="l4-admin-toolbar">
+        <div class="l4-admin-title">Entnahme-Journal</div>
+        <button type="button" class="btn-secondary" id="l4ExportCsv">⬇️ CSV Export</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="l4-journal-table" id="l4JournalTable">
+          <thead><tr>
+            <th>Datum</th><th>Mitarbeiter</th><th>Teil</th><th>Dynawin</th><th>Menge</th><th>Maschine</th><th>Bestand</th>
+          </tr></thead>
+          <tbody id="l4JournalBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail modal (Suche) -->
+<div class="modal-overlay" id="l4DetailModal">
+  <div class="modal" role="dialog" id="l4DetailDialog">
+    <div class="l4-modal-gallery" id="l4ModalGallery"></div>
+    <div class="modal-body">
+      <div class="modal-cat" id="l4ModalCat"></div>
+      <div class="modal-name" id="l4ModalName"></div>
+      <div class="modal-type" id="l4ModalType"></div>
+      <div class="modal-desc" id="l4ModalDesc"></div>
+      <div class="modal-fields">
+        <div class="modal-field"><div class="modal-field-label">Dynawin Nr.</div><div class="modal-field-value" id="l4ModalNr"></div></div>
+        <div class="modal-field"><div class="modal-field-label">Best.-Nr.</div><div class="modal-field-value" id="l4ModalBestNr"></div></div>
+        <div class="modal-field"><div class="modal-field-label">Lagerort</div><div class="modal-field-value" id="l4ModalLoc"></div></div>
+        <div class="modal-field"><div class="modal-field-label">Bestand</div><div class="modal-field-value" id="l4ModalBestand"></div></div>
+      </div>
+      <div class="modal-machines">
+        <div class="modal-machines-label">Maschinen</div>
+        <div class="machine-tags" id="l4ModalMachines"></div>
+      </div>
+      <div class="form-row" style="margin-top:12px">
+        <label class="form-label" for="l4WithdrawQty">Anzahl entnehmen</label>
+        <input type="number" class="form-input l4-qty-input" id="l4WithdrawQty" min="1" value="1" inputmode="numeric">
+      </div>
+      <button type="button" class="btn-primary l4-btn-weiter" id="l4EntnehmenBtn" style="margin:12px 0 8px">✅ Entnehmen</button>
+      <button type="button" class="btn-secondary l4-btn-weiter" id="l4DetailClose" style="width:100%">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<div class="l4-lightbox" id="l4Lightbox" role="dialog" aria-label="Foto vergrößern">
+  <img id="l4LightboxImg" alt="">
+</div>
+
+<!-- Admin forms -->
+<div class="form-overlay" id="l4PartForm">
+  <div class="form-sheet">
+    <div class="form-header">
+      <div class="form-title" id="l4PartFormTitle">Neues Teil</div>
+      <button type="button" class="btn-secondary" id="l4PartFormClose" style="padding:6px 10px">✕</button>
+    </div>
+    <div class="form-body">
+      <div class="form-row">
+        <label class="form-label">Fotos <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+        <div class="l4-photo-slots" id="l4PhotoSlots">
+          <div class="l4-photo-slot" data-slot="0">
+            <div class="l4-photo-slot-label">Foto 1</div>
+            <div class="l4-photo-slot-preview" data-preview hidden><img alt=""><button type="button" class="l4-photo-clear" data-clear title="Entfernen">✕</button></div>
+            <div class="l4-photo-slot-actions">
+              <label class="btn-secondary l4-photo-pick"><input type="file" accept="image/*" capture="environment" data-file hidden>Foto wählen</label>
+              <button type="button" class="btn-secondary l4-photo-qr" data-qr>📷 QR</button>
+            </div>
+            <p class="l4-photo-received" data-received hidden>✅ Foto erhalten!</p>
+          </div>
+          <div class="l4-photo-slot" data-slot="1">
+            <div class="l4-photo-slot-label">Foto 2</div>
+            <div class="l4-photo-slot-preview" data-preview hidden><img alt=""><button type="button" class="l4-photo-clear" data-clear title="Entfernen">✕</button></div>
+            <div class="l4-photo-slot-actions">
+              <label class="btn-secondary l4-photo-pick"><input type="file" accept="image/*" capture="environment" data-file hidden>Foto wählen</label>
+              <button type="button" class="btn-secondary l4-photo-qr" data-qr>📷 QR</button>
+            </div>
+            <p class="l4-photo-received" data-received hidden>✅ Foto erhalten!</p>
+          </div>
+          <div class="l4-photo-slot" data-slot="2">
+            <div class="l4-photo-slot-label">Foto 3</div>
+            <div class="l4-photo-slot-preview" data-preview hidden><img alt=""><button type="button" class="l4-photo-clear" data-clear title="Entfernen">✕</button></div>
+            <div class="l4-photo-slot-actions">
+              <label class="btn-secondary l4-photo-pick"><input type="file" accept="image/*" capture="environment" data-file hidden>Foto wählen</label>
+              <button type="button" class="btn-secondary l4-photo-qr" data-qr>📷 QR</button>
+            </div>
+            <p class="l4-photo-received" data-received hidden>✅ Foto erhalten!</p>
+          </div>
+        </div>
+        <div class="l4-qr-panel" id="l4QrPanel" hidden>
+          <p class="l4-qr-hint" id="l4QrHint">QR-Code scannen — Foto erscheint automatisch im gewählten Slot.</p>
+          <div class="l4-qr-canvas-wrap" id="l4QrCanvas"></div>
+          <p class="l4-qr-status" id="l4QrStatus">Warte auf Foto vom Handy…</p>
+        </div>
+      </div>
+      <div class="form-row"><label class="form-label">Bezeichnung *</label><input class="form-input" id="l4FName"></div>
+      <div class="form-row-2">
+        <div><label class="form-label">Typ</label><input class="form-input" id="l4FType"></div>
+        <div><label class="form-label">Kategorie *</label><select class="form-select" id="l4FCategory"><option value="">—</option></select></div>
+      </div>
+      <div class="form-row"><label class="form-label">Beschreibung</label><textarea class="form-textarea" id="l4FDesc"></textarea></div>
+      <div class="form-row-2">
+        <div><label class="form-label">Dynawin Nr.</label><input class="form-input" id="l4FNr"></div>
+        <div><label class="form-label">Lagerort *</label><input class="form-input" id="l4FLoc"></div>
+      </div>
+      <div class="form-row-2">
+        <div><label class="form-label">Best.-Nr.</label><input class="form-input" id="l4FBest"></div>
+        <div><label class="form-label">Bestand</label><input class="form-input" id="l4FBestand" type="number" min="0"></div>
+      </div>
+      <div class="form-row"><label class="form-label">Min. Bestand (Warnung)</label><input class="form-input" id="l4FMin" type="number" min="0"></div>
+      <div class="form-row"><label class="form-label">Maschinen</label><div class="machines-grid" id="l4FMachines"></div></div>
+    </div>
+    <div class="form-footer">
+      <button type="button" class="btn-secondary" id="l4PartCancel">Abbrechen</button>
+      <button type="button" class="btn-primary" id="l4PartSave" style="flex:1">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<div class="form-overlay" id="l4EmpForm">
+  <div class="form-sheet">
+    <div class="form-header">
+      <div class="form-title" id="l4EmpFormTitle">Mitarbeiter</div>
+      <button type="button" class="btn-secondary" id="l4EmpFormClose" style="padding:6px 10px">✕</button>
+    </div>
+    <div class="form-body">
+      <div class="form-row"><label class="form-label">Name *</label><input class="form-input" id="l4EName"></div>
+      <div class="form-row-2">
+        <div><label class="form-label">Badge (4 Ziffern) *</label><input class="form-input" id="l4EBadge" maxlength="4" inputmode="numeric" pattern="[0-9]{4}"></div>
+        <div><label class="form-label">Rolle</label><input class="form-input" id="l4ERole" placeholder="z.B. Mechaniker"></div>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button type="button" class="btn-secondary" id="l4EmpCancel">Abbrechen</button>
+      <button type="button" class="btn-primary" id="l4EmpSave" style="flex:1">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="l4Toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="/schichtplan/assets/kp-lager4og-common.js"></script>
+<script src="/schichtplan/assets/kp-lager4og-main.js"></script>
+<script src="/schichtplan/assets/kp-lager4og-kiosk.js"></script>
+<script src="/schichtplan/assets/kp-lager4og-admin.js"></script>
+</body>
+</html>
