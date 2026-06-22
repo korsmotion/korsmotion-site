@@ -145,8 +145,16 @@ mark{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
 .form-input,.form-select,.form-textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;padding:9px 12px;outline:none}
 .form-textarea{resize:vertical;min-height:80px}
 .form-footer{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:8px;position:sticky;bottom:0;background:var(--surface)}
-.photo-upload{border:2px dashed var(--border-strong);border-radius:var(--rl);padding:20px;text-align:center;cursor:pointer;background:var(--surface2);position:relative}
+.photo-upload{border:2px dashed var(--border-strong);border-radius:var(--rl);padding:20px;text-align:center;cursor:pointer;background:var(--surface2);position:relative;flex:1;min-width:0}
 .photo-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.l4-photo-row{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.l4-qr-upload-btn{flex-shrink:0;height:auto;align-self:stretch;padding:12px 14px;white-space:normal;line-height:1.35}
+.l4-qr-panel{margin-top:12px;padding:16px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rl);text-align:center}
+.l4-qr-hint{font-size:12px;color:var(--text-muted);margin-bottom:12px}
+.l4-qr-canvas-wrap{display:inline-block;padding:10px;background:#fff;border-radius:var(--r);border:1px solid var(--border)}
+.l4-qr-canvas-wrap img,.l4-qr-canvas-wrap canvas{display:block}
+.l4-qr-status{font-size:13px;color:var(--text-muted);margin-top:12px}
+.l4-photo-received{font-size:13px;font-weight:600;color:var(--green);margin-top:8px}
 .machines-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
 .machine-check{display:flex;align-items:center;gap:7px;padding:7px 10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;user-select:none}
 .machine-check.checked{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Foto hochladen — Lager 4.OG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#2563eb;--accent-light:#eff4ff;--text:#111827;--text-muted:#6b7280;--border:#dde1e8;--green:#16a34a;--r:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;font-family:'Inter',sans-serif;background:linear-gradient(160deg,#f0f2f5 0%,#e8ecf4 100%);display:flex;align-items:center;justify-content:center;padding:20px;color:var(--text)}
+.card{width:100%;max-width:380px;background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:28px 24px 24px;box-shadow:0 12px 40px rgba(17,24,39,.08);text-align:center}
+.brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px}
+.brand-icon{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.brand-name{font-size:15px;font-weight:700}
+.brand-sub{font-size:11px;color:var(--text-muted)}
+h1{font-size:18px;font-weight:700;margin-bottom:6px}
+.sub{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:22px}
+.upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border:none;border-radius:var(--r);background:var(--accent);color:#fff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,.25)}
+.upload-btn:disabled{opacity:.55;cursor:not-allowed}
+.upload-btn:not(:disabled):active{transform:scale(.98)}
+.file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.preview{margin-top:16px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);display:none}
+.preview img{width:100%;max-height:220px;object-fit:cover;display:block}
+.status{margin-top:16px;font-size:14px;font-weight:500;min-height:20px}
+.status.ok{color:var(--green)}
+.status.err{color:#dc2626}
+.status.wait{color:var(--text-muted)}
+.footer{margin-top:20px;font-size:11px;color:var(--text-muted)}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">
+    <div class="brand-icon">🏭</div>
+    <div style="text-align:left">
+      <div class="brand-name">Kors Motion</div>
+      <div class="brand-sub">Lager 4.OG · Foto-Upload</div>
+    </div>
+  </div>
+  <h1>Foto aufnehmen</h1>
+  <p class="sub">Foto wird automatisch an den geöffneten Teile-Formular übertragen.</p>
+  <input type="file" id="fileInput" class="file-input" accept="image/*" capture="environment">
+  <button type="button" class="upload-btn" id="pickBtn">📷 Foto aufnehmen</button>
+  <div class="preview" id="preview"><img id="previewImg" alt=""></div>
+  <div class="status wait" id="status"></div>
+  <p class="footer">Session läuft 5 Minuten ab</p>
+</div>
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const sessionId = params.get('session') || '';
+  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+  const pickBtn = document.getElementById('pickBtn');
+  const fileInput = document.getElementById('fileInput');
+  const statusEl = document.getElementById('status');
+  const preview = document.getElementById('preview');
+  const previewImg = document.getElementById('previewImg');
+
+  function setStatus(msg, type) {
+    statusEl.textContent = msg;
+    statusEl.className = 'status ' + (type || 'wait');
+  }
+
+  if (!uuidRe.test(sessionId)) {
+    pickBtn.disabled = true;
+    setStatus('Ungültiger oder fehlender Session-Link.', 'err');
+    return;
+  }
+
+  function compressImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const max = 800;
+          let w = img.width;
+          let h = img.height;
+          if (w > max || h > max) {
+            if (w >= h) { h = Math.round(h * max / w); w = max; }
+            else { w = Math.round(w * max / h); h = max; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        img.onerror = () => reject(new Error('image'));
+        img.src = reader.result;
+      };
+      reader.onerror = () => reject(new Error('read'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function upload(dataUrl) {
+    pickBtn.disabled = true;
+    setStatus('Wird übertragen…', 'wait');
+    try {
+      const res = await fetch('/api/lager/photo-upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, imageBase64: dataUrl }),
+      });
+      if (!res.ok) throw new Error('upload');
+      setStatus('✅ Foto wurde übertragen', 'ok');
+    } catch {
+      setStatus('Fehler beim Übertragen. Bitte erneut versuchen.', 'err');
+      pickBtn.disabled = false;
+    }
+  }
+
+  pickBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', async () => {
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    try {
+      setStatus('Wird komprimiert…', 'wait');
+      const dataUrl = await compressImage(file);
+      previewImg.src = dataUrl;
+      preview.style.display = 'block';
+      await upload(dataUrl);
+    } catch {
+      setStatus('Bild konnte nicht verarbeitet werden.', 'err');
+      pickBtn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -13,8 +13,91 @@
   let editingEmpId = null;
   let formPhoto = null;
   let selectedMachines = [];
+  let photoPollTimer = null;
+  let qrCodeInstance = null;
+  let activePhotoSession = null;
 
   const $ = id => document.getElementById(id);
+
+  function stopPhotoPoll() {
+    if (photoPollTimer) {
+      clearInterval(photoPollTimer);
+      photoPollTimer = null;
+    }
+    activePhotoSession = null;
+  }
+
+  function resetPhotoQrUi() {
+    stopPhotoPoll();
+    $('l4QrPanel').hidden = true;
+    $('l4QrCanvas').innerHTML = '';
+    $('l4QrStatus').textContent = 'Warte auf Foto vom Handy…';
+    $('l4PhotoReceived').hidden = true;
+    qrCodeInstance = null;
+  }
+
+  function showFormPhoto(dataUrl, fromQr) {
+    formPhoto = dataUrl;
+    $('l4PhotoUpload').style.display = 'none';
+    $('l4PhotoPreview').hidden = false;
+    $('l4PhotoImg').src = dataUrl;
+    if (fromQr) {
+      $('l4QrPanel').hidden = true;
+      $('l4PhotoReceived').hidden = false;
+      stopPhotoPoll();
+    }
+  }
+
+  function newPhotoSessionId() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  }
+
+  function startQrUpload() {
+    if (typeof QRCode === 'undefined') {
+      toast('❗ QR-Bibliothek nicht geladen');
+      return;
+    }
+    resetPhotoQrUi();
+    const sessionId = newPhotoSessionId();
+    activePhotoSession = sessionId;
+    const uploadUrl = `${location.origin}/schichtplan/lager/upload?session=${encodeURIComponent(sessionId)}`;
+    $('l4QrPanel').hidden = false;
+    $('l4QrCanvas').innerHTML = '';
+    qrCodeInstance = new QRCode($('l4QrCanvas'), {
+      text: uploadUrl,
+      width: 200,
+      height: 200,
+      colorDark: '#111827',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+    $('l4QrStatus').textContent = 'Warte auf Foto vom Handy…';
+    photoPollTimer = setInterval(() => pollPhotoSession(sessionId), 2000);
+    pollPhotoSession(sessionId);
+  }
+
+  async function pollPhotoSession(sessionId) {
+    if (!activePhotoSession || activePhotoSession !== sessionId) return;
+    try {
+      const res = await fetch(`/api/lager/photo-poll?session=${encodeURIComponent(sessionId)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.ready && data.imageBase64) {
+        showFormPhoto(data.imageBase64, true);
+        toast('✅ Foto erhalten!');
+      }
+    } catch { /* retry on next tick */ }
+  }
+
+  function closePartForm() {
+    resetPhotoQrUi();
+    $('l4PartForm').classList.remove('open');
+    $('l4PhotoInput').value = '';
+  }
 
   function setTab(tab) {
     document.querySelectorAll('[data-l4-tab]').forEach(b => b.classList.toggle('on', b.dataset.l4Tab === tab));
@@ -122,9 +205,11 @@
   function openPartForm(id) {
     editingPartId = id || null;
     formPhoto = null;
+    resetPhotoQrUi();
     $('l4PartFormTitle').textContent = id ? 'Teil bearbeiten' : 'Neues Teil';
     $('l4PhotoPreview').hidden = true;
     $('l4PhotoUpload').style.display = 'block';
+    $('l4PhotoInput').value = '';
 
     const sel = $('l4FCategory');
     sel.innerHTML = '<option value="">—</option>' + CATEGORIES.map(c => `<option>${esc(c)}</option>`).join('');
@@ -143,9 +228,7 @@
       $('l4FMin').value = p.minBestand || 0;
       formPhoto = p.photo;
       if (formPhoto) {
-        $('l4PhotoUpload').style.display = 'none';
-        $('l4PhotoPreview').hidden = false;
-        $('l4PhotoImg').src = formPhoto;
+        showFormPhoto(formPhoto, false);
       }
       buildMachineChecks(p.machines);
     } else {
@@ -199,6 +282,7 @@
         if (i >= 0) parts[i] = saved;
       } else parts.push(saved);
       $('l4PartForm').classList.remove('open');
+      resetPhotoQrUi();
       renderParts();
       toast('✅ Gespeichert');
     } catch (e) {
@@ -237,9 +321,10 @@
     $('l4NewEmp').addEventListener('click', () => openEmpForm(null));
     $('l4AdminPartSearch')?.addEventListener('input', renderParts);
     $('l4ExportCsv').addEventListener('click', exportCsv);
-    $('l4PartFormClose').addEventListener('click', () => $('l4PartForm').classList.remove('open'));
-    $('l4PartCancel').addEventListener('click', () => $('l4PartForm').classList.remove('open'));
+    $('l4PartFormClose').addEventListener('click', closePartForm);
+    $('l4PartCancel').addEventListener('click', closePartForm);
     $('l4PartSave').addEventListener('click', savePartForm);
+    $('l4QrUploadBtn').addEventListener('click', startQrUpload);
     $('l4EmpFormClose').addEventListener('click', () => $('l4EmpForm').classList.remove('open'));
     $('l4EmpCancel').addEventListener('click', () => $('l4EmpForm').classList.remove('open'));
     $('l4EmpSave').addEventListener('click', saveEmpForm);
@@ -247,13 +332,9 @@
     $('l4PhotoInput').addEventListener('change', e => {
       const file = e.target.files?.[0];
       if (!file) return;
+      resetPhotoQrUi();
       const reader = new FileReader();
-      reader.onload = ev => {
-        formPhoto = ev.target.result;
-        $('l4PhotoUpload').style.display = 'none';
-        $('l4PhotoPreview').hidden = false;
-        $('l4PhotoImg').src = formPhoto;
-      };
+      reader.onload = ev => showFormPhoto(ev.target.result, false);
       reader.readAsDataURL(file);
     });
 

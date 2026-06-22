@@ -284,6 +284,15 @@ const LAGER_KV = {
   employees: 'lager4og:employees',
   log: 'lager4og:log',
 };
+const LAGER_PHOTO_TTL = 300;
+
+function lagerPhotoKey(sessionId) {
+  return `lager4og:photo:${sessionId}`;
+}
+
+function isValidLagerSessionId(id) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+}
 
 function isAdminRequest(request, body) {
   const hdr = request.headers.get('X-Admin-Password');
@@ -899,6 +908,38 @@ export default {
       log.unshift(entry);
       await putLagerLog(env, log);
       return json({ ok: true, entry, part });
+    }
+
+    if (url.pathname === '/api/lager/photo-upload' && request.method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+      const sessionId = String(body.sessionId || '').trim();
+      const imageBase64 = String(body.imageBase64 || '').trim();
+      if (!isValidLagerSessionId(sessionId)) return json({ error: 'Invalid session' }, 400);
+      if (!imageBase64 || imageBase64.length > 2_500_000) {
+        return json({ error: 'imageBase64 required' }, 400);
+      }
+      const payload = JSON.stringify({
+        imageBase64,
+        timestamp: new Date().toISOString(),
+      });
+      await env.KORSMOTION_DATA.put(lagerPhotoKey(sessionId), payload, { expirationTtl: LAGER_PHOTO_TTL });
+      return json({ ok: true });
+    }
+
+    if (url.pathname === '/api/lager/photo-poll' && request.method === 'GET') {
+      const sessionId = String(url.searchParams.get('session') || '').trim();
+      if (!isValidLagerSessionId(sessionId)) return json({ error: 'Invalid session' }, 400);
+      const key = lagerPhotoKey(sessionId);
+      const raw = await env.KORSMOTION_DATA.get(key);
+      if (!raw) return json({ ready: false });
+      await env.KORSMOTION_DATA.delete(key);
+      try {
+        const data = JSON.parse(raw);
+        return json({ ready: true, imageBase64: data.imageBase64 || '' });
+      } catch {
+        return json({ ready: false });
+      }
     }
 
     // Everything else — KV media first, then static assets from Pages
