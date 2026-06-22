@@ -20,9 +20,36 @@
     return { label: 'OK', cls: 'stock-ok', low: false };
   }
 
+  function l4PartPhotos(part) {
+    const out = [null, null, null];
+    if (part && Array.isArray(part.photos)) {
+      for (let i = 0; i < 3; i++) {
+        const v = part.photos[i];
+        out[i] = typeof v === 'string' && v ? v : null;
+      }
+    } else if (part && part.photo && typeof part.photo === 'string') {
+      out[0] = part.photo;
+    }
+    return out;
+  }
+
+  function l4PrimaryPhoto(part) {
+    const photos = l4PartPhotos(part);
+    return photos.find(Boolean) || null;
+  }
+
   function l4ImgHtml(part, size) {
-    if (part.photo) return `<img src="${l4Esc(part.photo)}" alt="">`;
+    const src = l4PrimaryPhoto(part);
+    if (src) return `<img src="${l4Esc(src)}" alt="">`;
     return `<span class="emoji-placeholder" style="font-size:${size}px">🔧</span>`;
+  }
+
+  function l4GalleryHtml(part, thumbSize) {
+    const photos = l4PartPhotos(part).filter(Boolean);
+    if (!photos.length) return `<span class="emoji-placeholder" style="font-size:${thumbSize || 68}px">🔧</span>`;
+    return photos.map((src, i) =>
+      `<button type="button" class="l4-gallery-thumb" data-l4-img="${l4Esc(src)}" aria-label="Foto ${i + 1}"><img src="${l4Esc(src)}" alt=""></button>`
+    ).join('');
   }
 
   function l4Hl(text, q) {
@@ -130,7 +157,11 @@
     CATEGORIES: L4_CATEGORIES,
     esc: l4Esc,
     stock: l4Stock,
+    partPhotos: l4PartPhotos,
+    primaryPhoto: l4PrimaryPhoto,
     imgHtml: l4ImgHtml,
+    galleryHtml: l4GalleryHtml,
+    PHOTO_SLOTS: 3,
     hl: l4Hl,
     fetchParts: l4FetchParts,
     fetchEmployees: l4FetchEmployees,

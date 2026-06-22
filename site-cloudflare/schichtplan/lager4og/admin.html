@@ -64,22 +64,40 @@
     </div>
     <div class="form-body">
       <div class="form-row">
-        <label class="form-label">Foto</label>
-        <div class="l4-photo-row">
-          <div class="photo-upload" id="l4PhotoUpload">
-            <input type="file" accept="image/*" capture="environment" id="l4PhotoInput">
-            <div>📷 Foto aufnehmen oder wählen</div>
+        <label class="form-label">Fotos <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+        <div class="l4-photo-slots" id="l4PhotoSlots">
+          <div class="l4-photo-slot" data-slot="0">
+            <div class="l4-photo-slot-label">Foto 1</div>
+            <div class="l4-photo-slot-preview" data-preview hidden><img alt=""><button type="button" class="l4-photo-clear" data-clear title="Entfernen">✕</button></div>
+            <div class="l4-photo-slot-actions">
+              <label class="btn-secondary l4-photo-pick"><input type="file" accept="image/*" capture="environment" data-file hidden>Foto wählen</label>
+              <button type="button" class="btn-secondary l4-photo-qr" data-qr>📷 QR</button>
+            </div>
+            <p class="l4-photo-received" data-received hidden>✅ Foto erhalten!</p>
           </div>
-          <button type="button" class="btn-secondary l4-qr-upload-btn" id="l4QrUploadBtn">📷 QR zum Hochladen</button>
+          <div class="l4-photo-slot" data-slot="1">
+            <div class="l4-photo-slot-label">Foto 2</div>
+            <div class="l4-photo-slot-preview" data-preview hidden><img alt=""><button type="button" class="l4-photo-clear" data-clear title="Entfernen">✕</button></div>
+            <div class="l4-photo-slot-actions">
+              <label class="btn-secondary l4-photo-pick"><input type="file" accept="image/*" capture="environment" data-file hidden>Foto wählen</label>
+              <button type="button" class="btn-secondary l4-photo-qr" data-qr>📷 QR</button>
+            </div>
+            <p class="l4-photo-received" data-received hidden>✅ Foto erhalten!</p>
+          </div>
+          <div class="l4-photo-slot" data-slot="2">
+            <div class="l4-photo-slot-label">Foto 3</div>
+            <div class="l4-photo-slot-preview" data-preview hidden><img alt=""><button type="button" class="l4-photo-clear" data-clear title="Entfernen">✕</button></div>
+            <div class="l4-photo-slot-actions">
+              <label class="btn-secondary l4-photo-pick"><input type="file" accept="image/*" capture="environment" data-file hidden>Foto wählen</label>
+              <button type="button" class="btn-secondary l4-photo-qr" data-qr>📷 QR</button>
+            </div>
+            <p class="l4-photo-received" data-received hidden>✅ Foto erhalten!</p>
+          </div>
         </div>
         <div class="l4-qr-panel" id="l4QrPanel" hidden>
-          <p class="l4-qr-hint">QR-Code mit dem Handy scannen — Foto erscheint automatisch hier.</p>
+          <p class="l4-qr-hint" id="l4QrHint">QR-Code scannen — Foto erscheint automatisch im gewählten Slot.</p>
           <div class="l4-qr-canvas-wrap" id="l4QrCanvas"></div>
           <p class="l4-qr-status" id="l4QrStatus">Warte auf Foto vom Handy…</p>
-        </div>
-        <div id="l4PhotoPreview" hidden style="margin-top:8px">
-          <img id="l4PhotoImg" alt="" style="max-width:100%;border-radius:8px;max-height:160px">
-          <p class="l4-photo-received" id="l4PhotoReceived" hidden>✅ Foto erhalten!</p>
         </div>
       </div>
       <div class="form-row"><label class="form-label">Bezeichnung *</label><input class="form-input" id="l4FName"></div>

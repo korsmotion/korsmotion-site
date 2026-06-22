@@ -330,9 +330,23 @@ async function putLagerLog(env, log) {
   await env.KORSMOTION_DATA.put(LAGER_KV.log, JSON.stringify(log));
 }
 
+function normalizeLagerPhotos(p) {
+  const photos = [null, null, null];
+  if (p && Array.isArray(p.photos)) {
+    for (let i = 0; i < 3; i++) {
+      const v = p.photos[i];
+      photos[i] = typeof v === 'string' && v ? v : null;
+    }
+  } else if (p && p.photo && typeof p.photo === 'string') {
+    photos[0] = p.photo;
+  }
+  return photos;
+}
+
 function normalizeLagerPart(raw, fallbackId) {
   const p = raw && typeof raw === 'object' ? raw : {};
   const id = parseInt(p.id, 10) || fallbackId || 0;
+  const photos = normalizeLagerPhotos(p);
   return {
     id,
     name: String(p.name || '').trim(),
@@ -345,7 +359,8 @@ function normalizeLagerPart(raw, fallbackId) {
     minBestand: Math.max(0, parseInt(p.minBestand, 10) || 0),
     machines: Array.isArray(p.machines) ? p.machines.map(String) : [],
     desc: String(p.desc || '').trim(),
-    photo: p.photo || null,
+    photos,
+    photo: photos[0],
     keywords: Array.isArray(p.keywords) ? p.keywords.map(String) : [],
   };
 }
@@ -761,7 +776,7 @@ export default {
 
     // ── Lager 4.OG API ──────────────────────────────────────────────────────
     if (url.pathname === '/api/lager/parts' && request.method === 'GET') {
-      const parts = await getLagerParts(env);
+      const parts = (await getLagerParts(env)).map(p => normalizeLagerPart(p));
       return json({ parts });
     }
 
@@ -907,7 +922,7 @@ export default {
       };
       log.unshift(entry);
       await putLagerLog(env, log);
-      return json({ ok: true, entry, part });
+      return json({ ok: true, entry, part: normalizeLagerPart(part, part.id) });
     }
 
     if (url.pathname === '/api/lager/photo-upload' && request.method === 'POST') {

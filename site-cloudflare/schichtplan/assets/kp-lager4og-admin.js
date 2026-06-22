@@ -1,6 +1,6 @@
 (function () {
   const {
-    esc, stock, imgHtml, toast, fmtDt,
+    esc, stock, imgHtml, toast, fmtDt, partPhotos, PHOTO_SLOTS,
     fetchParts, fetchEmployees, fetchLog,
     savePart, deletePart, saveEmployee, deleteEmployee,
     MACHINES, CATEGORIES,
@@ -11,13 +11,17 @@
   let log = [];
   let editingPartId = null;
   let editingEmpId = null;
-  let formPhoto = null;
+  let formPhotos = [null, null, null];
   let selectedMachines = [];
   let photoPollTimer = null;
-  let qrCodeInstance = null;
   let activePhotoSession = null;
+  let activeQrSlot = null;
 
   const $ = id => document.getElementById(id);
+
+  function slotEl(index) {
+    return document.querySelector(`.l4-photo-slot[data-slot="${index}"]`);
+  }
 
   function stopPhotoPoll() {
     if (photoPollTimer) {
@@ -25,6 +29,7 @@
       photoPollTimer = null;
     }
     activePhotoSession = null;
+    activeQrSlot = null;
   }
 
   function resetPhotoQrUi() {
@@ -32,20 +37,56 @@
     $('l4QrPanel').hidden = true;
     $('l4QrCanvas').innerHTML = '';
     $('l4QrStatus').textContent = 'Warte auf Foto vom Handy…';
-    $('l4PhotoReceived').hidden = true;
-    qrCodeInstance = null;
+    document.querySelectorAll('.l4-photo-slot [data-received]').forEach(el => { el.hidden = true; });
   }
 
-  function showFormPhoto(dataUrl, fromQr) {
-    formPhoto = dataUrl;
-    $('l4PhotoUpload').style.display = 'none';
-    $('l4PhotoPreview').hidden = false;
-    $('l4PhotoImg').src = dataUrl;
+  function updateSlotUi(index) {
+    const slot = slotEl(index);
+    if (!slot) return;
+    const src = formPhotos[index];
+    const preview = slot.querySelector('[data-preview]');
+    const actions = slot.querySelector('.l4-photo-slot-actions');
+    const received = slot.querySelector('[data-received]');
+    if (src) {
+      preview.hidden = false;
+      preview.querySelector('img').src = src;
+      actions.hidden = true;
+    } else {
+      preview.hidden = true;
+      preview.querySelector('img').src = '';
+      actions.hidden = false;
+      received.hidden = true;
+    }
+  }
+
+  function resetAllPhotoSlots() {
+    formPhotos = [null, null, null];
+    resetPhotoQrUi();
+    for (let i = 0; i < PHOTO_SLOTS; i++) {
+      const slot = slotEl(i);
+      const input = slot?.querySelector('[data-file]');
+      if (input) input.value = '';
+      updateSlotUi(i);
+    }
+  }
+
+  function setSlotPhoto(index, dataUrl, fromQr) {
+    formPhotos[index] = dataUrl;
+    updateSlotUi(index);
     if (fromQr) {
+      const slot = slotEl(index);
+      slot?.querySelector('[data-received]')?.removeAttribute('hidden');
       $('l4QrPanel').hidden = true;
-      $('l4PhotoReceived').hidden = false;
       stopPhotoPoll();
     }
+  }
+
+  function clearSlotPhoto(index) {
+    formPhotos[index] = null;
+    const slot = slotEl(index);
+    const input = slot?.querySelector('[data-file]');
+    if (input) input.value = '';
+    updateSlotUi(index);
   }
 
   function newPhotoSessionId() {
@@ -56,18 +97,20 @@
     });
   }
 
-  function startQrUpload() {
+  function startQrUpload(slotIndex) {
     if (typeof QRCode === 'undefined') {
       toast('❗ QR-Bibliothek nicht geladen');
       return;
     }
     resetPhotoQrUi();
+    activeQrSlot = slotIndex;
     const sessionId = newPhotoSessionId();
     activePhotoSession = sessionId;
     const uploadUrl = `${location.origin}/schichtplan/lager/upload?session=${encodeURIComponent(sessionId)}`;
+    $('l4QrHint').textContent = `QR scannen — Foto wird in Slot ${slotIndex + 1} übernommen.`;
     $('l4QrPanel').hidden = false;
     $('l4QrCanvas').innerHTML = '';
-    qrCodeInstance = new QRCode($('l4QrCanvas'), {
+    new QRCode($('l4QrCanvas'), {
       text: uploadUrl,
       width: 200,
       height: 200,
@@ -76,27 +119,26 @@
       correctLevel: QRCode.CorrectLevel.M,
     });
     $('l4QrStatus').textContent = 'Warte auf Foto vom Handy…';
-    photoPollTimer = setInterval(() => pollPhotoSession(sessionId), 2000);
-    pollPhotoSession(sessionId);
+    photoPollTimer = setInterval(() => pollPhotoSession(sessionId, slotIndex), 2000);
+    pollPhotoSession(sessionId, slotIndex);
   }
 
-  async function pollPhotoSession(sessionId) {
-    if (!activePhotoSession || activePhotoSession !== sessionId) return;
+  async function pollPhotoSession(sessionId, slotIndex) {
+    if (!activePhotoSession || activePhotoSession !== sessionId || activeQrSlot !== slotIndex) return;
     try {
       const res = await fetch(`/api/lager/photo-poll?session=${encodeURIComponent(sessionId)}`);
       if (!res.ok) return;
       const data = await res.json();
       if (data.ready && data.imageBase64) {
-        showFormPhoto(data.imageBase64, true);
-        toast('✅ Foto erhalten!');
+        setSlotPhoto(slotIndex, data.imageBase64, true);
+        toast(`✅ Foto ${slotIndex + 1} erhalten!`);
       }
-    } catch { /* retry on next tick */ }
+    } catch { /* retry */ }
   }
 
   function closePartForm() {
-    resetPhotoQrUi();
+    resetAllPhotoSlots();
     $('l4PartForm').classList.remove('open');
-    $('l4PhotoInput').value = '';
   }
 
   function setTab(tab) {
@@ -204,12 +246,8 @@
 
   function openPartForm(id) {
     editingPartId = id || null;
-    formPhoto = null;
-    resetPhotoQrUi();
+    resetAllPhotoSlots();
     $('l4PartFormTitle').textContent = id ? 'Teil bearbeiten' : 'Neues Teil';
-    $('l4PhotoPreview').hidden = true;
-    $('l4PhotoUpload').style.display = 'block';
-    $('l4PhotoInput').value = '';
 
     const sel = $('l4FCategory');
     sel.innerHTML = '<option value="">—</option>' + CATEGORIES.map(c => `<option>${esc(c)}</option>`).join('');
@@ -226,10 +264,8 @@
       $('l4FBest').value = p.bestNr === '—' ? '' : p.bestNr;
       $('l4FBestand').value = p.bestand;
       $('l4FMin').value = p.minBestand || 0;
-      formPhoto = p.photo;
-      if (formPhoto) {
-        showFormPhoto(formPhoto, false);
-      }
+      formPhotos = partPhotos(p);
+      for (let i = 0; i < PHOTO_SLOTS; i++) updateSlotUi(i);
       buildMachineChecks(p.machines);
     } else {
       ['l4FName', 'l4FType', 'l4FDesc', 'l4FNr', 'l4FLoc', 'l4FBest', 'l4FBestand', 'l4FMin'].forEach(i => { $(i).value = i === 'l4FBestand' || i === 'l4FMin' ? '0' : ''; });
@@ -272,7 +308,7 @@
       bestand: parseInt($('l4FBestand').value, 10) || 0,
       minBestand: parseInt($('l4FMin').value, 10) || 0,
       machines: selectedMachines,
-      photo: formPhoto,
+      photos: [...formPhotos],
       keywords: [name.toLowerCase(), category.toLowerCase()],
     };
     try {
@@ -281,8 +317,7 @@
         const i = parts.findIndex(p => p.id === editingPartId);
         if (i >= 0) parts[i] = saved;
       } else parts.push(saved);
-      $('l4PartForm').classList.remove('open');
-      resetPhotoQrUi();
+      closePartForm();
       renderParts();
       toast('✅ Gespeichert');
     } catch (e) {
@@ -324,19 +359,40 @@
     $('l4PartFormClose').addEventListener('click', closePartForm);
     $('l4PartCancel').addEventListener('click', closePartForm);
     $('l4PartSave').addEventListener('click', savePartForm);
-    $('l4QrUploadBtn').addEventListener('click', startQrUpload);
-    $('l4EmpFormClose').addEventListener('click', () => $('l4EmpForm').classList.remove('open'));
-    $('l4EmpCancel').addEventListener('click', () => $('l4EmpForm').classList.remove('open'));
-    $('l4EmpSave').addEventListener('click', saveEmpForm);
 
-    $('l4PhotoInput').addEventListener('change', e => {
-      const file = e.target.files?.[0];
+    $('l4PhotoSlots')?.addEventListener('click', e => {
+      const qrBtn = e.target.closest('[data-qr]');
+      const clearBtn = e.target.closest('[data-clear]');
+      const slot = e.target.closest('.l4-photo-slot');
+      if (!slot) return;
+      const index = parseInt(slot.dataset.slot, 10);
+      if (qrBtn) {
+        e.preventDefault();
+        startQrUpload(index);
+      }
+      if (clearBtn) {
+        e.preventDefault();
+        clearSlotPhoto(index);
+      }
+    });
+
+    $('l4PhotoSlots')?.addEventListener('change', e => {
+      const input = e.target.closest('[data-file]');
+      if (!input) return;
+      const slot = input.closest('.l4-photo-slot');
+      if (!slot) return;
+      const index = parseInt(slot.dataset.slot, 10);
+      const file = input.files?.[0];
       if (!file) return;
       resetPhotoQrUi();
       const reader = new FileReader();
-      reader.onload = ev => showFormPhoto(ev.target.result, false);
+      reader.onload = ev => setSlotPhoto(index, ev.target.result, false);
       reader.readAsDataURL(file);
     });
+
+    $('l4EmpFormClose').addEventListener('click', () => $('l4EmpForm').classList.remove('open'));
+    $('l4EmpCancel').addEventListener('click', () => $('l4EmpForm').classList.remove('open'));
+    $('l4EmpSave').addEventListener('click', saveEmpForm);
 
     $('l4FMachines').addEventListener('click', e => {
       const lbl = e.target.closest('[data-m]');

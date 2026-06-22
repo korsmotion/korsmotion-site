@@ -1,5 +1,5 @@
 (function () {
-  const { esc, stock, imgHtml, hl, fetchParts, fetchEmployees, withdraw, toast, KIOSK_MACHINES, CATEGORIES } = window.L4;
+  const { esc, stock, imgHtml, hl, galleryHtml, partPhotos, fetchParts, fetchEmployees, withdraw, toast, KIOSK_MACHINES, CATEGORIES } = window.L4;
 
   let parts = [];
   let employees = [];
@@ -199,7 +199,16 @@
     const p = parts.find(x => x.id === id);
     if (!p) return;
     selectedPart = p;
-    $('l4ModalImg').innerHTML = imgHtml(p, 68);
+    const photos = partPhotos(p).filter(Boolean);
+    if (photos.length) {
+      $('l4ModalGallery').innerHTML = galleryHtml(p, 72);
+      $('l4ModalImg').style.display = 'none';
+      $('l4ModalImg').innerHTML = '';
+    } else {
+      $('l4ModalGallery').innerHTML = '';
+      $('l4ModalImg').style.display = '';
+      $('l4ModalImg').innerHTML = imgHtml(p, 68);
+    }
     $('l4ModalCat').textContent = p.category;
     $('l4ModalName').textContent = p.name;
     $('l4ModalType').textContent = p.type;
@@ -304,6 +313,14 @@
     $('l4Logout').addEventListener('click', resetSession);
     $('l4DetailClose').addEventListener('click', () => $('l4DetailModal').classList.remove('open'));
     $('l4EntnehmenBtn').addEventListener('click', openWithdraw);
+
+    $('l4ModalGallery').addEventListener('click', e => {
+      const thumb = e.target.closest('[data-l4-img]');
+      if (!thumb) return;
+      $('l4LightboxImg').src = thumb.dataset.l4Img;
+      $('l4Lightbox').classList.add('open');
+    });
+    $('l4Lightbox').addEventListener('click', () => $('l4Lightbox').classList.remove('open'));
     $('l4WdMinus').addEventListener('click', () => {
       withdrawQty = Math.max(1, withdrawQty - 1);
       $('l4WdQty').textContent = String(withdrawQty);
