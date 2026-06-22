@@ -6,7 +6,7 @@ const ADMIN_PASSWORD = 'korsmotion2026';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
 };
 
@@ -277,6 +277,88 @@ function normalizeHero(raw) {
     mediaOpacity: Number.isFinite(opacity) ? Math.min(100, Math.max(0, Math.round(opacity))) : 44,
     content: { ...DEFAULT_HERO.content, ...(data.content || {}) },
   };
+}
+
+const LAGER_KV = {
+  parts: 'lager4og:parts',
+  employees: 'lager4og:employees',
+  log: 'lager4og:log',
+};
+
+function isAdminRequest(request, body) {
+  const hdr = request.headers.get('X-Admin-Password');
+  const pwd = body?.password;
+  return hdr === ADMIN_PASSWORD || pwd === ADMIN_PASSWORD;
+}
+
+async function getLagerParts(env) {
+  const raw = await env.KORSMOTION_DATA.get(LAGER_KV.parts);
+  const arr = raw ? JSON.parse(raw) : [];
+  return Array.isArray(arr) ? arr : [];
+}
+
+async function putLagerParts(env, parts) {
+  await env.KORSMOTION_DATA.put(LAGER_KV.parts, JSON.stringify(parts));
+}
+
+async function getLagerEmployees(env) {
+  const raw = await env.KORSMOTION_DATA.get(LAGER_KV.employees);
+  const arr = raw ? JSON.parse(raw) : [];
+  return Array.isArray(arr) ? arr : [];
+}
+
+async function putLagerEmployees(env, employees) {
+  await env.KORSMOTION_DATA.put(LAGER_KV.employees, JSON.stringify(employees));
+}
+
+async function getLagerLog(env) {
+  const raw = await env.KORSMOTION_DATA.get(LAGER_KV.log);
+  const arr = raw ? JSON.parse(raw) : [];
+  return Array.isArray(arr) ? arr : [];
+}
+
+async function putLagerLog(env, log) {
+  await env.KORSMOTION_DATA.put(LAGER_KV.log, JSON.stringify(log));
+}
+
+function normalizeLagerPart(raw, fallbackId) {
+  const p = raw && typeof raw === 'object' ? raw : {};
+  const id = parseInt(p.id, 10) || fallbackId || 0;
+  return {
+    id,
+    name: String(p.name || '').trim(),
+    type: String(p.type || '').trim(),
+    category: String(p.category || '').trim(),
+    nr: String(p.nr || '—').trim() || '—',
+    location: String(p.location || '').trim(),
+    bestNr: String(p.bestNr || '—').trim() || '—',
+    bestand: Math.max(0, parseInt(p.bestand, 10) || 0),
+    minBestand: Math.max(0, parseInt(p.minBestand, 10) || 0),
+    machines: Array.isArray(p.machines) ? p.machines.map(String) : [],
+    desc: String(p.desc || '').trim(),
+    photo: p.photo || null,
+    keywords: Array.isArray(p.keywords) ? p.keywords.map(String) : [],
+  };
+}
+
+function normalizeLagerEmployee(raw, fallbackId) {
+  const e = raw && typeof raw === 'object' ? raw : {};
+  const id = parseInt(e.id, 10) || fallbackId || 0;
+  return {
+    id,
+    badge4: String(e.badge4 || '').trim().replace(/\D/g, '').slice(0, 4),
+    name: String(e.name || '').trim(),
+    role: String(e.role || '').trim(),
+  };
+}
+
+function nextLagerId(items) {
+  let max = 0;
+  items.forEach(item => {
+    const n = parseInt(item.id, 10);
+    if (Number.isFinite(n) && n > max) max = n;
+  });
+  return max + 1;
 }
 
 const FORMSPREE_CALCULATOR_ID = 'xpqbjznb';
@@ -666,6 +748,157 @@ export default {
       const hero = normalizeHero(body.hero || body);
       await env.KORSMOTION_DATA.put('hero_data', JSON.stringify(hero));
       return json({ ok: true });
+    }
+
+    // ── Lager 4.OG API ──────────────────────────────────────────────────────
+    if (url.pathname === '/api/lager/parts' && request.method === 'GET') {
+      const parts = await getLagerParts(env);
+      return json({ parts });
+    }
+
+    if (url.pathname === '/api/lager/parts' && request.method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+      if (!isAdminRequest(request, body)) return json({ error: 'Unauthorized' }, 401);
+      const parts = await getLagerParts(env);
+      const part = normalizeLagerPart(body.part || body);
+      if (!part.name || !part.location || !part.category) {
+        return json({ error: 'name, location and category required' }, 400);
+      }
+      part.id = nextLagerId(parts);
+      if (!part.keywords.length) {
+        part.keywords = [part.name.toLowerCase(), part.category.toLowerCase()];
+      }
+      parts.push(part);
+      await putLagerParts(env, parts);
+      return json({ ok: true, part });
+    }
+
+    const lagerPartMatch = url.pathname.match(/^\/api\/lager\/parts\/(\d+)$/);
+    if (lagerPartMatch && request.method === 'PUT') {
+      let body;
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+      if (!isAdminRequest(request, body)) return json({ error: 'Unauthorized' }, 401);
+      const partId = parseInt(lagerPartMatch[1], 10);
+      const parts = await getLagerParts(env);
+      const idx = parts.findIndex(p => parseInt(p.id, 10) === partId);
+      if (idx < 0) return json({ error: 'Not found' }, 404);
+      const updated = normalizeLagerPart({ ...parts[idx], ...(body.part || body), id: partId }, partId);
+      if (!updated.name || !updated.location || !updated.category) {
+        return json({ error: 'name, location and category required' }, 400);
+      }
+      parts[idx] = updated;
+      await putLagerParts(env, parts);
+      return json({ ok: true, part: updated });
+    }
+
+    if (lagerPartMatch && request.method === 'DELETE') {
+      let body = {};
+      try {
+        if (request.headers.get('Content-Type')?.includes('json')) body = await request.json();
+      } catch { /* empty */ }
+      if (!isAdminRequest(request, body)) return json({ error: 'Unauthorized' }, 401);
+      const partId = parseInt(lagerPartMatch[1], 10);
+      const parts = await getLagerParts(env);
+      const next = parts.filter(p => parseInt(p.id, 10) !== partId);
+      if (next.length === parts.length) return json({ error: 'Not found' }, 404);
+      await putLagerParts(env, next);
+      return json({ ok: true });
+    }
+
+    if (url.pathname === '/api/lager/employees' && request.method === 'GET') {
+      const employees = await getLagerEmployees(env);
+      return json({ employees });
+    }
+
+    if (url.pathname === '/api/lager/employees' && request.method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+      if (!isAdminRequest(request, body)) return json({ error: 'Unauthorized' }, 401);
+      const employees = await getLagerEmployees(env);
+      const emp = normalizeLagerEmployee(body.employee || body);
+      if (!emp.badge4 || emp.badge4.length !== 4 || !emp.name) {
+        return json({ error: 'badge4 (4 digits) and name required' }, 400);
+      }
+      if (employees.some(e => e.badge4 === emp.badge4 && parseInt(e.id, 10) !== emp.id)) {
+        return json({ error: 'Badge already exists' }, 409);
+      }
+      if (emp.id) {
+        const idx = employees.findIndex(e => parseInt(e.id, 10) === emp.id);
+        if (idx < 0) return json({ error: 'Not found' }, 404);
+        employees[idx] = emp;
+      } else {
+        emp.id = nextLagerId(employees);
+        employees.push(emp);
+      }
+      await putLagerEmployees(env, employees);
+      return json({ ok: true, employee: emp });
+    }
+
+    const lagerEmpMatch = url.pathname.match(/^\/api\/lager\/employees\/(\d+)$/);
+    if (lagerEmpMatch && request.method === 'DELETE') {
+      let body = {};
+      try {
+        if (request.headers.get('Content-Type')?.includes('json')) body = await request.json();
+      } catch { /* empty */ }
+      if (!isAdminRequest(request, body)) return json({ error: 'Unauthorized' }, 401);
+      const empId = parseInt(lagerEmpMatch[1], 10);
+      const employees = await getLagerEmployees(env);
+      const next = employees.filter(e => parseInt(e.id, 10) !== empId);
+      if (next.length === employees.length) return json({ error: 'Not found' }, 404);
+      await putLagerEmployees(env, next);
+      return json({ ok: true });
+    }
+
+    if (url.pathname === '/api/lager/log' && request.method === 'GET') {
+      const isAdmin = request.headers.get('X-Admin-Password') === ADMIN_PASSWORD;
+      const log = await getLagerLog(env);
+      if (isAdmin) return json({ log });
+      return json({ log: log.slice(0, 50) });
+    }
+
+    if (url.pathname === '/api/lager/withdraw' && request.method === 'POST') {
+      let body;
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+      const partId = parseInt(body.partId, 10);
+      const qty = Math.max(1, parseInt(body.qty, 10) || 1);
+      const badge4 = String(body.badge4 || '').trim().replace(/\D/g, '').slice(0, 4);
+      const machine = String(body.machine || 'Sonstiges').trim() || 'Sonstiges';
+      if (!partId || badge4.length !== 4) {
+        return json({ error: 'partId and badge4 required' }, 400);
+      }
+      const employees = await getLagerEmployees(env);
+      const emp = employees.find(e => e.badge4 === badge4);
+      if (!emp) return json({ error: 'Unknown badge', code: 'BADGE_UNKNOWN' }, 404);
+      const parts = await getLagerParts(env);
+      const idx = parts.findIndex(p => parseInt(p.id, 10) === partId);
+      if (idx < 0) return json({ error: 'Part not found' }, 404);
+      const part = parts[idx];
+      if (part.bestand < qty) {
+        return json({ error: 'Insufficient stock', bestand: part.bestand }, 400);
+      }
+      const bestandBefore = part.bestand;
+      part.bestand -= qty;
+      const bestandAfter = part.bestand;
+      parts[idx] = part;
+      await putLagerParts(env, parts);
+      const log = await getLagerLog(env);
+      const entry = {
+        id: 'log_' + Date.now().toString(36),
+        datetime: new Date().toISOString(),
+        employeeId: emp.id,
+        employeeName: emp.name,
+        partId: part.id,
+        partName: part.name,
+        dynawinNr: part.nr,
+        qty,
+        machine,
+        bestandBefore,
+        bestandAfter,
+      };
+      log.unshift(entry);
+      await putLagerLog(env, log);
+      return json({ ok: true, entry, part });
     }
 
     // Everything else — KV media first, then static assets from Pages

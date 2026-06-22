@@ -918,6 +918,7 @@ tbody td { padding: 8px 12px; vertical-align: middle; }
           <div class="d-item" onclick="dTab('dokumente',this)"><span class="di">📄</span> Dokumente</div>
           <div class="d-sec-label" style="margin-top:8px">Logistik</div>
           <div class="d-item" onclick="dTab('logistikverwaltung',this)"><span class="di">📦</span> Logistikverwaltung</div>
+          <div class="d-item" onclick="dTab('lager4og',this)"><span class="di">🏭</span> Lager 4.OG</div>
           <div class="d-sec-label" style="margin-top:8px">System</div>
           <div class="d-item" onclick="dTab('einstellungen',this)"><span class="di">⚙️</span> Einstellungen</div>
         </div>
@@ -1268,6 +1269,16 @@ tbody td { padding: 8px 12px; vertical-align: middle; }
           </div>
           <div class="kp-prod-pane" data-kp-log-pane="qr">
             <iframe class="kp-logistik-frame" src="/schichtplan/logistik/REF-qr-scan.html?embed=1" title="QR Scanner"></iframe>
+          </div>
+        </div>
+
+        <!-- LOGISTIK: Lager 4.OG Kiosk -->
+        <div class="d-panel" id="d-lager4og">
+          <div class="d-header">
+            <div><div class="d-title">Lager 4.OG</div><div class="d-sub">Ersatzteile · Entnahme Kiosk</div></div>
+          </div>
+          <div class="kp-prod-pane on" style="display:flex">
+            <iframe class="kp-logistik-frame" src="/schichtplan/lager4og/kiosk.html?embed=1" title="Lager 4.OG Kiosk"></iframe>
           </div>
         </div>
 

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Lager 4.OG — Kiosk</title>
+<link rel="stylesheet" href="/schichtplan/assets/kp-lager4og.css">
+</head>
+<body class="l4-body" id="l4Body">
+<header class="l4-topbar">
+  <div class="l4-logo">
+    <div class="l4-logo-icon">🏭</div>
+    <div><div class="l4-logo-text">Lager 4.OG</div><div class="l4-logo-sub">Ersatzteile Entnahme</div></div>
+  </div>
+  <button type="button" class="l4-logout-btn" id="l4Logout" hidden>Abmelden</button>
+</header>
+
+<!-- Step 1: Badge -->
+<section class="l4-screen on" id="l4ScreenBadge">
+  <div class="l4-kiosk-center">
+    <div class="l4-badge-title">Badge scannen</div>
+    <div class="l4-badge-sub">4-stellige Nummer eingeben oder scannen</div>
+    <div class="l4-dots" id="l4Dots">
+      <span class="l4-dot"></span><span class="l4-dot"></span><span class="l4-dot"></span><span class="l4-dot"></span>
+    </div>
+    <input type="text" class="l4-scan-input" id="l4ScanInput" inputmode="numeric" autocomplete="off" aria-hidden="true" tabindex="-1">
+    <div class="l4-keypad" id="l4Keypad"></div>
+    <p id="l4BadgeErr" style="color:var(--red);font-size:13px;margin-top:16px;min-height:20px;text-align:center"></p>
+  </div>
+</section>
+
+<!-- Greeting flash -->
+<section class="l4-screen" id="l4ScreenGreet">
+  <div class="l4-kiosk-center"><div class="l4-greet" id="l4GreetText"></div></div>
+</section>
+
+<!-- Step 2: Machine -->
+<section class="l4-screen" id="l4ScreenMachine">
+  <div style="padding:24px 20px 8px;text-align:center">
+    <h2 style="font-size:22px;font-weight:700">Für welche Maschine?</h2>
+    <p style="font-size:14px;color:var(--text-muted);margin-top:6px">Nur für Protokoll — kein Filter</p>
+  </div>
+  <div class="l4-machine-grid" id="l4MachineGrid"></div>
+</section>
+
+<!-- Step 3: Search -->
+<section class="l4-screen" id="l4ScreenSearch">
+  <div class="l4-context-bar" id="l4ContextBar"></div>
+  <div class="search-section">
+    <div class="search-label">Wonach suchen Sie?</div>
+    <div class="search-wrap autocomplete-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="l4SearchInput" type="search" placeholder="Sensor, O-Ring, Bürkert…" autocomplete="off">
+      <div class="autocomplete-dropdown" id="l4AcDropdown"></div>
+    </div>
+    <div class="filters" id="l4Filters"></div>
+  </div>
+  <div class="results-header">
+    <div class="results-count">Gefunden: <span id="l4ResultCount">0</span> Teile</div>
+  </div>
+  <div class="grid" id="l4Grid"></div>
+  <div class="no-results" id="l4NoResults">
+    <div style="font-size:38px;margin-bottom:12px">🔧</div>
+    <h3>Keine Teile gefunden</h3>
+    <p style="font-size:13px;color:var(--text-muted)">Anderen Begriff oder Kategorie versuchen.</p>
+  </div>
+</section>
+
+<!-- Success -->
+<section class="l4-screen" id="l4ScreenSuccess">
+  <div class="l4-kiosk-center">
+    <div class="l4-success-screen">
+      <div class="l4-success-icon">✅</div>
+      <div class="l4-success-title">Entnahme erfolgreich</div>
+      <div class="l4-success-detail" id="l4SuccessDetail"></div>
+      <button type="button" class="btn-primary" id="l4SuccessDone">Fertig</button>
+    </div>
+  </div>
+</section>
+
+<!-- Detail modal -->
+<div class="modal-overlay" id="l4DetailModal">
+  <div class="modal" role="dialog">
+    <div class="modal-img" id="l4ModalImg"></div>
+    <div class="modal-body">
+      <div class="modal-cat" id="l4ModalCat"></div>
+      <div class="modal-name" id="l4ModalName"></div>
+      <div class="modal-type" id="l4ModalType"></div>
+      <div class="modal-desc" id="l4ModalDesc"></div>
+      <div class="modal-fields">
+        <div class="modal-field"><div class="modal-field-label">Dynawin Nr.</div><div class="modal-field-value" id="l4ModalNr"></div></div>
+        <div class="modal-field"><div class="modal-field-label">Lagerort</div><div class="modal-field-value" id="l4ModalLoc"></div></div>
+        <div class="modal-field"><div class="modal-field-label">Bestand</div><div class="modal-field-value" id="l4ModalBestand"></div></div>
+      </div>
+      <button type="button" class="btn-primary" id="l4EntnehmenBtn" style="margin-bottom:10px">Entnehmen</button>
+      <button type="button" class="btn-secondary" id="l4DetailClose" style="width:100%">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Withdraw modal -->
+<div class="modal-overlay" id="l4WithdrawModal">
+  <div class="modal" role="dialog">
+    <div class="modal-body" style="padding-top:24px">
+      <div class="modal-name" id="l4WdName"></div>
+      <p style="font-size:13px;color:var(--text-muted);margin:8px 0 4px" id="l4WdMeta"></p>
+      <div class="l4-qty-row">
+        <button type="button" class="l4-qty-btn" id="l4WdMinus">−</button>
+        <div class="l4-qty-val" id="l4WdQty">1</div>
+        <button type="button" class="l4-qty-btn" id="l4WdPlus">+</button>
+      </div>
+      <button type="button" class="btn-primary" id="l4WdConfirm">Bestätigen</button>
+      <button type="button" class="btn-secondary" id="l4WdCancel" style="width:100%;margin-top:8px">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="l4Toast"></div>
+<script src="/schichtplan/assets/kp-lager4og-common.js"></script>
+<script src="/schichtplan/assets/kp-lager4og-kiosk.js"></script>
+</body>
+</html>

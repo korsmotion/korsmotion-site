@@ -55,6 +55,7 @@
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="dokumente"><span class="sp-adm-nav-icon">📄</span> Dokumente</button>
         <div class="sp-adm-sec-label sp-has-gap">Logistik</div>
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="logistikverwaltung"><span class="sp-adm-nav-icon">📦</span> Logistikverwaltung</button>
+        <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="lager4og"><span class="sp-adm-nav-icon">🏭</span> Lager 4.OG</button>
         <div class="sp-adm-sec-label sp-has-gap">System</div>
         <button type="button" class="sp-adm-nav-item" data-sp-adm-tab="einstellungen"><span class="sp-adm-nav-icon">⚙️</span> Einstellungen</button>
       </nav>
@@ -320,6 +321,16 @@
         </div>
         <div class="kp-prod-pane" data-kp-log-pane="qr">
           <iframe class="kp-logistik-frame" src="/schichtplan/logistik/REF-qr-scan.html?embed=1" title="QR Scanner"></iframe>
+        </div>
+      </section>
+
+      <!-- Lager 4.OG Admin -->
+      <section class="sp-adm-panel" data-sp-adm-panel="lager4og">
+        <div class="sp-adm-header">
+          <div><div class="sp-adm-title">Lager 4.OG</div><div class="sp-adm-sub">Teile · Mitarbeiter · Entnahme-Journal</div></div>
+        </div>
+        <div class="kp-prod-pane on" style="display:flex">
+          <iframe class="kp-logistik-frame" src="/schichtplan/lager4og/admin.html?embed=1" title="Lager 4.OG Admin"></iframe>
         </div>
       </section>
 
