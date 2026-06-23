@@ -5,11 +5,15 @@
     openPartView, closePartView, bindPartView,
   } = window.L4;
 
+  const VIEW_STORAGE_KEY = 'l4-kiosk-view';
+
   let parts = [];
   let employees = [];
+  /** session.machine is for journal logging only — never used to filter parts */
   let session = { badge4: '', employee: null, machine: '' };
   let badgeDigits = '';
   let searchQuery = '';
+  let viewMode = 'grid';
 
   const $ = id => document.getElementById(id);
 
@@ -102,7 +106,7 @@
       session.machine = t.dataset.machine;
       updateContext();
       showScreen('l4ScreenSearch');
-      renderGrid();
+      renderResults();
       $('l4SearchInput')?.focus();
     });
   }
@@ -114,36 +118,81 @@
     `;
   }
 
-  function filteredParts() {
+  /** All warehouse parts — text search only; machine context is not a filter */
+  function warehouseParts() {
     return parts.filter(p => partMatchesSearchWorker(p, searchQuery));
   }
 
-  function renderGrid() {
-    const list = filteredParts();
+  function loadViewMode() {
+    try {
+      const saved = localStorage.getItem(VIEW_STORAGE_KEY);
+      viewMode = saved === 'list' ? 'list' : 'grid';
+    } catch {
+      viewMode = 'grid';
+    }
+  }
+
+  function setViewMode(mode) {
+    viewMode = mode === 'list' ? 'list' : 'grid';
+    try {
+      localStorage.setItem(VIEW_STORAGE_KEY, viewMode);
+    } catch { /* private mode */ }
+    document.querySelectorAll('[data-l4-view]').forEach(btn => {
+      const on = btn.dataset.l4View === viewMode;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    if ($('l4Grid')) $('l4Grid').hidden = viewMode !== 'grid';
+    if ($('l4List')) $('l4List').hidden = viewMode !== 'list';
+    renderResults();
+  }
+
+  function renderCard(p, q) {
+    const s = stock(p.bestand, p.minBestand);
+    const out = (parseInt(p.bestand, 10) || 0) === 0;
+    return `<div class="card${out ? ' l4-card-disabled' : ''}" data-part="${p.id}" role="button" tabindex="0">
+      <div class="card-img">${imgHtml(p, 44)}<div class="card-stock ${s.cls}">${s.label} · ${p.bestand} Stk.</div></div>
+      <div class="card-body">
+        <div class="card-category">${esc(p.category)}</div>
+        <div class="card-name">${hl(p.name, q)}</div>
+        <div class="card-meta">
+          <div class="card-meta-row">📦 <strong>${hl(p.location, q)}</strong></div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderListRow(p, q) {
+    const s = stock(p.bestand, p.minBestand);
+    const out = (parseInt(p.bestand, 10) || 0) === 0;
+    return `<div class="l4-list-row${out ? ' l4-card-disabled' : ''}" data-part="${p.id}" role="button" tabindex="0">
+      <div class="l4-list-thumb">${imgHtml(p, 20)}</div>
+      <div class="l4-list-main">
+        <div class="l4-list-name">${hl(p.name, q)}</div>
+        <div class="l4-list-sub">${esc(p.category)} · 📦 ${hl(p.location, q)}</div>
+      </div>
+      <div class="l4-list-stock card-stock ${s.cls}">${s.label} · ${p.bestand}</div>
+    </div>`;
+  }
+
+  function renderResults() {
+    const list = warehouseParts();
     $('l4ResultCount').textContent = list.length;
     const grid = $('l4Grid');
+    const listEl = $('l4List');
     const noR = $('l4NoResults');
     if (!list.length) {
       grid.innerHTML = '';
+      listEl.innerHTML = '';
       noR.style.display = 'block';
       return;
     }
     noR.style.display = 'none';
     const q = searchQuery.toLowerCase();
-    grid.innerHTML = list.map(p => {
-      const s = stock(p.bestand, p.minBestand);
-      const out = (parseInt(p.bestand, 10) || 0) === 0;
-      return `<div class="card${out ? ' l4-card-disabled' : ''}" data-part="${p.id}" role="button" tabindex="0">
-        <div class="card-img">${imgHtml(p, 44)}<div class="card-stock ${s.cls}">${s.label} · ${p.bestand} Stk.</div></div>
-        <div class="card-body">
-          <div class="card-category">${esc(p.category)}</div>
-          <div class="card-name">${hl(p.name, q)}</div>
-          <div class="card-meta">
-            <div class="card-meta-row">📦 <strong>${hl(p.location, q)}</strong></div>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
+    grid.innerHTML = list.map(p => renderCard(p, q)).join('');
+    listEl.innerHTML = list.map(p => renderListRow(p, q)).join('');
+    grid.hidden = viewMode !== 'grid';
+    listEl.hidden = viewMode !== 'list';
   }
 
   async function confirmWithdraw(part) {
@@ -174,16 +223,26 @@
     }
   }
 
+  function openPartFromRow(el) {
+    const p = findPart(parts, parseInt(el.dataset.part, 10));
+    if (p) openPartView(p, { mode: 'worker' });
+  }
+
   function bindSearch() {
     $('l4SearchInput')?.addEventListener('input', e => {
       searchQuery = e.target.value.trim();
-      renderGrid();
+      renderResults();
     });
     $('l4Grid')?.addEventListener('click', e => {
-      const card = e.target.closest('[data-part]');
-      if (!card) return;
-      const p = findPart(parts, parseInt(card.dataset.part, 10));
-      if (p) openPartView(p, { mode: 'worker' });
+      const row = e.target.closest('[data-part]');
+      if (row) openPartFromRow(row);
+    });
+    $('l4List')?.addEventListener('click', e => {
+      const row = e.target.closest('[data-part]');
+      if (row) openPartFromRow(row);
+    });
+    document.querySelectorAll('[data-l4-view]').forEach(btn => {
+      btn.addEventListener('click', () => setViewMode(btn.dataset.l4View));
     });
   }
 
@@ -219,12 +278,14 @@
 
   async function init() {
     if (isEmbed()) document.body.classList.add('l4-embed');
+    loadViewMode();
     bindPartView({ onWithdraw: confirmWithdraw });
     buildKeypad();
     bindMachines();
     bindSearch();
     bindScanInput();
     syncBadgeUi();
+    setViewMode(viewMode);
 
     $('l4BadgeWeiter')?.addEventListener('click', submitBadge);
     $('l4MachineBack')?.addEventListener('click', () => showScreen('l4ScreenBadge'));
@@ -237,7 +298,7 @@
     } catch {
       toast('Daten konnten nicht geladen werden');
     }
-    renderGrid();
+    renderResults();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

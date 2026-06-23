@@ -55,6 +55,11 @@
     return [p.name, p.category, p.desc].some(v => String(v ?? '').toLowerCase().includes(ql));
   }
 
+  /** Worker kiosk: never filter by assigned machines — only text search */
+  function l4WarehouseParts(allParts, q) {
+    return (allParts || []).filter(p => l4PartMatchesSearchWorker(p, q));
+  }
+
   function l4CollectMachines(parts) {
     const set = new Set(L4_KIOSK_MACHINES);
     (parts || []).forEach(p => {
@@ -199,6 +204,7 @@
     findPart: l4FindPart,
     partMatchesSearch: l4PartMatchesSearch,
     partMatchesSearchWorker: l4PartMatchesSearchWorker,
+    warehouseParts: l4WarehouseParts,
     collectMachines: l4CollectMachines,
     imgHtml: l4ImgHtml,
     galleryHtml: l4GalleryHtml,

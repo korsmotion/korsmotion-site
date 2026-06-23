@@ -57,8 +57,13 @@
     </div>
     <div class="results-header">
       <div class="results-count">Gefunden: <span id="l4ResultCount">0</span> Teile</div>
+      <div class="l4-view-toggle" role="group" aria-label="Ansicht umschalten">
+        <button type="button" class="l4-view-toggle-btn on" data-l4-view="grid" title="Kartenansicht" aria-pressed="true" aria-label="Kartenansicht">▦</button>
+        <button type="button" class="l4-view-toggle-btn" data-l4-view="list" title="Listenansicht" aria-pressed="false" aria-label="Listenansicht">☰</button>
+      </div>
     </div>
     <div class="grid" id="l4Grid"></div>
+    <div class="l4-part-list" id="l4List" hidden></div>
     <div class="no-results" id="l4NoResults">
       <div style="font-size:38px;margin-bottom:12px">🔧</div>
       <h3>Keine Teile gefunden</h3>
@@ -87,26 +92,32 @@
       <button type="button" class="l4-admin-tab" data-l4-tab="journal">Journal</button>
     </div>
     <div class="l4-admin-pane on" data-l4-pane="parts">
-      <div class="l4-admin-toolbar">
-        <div class="l4-admin-title">Ersatzteile <span id="l4PartsCount" style="font-size:13px;font-weight:400;color:var(--text-muted)"></span></div>
-        <button type="button" class="btn-primary" id="l4NewPart" style="width:auto;height:38px;padding:0 18px;font-size:13px">＋ Neues Teil</button>
+      <div class="l4-admin-head">
+        <div class="l4-admin-toolbar">
+          <div class="l4-admin-title">Ersatzteile <span id="l4PartsCount" style="font-size:13px;font-weight:400;color:var(--text-muted)"></span></div>
+          <button type="button" class="btn-primary" id="l4NewPart" style="width:auto;height:38px;padding:0 18px;font-size:13px">＋ Neues Teil</button>
+        </div>
+        <input class="form-input l4-admin-search" id="l4AdminPartSearch" type="search" placeholder="Suchen…">
       </div>
-      <input class="form-input" id="l4AdminPartSearch" type="search" placeholder="Suchen…" style="margin-bottom:12px">
-      <div class="admin-list" id="l4PartsList"></div>
+      <div class="admin-list l4-admin-list-scroll" id="l4PartsList"></div>
     </div>
     <div class="l4-admin-pane" data-l4-pane="employees" hidden>
-      <div class="l4-admin-toolbar">
-        <div class="l4-admin-title">Mitarbeiter</div>
-        <button type="button" class="btn-primary" id="l4NewEmp" style="width:auto;height:38px;padding:0 18px;font-size:13px">＋ Neu</button>
+      <div class="l4-admin-head">
+        <div class="l4-admin-toolbar">
+          <div class="l4-admin-title">Mitarbeiter</div>
+          <button type="button" class="btn-primary" id="l4NewEmp" style="width:auto;height:38px;padding:0 18px;font-size:13px">＋ Neu</button>
+        </div>
       </div>
-      <div class="admin-list" id="l4EmpList"></div>
+      <div class="admin-list l4-admin-list-scroll" id="l4EmpList"></div>
     </div>
     <div class="l4-admin-pane" data-l4-pane="journal" hidden>
-      <div class="l4-admin-toolbar">
-        <div class="l4-admin-title">Entnahme-Journal</div>
-        <button type="button" class="btn-secondary" id="l4ExportCsv">⬇️ CSV Export</button>
+      <div class="l4-admin-head">
+        <div class="l4-admin-toolbar">
+          <div class="l4-admin-title">Entnahme-Journal</div>
+          <button type="button" class="btn-secondary" id="l4ExportCsv">⬇️ CSV Export</button>
+        </div>
       </div>
-      <div style="overflow-x:auto">
+      <div class="l4-admin-list-scroll l4-journal-scroll">
         <table class="l4-journal-table" id="l4JournalTable">
           <thead><tr>
             <th>Datum</th><th>Mitarbeiter</th><th>Teil</th><th>Dynawin</th><th>Menge</th><th>Maschine</th><th>Bestand</th>
@@ -117,8 +128,6 @@
     </div>
   </div>
 </div>
-
-<!-- Part detail view (Admin + Suche) -->
 <div class="modal-overlay" id="l4PartViewModal">
   <div class="modal l4-view-modal" role="dialog" id="l4PartViewDialog" aria-labelledby="l4ViewName">
     <div class="l4-view-header">
