@@ -18,6 +18,8 @@
   let selectedMachines = [];
   let photoPollTimer = null;
   let activePhotoSession = null;
+  let editingChip = null;
+  let chipEditFinishing = false;
 
   const $ = id => document.getElementById(id);
 
@@ -165,20 +167,202 @@
     if (tab === 'settings') renderSettings();
   }
 
-  function renderSettingsChips(containerId, items, delAttr) {
+  function renderSettingsChips(containerId, items, kind) {
     const el = $(containerId);
     if (!el) return;
+    const delAttr = kind === 'cat' ? 'data-del-cat' : 'data-del-mach';
+    const editAttr = kind === 'cat' ? 'data-edit-cat' : 'data-edit-mach';
     el.innerHTML = items.map(item => `
-      <span class="l4-settings-chip">
-        <span class="l4-settings-chip-label">${esc(item)}</span>
+      <span class="l4-settings-chip" data-chip-name="${esc(item)}">
+        <span class="l4-settings-chip-label" title="Doppelklick zum Bearbeiten">${esc(item)}</span>
+        <button type="button" class="l4-settings-chip-edit" ${editAttr}="${esc(item)}" title="Bearbeiten" aria-label="Bearbeiten">✏️</button>
         <button type="button" class="l4-settings-chip-del" ${delAttr}="${esc(item)}" title="Entfernen" aria-label="Entfernen">✕</button>
       </span>
     `).join('');
   }
 
+  function refreshOpenPartFormLists() {
+    if (!$('l4PartForm')?.classList.contains('open')) return;
+    if (editingPartId) {
+      const p = findPart(parts, editingPartId);
+      if (p) {
+        buildCategorySelect(p.category);
+        buildMachineChecks(p.machines);
+        return;
+      }
+    }
+    buildCategorySelect($('l4FCategory')?.value || '');
+    buildMachineChecks(selectedMachines);
+  }
+
+  function updateKeywordsForCategoryRename(keywords, oldName, newName) {
+    const kw = Array.isArray(keywords) ? [...keywords] : [];
+    const oldLower = oldName.toLowerCase();
+    const newLower = newName.toLowerCase();
+    const idx = kw.findIndex(k => String(k).toLowerCase() === oldLower);
+    if (idx >= 0) kw[idx] = newLower;
+    else if (!kw.some(k => String(k).toLowerCase() === newLower)) kw.push(newLower);
+    return kw;
+  }
+
+  function startChipEdit(chip, oldName, kind) {
+    if (!chip || editingChip) return;
+    const label = chip.querySelector('.l4-settings-chip-label');
+    const editBtn = chip.querySelector('.l4-settings-chip-edit');
+    if (!label) return;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'l4-settings-chip-input';
+    input.value = oldName;
+    input.setAttribute('aria-label', 'Name bearbeiten');
+
+    label.hidden = true;
+    if (editBtn) editBtn.hidden = true;
+    chip.classList.add('l4-settings-chip-editing');
+    chip.insertBefore(input, chip.querySelector('.l4-settings-chip-del'));
+    input.focus();
+    input.select();
+
+    const finish = save => {
+      input.removeEventListener('keydown', onKey);
+      input.removeEventListener('blur', onBlur);
+      finishChipEdit(save);
+    };
+    const onKey = e => {
+      if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+      if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    };
+    const onBlur = () => { setTimeout(() => finish(true), 0); };
+
+    input.addEventListener('keydown', onKey);
+    input.addEventListener('blur', onBlur);
+    editingChip = { chip, oldName, kind, input };
+  }
+
+  async function finishChipEdit(save) {
+    if (!editingChip || chipEditFinishing) return;
+    chipEditFinishing = true;
+    const { chip, oldName, kind, input } = editingChip;
+    editingChip = null;
+    const newName = (input.value || '').trim();
+
+    input.remove();
+    chip.classList.remove('l4-settings-chip-editing');
+    const label = chip.querySelector('.l4-settings-chip-label');
+    const editBtn = chip.querySelector('.l4-settings-chip-edit');
+    if (label) label.hidden = false;
+    if (editBtn) editBtn.hidden = false;
+
+    if (!save || !newName || newName === oldName) {
+      renderSettings();
+      chipEditFinishing = false;
+      return;
+    }
+
+    try {
+      if (kind === 'cat') await renameCategory(oldName, newName);
+      else await renameMachine(oldName, newName);
+    } catch {
+      toast('❗ Umbenennen fehlgeschlagen');
+      renderSettings();
+    }
+    chipEditFinishing = false;
+  }
+
+  async function renameCategory(oldName, newName) {
+    if (categories.some(c => c !== oldName && c.toLowerCase() === newName.toLowerCase())) {
+      toast('❗ Kategorie existiert bereits');
+      renderSettings();
+      return;
+    }
+    const next = categories.map(c => (c === oldName ? newName : c));
+    categories = await saveCategories(next);
+    renderSettings();
+
+    const affected = parts.filter(p => p.category === oldName);
+    for (const p of affected) {
+      const updated = {
+        ...p,
+        category: newName,
+        keywords: updateKeywordsForCategoryRename(p.keywords, oldName, newName),
+      };
+      const saved = await savePart(updated, false);
+      const idx = parts.findIndex(x => x.id === p.id);
+      if (idx >= 0) parts[idx] = saved;
+    }
+    if (affected.length) renderParts();
+    refreshOpenPartFormLists();
+    toast(affected.length
+      ? `✅ Kategorie umbenannt (${affected.length} Teil${affected.length === 1 ? '' : 'e'} aktualisiert)`
+      : '✅ Kategorie umbenannt');
+  }
+
+  async function renameMachine(oldName, newName) {
+    if (settingsMachines.some(m => m !== oldName && m.toLowerCase() === newName.toLowerCase())) {
+      toast('❗ Maschine existiert bereits');
+      renderSettings();
+      return;
+    }
+    const next = settingsMachines.map(m => (m === oldName ? newName : m));
+    settingsMachines = await saveMachines(next);
+    renderSettings();
+
+    const affected = parts.filter(p => (p.machines || []).includes(oldName));
+    for (const p of affected) {
+      const updated = {
+        ...p,
+        machines: (p.machines || []).map(m => (m === oldName ? newName : m)),
+      };
+      const saved = await savePart(updated, false);
+      const idx = parts.findIndex(x => x.id === p.id);
+      if (idx >= 0) parts[idx] = saved;
+    }
+    selectedMachines = selectedMachines.map(m => (m === oldName ? newName : m));
+    if (affected.length) renderParts();
+    refreshOpenPartFormLists();
+    toast(affected.length
+      ? `✅ Maschine umbenannt (${affected.length} Teil${affected.length === 1 ? '' : 'e'} aktualisiert)`
+      : '✅ Maschine umbenannt');
+  }
+
+  function bindSettingsChipContainer(containerId, kind) {
+    const el = $(containerId);
+    if (!el) return;
+    const delSel = kind === 'cat' ? '[data-del-cat]' : '[data-del-mach]';
+    const editSel = kind === 'cat' ? '[data-edit-cat]' : '[data-edit-mach]';
+    const editAttr = kind === 'cat' ? 'data-edit-cat' : 'data-edit-mach';
+
+    el.addEventListener('click', e => {
+      if (editingChip) return;
+      const delBtn = e.target.closest(delSel);
+      if (delBtn) {
+        e.preventDefault();
+        if (kind === 'cat') removeCategory(delBtn.getAttribute('data-del-cat'));
+        else removeMachine(delBtn.getAttribute('data-del-mach'));
+        return;
+      }
+      const editBtn = e.target.closest(editSel);
+      if (editBtn) {
+        e.preventDefault();
+        const chip = editBtn.closest('.l4-settings-chip');
+        startChipEdit(chip, editBtn.getAttribute(editAttr), kind);
+      }
+    });
+
+    el.addEventListener('dblclick', e => {
+      if (editingChip) return;
+      const label = e.target.closest('.l4-settings-chip-label');
+      if (!label || e.target.closest('.l4-settings-chip-del, .l4-settings-chip-edit')) return;
+      const chip = label.closest('.l4-settings-chip');
+      const name = chip?.getAttribute('data-chip-name');
+      if (chip && name) startChipEdit(chip, name, kind);
+    });
+  }
+
   function renderSettings() {
-    renderSettingsChips('l4CatTags', categories, 'data-del-cat');
-    renderSettingsChips('l4MachTags', settingsMachines, 'data-del-mach');
+    renderSettingsChips('l4CatTags', categories, 'cat');
+    renderSettingsChips('l4MachTags', settingsMachines, 'mach');
   }
 
   async function persistCategories(next) {
@@ -468,19 +652,13 @@
     $('l4CatInput')?.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); addCategory(); }
     });
-    $('l4CatTags')?.addEventListener('click', e => {
-      const btn = e.target.closest('[data-del-cat]');
-      if (btn) removeCategory(btn.getAttribute('data-del-cat'));
-    });
+    bindSettingsChipContainer('l4CatTags', 'cat');
 
     $('l4MachAdd')?.addEventListener('click', addMachine);
     $('l4MachInput')?.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); addMachine(); }
     });
-    $('l4MachTags')?.addEventListener('click', e => {
-      const btn = e.target.closest('[data-del-mach]');
-      if (btn) removeMachine(btn.getAttribute('data-del-mach'));
-    });
+    bindSettingsChipContainer('l4MachTags', 'mach');
 
     $('l4PartFormClose').addEventListener('click', closePartForm);
     $('l4PartCancel').addEventListener('click', closePartForm);
