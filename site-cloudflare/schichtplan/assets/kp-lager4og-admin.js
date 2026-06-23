@@ -165,20 +165,20 @@
     if (tab === 'settings') renderSettings();
   }
 
-  function renderSettingsList(containerId, items, delAttr) {
+  function renderSettingsChips(containerId, items, delAttr) {
     const el = $(containerId);
     if (!el) return;
     el.innerHTML = items.map(item => `
-      <div class="l4-settings-item">
-        <span class="l4-settings-item-label">${esc(item)}</span>
-        <button type="button" class="l4-settings-del" ${delAttr}="${esc(item)}" title="Entfernen" aria-label="Entfernen">✕</button>
-      </div>
-    `).join('') || '<p class="l4-settings-empty">Noch keine Einträge.</p>';
+      <span class="l4-settings-chip">
+        <span class="l4-settings-chip-label">${esc(item)}</span>
+        <button type="button" class="l4-settings-chip-del" ${delAttr}="${esc(item)}" title="Entfernen" aria-label="Entfernen">✕</button>
+      </span>
+    `).join('');
   }
 
   function renderSettings() {
-    renderSettingsList('l4CatList', categories, 'data-del-cat');
-    renderSettingsList('l4MachList', settingsMachines, 'data-del-mach');
+    renderSettingsChips('l4CatTags', categories, 'data-del-cat');
+    renderSettingsChips('l4MachTags', settingsMachines, 'data-del-mach');
   }
 
   async function persistCategories(next) {
@@ -468,7 +468,7 @@
     $('l4CatInput')?.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); addCategory(); }
     });
-    $('l4CatList')?.addEventListener('click', e => {
+    $('l4CatTags')?.addEventListener('click', e => {
       const btn = e.target.closest('[data-del-cat]');
       if (btn) removeCategory(btn.getAttribute('data-del-cat'));
     });
@@ -477,7 +477,7 @@
     $('l4MachInput')?.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); addMachine(); }
     });
-    $('l4MachList')?.addEventListener('click', e => {
+    $('l4MachTags')?.addEventListener('click', e => {
       const btn = e.target.closest('[data-del-mach]');
       if (btn) removeMachine(btn.getAttribute('data-del-mach'));
     });

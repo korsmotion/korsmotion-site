@@ -132,22 +132,26 @@
       </div>
     </div>
     <div class="l4-admin-pane" data-l4-pane="settings" hidden>
-      <div class="l4-settings-section">
-        <h3 class="l4-settings-title">Kategorien</h3>
-        <p class="l4-settings-hint">Wird im Dropdown «Neues Teil» / «Bearbeiten» verwendet.</p>
-        <div class="l4-settings-list" id="l4CatList"></div>
-        <div class="l4-settings-add">
-          <input class="form-input" id="l4CatInput" type="text" placeholder="Neue Kategorie…" autocomplete="off">
-          <button type="button" class="btn-primary l4-settings-add-btn" id="l4CatAdd">＋</button>
+      <div class="l4-settings-compact">
+        <div class="l4-settings-row">
+          <span class="l4-settings-row-label">Kategorien:</span>
+          <div class="l4-settings-flow">
+            <div class="l4-settings-tags" id="l4CatTags"></div>
+            <div class="l4-settings-add-inline">
+              <input class="l4-settings-add-input" id="l4CatInput" type="text" placeholder="Neue Kategorie eingeben" autocomplete="off">
+              <button type="button" class="l4-settings-add-btn" id="l4CatAdd" title="Hinzufügen" aria-label="Kategorie hinzufügen">+</button>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="l4-settings-section">
-        <h3 class="l4-settings-title">Maschinen</h3>
-        <p class="l4-settings-hint">Wird bei Teilen und in der Worker-Suche (Schritt 2) verwendet.</p>
-        <div class="l4-settings-list" id="l4MachList"></div>
-        <div class="l4-settings-add">
-          <input class="form-input" id="l4MachInput" type="text" placeholder="Neue Maschine…" autocomplete="off">
-          <button type="button" class="btn-primary l4-settings-add-btn" id="l4MachAdd">＋</button>
+        <div class="l4-settings-row">
+          <span class="l4-settings-row-label">Maschinen:</span>
+          <div class="l4-settings-flow">
+            <div class="l4-settings-tags" id="l4MachTags"></div>
+            <div class="l4-settings-add-inline">
+              <input class="l4-settings-add-input" id="l4MachInput" type="text" placeholder="Neue Maschine eingeben" autocomplete="off">
+              <button type="button" class="l4-settings-add-btn" id="l4MachAdd" title="Hinzufügen" aria-label="Maschine hinzufügen">+</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
