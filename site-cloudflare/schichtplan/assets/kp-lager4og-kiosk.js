@@ -1,6 +1,6 @@
 (function () {
   const {
-    esc, stock, imgHtml, hl, findPart,
+    esc, stock, stockBadgeHtml, imgHtml, hl, findPart,
     partMatchesSearchWorker, fetchParts, fetchEmployees, fetchMachines, withdraw, toast,
     openPartView, closePartView, bindPartView, kioskMachineTiles,
   } = window.L4;
@@ -150,14 +150,14 @@
 
   function applyResultsVisibility() {
     const grid = $('l4Grid');
-    const listEl = $('l4List');
+    const listWrap = $('l4List');
     if (grid) {
       grid.classList.toggle('l4-view-hidden', viewMode !== 'grid');
       grid.style.display = viewMode === 'grid' ? 'grid' : 'none';
     }
-    if (listEl) {
-      listEl.classList.toggle('l4-view-hidden', viewMode !== 'list');
-      listEl.style.display = viewMode === 'list' ? 'flex' : 'none';
+    if (listWrap) {
+      listWrap.classList.toggle('l4-view-hidden', viewMode !== 'list');
+      listWrap.style.display = viewMode === 'list' ? 'flex' : 'none';
     }
   }
 
@@ -192,15 +192,15 @@
   }
 
   function renderListRow(p, q) {
-    const s = stock(p.bestand, p.minBestand);
     const out = (parseInt(p.bestand, 10) || 0) === 0;
-    return `<div class="l4-list-row${out ? ' l4-card-disabled' : ''}" data-part="${p.id}" role="button" tabindex="0">
-      <div class="l4-list-thumb">${imgHtml(p, 20)}</div>
-      <div class="l4-list-main">
-        <div class="l4-list-name">${hl(p.name, q)}</div>
-        <div class="l4-list-sub">${esc(p.category)} · 📦 ${hl(p.location, q)}</div>
+    return `<div class="l4-parts-row l4-list-row${out ? ' l4-card-disabled' : ''}" data-part="${p.id}" role="button" tabindex="0">
+      <div class="l4-parts-thumb">${imgHtml(p, 20)}</div>
+      <div class="l4-parts-col-name">
+        <div class="l4-parts-name">${hl(p.name, q)}</div>
+        <div class="l4-parts-sub">${esc(p.category)}</div>
       </div>
-      <div class="l4-list-stock card-stock ${s.cls}">${s.label} · ${p.bestand}</div>
+      <div class="l4-parts-col-loc">${hl(p.location, q)}</div>
+      <div class="l4-parts-col-stock">${stockBadgeHtml(p.bestand, p.minBestand)}</div>
     </div>`;
   }
 
@@ -208,7 +208,7 @@
     const list = warehouseParts();
     $('l4ResultCount').textContent = list.length;
     const grid = $('l4Grid');
-    const listEl = $('l4List');
+    const listEl = $('l4ListRows');
     const noR = $('l4NoResults');
     if (!list.length) {
       grid.innerHTML = '';
@@ -266,7 +266,7 @@
       const row = e.target.closest('[data-part]');
       if (row) openPartFromRow(row);
     });
-    $('l4List')?.addEventListener('click', e => {
+    $('l4ListRows')?.addEventListener('click', e => {
       const row = e.target.closest('[data-part]');
       if (row) openPartFromRow(row);
     });

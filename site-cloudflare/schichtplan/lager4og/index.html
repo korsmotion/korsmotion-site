@@ -66,7 +66,15 @@
     </div>
     <div class="l4-search-scroll" id="l4SearchScroll">
       <div class="grid" id="l4Grid"></div>
-      <div class="l4-part-list l4-view-hidden" id="l4List"></div>
+      <div class="l4-part-list l4-view-hidden" id="l4List">
+        <div class="l4-parts-list-head">
+          <div class="l4-parts-thumb-spacer" aria-hidden="true"></div>
+          <div class="l4-parts-col-head-name">Bezeichnung</div>
+          <div class="l4-parts-col-head-loc">Lagerort</div>
+          <div class="l4-parts-col-head-stock" aria-hidden="true"></div>
+        </div>
+        <div class="l4-parts-rows" id="l4ListRows"></div>
+      </div>
       <div class="no-results" id="l4NoResults">
         <div style="font-size:38px;margin-bottom:12px">🔧</div>
         <h3>Keine Teile gefunden</h3>
@@ -103,6 +111,12 @@
           <button type="button" class="btn-primary" id="l4NewPart" style="width:auto;height:38px;padding:0 18px;font-size:13px">＋ Neues Teil</button>
         </div>
         <input class="form-input l4-admin-search" id="l4AdminPartSearch" type="search" placeholder="Suchen…">
+      </div>
+      <div class="l4-parts-list-head">
+        <div class="l4-parts-thumb-spacer" aria-hidden="true"></div>
+        <div class="l4-parts-col-head-name">Bezeichnung</div>
+        <div class="l4-parts-col-head-loc">Lagerort</div>
+        <div class="l4-parts-col-head-stock" aria-hidden="true"></div>
       </div>
       <div class="admin-list l4-admin-list-scroll" id="l4PartsList"></div>
     </div>

@@ -1,6 +1,6 @@
 (function () {
   const {
-    esc, stock, imgHtml, toast, fmtDt, partPhotos, partMatchesSearch, findPart, PHOTO_SLOTS,
+    esc, stock, stockBadgeHtml, imgHtml, toast, fmtDt, partPhotos, partMatchesSearch, findPart, PHOTO_SLOTS,
     fetchParts, fetchEmployees, fetchLog, fetchCategories, fetchMachines,
     saveCategories, saveMachines,
     savePart, deletePart, saveEmployee, deleteEmployee,
@@ -258,23 +258,23 @@
     const list = parts.filter(p => partMatchesSearch(p, q));
     $('l4PartsCount').textContent = `(${parts.length})`;
     $('l4PartsList').innerHTML = list.map(p => {
-      const s = stock(p.bestand, p.minBestand);
-      const lowBadge = s.low ? `<span class="card-stock stock-out" style="position:static;display:inline-block;margin-left:6px">!</span>` : '';
-      return `<div class="admin-item" data-part-id="${p.id}">
-        <div class="admin-item-row" data-view-part="${p.id}" role="button" tabindex="0">
-          <div class="admin-item-thumb">${imgHtml(p, 22)}</div>
-          <div class="admin-item-info">
-            <div class="admin-item-name">${esc(p.name)}${lowBadge}</div>
-            <div class="admin-item-sub">${esc(p.type)} · <span class="${s.cls}">${p.bestand} Stk.</span> · min ${p.minBestand || 0}</div>
+      const out = (parseInt(p.bestand, 10) || 0) === 0;
+      return `<div class="admin-item${out ? ' l4-card-disabled' : ''}" data-part-id="${p.id}">
+        <div class="l4-parts-row admin-item-row" data-view-part="${p.id}" role="button" tabindex="0">
+          <div class="l4-parts-thumb">${imgHtml(p, 22)}</div>
+          <div class="l4-parts-col-name">
+            <div class="l4-parts-name">${esc(p.name)}</div>
+            <div class="l4-parts-sub">${esc(p.type || '—')} · ${esc(p.category)}</div>
           </div>
-          <span class="ac-item-loc">${esc(p.location)}</span>
+          <div class="l4-parts-col-loc">${esc(p.location)}</div>
+          <div class="l4-parts-col-stock">${stockBadgeHtml(p.bestand, p.minBestand)}</div>
         </div>
         <div class="admin-item-actions">
           <button type="button" class="btn-secondary" data-edit-part="${p.id}">✏️ Bearbeiten</button>
           <button type="button" class="btn-danger" data-del-part="${p.id}">🗑 Löschen</button>
         </div>
       </div>`;
-    }).join('') || '<p style="color:var(--text-muted);font-size:13px">Noch keine Teile.</p>';
+    }).join('') || '<p class="l4-parts-empty">Noch keine Teile.</p>';
   }
 
   function renderEmployees() {

@@ -14,9 +14,15 @@
   function l4Stock(bestand, minBestand) {
     const n = parseInt(bestand, 10) || 0;
     const min = parseInt(minBestand, 10) || 0;
-    if (n === 0) return { label: 'Leer', cls: 'stock-out', low: true };
-    if (n <= min) return { label: 'Wenig', cls: 'stock-low', low: true };
+    if (n === 0) return { label: 'LEER', cls: 'stock-out', low: true };
+    if (n <= min) return { label: 'WENIG', cls: 'stock-low', low: true };
     return { label: 'OK', cls: 'stock-ok', low: false };
+  }
+
+  function l4StockBadgeHtml(bestand, minBestand) {
+    const s = l4Stock(bestand, minBestand);
+    const n = parseInt(bestand, 10) || 0;
+    return `<span class="l4-stock-badge card-stock ${s.cls}">${s.label} · ${n} Stk.</span>`;
   }
 
   function l4PartPhotos(part) {
@@ -241,6 +247,7 @@
     DEFAULT_CATEGORIES: L4_DEFAULT_CATEGORIES,
     esc: l4Esc,
     stock: l4Stock,
+    stockBadgeHtml: l4StockBadgeHtml,
     partPhotos: l4PartPhotos,
     primaryPhoto: l4PrimaryPhoto,
     findPart: l4FindPart,
