@@ -150,8 +150,29 @@
   function applyResultsVisibility() {
     const grid = $('l4Grid');
     const listEl = $('l4List');
-    if (grid) grid.hidden = viewMode !== 'grid';
-    if (listEl) listEl.hidden = viewMode !== 'list';
+    if (grid) {
+      grid.classList.toggle('l4-view-hidden', viewMode !== 'grid');
+      grid.style.display = viewMode === 'grid' ? 'grid' : 'none';
+    }
+    if (listEl) {
+      listEl.classList.toggle('l4-view-hidden', viewMode !== 'list');
+      listEl.style.display = viewMode === 'list' ? 'flex' : 'none';
+    }
+  }
+
+  function bindViewToggle() {
+    const gridBtn = $('l4ViewGridBtn');
+    const listBtn = $('l4ViewListBtn');
+    gridBtn?.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      setViewMode('grid');
+    });
+    listBtn?.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      setViewMode('list');
+    });
   }
 
   function renderCard(p, q) {
@@ -248,13 +269,7 @@
       const row = e.target.closest('[data-part]');
       if (row) openPartFromRow(row);
     });
-    $('l4ScreenSearch')?.addEventListener('click', e => {
-      const viewBtn = e.target.closest('[data-kiosk-view]');
-      if (!viewBtn) return;
-      e.preventDefault();
-      const mode = viewBtn.getAttribute('data-kiosk-view');
-      if (mode === 'grid' || mode === 'list') setViewMode(mode);
-    });
+    bindViewToggle();
   }
 
   function bindScanInput() {

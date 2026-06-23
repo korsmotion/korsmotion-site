@@ -44,30 +44,34 @@
   </section>
 
   <section class="l4-screen" id="l4ScreenSearch">
-    <div class="l4-context-bar" id="l4ContextBar"></div>
-    <div class="l4-step-nav l4-step-nav-top">
-      <button type="button" class="btn-secondary l4-step-back" id="l4SearchBack">← Zurück</button>
-    </div>
-    <div class="search-section">
-      <div class="search-label">Teil suchen</div>
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input class="search-input l4-search-input-lg" id="l4SearchInput" type="search" placeholder="Bezeichnung, Kategorie, Beschreibung…" autocomplete="off">
+    <div class="l4-search-fixed">
+      <div class="l4-context-bar" id="l4ContextBar"></div>
+      <div class="l4-step-nav l4-step-nav-top">
+        <button type="button" class="btn-secondary l4-step-back" id="l4SearchBack">← Zurück</button>
+      </div>
+      <div class="search-section">
+        <div class="search-label">Teil suchen</div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input l4-search-input-lg" id="l4SearchInput" type="search" placeholder="Bezeichnung, Kategorie, Beschreibung…" autocomplete="off">
+        </div>
+      </div>
+      <div class="results-header">
+        <div class="results-count">Gefunden: <span id="l4ResultCount">0</span> Teile</div>
+        <div class="l4-view-toggle" role="group" aria-label="Ansicht umschalten">
+          <button type="button" class="l4-view-toggle-btn on" id="l4ViewGridBtn" data-kiosk-view="grid" title="Kartenansicht" aria-pressed="true" aria-label="Kartenansicht">▦</button>
+          <button type="button" class="l4-view-toggle-btn" id="l4ViewListBtn" data-kiosk-view="list" title="Listenansicht" aria-pressed="false" aria-label="Listenansicht">☰</button>
+        </div>
       </div>
     </div>
-    <div class="results-header">
-      <div class="results-count">Gefunden: <span id="l4ResultCount">0</span> Teile</div>
-      <div class="l4-view-toggle" role="group" aria-label="Ansicht umschalten">
-        <button type="button" class="l4-view-toggle-btn on" data-kiosk-view="grid" title="Kartenansicht" aria-pressed="true" aria-label="Kartenansicht">▦</button>
-        <button type="button" class="l4-view-toggle-btn" data-kiosk-view="list" title="Listenansicht" aria-pressed="false" aria-label="Listenansicht">☰</button>
+    <div class="l4-search-scroll" id="l4SearchScroll">
+      <div class="grid" id="l4Grid"></div>
+      <div class="l4-part-list l4-view-hidden" id="l4List"></div>
+      <div class="no-results" id="l4NoResults">
+        <div style="font-size:38px;margin-bottom:12px">🔧</div>
+        <h3>Keine Teile gefunden</h3>
+        <p style="font-size:14px;color:var(--text-muted)">Anderen Suchbegriff versuchen.</p>
       </div>
-    </div>
-    <div class="grid" id="l4Grid"></div>
-    <div class="l4-part-list" id="l4List" hidden></div>
-    <div class="no-results" id="l4NoResults">
-      <div style="font-size:38px;margin-bottom:12px">🔧</div>
-      <h3>Keine Teile gefunden</h3>
-      <p style="font-size:14px;color:var(--text-muted)">Anderen Suchbegriff versuchen.</p>
     </div>
   </section>
 
