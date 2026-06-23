@@ -283,7 +283,16 @@ const LAGER_KV = {
   parts: 'lager4og:parts',
   employees: 'lager4og:employees',
   log: 'lager4og:log',
+  categories: 'lager4og:categories',
+  machines: 'lager4og:machines',
 };
+const LAGER_DEFAULT_CATEGORIES = [
+  'Sensor', 'Pneumatik', 'Dichtung', 'Vakuum', 'Antrieb', 'Elektrik', 'Befestigung', 'Kupplung', 'Sonstiges',
+];
+const LAGER_DEFAULT_MACHINES = [
+  'Waldner 19.2', 'Bemasor Klär', 'Druckner 15.2', 'Rotary',
+  'Station 2', '10.2', '10.3', '10.3-2', 'Sonstiges',
+];
 const LAGER_PHOTO_TTL = 300;
 
 function lagerPhotoKey(sessionId, slot) {
@@ -330,6 +339,49 @@ async function getLagerLog(env) {
 
 async function putLagerLog(env, log) {
   await env.KORSMOTION_DATA.put(LAGER_KV.log, JSON.stringify(log));
+}
+
+function normalizeLagerStringList(arr, defaults) {
+  if (!Array.isArray(arr) || !arr.length) return [...defaults];
+  const seen = new Set();
+  const out = [];
+  for (const item of arr) {
+    const s = String(item || '').trim();
+    if (!s || seen.has(s)) continue;
+    seen.add(s);
+    out.push(s);
+  }
+  return out.length ? out : [...defaults];
+}
+
+async function getLagerCategories(env) {
+  const raw = await env.KORSMOTION_DATA.get(LAGER_KV.categories);
+  if (!raw) return [...LAGER_DEFAULT_CATEGORIES];
+  try {
+    return normalizeLagerStringList(JSON.parse(raw), LAGER_DEFAULT_CATEGORIES);
+  } catch {
+    return [...LAGER_DEFAULT_CATEGORIES];
+  }
+}
+
+async function putLagerCategories(env, categories) {
+  const list = normalizeLagerStringList(categories, LAGER_DEFAULT_CATEGORIES);
+  await env.KORSMOTION_DATA.put(LAGER_KV.categories, JSON.stringify(list));
+}
+
+async function getLagerMachines(env) {
+  const raw = await env.KORSMOTION_DATA.get(LAGER_KV.machines);
+  if (!raw) return [...LAGER_DEFAULT_MACHINES];
+  try {
+    return normalizeLagerStringList(JSON.parse(raw), LAGER_DEFAULT_MACHINES);
+  } catch {
+    return [...LAGER_DEFAULT_MACHINES];
+  }
+}
+
+async function putLagerMachines(env, machines) {
+  const list = normalizeLagerStringList(machines, LAGER_DEFAULT_MACHINES);
+  await env.KORSMOTION_DATA.put(LAGER_KV.machines, JSON.stringify(list));
 }
 
 function normalizeLagerPhotos(p) {
@@ -881,6 +933,36 @@ export default {
       const log = await getLagerLog(env);
       if (isAdmin) return json({ log });
       return json({ log: log.slice(0, 50) });
+    }
+
+    if (url.pathname === '/api/lager/categories' && request.method === 'GET') {
+      const categories = await getLagerCategories(env);
+      return json({ categories });
+    }
+
+    if (url.pathname === '/api/lager/categories' && request.method === 'PUT') {
+      let body;
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+      if (!isAdminRequest(request, body)) return json({ error: 'Unauthorized' }, 401);
+      const categories = normalizeLagerStringList(body.categories, LAGER_DEFAULT_CATEGORIES);
+      if (!categories.length) return json({ error: 'At least one category required' }, 400);
+      await putLagerCategories(env, categories);
+      return json({ ok: true, categories });
+    }
+
+    if (url.pathname === '/api/lager/machines' && request.method === 'GET') {
+      const machines = await getLagerMachines(env);
+      return json({ machines });
+    }
+
+    if (url.pathname === '/api/lager/machines' && request.method === 'PUT') {
+      let body;
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+      if (!isAdminRequest(request, body)) return json({ error: 'Unauthorized' }, 401);
+      const machines = normalizeLagerStringList(body.machines, LAGER_DEFAULT_MACHINES);
+      if (!machines.length) return json({ error: 'At least one machine required' }, 400);
+      await putLagerMachines(env, machines);
+      return json({ ok: true, machines });
     }
 
     if (url.pathname === '/api/lager/withdraw' && request.method === 'POST') {

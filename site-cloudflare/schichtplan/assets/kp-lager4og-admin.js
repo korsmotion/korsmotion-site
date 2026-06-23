@@ -1,14 +1,17 @@
 (function () {
   const {
     esc, stock, imgHtml, toast, fmtDt, partPhotos, partMatchesSearch, findPart, PHOTO_SLOTS,
-    fetchParts, fetchEmployees, fetchLog,
+    fetchParts, fetchEmployees, fetchLog, fetchCategories, fetchMachines,
+    saveCategories, saveMachines,
     savePart, deletePart, saveEmployee, deleteEmployee,
-    MACHINES, CATEGORIES, openPartView, bindPartView,
+    formMachineOptions, openPartView, bindPartView,
   } = window.L4;
 
   let parts = [];
   let employees = [];
   let log = [];
+  let categories = [];
+  let settingsMachines = [];
   let editingPartId = null;
   let editingEmpId = null;
   let formPhotos = [null, null, null];
@@ -159,18 +162,95 @@
       p.classList.toggle('on', on);
     });
     if (tab === 'journal') renderJournal();
+    if (tab === 'settings') renderSettings();
+  }
+
+  function renderSettingsList(containerId, items, delAttr) {
+    const el = $(containerId);
+    if (!el) return;
+    el.innerHTML = items.map(item => `
+      <div class="l4-settings-item">
+        <span class="l4-settings-item-label">${esc(item)}</span>
+        <button type="button" class="l4-settings-del" ${delAttr}="${esc(item)}" title="Entfernen" aria-label="Entfernen">✕</button>
+      </div>
+    `).join('') || '<p class="l4-settings-empty">Noch keine Einträge.</p>';
+  }
+
+  function renderSettings() {
+    renderSettingsList('l4CatList', categories, 'data-del-cat');
+    renderSettingsList('l4MachList', settingsMachines, 'data-del-mach');
+  }
+
+  async function persistCategories(next) {
+    categories = await saveCategories(next);
+    renderSettings();
+    toast('✅ Kategorien gespeichert');
+  }
+
+  async function persistMachines(next) {
+    settingsMachines = await saveMachines(next);
+    renderSettings();
+    toast('✅ Maschinen gespeichert');
+  }
+
+  async function addCategory() {
+    const input = $('l4CatInput');
+    const name = (input?.value || '').trim();
+    if (!name) { toast('❗ Name eingeben'); return; }
+    if (categories.some(c => c.toLowerCase() === name.toLowerCase())) {
+      toast('❗ Kategorie existiert bereits');
+      return;
+    }
+    try {
+      await persistCategories([...categories, name]);
+      if (input) input.value = '';
+    } catch { toast('❗ Speichern fehlgeschlagen'); }
+  }
+
+  async function addMachine() {
+    const input = $('l4MachInput');
+    const name = (input?.value || '').trim();
+    if (!name) { toast('❗ Name eingeben'); return; }
+    if (settingsMachines.some(m => m.toLowerCase() === name.toLowerCase())) {
+      toast('❗ Maschine existiert bereits');
+      return;
+    }
+    try {
+      await persistMachines([...settingsMachines, name]);
+      if (input) input.value = '';
+    } catch { toast('❗ Speichern fehlgeschlagen'); }
+  }
+
+  async function removeCategory(name) {
+    if (categories.length <= 1) { toast('❗ Mindestens eine Kategorie'); return; }
+    const inUse = parts.some(p => p.category === name);
+    if (inUse && !confirm(`Kategorie «${name}» wird von Teilen verwendet. Trotzdem löschen?`)) return;
+    try {
+      await persistCategories(categories.filter(c => c !== name));
+    } catch { toast('❗ Löschen fehlgeschlagen'); }
+  }
+
+  async function removeMachine(name) {
+    if (settingsMachines.length <= 1) { toast('❗ Mindestens eine Maschine'); return; }
+    const inUse = parts.some(p => (p.machines || []).includes(name));
+    if (inUse && !confirm(`Maschine «${name}» wird von Teilen verwendet. Trotzdem löschen?`)) return;
+    try {
+      await persistMachines(settingsMachines.filter(m => m !== name));
+    } catch { toast('❗ Löschen fehlgeschlagen'); }
   }
 
   async function loadAll() {
     try {
-      [parts, employees, log] = await Promise.all([
+      [parts, employees, log, categories, settingsMachines] = await Promise.all([
         fetchParts(), fetchEmployees(), fetchLog(true),
+        fetchCategories(), fetchMachines(),
       ]);
     } catch {
       toast('Laden fehlgeschlagen');
     }
     renderParts();
     renderEmployees();
+    renderSettings();
   }
 
   function renderParts() {
@@ -257,7 +337,8 @@
 
   function buildMachineChecks(checked) {
     selectedMachines = [...(checked || [])];
-    $('l4FMachines').innerHTML = MACHINES.filter(m => m !== 'Sonstiges').map(m => `
+    const opts = formMachineOptions(settingsMachines);
+    $('l4FMachines').innerHTML = opts.map(m => `
       <label class="machine-check${selectedMachines.includes(m) ? ' checked' : ''}" data-m="${esc(m)}">
         <input type="checkbox"${selectedMachines.includes(m) ? ' checked' : ''}>
         <span>${esc(m)}</span>
@@ -265,20 +346,24 @@
     `).join('');
   }
 
+  function buildCategorySelect(selected) {
+    const sel = $('l4FCategory');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">—</option>' + categories.map(c => `<option>${esc(c)}</option>`).join('');
+    if (selected) sel.value = selected;
+  }
+
   function openPartForm(id) {
     editingPartId = id || null;
     resetAllPhotoSlots();
     $('l4PartFormTitle').textContent = id ? 'Teil bearbeiten' : 'Neues Teil';
 
-    const sel = $('l4FCategory');
-    sel.innerHTML = '<option value="">—</option>' + CATEGORIES.map(c => `<option>${esc(c)}</option>`).join('');
-
     if (id) {
       const p = findPart(parts, id);
       if (!p) return;
+      buildCategorySelect(p.category);
       $('l4FName').value = p.name;
       $('l4FType').value = p.type;
-      $('l4FCategory').value = p.category;
       $('l4FDesc').value = p.desc || '';
       $('l4FNr').value = p.nr === '—' ? '' : p.nr;
       $('l4FLoc').value = p.location;
@@ -289,8 +374,8 @@
       for (let i = 0; i < PHOTO_SLOTS; i++) updateSlotUi(i);
       buildMachineChecks(p.machines);
     } else {
+      buildCategorySelect('');
       ['l4FName', 'l4FType', 'l4FDesc', 'l4FNr', 'l4FLoc', 'l4FBest', 'l4FBestand', 'l4FMin'].forEach(i => { $(i).value = i === 'l4FBestand' || i === 'l4FMin' ? '0' : ''; });
-      $('l4FCategory').value = '';
       buildMachineChecks([]);
     }
     $('l4PartForm').classList.add('open');
@@ -378,6 +463,25 @@
     $('l4AdminPartSearch')?.addEventListener('input', renderParts);
     $('l4AdminPartSearch')?.addEventListener('search', renderParts);
     $('l4ExportCsv').addEventListener('click', exportCsv);
+
+    $('l4CatAdd')?.addEventListener('click', addCategory);
+    $('l4CatInput')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); addCategory(); }
+    });
+    $('l4CatList')?.addEventListener('click', e => {
+      const btn = e.target.closest('[data-del-cat]');
+      if (btn) removeCategory(btn.getAttribute('data-del-cat'));
+    });
+
+    $('l4MachAdd')?.addEventListener('click', addMachine);
+    $('l4MachInput')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); addMachine(); }
+    });
+    $('l4MachList')?.addEventListener('click', e => {
+      const btn = e.target.closest('[data-del-mach]');
+      if (btn) removeMachine(btn.getAttribute('data-del-mach'));
+    });
+
     $('l4PartFormClose').addEventListener('click', closePartForm);
     $('l4PartCancel').addEventListener('click', closePartForm);
     $('l4PartSave').addEventListener('click', savePartForm);

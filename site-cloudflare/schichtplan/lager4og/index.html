@@ -94,6 +94,7 @@
       <button type="button" class="l4-admin-tab on" data-l4-tab="parts">Teile</button>
       <button type="button" class="l4-admin-tab" data-l4-tab="employees">Mitarbeiter</button>
       <button type="button" class="l4-admin-tab" data-l4-tab="journal">Journal</button>
+      <button type="button" class="l4-admin-tab" data-l4-tab="settings">⚙️ Einstellungen</button>
     </div>
     <div class="l4-admin-pane on" data-l4-pane="parts">
       <div class="l4-admin-head">
@@ -130,8 +131,30 @@
         </table>
       </div>
     </div>
+    <div class="l4-admin-pane" data-l4-pane="settings" hidden>
+      <div class="l4-settings-section">
+        <h3 class="l4-settings-title">Kategorien</h3>
+        <p class="l4-settings-hint">Wird im Dropdown «Neues Teil» / «Bearbeiten» verwendet.</p>
+        <div class="l4-settings-list" id="l4CatList"></div>
+        <div class="l4-settings-add">
+          <input class="form-input" id="l4CatInput" type="text" placeholder="Neue Kategorie…" autocomplete="off">
+          <button type="button" class="btn-primary l4-settings-add-btn" id="l4CatAdd">＋</button>
+        </div>
+      </div>
+      <div class="l4-settings-section">
+        <h3 class="l4-settings-title">Maschinen</h3>
+        <p class="l4-settings-hint">Wird bei Teilen und in der Worker-Suche (Schritt 2) verwendet.</p>
+        <div class="l4-settings-list" id="l4MachList"></div>
+        <div class="l4-settings-add">
+          <input class="form-input" id="l4MachInput" type="text" placeholder="Neue Maschine…" autocomplete="off">
+          <button type="button" class="btn-primary l4-settings-add-btn" id="l4MachAdd">＋</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+<!-- Part detail view -->
 <div class="modal-overlay" id="l4PartViewModal">
   <div class="modal l4-view-modal" role="dialog" id="l4PartViewDialog" aria-labelledby="l4ViewName">
     <div class="l4-view-header">

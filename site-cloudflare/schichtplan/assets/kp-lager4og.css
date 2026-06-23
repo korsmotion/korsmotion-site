@@ -149,7 +149,7 @@ mark{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
 .l4-success-detail{font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:24px}
 .l4-admin-pane{display:none;flex:1 1 0;min-height:0;flex-direction:column;gap:12px;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .l4-admin-pane.on{display:flex}
-.l4-admin-tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:3px;width:fit-content;flex-shrink:0}
+.l4-admin-tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:3px;width:fit-content;flex-shrink:0;flex-wrap:wrap;max-width:100%}
 .l4-admin-tab{padding:7px 16px;border-radius:4px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif}
 .l4-admin-tab.on{background:var(--surface);color:var(--text);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .l4-admin-head{flex-shrink:0;display:flex;flex-direction:column;gap:12px;position:sticky;top:0;z-index:5;background:var(--bg);padding-bottom:4px}
@@ -158,6 +158,19 @@ mark{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
 .l4-admin-title{font-size:17px;font-weight:700}
 .l4-admin-list-scroll{flex:none;overflow:visible;min-height:auto}
 .l4-journal-scroll{flex:none;overflow-x:auto;overflow-y:visible}
+.l4-settings-section{margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.l4-settings-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.l4-settings-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.l4-settings-hint{font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.45}
+.l4-settings-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.l4-settings-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl)}
+.l4-settings-item-label{font-size:14px;font-weight:500;flex:1;min-width:0}
+.l4-settings-del{flex-shrink:0;width:32px;height:32px;border:none;border-radius:var(--r);background:var(--red-bg);color:var(--red);font-size:14px;cursor:pointer;line-height:1}
+.l4-settings-del:hover{background:var(--red);color:#fff}
+.l4-settings-empty{font-size:13px;color:var(--text-muted);padding:8px 0}
+.l4-settings-add{display:flex;gap:8px;align-items:center}
+.l4-settings-add .form-input{flex:1;margin:0}
+.l4-settings-add-btn{width:44px;height:44px;min-height:44px;padding:0;flex-shrink:0;font-size:18px;line-height:1}
 .admin-list{display:flex;flex-direction:column;gap:8px}
 .admin-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);overflow:hidden}
 .admin-item-row{display:flex;align-items:center;gap:12px;padding:12px 14px}

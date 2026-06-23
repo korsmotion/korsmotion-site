@@ -1,14 +1,15 @@
 (function () {
   const {
     esc, stock, imgHtml, hl, findPart,
-    partMatchesSearchWorker, collectMachines, fetchParts, fetchEmployees, withdraw, toast,
-    openPartView, closePartView, bindPartView,
+    partMatchesSearchWorker, fetchParts, fetchEmployees, fetchMachines, withdraw, toast,
+    openPartView, closePartView, bindPartView, kioskMachineTiles,
   } = window.L4;
 
   const VIEW_STORAGE_KEY = 'l4-kiosk-view';
 
   let parts = [];
   let employees = [];
+  let settingsMachines = [];
   /** session.machine is for journal logging only — never used to filter parts */
   let session = { badge4: '', employee: null, machine: '' };
   let badgeDigits = '';
@@ -93,7 +94,7 @@
   }
 
   function buildMachines() {
-    const tiles = collectMachines(parts);
+    const tiles = kioskMachineTiles(settingsMachines);
     $('l4MachineGrid').innerHTML = tiles.map(m => `
       <button type="button" class="l4-machine-tile${m === 'Sonstiges' ? ' sonstiges' : ''}" data-machine="${esc(m)}">${esc(m)}</button>
     `).join('');
@@ -319,7 +320,9 @@
     $('l4SuccessNew')?.addEventListener('click', resetSession);
 
     try {
-      [parts, employees] = await Promise.all([fetchParts(), fetchEmployees()]);
+      [parts, employees, settingsMachines] = await Promise.all([
+        fetchParts(), fetchEmployees(), fetchMachines(),
+      ]);
       buildMachines();
     } catch {
       toast('Daten konnten nicht geladen werden');

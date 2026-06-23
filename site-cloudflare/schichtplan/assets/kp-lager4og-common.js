@@ -1,11 +1,10 @@
 /* Lager 4.OG — shared constants & API */
 (function (global) {
-  const L4_MACHINES = [
+  const L4_DEFAULT_MACHINES = [
     'Waldner 19.2', 'Bemasor Klär', 'Druckner 15.2', 'Rotary',
     'Station 2', '10.2', '10.3', '10.3-2', 'Sonstiges',
   ];
-  const L4_KIOSK_MACHINES = L4_MACHINES.filter(m => m !== 'Sonstiges');
-  const L4_CATEGORIES = ['Sensor', 'Pneumatik', 'Dichtung', 'Vakuum', 'Antrieb', 'Elektrik', 'Befestigung', 'Kupplung', 'Sonstiges'];
+  const L4_DEFAULT_CATEGORIES = ['Sensor', 'Pneumatik', 'Dichtung', 'Vakuum', 'Antrieb', 'Elektrik', 'Befestigung', 'Kupplung', 'Sonstiges'];
   const L4_ADMIN_PW = 'korsmotion2026';
 
   function l4Esc(s) {
@@ -60,15 +59,21 @@
     return (allParts || []).filter(p => l4PartMatchesSearchWorker(p, q));
   }
 
-  function l4CollectMachines(parts) {
-    const set = new Set(L4_KIOSK_MACHINES);
-    (parts || []).forEach(p => {
-      (p.machines || []).forEach(m => { if (m) set.add(String(m)); });
-    });
-    const list = [...set].filter(m => m !== 'Sonstiges');
+  function l4KioskMachineTiles(settingsMachines) {
+    const src = Array.isArray(settingsMachines) && settingsMachines.length
+      ? settingsMachines
+      : L4_DEFAULT_MACHINES;
+    const list = src.map(String).filter(Boolean).filter(m => m !== 'Sonstiges');
     list.sort((a, b) => a.localeCompare(b, 'de'));
     list.push('Sonstiges');
     return list;
+  }
+
+  function l4FormMachineOptions(settingsMachines) {
+    const src = Array.isArray(settingsMachines) && settingsMachines.length
+      ? settingsMachines
+      : L4_DEFAULT_MACHINES;
+    return src.map(String).filter(Boolean).filter(m => m !== 'Sonstiges');
   }
 
   function l4PartMatchesSearch(p, q) {
@@ -185,6 +190,44 @@
     setTimeout(() => t.classList.remove('show'), 2400);
   }
 
+  async function l4FetchCategories() {
+    const res = await fetch('/api/lager/categories');
+    if (!res.ok) throw new Error('categories');
+    const data = await res.json();
+    const list = data.categories;
+    return Array.isArray(list) && list.length ? list : [...L4_DEFAULT_CATEGORIES];
+  }
+
+  async function l4FetchMachines() {
+    const res = await fetch('/api/lager/machines');
+    if (!res.ok) throw new Error('machines');
+    const data = await res.json();
+    const list = data.machines;
+    return Array.isArray(list) && list.length ? list : [...L4_DEFAULT_MACHINES];
+  }
+
+  async function l4SaveCategories(categories) {
+    const res = await fetch('/api/lager/categories', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': L4_ADMIN_PW },
+      body: JSON.stringify({ password: L4_ADMIN_PW, categories }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'save');
+    return data.categories || categories;
+  }
+
+  async function l4SaveMachines(machines) {
+    const res = await fetch('/api/lager/machines', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': L4_ADMIN_PW },
+      body: JSON.stringify({ password: L4_ADMIN_PW, machines }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'save');
+    return data.machines || machines;
+  }
+
   function l4FmtDt(iso) {
     try {
       return new Date(iso).toLocaleString('de-CH', { dateStyle: 'short', timeStyle: 'short' });
@@ -194,9 +237,8 @@
   }
 
   global.L4 = {
-    MACHINES: L4_MACHINES,
-    KIOSK_MACHINES: L4_KIOSK_MACHINES,
-    CATEGORIES: L4_CATEGORIES,
+    DEFAULT_MACHINES: L4_DEFAULT_MACHINES,
+    DEFAULT_CATEGORIES: L4_DEFAULT_CATEGORIES,
     esc: l4Esc,
     stock: l4Stock,
     partPhotos: l4PartPhotos,
@@ -205,7 +247,8 @@
     partMatchesSearch: l4PartMatchesSearch,
     partMatchesSearchWorker: l4PartMatchesSearchWorker,
     warehouseParts: l4WarehouseParts,
-    collectMachines: l4CollectMachines,
+    kioskMachineTiles: l4KioskMachineTiles,
+    formMachineOptions: l4FormMachineOptions,
     imgHtml: l4ImgHtml,
     galleryHtml: l4GalleryHtml,
     PHOTO_SLOTS: 3,
@@ -213,6 +256,10 @@
     fetchParts: l4FetchParts,
     fetchEmployees: l4FetchEmployees,
     fetchLog: l4FetchLog,
+    fetchCategories: l4FetchCategories,
+    fetchMachines: l4FetchMachines,
+    saveCategories: l4SaveCategories,
+    saveMachines: l4SaveMachines,
     withdraw: l4Withdraw,
     savePart: l4SavePart,
     deletePart: l4DeletePart,
