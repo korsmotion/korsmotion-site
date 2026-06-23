@@ -58,8 +58,8 @@
     <div class="results-header">
       <div class="results-count">Gefunden: <span id="l4ResultCount">0</span> Teile</div>
       <div class="l4-view-toggle" role="group" aria-label="Ansicht umschalten">
-        <button type="button" class="l4-view-toggle-btn on" data-l4-view="grid" title="Kartenansicht" aria-pressed="true" aria-label="Kartenansicht">▦</button>
-        <button type="button" class="l4-view-toggle-btn" data-l4-view="list" title="Listenansicht" aria-pressed="false" aria-label="Listenansicht">☰</button>
+        <button type="button" class="l4-view-toggle-btn on" data-kiosk-view="grid" title="Kartenansicht" aria-pressed="true" aria-label="Kartenansicht">▦</button>
+        <button type="button" class="l4-view-toggle-btn" data-kiosk-view="list" title="Listenansicht" aria-pressed="false" aria-label="Listenansicht">☰</button>
       </div>
     </div>
     <div class="grid" id="l4Grid"></div>
@@ -154,11 +154,13 @@
           <label class="form-label" for="l4WithdrawQty">Anzahl entnehmen</label>
           <input type="number" class="form-input l4-qty-input" id="l4WithdrawQty" min="1" value="1" inputmode="numeric">
         </div>
-        <button type="button" class="btn-primary l4-btn-weiter" id="l4EntnehmenBtn" style="margin-bottom:8px">✅ Entnehmen</button>
       </div>
     </div>
     <div class="l4-view-footer">
-      <button type="button" class="btn-secondary l4-btn-weiter" id="l4ViewClose">Schließen</button>
+      <div class="l4-view-footer-actions">
+        <button type="button" class="btn-secondary l4-view-footer-btn" id="l4ViewClose">Schließen</button>
+        <button type="button" class="btn-primary l4-view-footer-btn" id="l4EntnehmenBtn" hidden>✅ Entnehmen</button>
+      </div>
     </div>
   </div>
 </div>

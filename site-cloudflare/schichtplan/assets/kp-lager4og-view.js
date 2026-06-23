@@ -30,6 +30,7 @@
       : '<span class="l4-view-muted">—</span>';
 
     const worker = $('l4ViewWorker');
+    const entnehmenBtn = $('l4EntnehmenBtn');
     if (worker) {
       worker.hidden = viewMode !== 'worker';
       if (viewMode === 'worker') {
@@ -38,8 +39,15 @@
         qtyInput.max = String(Math.max(1, bestand));
         qtyInput.value = bestand > 0 ? '1' : '0';
         qtyInput.disabled = bestand < 1;
-        $('l4EntnehmenBtn').disabled = bestand < 1;
+        if (entnehmenBtn) {
+          entnehmenBtn.hidden = false;
+          entnehmenBtn.disabled = bestand < 1;
+        }
+      } else if (entnehmenBtn) {
+        entnehmenBtn.hidden = true;
       }
+    } else if (entnehmenBtn) {
+      entnehmenBtn.hidden = true;
     }
   }
 

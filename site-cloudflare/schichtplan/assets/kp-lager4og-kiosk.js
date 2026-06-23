@@ -137,14 +137,21 @@
     try {
       localStorage.setItem(VIEW_STORAGE_KEY, viewMode);
     } catch { /* private mode */ }
-    document.querySelectorAll('[data-l4-view]').forEach(btn => {
-      const on = btn.dataset.l4View === viewMode;
+    document.querySelectorAll('[data-kiosk-view]').forEach(btn => {
+      const btnMode = btn.getAttribute('data-kiosk-view');
+      const on = btnMode === viewMode;
       btn.classList.toggle('on', on);
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
-    if ($('l4Grid')) $('l4Grid').hidden = viewMode !== 'grid';
-    if ($('l4List')) $('l4List').hidden = viewMode !== 'list';
+    applyResultsVisibility();
     renderResults();
+  }
+
+  function applyResultsVisibility() {
+    const grid = $('l4Grid');
+    const listEl = $('l4List');
+    if (grid) grid.hidden = viewMode !== 'grid';
+    if (listEl) listEl.hidden = viewMode !== 'list';
   }
 
   function renderCard(p, q) {
@@ -185,14 +192,14 @@
       grid.innerHTML = '';
       listEl.innerHTML = '';
       noR.style.display = 'block';
+      applyResultsVisibility();
       return;
     }
     noR.style.display = 'none';
     const q = searchQuery.toLowerCase();
     grid.innerHTML = list.map(p => renderCard(p, q)).join('');
     listEl.innerHTML = list.map(p => renderListRow(p, q)).join('');
-    grid.hidden = viewMode !== 'grid';
-    listEl.hidden = viewMode !== 'list';
+    applyResultsVisibility();
   }
 
   async function confirmWithdraw(part) {
@@ -241,8 +248,12 @@
       const row = e.target.closest('[data-part]');
       if (row) openPartFromRow(row);
     });
-    document.querySelectorAll('[data-l4-view]').forEach(btn => {
-      btn.addEventListener('click', () => setViewMode(btn.dataset.l4View));
+    $('l4ScreenSearch')?.addEventListener('click', e => {
+      const viewBtn = e.target.closest('[data-kiosk-view]');
+      if (!viewBtn) return;
+      e.preventDefault();
+      const mode = viewBtn.getAttribute('data-kiosk-view');
+      if (mode === 'grid' || mode === 'list') setViewMode(mode);
     });
   }
 
