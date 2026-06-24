@@ -1272,8 +1272,11 @@ function resetReviewForm() {
 
 const switcher = document.getElementById('langSwitcher');
 const langButton = document.getElementById('langButton');
-langButton.addEventListener('click', (e) => { e.stopPropagation(); switcher.classList.toggle('open'); });
-document.addEventListener('click', () => switcher.classList.remove('open'));
+langButton?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  switcher?.classList.toggle('open');
+});
+document.addEventListener('click', () => switcher?.classList.remove('open'));
 document.querySelectorAll('.lang-option').forEach(btn => {
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -2257,20 +2260,42 @@ window.closeAppModal = closeAppModal;
 window.openAppLightbox = openAppLightbox;
 window.closeAppLightbox = closeAppLightbox;
 
+function syncNavBackdrop() {
+  const nav = document.querySelector('nav');
+  const backdrop = document.getElementById('navBackdrop');
+  if (!nav || !backdrop) return;
+  if (!nav.classList.contains('menu-open')) {
+    backdrop.style.top = '';
+    return;
+  }
+  backdrop.style.top = `${Math.ceil(nav.getBoundingClientRect().bottom)}px`;
+}
+
 function setNavMenu(open) {
   const nav = document.querySelector('nav');
   const btn = document.getElementById('navHamburger');
   const backdrop = document.getElementById('navBackdrop');
   const menu = document.getElementById('navMenu');
+  const switcher = document.getElementById('langSwitcher');
   nav?.classList.toggle('menu-open', open);
   if (btn) {
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
   }
+  if (open) switcher?.classList.remove('open');
   backdrop?.classList.toggle('open', open);
   document.body.classList.toggle('nav-menu-open', open);
   if (menu) {
     menu.style.transform = '';
     menu.style.transition = '';
+  }
+  if (open) {
+    requestAnimationFrame(() => {
+      syncNavBackdrop();
+      requestAnimationFrame(syncNavBackdrop);
+    });
+    setTimeout(syncNavBackdrop, 420);
+  } else {
+    syncNavBackdrop();
   }
 }
 
@@ -2298,33 +2323,42 @@ function initMobileNav() {
   });
 
   const menu = document.getElementById('navMenu');
-  if (menu && !menu.dataset.swipeBound) {
-    menu.dataset.swipeBound = '1';
+  const nav = document.querySelector('nav');
+  if (nav && !nav.dataset.swipeBound) {
+    nav.dataset.swipeBound = '1';
     let startY = 0;
     let dragging = false;
 
-    menu.addEventListener('touchstart', e => {
-      if (!document.querySelector('nav')?.classList.contains('menu-open')) return;
+    nav.addEventListener('touchstart', e => {
+      if (!nav.classList.contains('menu-open')) return;
+      if (e.target.closest('.lang-switcher, .lang-dropdown')) return;
+      if (menu && e.target.closest('#navMenu') && menu.scrollTop > 0) return;
       startY = e.touches[0].clientY;
       dragging = true;
-      menu.style.transition = 'none';
+      if (menu) menu.style.transition = 'none';
     }, { passive: true });
 
-    menu.addEventListener('touchmove', e => {
+    nav.addEventListener('touchmove', e => {
       if (!dragging) return;
       const dy = e.touches[0].clientY - startY;
-      if (dy < 0) menu.style.transform = `translateY(${dy}px)`;
+      if (dy < 0 && menu) menu.style.transform = `translateY(${dy}px)`;
     }, { passive: true });
 
-    menu.addEventListener('touchend', e => {
+    nav.addEventListener('touchend', e => {
       if (!dragging) return;
       dragging = false;
-      menu.style.transition = '';
+      if (menu) menu.style.transition = '';
       const dy = e.changedTouches[0].clientY - startY;
-      if (dy < -60) closeNavMenu();
-      else menu.style.transform = '';
+      if (dy < -50) closeNavMenu();
+      else if (menu) menu.style.transform = '';
     }, { passive: true });
+
+    menu?.addEventListener('transitionend', () => {
+      if (nav.classList.contains('menu-open')) syncNavBackdrop();
+    });
   }
+
+  window.addEventListener('resize', syncNavBackdrop);
 }
 
 function closeCategoryModal() {
