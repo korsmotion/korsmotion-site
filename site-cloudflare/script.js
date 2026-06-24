@@ -1143,8 +1143,17 @@ function initReviewsCarousel(cardCount) {
     dots.innerHTML = Array.from({ length: groups }, (_, i) =>
       `<button type="button" class="reviews-dot${i === reviewsCarouselGroup ? ' active' : ''}" data-group="${i}" aria-label="Reviews ${i + 1}"></button>`
     ).join('');
-    dots.querySelectorAll('.reviews-dot').forEach(dot => {
-      dot.addEventListener('click', () => scrollToGroup(+dot.dataset.group));
+  }
+
+  function bindDotNavigation() {
+    if (!dots || dots.dataset.dotBound === '1') return;
+    dots.dataset.dotBound = '1';
+    dots.addEventListener('pointerup', e => {
+      const dot = e.target.closest('.reviews-dot');
+      if (!dot) return;
+      e.preventDefault();
+      e.stopPropagation();
+      scrollToGroup(+dot.dataset.group);
     });
   }
 
@@ -1194,6 +1203,7 @@ function initReviewsCarousel(cardCount) {
 
   if (wrap.dataset.bound !== '1') {
     wrap.dataset.bound = '1';
+    bindDotNavigation();
     prev?.addEventListener('click', () => {
       if (reviewsCarouselGroup <= 0) return;
       scrollToGroup(reviewsCarouselGroup - 1);
@@ -2067,7 +2077,7 @@ function openAppModal(appId) {
 
   const modal = document.createElement('div');
   modal.id = 'appModal';
-  modal.className = 'modal-overlay';
+  modal.className = 'modal-overlay app-modal';
 
   const googleBtn = a.showGooglePlay && a.googlePlayUrl ? `
     <a href="${escHtml(a.googlePlayUrl)}" class="store-btn store-btn-google" target="_blank" rel="noopener" onclick="event.stopPropagation()">
@@ -2083,42 +2093,133 @@ function openAppModal(appId) {
 
   const aid = escHtml(a.id);
   const screensHtml = screens.length ? `
-    <div style="position:relative;background:#000;overflow:hidden">
-      <div id="amtrack-${aid}" style="display:flex;transition:transform .35s ease;will-change:transform">
-        ${screens.map(s => `
-          <div style="min-width:100%;flex-shrink:0">
-            <img src="${escHtml(s)}" alt="" style="width:100%;display:block;max-height:420px;object-fit:contain">
+    <div class="app-modal-screens-wrap">
+      <div id="amtrack-${aid}" class="app-modal-screens-track">
+        ${screens.map((s, i) => `
+          <div class="app-modal-screen-slide">
+            <img src="${escHtml(s)}" alt="" data-shot-index="${i}" onclick="event.stopPropagation();openAppLightbox('${aid}', ${i})">
           </div>`).join('')}
       </div>
       ${screens.length > 1 ? `
-        <button onclick="event.stopPropagation();appModalPrev('${aid}',${screens.length})" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
-        <button onclick="event.stopPropagation();appModalNext('${aid}',${screens.length})" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
-        <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px">
-          ${screens.map((_, i) => `<span id="amdot-${aid}-${i}" style="width:${i===0?'16px':'6px'};height:6px;border-radius:3px;background:${i===0?'#fff':'rgba(255,255,255,.45)'};cursor:pointer;transition:all .3s" onclick="event.stopPropagation();appModalGo('${aid}',${i},${screens.length})"></span>`).join('')}
+        <button type="button" class="app-modal-nav-btn app-modal-nav-prev" onclick="event.stopPropagation();appModalPrev('${aid}',${screens.length})" aria-label="Previous screenshot">‹</button>
+        <button type="button" class="app-modal-nav-btn app-modal-nav-next" onclick="event.stopPropagation();appModalNext('${aid}',${screens.length})" aria-label="Next screenshot">›</button>
+        <div class="app-modal-dots">
+          ${screens.map((_, i) => `<span id="amdot-${aid}-${i}" class="app-modal-dot${i === 0 ? ' active' : ''}" onclick="event.stopPropagation();appModalGo('${aid}',${i},${screens.length})"></span>`).join('')}
         </div>` : ''}
     </div>` : '';
 
   modal.innerHTML = `
-    <div class="modal" style="max-width:760px;width:94%;max-height:90vh;overflow-y:auto;padding:0;border-radius:20px">
-      <div style="padding:20px 24px 16px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid rgba(91,63,191,.1)">
-        <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
-          ${a.icon ? `<img src="${escHtml(a.icon)}" style="width:56px;height:56px;border-radius:14px;object-fit:cover;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.15)">` : ''}
+    <div class="modal">
+      <div class="app-modal-header">
+        <div class="app-modal-head-main">
+          ${a.icon ? `<img src="${escHtml(a.icon)}" class="app-modal-icon" alt="">` : ''}
           <div style="min-width:0">
-            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--violet-deep);margin-bottom:2px">${escHtml(a.platform)}</div>
-            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:500;color:var(--ink);line-height:1.2;margin-bottom:10px">${escHtml(a.title)}</div>
-            ${googleBtn || appleBtn ? `<div style="display:flex;gap:8px;flex-wrap:wrap">${googleBtn}${appleBtn}</div>` : ''}
+            <div class="app-modal-platform">${escHtml(a.platform)}</div>
+            <div class="app-modal-title">${escHtml(a.title)}</div>
+            ${googleBtn || appleBtn ? `<div class="app-modal-store-row">${googleBtn}${appleBtn}</div>` : ''}
           </div>
         </div>
-        <button onclick="closeAppModal()" style="background:rgba(91,63,191,.08);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:20px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:12px">×</button>
+        <button type="button" class="app-modal-close-btn" onclick="closeAppModal()" aria-label="Close">×</button>
       </div>
       ${screensHtml}
-      ${desc ? `<div style="padding:20px 24px 24px"><p style="font-size:15px;color:var(--ink-soft);line-height:1.7;margin:0">${escHtml(desc)}</p></div>` : '<div style="height:8px"></div>'}
+      ${desc ? `<div class="app-modal-body"><p class="app-modal-desc">${escHtml(desc)}</p></div>` : '<div style="height:8px"></div>'}
     </div>`;
 
   document.body.appendChild(modal);
   modal.addEventListener('click', e => { if (e.target === modal) closeAppModal(); });
   requestAnimationFrame(() => modal.classList.add('active'));
   document.body.classList.add('modal-open');
+}
+
+function openAppLightbox(appId, startIdx) {
+  const a = (siteSettings.apps || []).find(x => x.id === appId);
+  const screens = (a?.screens || []).filter(s => s && s.trim());
+  if (!screens.length) return;
+
+  const old = document.getElementById('appLightbox');
+  if (old) old.remove();
+
+  let idx = Math.max(0, Math.min(screens.length - 1, startIdx || 0));
+  const lb = document.createElement('div');
+  lb.id = 'appLightbox';
+  lb.className = 'app-lightbox';
+
+  function render() {
+    const track = lb.querySelector('.app-lightbox-track');
+    const count = lb.querySelector('.app-lightbox-count');
+    if (track) track.style.transform = `translateX(-${idx * 100}%)`;
+    if (count) count.textContent = `${idx + 1} / ${screens.length}`;
+    lb.querySelectorAll('.app-lightbox-nav').forEach(btn => {
+      btn.style.display = screens.length > 1 ? 'flex' : 'none';
+    });
+  }
+
+  lb.innerHTML = `
+    <div class="app-lightbox-top">
+      <button type="button" class="app-lightbox-close" aria-label="Close" onclick="closeAppLightbox()">×</button>
+      <div class="app-lightbox-count">${idx + 1} / ${screens.length}</div>
+      <div style="width:40px"></div>
+    </div>
+    <div class="app-lightbox-viewport">
+      <div class="app-lightbox-track">
+        ${screens.map(s => `
+          <div class="app-lightbox-slide">
+            <img src="${escHtml(s)}" alt="">
+          </div>`).join('')}
+      </div>
+      ${screens.length > 1 ? `
+        <button type="button" class="app-lightbox-nav app-lightbox-prev" aria-label="Previous">‹</button>
+        <button type="button" class="app-lightbox-nav app-lightbox-next" aria-label="Next">›</button>
+      ` : ''}
+    </div>`;
+
+  const go = delta => {
+    idx = (idx + delta + screens.length) % screens.length;
+    render();
+  };
+
+  lb.querySelector('.app-lightbox-prev')?.addEventListener('click', e => {
+    e.stopPropagation();
+    go(-1);
+  });
+  lb.querySelector('.app-lightbox-next')?.addEventListener('click', e => {
+    e.stopPropagation();
+    go(1);
+  });
+  lb.querySelector('.app-lightbox-close')?.addEventListener('click', e => {
+    e.stopPropagation();
+    closeAppLightbox();
+  });
+  lb.addEventListener('click', e => {
+    if (e.target === lb || e.target.classList.contains('app-lightbox-viewport')) closeAppLightbox();
+  });
+
+  let touchStartX = 0;
+  let touchStartY = 0;
+  lb.addEventListener('touchstart', e => {
+    if (!e.changedTouches[0]) return;
+    touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
+  }, { passive: true });
+  lb.addEventListener('touchend', e => {
+    if (!e.changedTouches[0] || screens.length < 2) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) go(1);
+    else go(-1);
+  }, { passive: true });
+
+  document.body.appendChild(lb);
+  render();
+  requestAnimationFrame(() => lb.classList.add('active'));
+}
+
+function closeAppLightbox() {
+  const lb = document.getElementById('appLightbox');
+  if (!lb) return;
+  lb.classList.remove('active');
+  setTimeout(() => lb.remove(), 300);
 }
 
 window.appModalGo = function(appId, idx, total) {
@@ -2128,10 +2229,7 @@ window.appModalGo = function(appId, idx, total) {
   if (track) track.style.transform = `translateX(-${idx * 100}%)`;
   for (let i = 0; i < total; i++) {
     const dot = document.getElementById('amdot-' + appId + '-' + i);
-    if (dot) {
-      dot.style.width = i === idx ? '16px' : '6px';
-      dot.style.background = i === idx ? '#fff' : 'rgba(255,255,255,.45)';
-    }
+    if (dot) dot.classList.toggle('active', i === idx);
   }
 };
 
@@ -2156,6 +2254,45 @@ function closeAppModal() {
   }
 }
 window.closeAppModal = closeAppModal;
+window.openAppLightbox = openAppLightbox;
+window.closeAppLightbox = closeAppLightbox;
+
+function setNavMenu(open) {
+  const nav = document.querySelector('nav');
+  const btn = document.getElementById('navHamburger');
+  const backdrop = document.getElementById('navBackdrop');
+  nav?.classList.toggle('menu-open', open);
+  if (btn) {
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  backdrop?.classList.toggle('open', open);
+  document.body.classList.toggle('nav-menu-open', open);
+}
+
+function toggleNavMenu() {
+  setNavMenu(!document.querySelector('nav')?.classList.contains('menu-open'));
+}
+
+function closeNavMenu() {
+  setNavMenu(false);
+}
+
+function initMobileNav() {
+  const btn = document.getElementById('navHamburger');
+  const backdrop = document.getElementById('navBackdrop');
+  if (btn && !btn.dataset.bound) {
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      toggleNavMenu();
+    });
+  }
+  backdrop?.addEventListener('click', () => closeNavMenu());
+  document.querySelectorAll('.nav-links-wrap .nav-link, .nav-cta-mobile').forEach(link => {
+    link.addEventListener('click', () => closeNavMenu());
+  });
+}
 
 function closeCategoryModal() {
   const modal = document.getElementById('categoryModal');
@@ -2407,6 +2544,7 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 initReviewStarPicker();
+initMobileNav();
 document.getElementById('openAllReviewsBtn')?.addEventListener('click', () => {
   renderAllReviewsModal(sortedSiteReviews);
   openModal('allReviewsModal');
@@ -2480,3 +2618,5 @@ window.carouselPrev = carouselPrev;
 window.carouselGo = carouselGo;
 window.openCategoryModal = openCategoryModal;
 window.closeCategoryModal = closeCategoryModal;
+window.toggleNavMenu = toggleNavMenu;
+window.closeNavMenu = closeNavMenu;
