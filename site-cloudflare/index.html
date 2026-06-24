@@ -53,10 +53,12 @@ nav a.nav-link:hover{color:var(--violet-deep)}
   nav{left:16px;right:16px;transform:none;width:auto;max-width:none;flex-wrap:wrap;align-items:center;border-radius:16px;padding:10px 16px;gap:8px;overflow:visible;z-index:1001;transition:border-radius .4s cubic-bezier(.22,1,.36,1),box-shadow .35s ease;background:rgba(245,240,255,.78);border:1px solid rgba(232,223,251,.92);box-shadow:0 8px 32px rgba(91,63,191,.1)}
   nav.menu-open{border-radius:16px 16px 24px 24px;box-shadow:0 12px 40px rgba(91,63,191,.14);overflow:hidden}
   nav.menu-swipe-active{touch-action:none;overflow:hidden;transition:none !important}
-  nav.menu-swipe-closing{touch-action:none;overflow:hidden;pointer-events:none;transition:clip-path .34s cubic-bezier(.22,1,.36,1),border-radius .34s cubic-bezier(.22,1,.36,1),box-shadow .34s ease !important}
+  nav.menu-swipe-closing{touch-action:none;overflow:hidden;pointer-events:none;transition:border-radius .34s cubic-bezier(.22,1,.36,1),box-shadow .34s ease !important}
+  nav.menu-swipe-active .nav-logo,nav.menu-swipe-active .lang-switcher,nav.menu-swipe-active .nav-hamburger,nav.menu-swipe-closing .nav-logo,nav.menu-swipe-closing .lang-switcher,nav.menu-swipe-closing .nav-hamburger{position:relative;z-index:2}
+  nav.menu-swipe-active .nav-links-wrap,nav.menu-swipe-closing .nav-links-wrap{position:relative;z-index:1}
   .nav-links-wrap.is-swiping{transition:none !important}
-  .nav-links-wrap.is-snap-back{transition:transform .34s cubic-bezier(.22,1,.36,1) !important}
-  .nav-links-wrap.is-swipe-closing{pointer-events:none;transition:transform .34s cubic-bezier(.22,1,.36,1) !important}
+  .nav-links-wrap.is-snap-back{transition:transform .34s cubic-bezier(.22,1,.36,1),clip-path .34s cubic-bezier(.22,1,.36,1) !important}
+  .nav-links-wrap.is-swipe-closing{pointer-events:none;transition:transform .34s cubic-bezier(.22,1,.36,1),clip-path .34s cubic-bezier(.22,1,.36,1) !important}
   nav>.nav-cta{display:none}
   .nav-hamburger{display:flex;margin-left:0;order:3}
   .nav-logo{order:1}

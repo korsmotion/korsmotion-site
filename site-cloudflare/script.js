@@ -2288,13 +2288,13 @@ function clampNavSwipeY(dy, foldH) {
   return Math.max(-foldH, Math.min(dy, 0));
 }
 
-function setNavSwipeVisual(nav, menu, y, foldH) {
+function setNavSwipeVisual(menu, y, foldH) {
   menu.style.transform = `translate3d(0,${y}px,0)`;
-  if (y < 0) {
+  if (y < 0 && foldH > 0) {
     const clip = Math.min(-y, foldH);
-    nav.style.clipPath = `inset(0 0 ${clip}px 0 round 16px)`;
+    menu.style.clipPath = `inset(0 0 ${clip}px 0)`;
   } else {
-    nav.style.clipPath = '';
+    menu.style.clipPath = '';
   }
 }
 
@@ -2304,12 +2304,12 @@ function resetNavSwipeStyles() {
   nav?.classList.remove('menu-swipe-active', 'menu-swipe-closing');
   if (nav) {
     nav.style.minHeight = '';
-    nav.style.clipPath = '';
     nav.style.transition = '';
   }
   if (menu) {
     menu.classList.remove('is-swiping', 'is-snap-back', 'is-swipe-closing');
     menu.style.transform = '';
+    menu.style.clipPath = '';
     menu.style.transition = '';
     menu.style.maxHeight = '';
     menu.style.padding = '';
@@ -2344,10 +2344,10 @@ function closeNavMenuFromSwipe(swipeDy, fullFoldH) {
 
   menu.style.transition = '';
   nav.style.transition = '';
-  setNavSwipeVisual(nav, menu, startY, foldH);
+  setNavSwipeVisual(menu, startY, foldH);
 
   requestAnimationFrame(() => {
-    setNavSwipeVisual(nav, menu, -foldH, foldH);
+    setNavSwipeVisual(menu, -foldH, foldH);
   });
 
   let finished = false;
@@ -2355,7 +2355,13 @@ function closeNavMenuFromSwipe(swipeDy, fullFoldH) {
     if (finished) return;
     finished = true;
     menu.removeEventListener('transitionend', onEnd);
-    nav.removeEventListener('transitionend', onEnd);
+    menu.style.transition = 'none';
+    menu.style.transform = '';
+    menu.style.clipPath = '';
+    menu.style.maxHeight = '0';
+    menu.style.padding = '0';
+    menu.style.opacity = '0';
+    menu.style.borderTopColor = 'transparent';
     nav.classList.remove('menu-open', 'menu-swipe-closing');
     btn?.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('nav-menu-open');
@@ -2364,12 +2370,11 @@ function closeNavMenuFromSwipe(swipeDy, fullFoldH) {
   };
 
   const onEnd = e => {
-    if (e.target === menu && e.propertyName === 'transform') finish();
-    if (e.target === nav && e.propertyName === 'clip-path') finish();
+    if (e.target !== menu) return;
+    if (e.propertyName === 'transform' || e.propertyName === 'clip-path') finish();
   };
 
   menu.addEventListener('transitionend', onEnd);
-  nav.addEventListener('transitionend', onEnd);
   setTimeout(finish, 400);
 }
 
@@ -2380,32 +2385,25 @@ function snapNavMenuBack() {
   nav.classList.remove('menu-swipe-active');
   menu.classList.remove('is-swiping');
   menu.classList.add('is-snap-back');
-  nav.style.transition = 'clip-path .34s cubic-bezier(.22,1,.36,1)';
-  menu.style.transition = 'transform .34s cubic-bezier(.22,1,.36,1)';
+  menu.style.transition = 'transform .34s cubic-bezier(.22,1,.36,1),clip-path .34s cubic-bezier(.22,1,.36,1)';
   requestAnimationFrame(() => {
-    setNavSwipeVisual(nav, menu, 0, 0);
+    setNavSwipeVisual(menu, 0, 0);
   });
   const onEnd = e => {
     if (e.target !== menu || e.propertyName !== 'transform') return;
     menu.classList.remove('is-snap-back');
     menu.removeEventListener('transitionend', onEnd);
-    nav.removeEventListener('transitionend', onEnd);
-    nav.style.transition = '';
     menu.style.transition = '';
     nav.style.minHeight = '';
-    nav.style.clipPath = '';
     menu.style.maxHeight = '';
     watchNavBackdrop(true);
     syncNavBackdrop();
   };
   menu.addEventListener('transitionend', onEnd);
-  nav.addEventListener('transitionend', onEnd);
   setTimeout(() => {
     menu.classList.remove('is-snap-back');
-    nav.style.transition = '';
     menu.style.transition = '';
     nav.style.minHeight = '';
-    nav.style.clipPath = '';
     menu.style.maxHeight = '';
     watchNavBackdrop(true);
     syncNavBackdrop();
@@ -2476,10 +2474,10 @@ function initMobileNav() {
     const paintSwipe = () => {
       rafId = 0;
       if (!dragging || !menu) return;
-      if (swipeDy <= 0) setNavSwipeVisual(nav, menu, clampNavSwipeY(swipeDy, foldH), foldH);
+      if (swipeDy <= 0) setNavSwipeVisual(menu, clampNavSwipeY(swipeDy, foldH), foldH);
       else {
         menu.style.transform = `translate3d(0,${swipeDy * 0.16}px,0)`;
-        nav.style.clipPath = '';
+        menu.style.clipPath = '';
       }
     };
 
@@ -2503,7 +2501,7 @@ function initMobileNav() {
       menu.style.maxHeight = `${foldH}px`;
       menu.style.transition = 'none';
       nav.style.transition = 'none';
-      setNavSwipeVisual(nav, menu, 0, foldH);
+      setNavSwipeVisual(menu, 0, foldH);
     }, { passive: true });
 
     nav.addEventListener('touchmove', e => {
