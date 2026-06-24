@@ -2284,32 +2284,49 @@ function watchNavBackdrop(open) {
   navBackdropObserver.observe(nav);
 }
 
+function getNavMenuSheet(menu) {
+  return menu?.querySelector('.nav-menu-sheet') || menu;
+}
+
 function resetNavSwipeStyles() {
   const nav = document.querySelector('nav');
   const menu = document.getElementById('navMenu');
+  const sheet = getNavMenuSheet(menu);
   nav?.classList.remove('menu-swipe-active');
   nav && (nav.style.minHeight = '');
   if (menu) {
     menu.classList.remove('is-swiping', 'is-snap-back', 'is-swipe-closing');
-    menu.style.transform = '';
     menu.style.transition = '';
     menu.style.maxHeight = '';
     menu.style.padding = '';
     menu.style.opacity = '';
     menu.style.borderTopColor = '';
   }
+  if (sheet && sheet !== menu) {
+    sheet.classList.remove('is-snap-back');
+    sheet.style.transform = '';
+    sheet.style.transition = '';
+  }
 }
 
 function getMenuFoldHeight(menu) {
-  return menu ? Math.max(menu.scrollHeight, menu.offsetHeight) : 0;
+  return menu ? menu.offsetHeight : 0;
 }
 
-function closeNavMenuFromSwipe(swipeDy) {
+function applyNavMenuSwipeOffset(menu, sheet, dy) {
+  const foldH = getMenuFoldHeight(menu);
+  const clamped = Math.max(-foldH, Math.min(Math.round(dy), 0));
+  sheet.style.transform = `translate3d(0,${clamped}px,0)`;
+  menu.style.maxHeight = `${Math.max(0, foldH + clamped)}px`;
+}
+
+function closeNavMenuFromSwipe(swipeDy, fullFoldH) {
   const nav = document.querySelector('nav');
   const menu = document.getElementById('navMenu');
+  const sheet = getNavMenuSheet(menu);
   const backdrop = document.getElementById('navBackdrop');
   const btn = document.getElementById('navHamburger');
-  if (!nav?.classList.contains('menu-open') || !menu) {
+  if (!nav?.classList.contains('menu-open') || !menu || !sheet) {
     closeNavMenu();
     return;
   }
@@ -2318,22 +2335,23 @@ function closeNavMenuFromSwipe(swipeDy) {
   nav.classList.add('menu-swipe-active');
   menu.classList.remove('is-swiping', 'is-snap-back');
   menu.classList.add('is-swipe-closing');
+  sheet.classList.remove('is-snap-back');
   backdrop?.classList.remove('open');
 
-  const foldH = getMenuFoldHeight(menu);
-  const startY = Math.min(0, Math.round(swipeDy));
-  const closeTransition = 'transform .32s cubic-bezier(.22,1,.36,1),max-height .32s cubic-bezier(.22,1,.36,1),padding .28s ease,opacity .22s ease,border-color .2s ease';
+  const foldH = fullFoldH || getMenuFoldHeight(menu);
+  const startY = Math.max(-foldH, Math.min(0, Math.round(swipeDy)));
 
-  menu.style.transition = closeTransition;
-  menu.style.maxHeight = `${foldH}px`;
-  menu.style.transform = `translate3d(0,${startY}px,0)`;
+  menu.style.transition = '';
+  menu.style.maxHeight = `${Math.max(0, foldH + startY)}px`;
+  sheet.style.transition = '';
+  sheet.style.transform = `translate3d(0,${startY}px,0)`;
 
   requestAnimationFrame(() => {
-    menu.style.transform = `translate3d(0,${-foldH}px,0)`;
     menu.style.maxHeight = '0px';
     menu.style.padding = '0';
     menu.style.opacity = '0';
     menu.style.borderTopColor = 'transparent';
+    sheet.style.transform = `translate3d(0,${-foldH}px,0)`;
   });
 
   let finished = false;
@@ -2341,6 +2359,7 @@ function closeNavMenuFromSwipe(swipeDy) {
     if (finished) return;
     finished = true;
     menu.removeEventListener('transitionend', onEnd);
+    sheet.removeEventListener('transitionend', onEnd);
     nav.classList.remove('menu-open', 'menu-swipe-active');
     btn?.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('nav-menu-open');
@@ -2349,38 +2368,46 @@ function closeNavMenuFromSwipe(swipeDy) {
   };
 
   const onEnd = e => {
-    if (e.target !== menu) return;
-    if (e.propertyName !== 'transform' && e.propertyName !== 'max-height') return;
-    finish();
+    if (e.target === menu && e.propertyName === 'max-height') finish();
+    if (e.target === sheet && e.propertyName === 'transform') finish();
   };
 
   menu.addEventListener('transitionend', onEnd);
+  sheet.addEventListener('transitionend', onEnd);
   setTimeout(finish, 380);
 }
 
 function snapNavMenuBack() {
   const nav = document.querySelector('nav');
   const menu = document.getElementById('navMenu');
-  if (!nav || !menu) return;
+  const sheet = getNavMenuSheet(menu);
+  if (!nav || !menu || !sheet) return;
   nav.classList.remove('menu-swipe-active');
   menu.classList.remove('is-swiping');
   menu.classList.add('is-snap-back');
-  menu.style.transition = 'transform .3s cubic-bezier(.22,1,.36,1)';
+  sheet.classList.add('is-snap-back');
+  const currentH = menu.offsetHeight;
+  menu.style.maxHeight = `${currentH}px`;
+  menu.style.transition = '';
+  sheet.style.transition = 'transform .3s cubic-bezier(.22,1,.36,1)';
   requestAnimationFrame(() => {
-    menu.style.transform = 'translate3d(0,0,0)';
+    menu.style.maxHeight = '';
+    sheet.style.transform = 'translate3d(0,0,0)';
   });
   const onEnd = e => {
-    if (e.target !== menu || e.propertyName !== 'transform') return;
+    if (e.target !== sheet || e.propertyName !== 'transform') return;
     menu.classList.remove('is-snap-back');
-    menu.removeEventListener('transitionend', onEnd);
-    menu.style.transition = '';
+    sheet.classList.remove('is-snap-back');
+    sheet.removeEventListener('transitionend', onEnd);
+    sheet.style.transition = '';
     watchNavBackdrop(true);
     syncNavBackdrop();
   };
-  menu.addEventListener('transitionend', onEnd);
+  sheet.addEventListener('transitionend', onEnd);
   setTimeout(() => {
     menu.classList.remove('is-snap-back');
-    menu.style.transition = '';
+    sheet.classList.remove('is-snap-back');
+    sheet.style.transition = '';
     watchNavBackdrop(true);
     syncNavBackdrop();
   }, 340);
@@ -2442,34 +2469,44 @@ function initMobileNav() {
   if (nav && !nav.dataset.swipeBound) {
     nav.dataset.swipeBound = '1';
     let startY = 0;
+    let foldH = 0;
     let dragging = false;
+    const sheet = () => getNavMenuSheet(menu);
 
     nav.addEventListener('touchstart', e => {
       if (!nav.classList.contains('menu-open') || !menu) return;
       if (e.target.closest('.lang-switcher, .lang-dropdown')) return;
       if (e.target.closest('#navMenu') && menu.scrollTop > 0) return;
       startY = e.touches[0].clientY;
+      foldH = getMenuFoldHeight(menu);
       dragging = true;
       watchNavBackdrop(false);
       nav.classList.add('menu-swipe-active');
       menu.classList.add('is-swiping');
       menu.classList.remove('is-snap-back', 'is-swipe-closing');
+      sheet()?.classList.remove('is-snap-back');
       menu.style.transition = 'none';
+      sheet() && (sheet().style.transition = 'none');
     }, { passive: true });
 
     nav.addEventListener('touchmove', e => {
       if (!dragging || !menu) return;
       e.preventDefault();
       const dy = Math.round(e.touches[0].clientY - startY);
-      if (dy <= 0) menu.style.transform = `translate3d(0,${dy}px,0)`;
-      else menu.style.transform = `translate3d(0,${Math.round(dy * 0.12)}px,0)`;
+      const menuSheet = sheet();
+      if (!menuSheet) return;
+      if (dy <= 0) applyNavMenuSwipeOffset(menu, menuSheet, dy);
+      else {
+        menuSheet.style.transform = `translate3d(0,${Math.round(dy * 0.12)}px,0)`;
+        menu.style.maxHeight = `${foldH}px`;
+      }
     }, { passive: false });
 
     nav.addEventListener('touchend', e => {
       if (!dragging) return;
       dragging = false;
       const dy = Math.round(e.changedTouches[0].clientY - startY);
-      if (dy < -50) closeNavMenuFromSwipe(dy);
+      if (dy < -50) closeNavMenuFromSwipe(dy, foldH);
       else snapNavMenuBack();
     }, { passive: true });
 
