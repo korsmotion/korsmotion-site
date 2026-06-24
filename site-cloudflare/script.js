@@ -2261,6 +2261,7 @@ function setNavMenu(open) {
   const nav = document.querySelector('nav');
   const btn = document.getElementById('navHamburger');
   const backdrop = document.getElementById('navBackdrop');
+  const menu = document.getElementById('navMenu');
   nav?.classList.toggle('menu-open', open);
   if (btn) {
     btn.classList.toggle('open', open);
@@ -2268,6 +2269,10 @@ function setNavMenu(open) {
   }
   backdrop?.classList.toggle('open', open);
   document.body.classList.toggle('nav-menu-open', open);
+  if (menu) {
+    menu.style.transform = '';
+    menu.style.transition = '';
+  }
 }
 
 function toggleNavMenu() {
@@ -2292,6 +2297,35 @@ function initMobileNav() {
   document.querySelectorAll('.nav-links-wrap .nav-link, .nav-cta-mobile').forEach(link => {
     link.addEventListener('click', () => closeNavMenu());
   });
+
+  const menu = document.getElementById('navMenu');
+  if (menu && !menu.dataset.swipeBound) {
+    menu.dataset.swipeBound = '1';
+    let startY = 0;
+    let dragging = false;
+
+    menu.addEventListener('touchstart', e => {
+      if (!document.querySelector('nav')?.classList.contains('menu-open')) return;
+      startY = e.touches[0].clientY;
+      dragging = true;
+      menu.style.transition = 'none';
+    }, { passive: true });
+
+    menu.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const dy = e.touches[0].clientY - startY;
+      if (dy < 0) menu.style.transform = `translateY(${dy}px)`;
+    }, { passive: true });
+
+    menu.addEventListener('touchend', e => {
+      if (!dragging) return;
+      dragging = false;
+      menu.style.transition = '';
+      const dy = e.changedTouches[0].clientY - startY;
+      if (dy < -60) closeNavMenu();
+      else menu.style.transform = '';
+    }, { passive: true });
+  }
 }
 
 function closeCategoryModal() {
