@@ -2287,18 +2287,103 @@ function watchNavBackdrop(open) {
 function resetNavSwipeStyles() {
   const nav = document.querySelector('nav');
   const menu = document.getElementById('navMenu');
-  if (nav) {
-    nav.classList.remove('is-swiping', 'is-snap-back', 'is-swipe-closing');
-    nav.style.transform = '';
-    nav.style.minHeight = '';
-  }
+  nav?.classList.remove('menu-swipe-active');
+  nav && (nav.style.minHeight = '');
   if (menu) {
+    menu.classList.remove('is-swiping', 'is-snap-back', 'is-swipe-closing');
     menu.style.transform = '';
     menu.style.transition = '';
     menu.style.maxHeight = '';
     menu.style.padding = '';
     menu.style.opacity = '';
+    menu.style.borderTopColor = '';
   }
+}
+
+function getMenuFoldHeight(menu) {
+  return menu ? Math.max(menu.scrollHeight, menu.offsetHeight) : 0;
+}
+
+function closeNavMenuFromSwipe(swipeDy) {
+  const nav = document.querySelector('nav');
+  const menu = document.getElementById('navMenu');
+  const backdrop = document.getElementById('navBackdrop');
+  const btn = document.getElementById('navHamburger');
+  if (!nav?.classList.contains('menu-open') || !menu) {
+    closeNavMenu();
+    return;
+  }
+
+  watchNavBackdrop(false);
+  nav.classList.add('menu-swipe-active');
+  menu.classList.remove('is-swiping', 'is-snap-back');
+  menu.classList.add('is-swipe-closing');
+  backdrop?.classList.remove('open');
+
+  const foldH = getMenuFoldHeight(menu);
+  const startY = Math.min(0, Math.round(swipeDy));
+  const closeTransition = 'transform .32s cubic-bezier(.22,1,.36,1),max-height .32s cubic-bezier(.22,1,.36,1),padding .28s ease,opacity .22s ease,border-color .2s ease';
+
+  menu.style.transition = closeTransition;
+  menu.style.maxHeight = `${foldH}px`;
+  menu.style.transform = `translate3d(0,${startY}px,0)`;
+
+  requestAnimationFrame(() => {
+    menu.style.transform = `translate3d(0,${-foldH}px,0)`;
+    menu.style.maxHeight = '0px';
+    menu.style.padding = '0';
+    menu.style.opacity = '0';
+    menu.style.borderTopColor = 'transparent';
+  });
+
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    menu.removeEventListener('transitionend', onEnd);
+    nav.classList.remove('menu-open', 'menu-swipe-active');
+    btn?.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('nav-menu-open');
+    resetNavSwipeStyles();
+    syncNavBackdrop();
+  };
+
+  const onEnd = e => {
+    if (e.target !== menu) return;
+    if (e.propertyName !== 'transform' && e.propertyName !== 'max-height') return;
+    finish();
+  };
+
+  menu.addEventListener('transitionend', onEnd);
+  setTimeout(finish, 380);
+}
+
+function snapNavMenuBack() {
+  const nav = document.querySelector('nav');
+  const menu = document.getElementById('navMenu');
+  if (!nav || !menu) return;
+  nav.classList.remove('menu-swipe-active');
+  menu.classList.remove('is-swiping');
+  menu.classList.add('is-snap-back');
+  menu.style.transition = 'transform .3s cubic-bezier(.22,1,.36,1)';
+  requestAnimationFrame(() => {
+    menu.style.transform = 'translate3d(0,0,0)';
+  });
+  const onEnd = e => {
+    if (e.target !== menu || e.propertyName !== 'transform') return;
+    menu.classList.remove('is-snap-back');
+    menu.removeEventListener('transitionend', onEnd);
+    menu.style.transition = '';
+    watchNavBackdrop(true);
+    syncNavBackdrop();
+  };
+  menu.addEventListener('transitionend', onEnd);
+  setTimeout(() => {
+    menu.classList.remove('is-snap-back');
+    menu.style.transition = '';
+    watchNavBackdrop(true);
+    syncNavBackdrop();
+  }, 340);
 }
 
 function setNavMenu(open) {
@@ -2337,76 +2422,6 @@ function closeNavMenu() {
   setNavMenu(false);
 }
 
-function closeNavMenuFromSwipe(swipeDy) {
-  const nav = document.querySelector('nav');
-  const menu = document.getElementById('navMenu');
-  const backdrop = document.getElementById('navBackdrop');
-  const btn = document.getElementById('navHamburger');
-  if (!nav?.classList.contains('menu-open')) {
-    closeNavMenu();
-    return;
-  }
-
-  watchNavBackdrop(false);
-  nav.classList.remove('is-swiping', 'is-snap-back');
-  nav.classList.add('is-swipe-closing');
-  backdrop?.classList.remove('open');
-
-  const startY = Math.min(0, Math.round(swipeDy));
-  const targetY = -(nav.offsetHeight + 16);
-  nav.style.transform = `translate3d(0,${startY}px,0)`;
-
-  requestAnimationFrame(() => {
-    nav.style.transform = `translate3d(0,${targetY}px,0)`;
-  });
-
-  let finished = false;
-  const finish = () => {
-    if (finished) return;
-    finished = true;
-    nav.removeEventListener('transitionend', onEnd);
-    if (menu) menu.style.transition = 'none';
-    nav.classList.remove('menu-open', 'is-swipe-closing');
-    btn?.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('nav-menu-open');
-    resetNavSwipeStyles();
-    syncNavBackdrop();
-  };
-
-  const onEnd = e => {
-    if (e.target !== nav || e.propertyName !== 'transform') return;
-    finish();
-  };
-
-  nav.addEventListener('transitionend', onEnd);
-  setTimeout(finish, 360);
-}
-
-function snapNavMenuBack() {
-  const nav = document.querySelector('nav');
-  if (!nav) return;
-  nav.classList.remove('is-swiping');
-  nav.classList.add('is-snap-back');
-  requestAnimationFrame(() => {
-    nav.style.transform = 'translate3d(0,0,0)';
-  });
-  const onEnd = e => {
-    if (e.propertyName !== 'transform') return;
-    nav.classList.remove('is-snap-back');
-    nav.removeEventListener('transitionend', onEnd);
-    nav.style.minHeight = '';
-    watchNavBackdrop(true);
-    syncNavBackdrop();
-  };
-  nav.addEventListener('transitionend', onEnd);
-  setTimeout(() => {
-    nav.classList.remove('is-snap-back');
-    nav.style.minHeight = '';
-    watchNavBackdrop(true);
-    syncNavBackdrop();
-  }, 340);
-}
-
 function initMobileNav() {
   const btn = document.getElementById('navHamburger');
   const backdrop = document.getElementById('navBackdrop');
@@ -2430,24 +2445,24 @@ function initMobileNav() {
     let dragging = false;
 
     nav.addEventListener('touchstart', e => {
-      if (!nav.classList.contains('menu-open')) return;
+      if (!nav.classList.contains('menu-open') || !menu) return;
       if (e.target.closest('.lang-switcher, .lang-dropdown')) return;
-      if (menu && e.target.closest('#navMenu') && menu.scrollTop > 0) return;
+      if (e.target.closest('#navMenu') && menu.scrollTop > 0) return;
       startY = e.touches[0].clientY;
       dragging = true;
       watchNavBackdrop(false);
-      nav.classList.add('is-swiping');
-      nav.classList.remove('is-snap-back', 'is-swipe-closing');
-      nav.style.minHeight = `${nav.offsetHeight}px`;
-      nav.style.transform = 'translate3d(0,0,0)';
+      nav.classList.add('menu-swipe-active');
+      menu.classList.add('is-swiping');
+      menu.classList.remove('is-snap-back', 'is-swipe-closing');
+      menu.style.transition = 'none';
     }, { passive: true });
 
     nav.addEventListener('touchmove', e => {
-      if (!dragging) return;
+      if (!dragging || !menu) return;
       e.preventDefault();
       const dy = Math.round(e.touches[0].clientY - startY);
-      if (dy <= 0) nav.style.transform = `translate3d(0,${dy}px,0)`;
-      else nav.style.transform = `translate3d(0,${Math.round(dy * 0.12)}px,0)`;
+      if (dy <= 0) menu.style.transform = `translate3d(0,${dy}px,0)`;
+      else menu.style.transform = `translate3d(0,${Math.round(dy * 0.12)}px,0)`;
     }, { passive: false });
 
     nav.addEventListener('touchend', e => {

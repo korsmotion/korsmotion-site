@@ -49,12 +49,12 @@ nav a.nav-link:hover{color:var(--violet-deep)}
 .nav-cta-mobile{display:none}
 .nav-backdrop{display:none}
 @media (max-width:768px){
-  nav{left:16px;right:16px;transform:none;width:auto;max-width:none;flex-wrap:wrap;align-items:center;border-radius:16px;padding:10px 16px;gap:8px;overflow:visible;z-index:1001;transition:border-radius .4s cubic-bezier(.22,1,.36,1),box-shadow .35s ease,transform .34s cubic-bezier(.22,1,.36,1);background:rgba(245,240,255,.78);border:1px solid rgba(232,223,251,.92);box-shadow:0 8px 32px rgba(91,63,191,.1);-webkit-backface-visibility:hidden;backface-visibility:hidden}
+  nav{left:16px;right:16px;transform:none;width:auto;max-width:none;flex-wrap:wrap;align-items:center;border-radius:16px;padding:10px 16px;gap:8px;overflow:visible;z-index:1001;transition:border-radius .4s cubic-bezier(.22,1,.36,1),box-shadow .35s ease;background:rgba(245,240,255,.78);border:1px solid rgba(232,223,251,.92);box-shadow:0 8px 32px rgba(91,63,191,.1)}
   nav.menu-open{border-radius:16px 16px 24px 24px;box-shadow:0 12px 40px rgba(91,63,191,.14);overflow:hidden}
-  nav.is-swiping{transition:none !important;touch-action:none}
-  nav.is-snap-back{transition:transform .3s cubic-bezier(.22,1,.36,1) !important}
-  nav.is-swipe-closing{transition:transform .32s cubic-bezier(.22,1,.36,1) !important;touch-action:none;pointer-events:none}
-  nav.is-swipe-closing .nav-links-wrap{transition:none !important}
+  nav.menu-swipe-active{touch-action:none;overflow:hidden}
+  .nav-links-wrap.is-swiping{transition:none !important}
+  .nav-links-wrap.is-snap-back{transition:transform .3s cubic-bezier(.22,1,.36,1) !important}
+  .nav-links-wrap.is-swipe-closing{pointer-events:none}
   nav>.nav-cta{display:none}
   .nav-hamburger{display:flex;margin-left:0;order:3}
   .nav-logo{order:1}
@@ -63,8 +63,8 @@ nav a.nav-link:hover{color:var(--violet-deep)}
   .nav-hamburger.open span:nth-child(1),.nav-hamburger.open span:nth-child(2),.nav-hamburger.open span:nth-child(3){transform:none;opacity:1}
   .nav-backdrop{display:block;position:fixed;left:0;right:0;bottom:0;top:0;background:rgba(26,21,48,.2);z-index:998;opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s ease;pointer-events:none}
   .nav-backdrop.open{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .3s ease .18s,visibility .3s ease .18s}
-  .nav-links-wrap{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;position:relative;flex:0 0 100%;order:10;width:100%;max-height:0;overflow:hidden;opacity:0;background:transparent;border:none;border-top:1px solid transparent;transform:none;transition:max-height .4s cubic-bezier(.22,1,.36,1),padding .35s ease,border-color .3s ease;pointer-events:none;padding:0;text-align:center;margin:0}
-  nav.menu-open .nav-links-wrap{max-height:min(75vh,560px);opacity:1;pointer-events:auto;padding:4px 0 18px;border-top-color:rgba(139,111,232,.14);overflow-y:auto;-webkit-overflow-scrolling:touch;transition:max-height .4s cubic-bezier(.22,1,.36,1),padding .35s ease,border-color .3s ease}
+  .nav-links-wrap{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;position:relative;flex:0 0 100%;order:10;width:100%;max-height:0;overflow:hidden;opacity:0;background:transparent;border:none;border-top:1px solid transparent;transform:translate3d(0,0,0);transition:max-height .4s cubic-bezier(.22,1,.36,1),padding .35s ease,border-color .3s ease,transform .32s cubic-bezier(.22,1,.36,1),opacity .25s ease;pointer-events:none;padding:0;text-align:center;margin:0;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+  nav.menu-open .nav-links-wrap{max-height:min(75vh,560px);opacity:1;pointer-events:auto;padding:4px 0 18px;border-top-color:rgba(139,111,232,.14);overflow-y:auto;-webkit-overflow-scrolling:touch}
   .nav-links-wrap ul{flex:0 1 auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;width:100%;max-width:320px;margin:0 auto;list-style:none;padding:0}
   .nav-links-wrap li{width:100%;display:flex;justify-content:center;text-align:center}
   .nav-links-wrap .nav-link{display:block;padding:14px 24px;width:100%;max-width:280px;font-size:20px;font-weight:600;color:var(--ink);text-align:center}
