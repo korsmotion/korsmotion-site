@@ -2260,6 +2260,8 @@ window.closeAppModal = closeAppModal;
 window.openAppLightbox = openAppLightbox;
 window.closeAppLightbox = closeAppLightbox;
 
+let navBackdropObserver = null;
+
 function syncNavBackdrop() {
   const nav = document.querySelector('nav');
   const backdrop = document.getElementById('navBackdrop');
@@ -2271,30 +2273,47 @@ function syncNavBackdrop() {
   backdrop.style.top = `${Math.ceil(nav.getBoundingClientRect().bottom)}px`;
 }
 
+function watchNavBackdrop(open) {
+  const nav = document.querySelector('nav');
+  if (navBackdropObserver) {
+    navBackdropObserver.disconnect();
+    navBackdropObserver = null;
+  }
+  if (!open || !nav || typeof ResizeObserver === 'undefined') return;
+  navBackdropObserver = new ResizeObserver(() => syncNavBackdrop());
+  navBackdropObserver.observe(nav);
+}
+
 function setNavMenu(open) {
   const nav = document.querySelector('nav');
   const btn = document.getElementById('navHamburger');
   const backdrop = document.getElementById('navBackdrop');
   const menu = document.getElementById('navMenu');
   const switcher = document.getElementById('langSwitcher');
-  nav?.classList.toggle('menu-open', open);
-  if (btn) {
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  }
-  if (open) switcher?.classList.remove('open');
-  backdrop?.classList.toggle('open', open);
-  document.body.classList.toggle('nav-menu-open', open);
-  if (menu) {
-    menu.style.transform = '';
-    menu.style.transition = '';
-  }
+
   if (open) {
-    requestAnimationFrame(() => {
-      syncNavBackdrop();
-      requestAnimationFrame(syncNavBackdrop);
-    });
-    setTimeout(syncNavBackdrop, 420);
+    switcher?.classList.remove('open');
+    nav?.classList.add('menu-open');
+    btn?.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('nav-menu-open');
+    if (menu) {
+      menu.style.transform = '';
+      menu.style.transition = '';
+    }
+    syncNavBackdrop();
+    backdrop?.classList.add('open');
+    watchNavBackdrop(true);
+    requestAnimationFrame(syncNavBackdrop);
   } else {
+    watchNavBackdrop(false);
+    nav?.classList.remove('menu-open');
+    btn?.setAttribute('aria-expanded', 'false');
+    backdrop?.classList.remove('open');
+    document.body.classList.remove('nav-menu-open');
+    if (menu) {
+      menu.style.transform = '';
+      menu.style.transition = '';
+    }
     syncNavBackdrop();
   }
 }
@@ -2353,7 +2372,8 @@ function initMobileNav() {
       else if (menu) menu.style.transform = '';
     }, { passive: true });
 
-    menu?.addEventListener('transitionend', () => {
+    menu?.addEventListener('transitionend', e => {
+      if (e.propertyName !== 'max-height') return;
       if (nav.classList.contains('menu-open')) syncNavBackdrop();
     });
   }
