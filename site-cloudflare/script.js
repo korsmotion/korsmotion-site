@@ -2339,6 +2339,7 @@ function closeNavMenu() {
 
 function closeNavMenuFromSwipe(swipeDy) {
   const nav = document.querySelector('nav');
+  const menu = document.getElementById('navMenu');
   const backdrop = document.getElementById('navBackdrop');
   const btn = document.getElementById('navHamburger');
   if (!nav?.classList.contains('menu-open')) {
@@ -2349,12 +2350,11 @@ function closeNavMenuFromSwipe(swipeDy) {
   watchNavBackdrop(false);
   nav.classList.remove('is-swiping', 'is-snap-back');
   nav.classList.add('is-swipe-closing');
+  backdrop?.classList.remove('open');
 
   const startY = Math.min(0, Math.round(swipeDy));
+  const targetY = -(nav.offsetHeight + 16);
   nav.style.transform = `translate3d(0,${startY}px,0)`;
-  const targetY = -(nav.offsetHeight + 24);
-
-  backdrop?.classList.remove('open');
 
   requestAnimationFrame(() => {
     nav.style.transform = `translate3d(0,${targetY}px,0)`;
@@ -2365,20 +2365,21 @@ function closeNavMenuFromSwipe(swipeDy) {
     if (finished) return;
     finished = true;
     nav.removeEventListener('transitionend', onEnd);
-    resetNavSwipeStyles();
-    nav.classList.remove('menu-open');
+    if (menu) menu.style.transition = 'none';
+    nav.classList.remove('menu-open', 'is-swipe-closing');
     btn?.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('nav-menu-open');
+    resetNavSwipeStyles();
     syncNavBackdrop();
   };
 
   const onEnd = e => {
-    if (e.propertyName !== 'transform') return;
+    if (e.target !== nav || e.propertyName !== 'transform') return;
     finish();
   };
 
   nav.addEventListener('transitionend', onEnd);
-  setTimeout(finish, 400);
+  setTimeout(finish, 360);
 }
 
 function snapNavMenuBack() {

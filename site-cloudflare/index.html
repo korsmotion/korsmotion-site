@@ -51,9 +51,10 @@ nav a.nav-link:hover{color:var(--violet-deep)}
 @media (max-width:768px){
   nav{left:16px;right:16px;transform:none;width:auto;max-width:none;flex-wrap:wrap;align-items:center;border-radius:16px;padding:10px 16px;gap:8px;overflow:visible;z-index:1001;transition:border-radius .4s cubic-bezier(.22,1,.36,1),box-shadow .35s ease,transform .34s cubic-bezier(.22,1,.36,1);background:rgba(245,240,255,.78);border:1px solid rgba(232,223,251,.92);box-shadow:0 8px 32px rgba(91,63,191,.1);-webkit-backface-visibility:hidden;backface-visibility:hidden}
   nav.menu-open{border-radius:16px 16px 24px 24px;box-shadow:0 12px 40px rgba(91,63,191,.14);overflow:hidden}
-  nav.is-swiping,nav.is-swipe-closing{transition:none !important;touch-action:none}
+  nav.is-swiping{transition:none !important;touch-action:none}
   nav.is-snap-back{transition:transform .3s cubic-bezier(.22,1,.36,1) !important}
-  nav.is-swipe-closing{transition:transform .36s cubic-bezier(.22,1,.36,1) !important;pointer-events:none}
+  nav.is-swipe-closing{transition:transform .32s cubic-bezier(.22,1,.36,1) !important;touch-action:none;pointer-events:none}
+  nav.is-swipe-closing .nav-links-wrap{transition:none !important}
   nav>.nav-cta{display:none}
   .nav-hamburger{display:flex;margin-left:0;order:3}
   .nav-logo{order:1}
