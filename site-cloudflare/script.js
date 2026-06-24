@@ -2264,7 +2264,6 @@ function setNavMenu(open) {
   const menu = document.getElementById('navMenu');
   nav?.classList.toggle('menu-open', open);
   if (btn) {
-    btn.classList.toggle('open', open);
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
   }
   backdrop?.classList.toggle('open', open);
