@@ -2326,6 +2326,86 @@ function closeNavMenu() {
   setNavMenu(false);
 }
 
+function closeNavMenuFromSwipe(swipeDy) {
+  const nav = document.querySelector('nav');
+  const menu = document.getElementById('navMenu');
+  const backdrop = document.getElementById('navBackdrop');
+  const btn = document.getElementById('navHamburger');
+  if (!nav?.classList.contains('menu-open') || !menu) {
+    closeNavMenu();
+    return;
+  }
+
+  watchNavBackdrop(false);
+  menu.classList.remove('is-swiping', 'is-snap-back');
+  menu.classList.add('is-swipe-closing');
+
+  const startY = Math.min(0, swipeDy);
+  menu.style.transform = `translateY(${startY}px)`;
+  const targetY = -(menu.scrollHeight + 28);
+
+  backdrop?.classList.remove('open');
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      menu.style.transform = `translateY(${targetY}px)`;
+    });
+  });
+
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    menu.removeEventListener('transitionend', onEnd);
+    menu.classList.remove('is-swipe-closing');
+    menu.style.maxHeight = '0';
+    menu.style.padding = '0';
+    menu.style.opacity = '0';
+    nav.classList.remove('menu-open');
+    btn?.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('nav-menu-open');
+    requestAnimationFrame(() => {
+      menu.style.transform = '';
+      menu.style.transition = '';
+      menu.style.maxHeight = '';
+      menu.style.padding = '';
+      menu.style.opacity = '';
+      syncNavBackdrop();
+    });
+  };
+
+  const onEnd = e => {
+    if (e.propertyName !== 'transform') return;
+    finish();
+  };
+
+  menu.addEventListener('transitionend', onEnd);
+  setTimeout(finish, 380);
+}
+
+function snapNavMenuBack() {
+  const menu = document.getElementById('navMenu');
+  if (!menu) return;
+  menu.classList.remove('is-swiping');
+  menu.classList.add('is-snap-back');
+  requestAnimationFrame(() => {
+    menu.style.transform = '';
+  });
+  const onEnd = e => {
+    if (e.propertyName !== 'transform') return;
+    menu.classList.remove('is-snap-back');
+    menu.removeEventListener('transitionend', onEnd);
+    watchNavBackdrop(true);
+    syncNavBackdrop();
+  };
+  menu.addEventListener('transitionend', onEnd);
+  setTimeout(() => {
+    menu.classList.remove('is-snap-back');
+    watchNavBackdrop(true);
+    syncNavBackdrop();
+  }, 320);
+}
+
 function initMobileNav() {
   const btn = document.getElementById('navHamburger');
   const backdrop = document.getElementById('navBackdrop');
@@ -2354,22 +2434,28 @@ function initMobileNav() {
       if (menu && e.target.closest('#navMenu') && menu.scrollTop > 0) return;
       startY = e.touches[0].clientY;
       dragging = true;
-      if (menu) menu.style.transition = 'none';
+      watchNavBackdrop(false);
+      if (menu) {
+        menu.classList.add('is-swiping');
+        menu.classList.remove('is-snap-back', 'is-swipe-closing');
+        menu.style.transform = '';
+      }
     }, { passive: true });
 
     nav.addEventListener('touchmove', e => {
-      if (!dragging) return;
+      if (!dragging || !menu) return;
       const dy = e.touches[0].clientY - startY;
-      if (dy < 0 && menu) menu.style.transform = `translateY(${dy}px)`;
+      if (dy < 0) menu.style.transform = `translate3d(0,${dy}px,0)`;
+      else if (dy > 0) menu.style.transform = `translate3d(0,${dy * 0.15}px,0)`;
     }, { passive: true });
 
     nav.addEventListener('touchend', e => {
       if (!dragging) return;
       dragging = false;
-      if (menu) menu.style.transition = '';
       const dy = e.changedTouches[0].clientY - startY;
-      if (dy < -50) closeNavMenu();
-      else if (menu) menu.style.transform = '';
+      if (!menu) return;
+      if (dy < -50) closeNavMenuFromSwipe(dy);
+      else snapNavMenuBack();
     }, { passive: true });
 
     menu?.addEventListener('transitionend', e => {
