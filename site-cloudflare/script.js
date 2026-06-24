@@ -2284,6 +2284,23 @@ function watchNavBackdrop(open) {
   navBackdropObserver.observe(nav);
 }
 
+function resetNavSwipeStyles() {
+  const nav = document.querySelector('nav');
+  const menu = document.getElementById('navMenu');
+  if (nav) {
+    nav.classList.remove('is-swiping', 'is-snap-back', 'is-swipe-closing');
+    nav.style.transform = '';
+    nav.style.minHeight = '';
+  }
+  if (menu) {
+    menu.style.transform = '';
+    menu.style.transition = '';
+    menu.style.maxHeight = '';
+    menu.style.padding = '';
+    menu.style.opacity = '';
+  }
+}
+
 function setNavMenu(open) {
   const nav = document.querySelector('nav');
   const btn = document.getElementById('navHamburger');
@@ -2293,27 +2310,21 @@ function setNavMenu(open) {
 
   if (open) {
     switcher?.classList.remove('open');
+    resetNavSwipeStyles();
     nav?.classList.add('menu-open');
     btn?.setAttribute('aria-expanded', 'true');
     document.body.classList.add('nav-menu-open');
-    if (menu) {
-      menu.style.transform = '';
-      menu.style.transition = '';
-    }
     syncNavBackdrop();
     backdrop?.classList.add('open');
     watchNavBackdrop(true);
     requestAnimationFrame(syncNavBackdrop);
   } else {
     watchNavBackdrop(false);
+    resetNavSwipeStyles();
     nav?.classList.remove('menu-open');
     btn?.setAttribute('aria-expanded', 'false');
     backdrop?.classList.remove('open');
     document.body.classList.remove('nav-menu-open');
-    if (menu) {
-      menu.style.transform = '';
-      menu.style.transition = '';
-    }
     syncNavBackdrop();
   }
 }
@@ -2328,50 +2339,37 @@ function closeNavMenu() {
 
 function closeNavMenuFromSwipe(swipeDy) {
   const nav = document.querySelector('nav');
-  const menu = document.getElementById('navMenu');
   const backdrop = document.getElementById('navBackdrop');
   const btn = document.getElementById('navHamburger');
-  if (!nav?.classList.contains('menu-open') || !menu) {
+  if (!nav?.classList.contains('menu-open')) {
     closeNavMenu();
     return;
   }
 
   watchNavBackdrop(false);
-  menu.classList.remove('is-swiping', 'is-snap-back');
-  menu.classList.add('is-swipe-closing');
+  nav.classList.remove('is-swiping', 'is-snap-back');
+  nav.classList.add('is-swipe-closing');
 
-  const startY = Math.min(0, swipeDy);
-  menu.style.transform = `translateY(${startY}px)`;
-  const targetY = -(menu.scrollHeight + 28);
+  const startY = Math.min(0, Math.round(swipeDy));
+  nav.style.transform = `translate3d(0,${startY}px,0)`;
+  const targetY = -(nav.offsetHeight + 24);
 
   backdrop?.classList.remove('open');
 
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      menu.style.transform = `translateY(${targetY}px)`;
-    });
+    nav.style.transform = `translate3d(0,${targetY}px,0)`;
   });
 
   let finished = false;
   const finish = () => {
     if (finished) return;
     finished = true;
-    menu.removeEventListener('transitionend', onEnd);
-    menu.classList.remove('is-swipe-closing');
-    menu.style.maxHeight = '0';
-    menu.style.padding = '0';
-    menu.style.opacity = '0';
+    nav.removeEventListener('transitionend', onEnd);
+    resetNavSwipeStyles();
     nav.classList.remove('menu-open');
     btn?.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('nav-menu-open');
-    requestAnimationFrame(() => {
-      menu.style.transform = '';
-      menu.style.transition = '';
-      menu.style.maxHeight = '';
-      menu.style.padding = '';
-      menu.style.opacity = '';
-      syncNavBackdrop();
-    });
+    syncNavBackdrop();
   };
 
   const onEnd = e => {
@@ -2379,31 +2377,33 @@ function closeNavMenuFromSwipe(swipeDy) {
     finish();
   };
 
-  menu.addEventListener('transitionend', onEnd);
-  setTimeout(finish, 380);
+  nav.addEventListener('transitionend', onEnd);
+  setTimeout(finish, 400);
 }
 
 function snapNavMenuBack() {
-  const menu = document.getElementById('navMenu');
-  if (!menu) return;
-  menu.classList.remove('is-swiping');
-  menu.classList.add('is-snap-back');
+  const nav = document.querySelector('nav');
+  if (!nav) return;
+  nav.classList.remove('is-swiping');
+  nav.classList.add('is-snap-back');
   requestAnimationFrame(() => {
-    menu.style.transform = '';
+    nav.style.transform = 'translate3d(0,0,0)';
   });
   const onEnd = e => {
     if (e.propertyName !== 'transform') return;
-    menu.classList.remove('is-snap-back');
-    menu.removeEventListener('transitionend', onEnd);
+    nav.classList.remove('is-snap-back');
+    nav.removeEventListener('transitionend', onEnd);
+    nav.style.minHeight = '';
     watchNavBackdrop(true);
     syncNavBackdrop();
   };
-  menu.addEventListener('transitionend', onEnd);
+  nav.addEventListener('transitionend', onEnd);
   setTimeout(() => {
-    menu.classList.remove('is-snap-back');
+    nav.classList.remove('is-snap-back');
+    nav.style.minHeight = '';
     watchNavBackdrop(true);
     syncNavBackdrop();
-  }, 320);
+  }, 340);
 }
 
 function initMobileNav() {
@@ -2435,27 +2435,32 @@ function initMobileNav() {
       startY = e.touches[0].clientY;
       dragging = true;
       watchNavBackdrop(false);
-      if (menu) {
-        menu.classList.add('is-swiping');
-        menu.classList.remove('is-snap-back', 'is-swipe-closing');
-        menu.style.transform = '';
-      }
+      nav.classList.add('is-swiping');
+      nav.classList.remove('is-snap-back', 'is-swipe-closing');
+      nav.style.minHeight = `${nav.offsetHeight}px`;
+      nav.style.transform = 'translate3d(0,0,0)';
     }, { passive: true });
 
     nav.addEventListener('touchmove', e => {
-      if (!dragging || !menu) return;
-      const dy = e.touches[0].clientY - startY;
-      if (dy < 0) menu.style.transform = `translate3d(0,${dy}px,0)`;
-      else if (dy > 0) menu.style.transform = `translate3d(0,${dy * 0.15}px,0)`;
-    }, { passive: true });
+      if (!dragging) return;
+      e.preventDefault();
+      const dy = Math.round(e.touches[0].clientY - startY);
+      if (dy <= 0) nav.style.transform = `translate3d(0,${dy}px,0)`;
+      else nav.style.transform = `translate3d(0,${Math.round(dy * 0.12)}px,0)`;
+    }, { passive: false });
 
     nav.addEventListener('touchend', e => {
       if (!dragging) return;
       dragging = false;
-      const dy = e.changedTouches[0].clientY - startY;
-      if (!menu) return;
+      const dy = Math.round(e.changedTouches[0].clientY - startY);
       if (dy < -50) closeNavMenuFromSwipe(dy);
       else snapNavMenuBack();
+    }, { passive: true });
+
+    nav.addEventListener('touchcancel', () => {
+      if (!dragging) return;
+      dragging = false;
+      snapNavMenuBack();
     }, { passive: true });
 
     menu?.addEventListener('transitionend', e => {
