@@ -2284,74 +2284,70 @@ function watchNavBackdrop(open) {
   navBackdropObserver.observe(nav);
 }
 
-function getNavMenuSheet(menu) {
-  return menu?.querySelector('.nav-menu-sheet') || menu;
+function clampNavSwipeY(dy, foldH) {
+  return Math.max(-foldH, Math.min(dy, 0));
+}
+
+function setNavSwipeVisual(nav, menu, y, foldH) {
+  menu.style.transform = `translate3d(0,${y}px,0)`;
+  if (y < 0) {
+    const clip = Math.min(-y, foldH);
+    nav.style.clipPath = `inset(0 0 ${clip}px 0 round 16px)`;
+  } else {
+    nav.style.clipPath = '';
+  }
 }
 
 function resetNavSwipeStyles() {
   const nav = document.querySelector('nav');
   const menu = document.getElementById('navMenu');
-  const sheet = getNavMenuSheet(menu);
-  nav?.classList.remove('menu-swipe-active');
-  nav && (nav.style.minHeight = '');
+  nav?.classList.remove('menu-swipe-active', 'menu-swipe-closing');
+  if (nav) {
+    nav.style.minHeight = '';
+    nav.style.clipPath = '';
+    nav.style.transition = '';
+  }
   if (menu) {
     menu.classList.remove('is-swiping', 'is-snap-back', 'is-swipe-closing');
+    menu.style.transform = '';
     menu.style.transition = '';
     menu.style.maxHeight = '';
     menu.style.padding = '';
     menu.style.opacity = '';
     menu.style.borderTopColor = '';
   }
-  if (sheet && sheet !== menu) {
-    sheet.classList.remove('is-snap-back');
-    sheet.style.transform = '';
-    sheet.style.transition = '';
-  }
 }
 
 function getMenuFoldHeight(menu) {
-  return menu ? menu.offsetHeight : 0;
-}
-
-function applyNavMenuSwipeOffset(menu, sheet, dy) {
-  const foldH = getMenuFoldHeight(menu);
-  const clamped = Math.max(-foldH, Math.min(Math.round(dy), 0));
-  sheet.style.transform = `translate3d(0,${clamped}px,0)`;
-  menu.style.maxHeight = `${Math.max(0, foldH + clamped)}px`;
+  return menu ? menu.getBoundingClientRect().height : 0;
 }
 
 function closeNavMenuFromSwipe(swipeDy, fullFoldH) {
   const nav = document.querySelector('nav');
   const menu = document.getElementById('navMenu');
-  const sheet = getNavMenuSheet(menu);
   const backdrop = document.getElementById('navBackdrop');
   const btn = document.getElementById('navHamburger');
-  if (!nav?.classList.contains('menu-open') || !menu || !sheet) {
+  if (!nav?.classList.contains('menu-open') || !menu) {
     closeNavMenu();
     return;
   }
 
   watchNavBackdrop(false);
-  nav.classList.add('menu-swipe-active');
+  nav.classList.remove('menu-swipe-active');
+  nav.classList.add('menu-swipe-closing');
   menu.classList.remove('is-swiping', 'is-snap-back');
   menu.classList.add('is-swipe-closing');
-  sheet.classList.remove('is-snap-back');
   backdrop?.classList.remove('open');
 
   const foldH = fullFoldH || getMenuFoldHeight(menu);
-  const startY = Math.max(-foldH, Math.min(0, Math.round(swipeDy)));
+  const startY = clampNavSwipeY(swipeDy, foldH);
 
   menu.style.transition = '';
-  menu.style.maxHeight = `${Math.max(0, foldH + startY)}px`;
-  sheet.style.transition = '';
-  sheet.style.transform = `translate3d(0,${startY}px,0)`;
+  nav.style.transition = '';
+  setNavSwipeVisual(nav, menu, startY, foldH);
 
   requestAnimationFrame(() => {
-    menu.style.maxHeight = '0px';
-    menu.style.padding = '0';
-    menu.style.opacity = '0';
-    menu.style.borderTopColor = 'transparent';
-    sheet.style.transform = `translate3d(0,${-foldH}px,0)`;
+    setNavSwipeVisual(nav, menu, -foldH, foldH);
   });
 
   let finished = false;
@@ -2359,8 +2355,8 @@ function closeNavMenuFromSwipe(swipeDy, fullFoldH) {
     if (finished) return;
     finished = true;
     menu.removeEventListener('transitionend', onEnd);
-    sheet.removeEventListener('transitionend', onEnd);
-    nav.classList.remove('menu-open', 'menu-swipe-active');
+    nav.removeEventListener('transitionend', onEnd);
+    nav.classList.remove('menu-open', 'menu-swipe-closing');
     btn?.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('nav-menu-open');
     resetNavSwipeStyles();
@@ -2368,49 +2364,52 @@ function closeNavMenuFromSwipe(swipeDy, fullFoldH) {
   };
 
   const onEnd = e => {
-    if (e.target === menu && e.propertyName === 'max-height') finish();
-    if (e.target === sheet && e.propertyName === 'transform') finish();
+    if (e.target === menu && e.propertyName === 'transform') finish();
+    if (e.target === nav && e.propertyName === 'clip-path') finish();
   };
 
   menu.addEventListener('transitionend', onEnd);
-  sheet.addEventListener('transitionend', onEnd);
-  setTimeout(finish, 380);
+  nav.addEventListener('transitionend', onEnd);
+  setTimeout(finish, 400);
 }
 
 function snapNavMenuBack() {
   const nav = document.querySelector('nav');
   const menu = document.getElementById('navMenu');
-  const sheet = getNavMenuSheet(menu);
-  if (!nav || !menu || !sheet) return;
+  if (!nav || !menu) return;
   nav.classList.remove('menu-swipe-active');
   menu.classList.remove('is-swiping');
   menu.classList.add('is-snap-back');
-  sheet.classList.add('is-snap-back');
-  const currentH = menu.offsetHeight;
-  menu.style.maxHeight = `${currentH}px`;
-  menu.style.transition = '';
-  sheet.style.transition = 'transform .3s cubic-bezier(.22,1,.36,1)';
+  nav.style.transition = 'clip-path .34s cubic-bezier(.22,1,.36,1)';
+  menu.style.transition = 'transform .34s cubic-bezier(.22,1,.36,1)';
   requestAnimationFrame(() => {
-    menu.style.maxHeight = '';
-    sheet.style.transform = 'translate3d(0,0,0)';
+    setNavSwipeVisual(nav, menu, 0, 0);
   });
   const onEnd = e => {
-    if (e.target !== sheet || e.propertyName !== 'transform') return;
+    if (e.target !== menu || e.propertyName !== 'transform') return;
     menu.classList.remove('is-snap-back');
-    sheet.classList.remove('is-snap-back');
-    sheet.removeEventListener('transitionend', onEnd);
-    sheet.style.transition = '';
+    menu.removeEventListener('transitionend', onEnd);
+    nav.removeEventListener('transitionend', onEnd);
+    nav.style.transition = '';
+    menu.style.transition = '';
+    nav.style.minHeight = '';
+    nav.style.clipPath = '';
+    menu.style.maxHeight = '';
     watchNavBackdrop(true);
     syncNavBackdrop();
   };
-  sheet.addEventListener('transitionend', onEnd);
+  menu.addEventListener('transitionend', onEnd);
+  nav.addEventListener('transitionend', onEnd);
   setTimeout(() => {
     menu.classList.remove('is-snap-back');
-    sheet.classList.remove('is-snap-back');
-    sheet.style.transition = '';
+    nav.style.transition = '';
+    menu.style.transition = '';
+    nav.style.minHeight = '';
+    nav.style.clipPath = '';
+    menu.style.maxHeight = '';
     watchNavBackdrop(true);
     syncNavBackdrop();
-  }, 340);
+  }, 380);
 }
 
 function setNavMenu(open) {
@@ -2471,7 +2470,22 @@ function initMobileNav() {
     let startY = 0;
     let foldH = 0;
     let dragging = false;
-    const sheet = () => getNavMenuSheet(menu);
+    let swipeDy = 0;
+    let rafId = 0;
+
+    const paintSwipe = () => {
+      rafId = 0;
+      if (!dragging || !menu) return;
+      if (swipeDy <= 0) setNavSwipeVisual(nav, menu, clampNavSwipeY(swipeDy, foldH), foldH);
+      else {
+        menu.style.transform = `translate3d(0,${swipeDy * 0.16}px,0)`;
+        nav.style.clipPath = '';
+      }
+    };
+
+    const queueSwipePaint = () => {
+      if (!rafId) rafId = requestAnimationFrame(paintSwipe);
+    };
 
     nav.addEventListener('touchstart', e => {
       if (!nav.classList.contains('menu-open') || !menu) return;
@@ -2479,33 +2493,34 @@ function initMobileNav() {
       if (e.target.closest('#navMenu') && menu.scrollTop > 0) return;
       startY = e.touches[0].clientY;
       foldH = getMenuFoldHeight(menu);
+      swipeDy = 0;
       dragging = true;
       watchNavBackdrop(false);
       nav.classList.add('menu-swipe-active');
       menu.classList.add('is-swiping');
       menu.classList.remove('is-snap-back', 'is-swipe-closing');
-      sheet()?.classList.remove('is-snap-back');
+      nav.style.minHeight = `${nav.offsetHeight}px`;
+      menu.style.maxHeight = `${foldH}px`;
       menu.style.transition = 'none';
-      sheet() && (sheet().style.transition = 'none');
+      nav.style.transition = 'none';
+      setNavSwipeVisual(nav, menu, 0, foldH);
     }, { passive: true });
 
     nav.addEventListener('touchmove', e => {
       if (!dragging || !menu) return;
       e.preventDefault();
-      const dy = Math.round(e.touches[0].clientY - startY);
-      const menuSheet = sheet();
-      if (!menuSheet) return;
-      if (dy <= 0) applyNavMenuSwipeOffset(menu, menuSheet, dy);
-      else {
-        menuSheet.style.transform = `translate3d(0,${Math.round(dy * 0.12)}px,0)`;
-        menu.style.maxHeight = `${foldH}px`;
-      }
+      swipeDy = e.touches[0].clientY - startY;
+      queueSwipePaint();
     }, { passive: false });
 
     nav.addEventListener('touchend', e => {
       if (!dragging) return;
       dragging = false;
-      const dy = Math.round(e.changedTouches[0].clientY - startY);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+      const dy = e.changedTouches[0].clientY - startY;
       if (dy < -50) closeNavMenuFromSwipe(dy, foldH);
       else snapNavMenuBack();
     }, { passive: true });
@@ -2513,6 +2528,10 @@ function initMobileNav() {
     nav.addEventListener('touchcancel', () => {
       if (!dragging) return;
       dragging = false;
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
       snapNavMenuBack();
     }, { passive: true });
 
