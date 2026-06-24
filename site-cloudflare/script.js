@@ -2289,7 +2289,8 @@ function clampNavSwipeY(dy, foldH) {
 }
 
 function setNavSwipeVisual(menu, y, foldH) {
-  menu.style.transform = `translate3d(0,${y}px,0)`;
+  const sheet = menu.querySelector('.nav-menu-sheet');
+  if (sheet) sheet.style.transform = `translate3d(0,${y}px,0)`;
   if (y < 0 && foldH > 0) {
     const clip = Math.min(-y, foldH);
     menu.style.clipPath = `inset(0 0 ${clip}px 0)`;
@@ -2301,14 +2302,15 @@ function setNavSwipeVisual(menu, y, foldH) {
 function resetNavSwipeStyles() {
   const nav = document.querySelector('nav');
   const menu = document.getElementById('navMenu');
+  const sheet = menu?.querySelector('.nav-menu-sheet');
   nav?.classList.remove('menu-swipe-active', 'menu-swipe-closing');
   if (nav) {
     nav.style.minHeight = '';
     nav.style.transition = '';
   }
+  if (sheet) sheet.style.transform = '';
   if (menu) {
     menu.classList.remove('is-swiping', 'is-snap-back', 'is-swipe-closing');
-    menu.style.transform = '';
     menu.style.clipPath = '';
     menu.style.transition = '';
     menu.style.maxHeight = '';
@@ -2335,6 +2337,7 @@ function closeNavMenuFromSwipe(swipeDy, fullFoldH) {
   watchNavBackdrop(false);
   nav.classList.remove('menu-swipe-active');
   nav.classList.add('menu-swipe-closing');
+  nav.style.minHeight = '';
   menu.classList.remove('is-swiping', 'is-snap-back');
   menu.classList.add('is-swipe-closing');
   backdrop?.classList.remove('open');
@@ -2342,12 +2345,16 @@ function closeNavMenuFromSwipe(swipeDy, fullFoldH) {
   const foldH = fullFoldH || getMenuFoldHeight(menu);
   const startY = clampNavSwipeY(swipeDy, foldH);
 
-  menu.style.transition = '';
-  nav.style.transition = '';
+  menu.style.removeProperty('transition');
+  nav.style.removeProperty('transition');
+  menu.style.maxHeight = `${Math.max(0, foldH + startY)}px`;
   setNavSwipeVisual(menu, startY, foldH);
 
   requestAnimationFrame(() => {
     setNavSwipeVisual(menu, -foldH, foldH);
+    menu.style.maxHeight = '0px';
+    menu.style.padding = '0';
+    menu.style.borderTopColor = 'transparent';
   });
 
   let finished = false;
@@ -2356,7 +2363,8 @@ function closeNavMenuFromSwipe(swipeDy, fullFoldH) {
     finished = true;
     menu.removeEventListener('transitionend', onEnd);
     menu.style.transition = 'none';
-    menu.style.transform = '';
+    const sheet = menu.querySelector('.nav-menu-sheet');
+    if (sheet) sheet.style.transform = '';
     menu.style.clipPath = '';
     menu.style.maxHeight = '0';
     menu.style.padding = '0';
@@ -2371,7 +2379,7 @@ function closeNavMenuFromSwipe(swipeDy, fullFoldH) {
 
   const onEnd = e => {
     if (e.target !== menu) return;
-    if (e.propertyName === 'transform' || e.propertyName === 'clip-path') finish();
+    if (e.propertyName === 'max-height') finish();
   };
 
   menu.addEventListener('transitionend', onEnd);
@@ -2385,17 +2393,22 @@ function snapNavMenuBack() {
   nav.classList.remove('menu-swipe-active');
   menu.classList.remove('is-swiping');
   menu.classList.add('is-snap-back');
-  menu.style.transition = 'transform .34s cubic-bezier(.22,1,.36,1),clip-path .34s cubic-bezier(.22,1,.36,1)';
+  menu.style.removeProperty('transition');
+  const sheet = menu.querySelector('.nav-menu-sheet');
+  if (sheet) sheet.style.removeProperty('transition');
   requestAnimationFrame(() => {
     setNavSwipeVisual(menu, 0, 0);
+    menu.style.maxHeight = '';
+    menu.style.padding = '';
+    menu.style.borderTopColor = '';
   });
   const onEnd = e => {
-    if (e.target !== menu || e.propertyName !== 'transform') return;
+    if (e.target !== menu || e.propertyName !== 'max-height') return;
     menu.classList.remove('is-snap-back');
     menu.removeEventListener('transitionend', onEnd);
     menu.style.transition = '';
+    if (sheet) sheet.style.transition = '';
     nav.style.minHeight = '';
-    menu.style.maxHeight = '';
     watchNavBackdrop(true);
     syncNavBackdrop();
   };
@@ -2403,8 +2416,8 @@ function snapNavMenuBack() {
   setTimeout(() => {
     menu.classList.remove('is-snap-back');
     menu.style.transition = '';
+    if (sheet) sheet.style.transition = '';
     nav.style.minHeight = '';
-    menu.style.maxHeight = '';
     watchNavBackdrop(true);
     syncNavBackdrop();
   }, 380);
@@ -2476,7 +2489,8 @@ function initMobileNav() {
       if (!dragging || !menu) return;
       if (swipeDy <= 0) setNavSwipeVisual(menu, clampNavSwipeY(swipeDy, foldH), foldH);
       else {
-        menu.style.transform = `translate3d(0,${swipeDy * 0.16}px,0)`;
+        const sheet = menu.querySelector('.nav-menu-sheet');
+        if (sheet) sheet.style.transform = `translate3d(0,${swipeDy * 0.16}px,0)`;
         menu.style.clipPath = '';
       }
     };
@@ -2501,6 +2515,8 @@ function initMobileNav() {
       menu.style.maxHeight = `${foldH}px`;
       menu.style.transition = 'none';
       nav.style.transition = 'none';
+      const sheet = menu.querySelector('.nav-menu-sheet');
+      if (sheet) sheet.style.transition = 'none';
       setNavSwipeVisual(menu, 0, foldH);
     }, { passive: true });
 
