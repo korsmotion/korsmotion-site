@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HomeVault Admin</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f4f1;
+      --surface: #ffffff;
+      --surface-2: #efede9;
+      --text: #2a2926;
+      --dim: #706c66;
+      --line: #e6e3dd;
+      --accent: #7c3aed;
+      --danger: #b42318;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #18171b;
+        --surface: #221f26;
+        --surface-2: #2b2830;
+        --text: #f1efec;
+        --dim: #948e9b;
+        --line: #37333d;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 0;
+    }
+
+    .muted { color: var(--dim); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .login {
+      max-width: 420px;
+      margin: 12vh auto 0;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+      color: var(--dim);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--surface-2);
+      color: var(--text);
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 14px;
+      background: var(--accent);
+      color: white;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    button:disabled {
+      opacity: .58;
+      cursor: wait;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .gift-box {
+      display: none;
+      margin-bottom: 14px;
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    }
+
+    .gift-code {
+      margin: 8px 0 12px;
+      font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      font-size: clamp(24px, 4vw, 40px);
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+
+    .error {
+      display: none;
+      margin-top: 12px;
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--dim);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      background: var(--surface-2);
+    }
+
+    td code {
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 760px) {
+      .shell { padding: 18px; }
+      header, .toolbar { align-items: stretch; flex-direction: column; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section id="login-view" class="card login">
+      <h1>HomeVault Admin</h1>
+      <p class="muted">Вход только для владельца продукта Kors Motion.</p>
+      <form id="login-form">
+        <label>Email
+          <input id="email" type="email" autocomplete="username" required>
+        </label>
+        <label>Пароль
+          <input id="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button id="login-button" type="submit">Войти</button>
+        <div id="login-error" class="error"></div>
+      </form>
+    </section>
+
+    <section id="admin-view" class="hidden">
+      <header>
+        <div>
+          <h1>Households</h1>
+          <div class="muted">Kors Motion platform admin</div>
+        </div>
+        <button id="logout-button" class="secondary">Выйти</button>
+      </header>
+
+      <div id="gift-box" class="card gift-box">
+        <div class="muted">Новый gift-код</div>
+        <div id="gift-code" class="gift-code"></div>
+        <button id="copy-button" type="button">Скопировать</button>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <strong>Список домов</strong>
+          <button id="create-gift-button" type="button">Создать новый gift-код</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Название дома</th>
+              <th>Email owner</th>
+              <th>Участников</th>
+              <th>Gift-код</th>
+              <th>Статус</th>
+              <th>Дата создания</th>
+            </tr>
+          </thead>
+          <tbody id="households-body">
+            <tr><td colspan="6" class="muted">Загрузка...</td></tr>
+          </tbody>
+        </table>
+        <div id="admin-error" class="error"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = 'https://homevault-api.falling-glade-adea.workers.dev';
+    const tokenKey = 'homevault_admin_token';
+    const loginView = document.querySelector('#login-view');
+    const adminView = document.querySelector('#admin-view');
+    const loginForm = document.querySelector('#login-form');
+    const loginButton = document.querySelector('#login-button');
+    const loginError = document.querySelector('#login-error');
+    const adminError = document.querySelector('#admin-error');
+    const householdsBody = document.querySelector('#households-body');
+    const createGiftButton = document.querySelector('#create-gift-button');
+    const giftBox = document.querySelector('#gift-box');
+    const giftCode = document.querySelector('#gift-code');
+    const copyButton = document.querySelector('#copy-button');
+
+    let token = sessionStorage.getItem(tokenKey);
+
+    function showError(node, message) {
+      node.textContent = message;
+      node.style.display = message ? 'block' : 'none';
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers: {
+          'content-type': 'application/json',
+          ...(token ? { authorization: `Bearer ${token}` } : {}),
+          ...(options.headers || {}),
+        },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || 'Request failed');
+      }
+      return payload;
+    }
+
+    function setView(isAdmin) {
+      loginView.classList.toggle('hidden', isAdmin);
+      adminView.classList.toggle('hidden', !isAdmin);
+    }
+
+    async function login(event) {
+      event.preventDefault();
+      showError(loginError, '');
+      loginButton.disabled = true;
+      try {
+        const payload = await api('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: document.querySelector('#email').value,
+            password: document.querySelector('#password').value,
+          }),
+        });
+        if (!payload.data?.user?.is_platform_admin) {
+          throw new Error('Доступ только для владельца продукта');
+        }
+        token = payload.data.token;
+        sessionStorage.setItem(tokenKey, token);
+        setView(true);
+        await loadHouseholds();
+      } catch (error) {
+        sessionStorage.removeItem(tokenKey);
+        token = null;
+        showError(loginError, error.message);
+      } finally {
+        loginButton.disabled = false;
+      }
+    }
+
+    async function loadHouseholds() {
+      showError(adminError, '');
+      const payload = await api('/admin/households');
+      const rows = payload.data || [];
+      householdsBody.innerHTML = rows.length ? rows.map(renderHousehold).join('') :
+        '<tr><td colspan="6" class="muted">Домов пока нет.</td></tr>';
+    }
+
+    function renderHousehold(row) {
+      const createdAt = row.created_at
+        ? new Date(Number(row.created_at)).toLocaleString()
+        : '';
+      return `
+        <tr>
+          <td>${escapeHtml(row.name || 'Без названия')}</td>
+          <td><code>${escapeHtml(row.owner_email_hash || 'скрыт')}</code></td>
+          <td>${Number(row.member_count || 0)}</td>
+          <td><code>${escapeHtml(row.gift_code || '')}</code></td>
+          <td>${escapeHtml(row.gift_code_status || '')}</td>
+          <td>${escapeHtml(createdAt)}</td>
+        </tr>
+      `;
+    }
+
+    async function createGiftCode() {
+      createGiftButton.disabled = true;
+      showError(adminError, '');
+      try {
+        const payload = await api('/gift_codes', {
+          method: 'POST',
+          body: JSON.stringify({ created_by: 'homevault-admin' }),
+        });
+        giftCode.textContent = payload.data.code;
+        giftBox.style.display = 'block';
+        await loadHouseholds();
+      } catch (error) {
+        showError(adminError, error.message);
+      } finally {
+        createGiftButton.disabled = false;
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    loginForm.addEventListener('submit', login);
+    createGiftButton.addEventListener('click', createGiftCode);
+    copyButton.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(giftCode.textContent);
+      copyButton.textContent = 'Скопировано';
+      setTimeout(() => { copyButton.textContent = 'Скопировать'; }, 1200);
+    });
+    document.querySelector('#logout-button').addEventListener('click', () => {
+      sessionStorage.removeItem(tokenKey);
+      token = null;
+      setView(false);
+    });
+
+    if (token) {
+      setView(true);
+      loadHouseholds().catch((error) => {
+        sessionStorage.removeItem(tokenKey);
+        token = null;
+        setView(false);
+        showError(loginError, error.message);
+      });
+    }
+  </script>
+</body>
+</html>

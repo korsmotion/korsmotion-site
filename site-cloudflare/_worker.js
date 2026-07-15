@@ -142,6 +142,7 @@ function json(data, status = 200) {
 function shouldSkipTracking(pathname) {
   if (pathname.startsWith('/api/')) return true;
   if (pathname.startsWith('/admin')) return true;
+  if (pathname.startsWith('/homevault-admin')) return true;
   const dot = pathname.lastIndexOf('.');
   if (dot === -1) return false;
   return SKIP_EXTENSIONS.includes(pathname.slice(dot + 1).toLowerCase());
