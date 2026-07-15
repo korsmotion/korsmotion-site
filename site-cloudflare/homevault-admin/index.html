@@ -107,6 +107,13 @@
       border: 1px solid var(--line);
     }
 
+    .button-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
     button:disabled {
       opacity: .58;
       cursor: wait;
@@ -118,6 +125,14 @@
       justify-content: space-between;
       gap: 12px;
       margin-bottom: 14px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .gift-box {
@@ -201,7 +216,10 @@
           <h1>Households</h1>
           <div class="muted">Kors Motion platform admin</div>
         </div>
-        <button id="logout-button" class="secondary">Выйти</button>
+        <div class="header-actions">
+          <a class="secondary button-link" href="/homevault/">Главная HomeVault</a>
+          <button id="logout-button" class="secondary">Выйти</button>
+        </div>
       </header>
 
       <div id="gift-box" class="card gift-box">
