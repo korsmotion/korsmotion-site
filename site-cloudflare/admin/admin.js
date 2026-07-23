@@ -32,6 +32,12 @@ const REC_TARGET_APPS = [
   { id: 'tv_sleep_timer', label: 'TV Sleep Timer' },
   { id: 'korsmotion_tv', label: 'KorsMotion TV' },
 ];
+const ADMIN_PROJECT_KEY = 'korsmotion_admin_project';
+const ADMIN_PROJECTS = [
+  { id: 'site', group: 'site', uiKey: 'projectSite' },
+  { id: 'tv_sleep_timer', group: 'app', label: 'TV Sleep Timer' },
+  { id: 'korsmotion_tv', group: 'app', label: 'KorsMotion TV' },
+];
 const REC_IMAGE_ACCEPT = 'image/*,.jpg,.jpeg,.png,.webp,.gif';
 const REC_VIDEO_ACCEPT = 'video/mp4,video/webm,.mp4,.webm';
 const CAT_COLLAPSE_PREFIX = 'korsmotion_cat_collapsed_';
@@ -123,6 +129,7 @@ const UI = {
     recStatsUsers: 'Активные пользователи',
     recStatsHint: 'Пока без Google Play API — обновляй цифры вручную.',
     recNoMedia: 'Нет медиа',
+    projectSite: 'Сайт',
     calcTitle: 'Калькулятор', calcShow: 'Показать на сайте',
     calcAddGroup: '+ Добавить группу', calcAddOption: '+ Добавить опцию',
     calcDeleteGroup: 'Удалить группу', calcDeleteOption: 'Удалить',
@@ -242,6 +249,7 @@ const UI = {
     recStatsUsers: 'Aktive Nutzer',
     recStatsHint: 'Noch ohne Google Play API — Zahlen manuell pflegen.',
     recNoMedia: 'Kein Medium',
+    projectSite: 'Website',
     calcTitle: 'Kalkulator', calcShow: 'Auf Website anzeigen',
     calcAddGroup: '+ Gruppe hinzufügen', calcAddOption: '+ Option hinzufügen',
     calcDeleteGroup: 'Gruppe löschen', calcDeleteOption: 'Löschen',
@@ -361,6 +369,7 @@ const UI = {
     recStatsUsers: 'Active users',
     recStatsHint: 'No Google Play API yet — update numbers by hand.',
     recNoMedia: 'No media',
+    projectSite: 'Website',
     calcTitle: 'Calculator', calcShow: 'Show on site',
     calcAddGroup: '+ Add group', calcAddOption: '+ Add option',
     calcDeleteGroup: 'Delete group', calcDeleteOption: 'Delete',
@@ -465,6 +474,7 @@ let recommendationsData = {
 };
 let recFilterApp = 'all';
 let recEditingId = null;
+let adminProject = 'site';
 let calculatorData = { visible: false, groups: [] };
 let clientsData = [];
 let clientsView = 'list';
@@ -1099,6 +1109,77 @@ function setAdminLang(lang) {
   if (document.getElementById('settingsModal')?.classList.contains('open')) {
     renderWeatherGrid();
   }
+}
+
+function resolveAdminProject(id) {
+  return ADMIN_PROJECTS.find(p => p.id === id) || ADMIN_PROJECTS[0];
+}
+
+function readAdminProjectFromUrl() {
+  try {
+    const p = new URLSearchParams(window.location.search).get('project');
+    if (p && ADMIN_PROJECTS.some(x => x.id === p)) return p;
+  } catch (_) {}
+  return null;
+}
+
+function initAdminProject() {
+  const fromUrl = readAdminProjectFromUrl();
+  const fromStore = localStorage.getItem(ADMIN_PROJECT_KEY);
+  adminProject = resolveAdminProject(fromUrl || fromStore || 'site').id;
+  applyAdminProject({ skipRender: true, skipUrl: !!fromUrl });
+}
+
+function setAdminProject(projectId, { skipRender } = {}) {
+  const project = resolveAdminProject(projectId);
+  if (adminProject === project.id && !skipRender) return;
+  snapshotRecEditor();
+  snapshotRecStats();
+  adminProject = project.id;
+  localStorage.setItem(ADMIN_PROJECT_KEY, adminProject);
+  if (project.group === 'app') {
+    recFilterApp = project.id;
+    const editing = getEditingRecCard();
+    if (editing && editing.targetApp !== project.id) recEditingId = null;
+  } else {
+    recFilterApp = 'all';
+    recEditingId = null;
+  }
+  applyAdminProject({ skipRender });
+}
+
+function applyAdminProject({ skipRender, skipUrl } = {}) {
+  const project = resolveAdminProject(adminProject);
+  document.querySelectorAll('.admin-project-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.project === project.id);
+  });
+  document.querySelectorAll('.section[data-project-group]').forEach(sec => {
+    const group = sec.dataset.projectGroup;
+    const show = group === project.group;
+    sec.classList.toggle('is-project-hidden', !show);
+  });
+  if (project.group === 'app') {
+    const recSec = document.querySelector('.section[data-section="recommendations"]');
+    if (recSec) {
+      setSectionCollapsed('recommendations', false);
+      applySectionCollapse(recSec);
+    }
+  }
+  if (!skipUrl) {
+    try {
+      const url = new URL(window.location.href);
+      if (project.id === 'site') url.searchParams.delete('project');
+      else url.searchParams.set('project', project.id);
+      history.replaceState({}, '', url.pathname + url.search + url.hash);
+    } catch (_) {}
+  }
+  if (!skipRender) renderRecommendationsAdmin();
+}
+
+function getRecScopeApp() {
+  const project = resolveAdminProject(adminProject);
+  if (project.group === 'app') return project.id;
+  return recFilterApp !== 'all' ? recFilterApp : null;
 }
 
 function applyAdminLang() {
@@ -1964,6 +2045,10 @@ document.querySelectorAll('.admin-lang-btn').forEach(btn => {
   btn.addEventListener('click', () => setAdminLang(btn.dataset.lang));
 });
 
+document.querySelectorAll('.admin-project-btn').forEach(btn => {
+  btn.addEventListener('click', () => setAdminProject(btn.dataset.project));
+});
+
 const saveGithubTokenBtn = document.getElementById('saveGithubTokenBtn');
 if (saveGithubTokenBtn) saveGithubTokenBtn.addEventListener('click', saveGithubToken);
 const saveWeatherKeyBtn = document.getElementById('saveWeatherKeyBtn');
@@ -1974,6 +2059,7 @@ const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
 if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
 
 initSectionCollapse();
+initAdminProject();
 if (isLoggedIn()) showAdmin(); else showLogin();
 
 function getYouTubeIdAdmin(url) {
@@ -2558,7 +2644,12 @@ function getEditingRecCard() {
 
 function updateRecBadge() {
   const badge = document.getElementById('recCountBadge');
-  if (badge) badge.textContent = String(recommendationsData.cards.length);
+  if (!badge) return;
+  const scope = getRecScopeApp();
+  const count = scope
+    ? recommendationsData.cards.filter(c => c.targetApp === scope).length
+    : recommendationsData.cards.length;
+  badge.textContent = String(count);
 }
 
 function sortedRecCards() {
@@ -2567,8 +2658,9 @@ function sortedRecCards() {
     .sort((a, b) => (a.sortOrder - b.sortOrder) || a.title.localeCompare(b.title));
 }
 
-function reindexRecSortOrders() {
-  sortedRecCards().forEach((c, i) => { c.sortOrder = i; });
+function reindexRecSortOrders(scopeApp) {
+  const list = sortedRecCards().filter(c => !scopeApp || c.targetApp === scopeApp);
+  list.forEach((c, i) => { c.sortOrder = i; });
 }
 
 async function uploadRecMedia(file, cardId, kind) {
@@ -2604,7 +2696,7 @@ async function saveRecommendations({ silent } = {}) {
   try {
     snapshotRecEditor();
     snapshotRecStats();
-    reindexRecSortOrders();
+    reindexRecSortOrders(getRecScopeApp());
     const res = await fetch(API_RECOMMENDATIONS, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2650,12 +2742,14 @@ function snapshotRecStats() {
 
 function addRecommendationCard() {
   snapshotRecEditor();
-  const nextOrder = recommendationsData.cards.reduce((m, c) => Math.max(m, c.sortOrder), -1) + 1;
+  const scope = getRecScopeApp() || 'tv_sleep_timer';
+  const scoped = sortedRecCards().filter(c => c.targetApp === scope);
+  const nextOrder = scoped.reduce((m, c) => Math.max(m, c.sortOrder), -1) + 1;
   const card = normalizeRecCard({
     id: 'rec_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     title: adminLang === 'de' ? 'Neue Karte' : adminLang === 'en' ? 'New card' : 'Новая карточка',
     buttonLabel: adminLang === 'de' ? 'Mehr erfahren' : adminLang === 'en' ? 'Learn more' : 'Узнать больше',
-    targetApp: recFilterApp !== 'all' ? recFilterApp : 'tv_sleep_timer',
+    targetApp: scope,
     sortOrder: nextOrder,
     active: true,
   }, nextOrder);
@@ -2667,7 +2761,8 @@ function addRecommendationCard() {
 
 function moveRecCard(id, dir) {
   snapshotRecEditor();
-  const list = sortedRecCards();
+  const scope = getRecScopeApp();
+  const list = sortedRecCards().filter(c => !scope || c.targetApp === scope);
   const idx = list.findIndex(c => c.id === id);
   if (idx < 0) return;
   const swap = idx + dir;
@@ -2675,14 +2770,15 @@ function moveRecCard(id, dir) {
   const a = list[idx].sortOrder;
   list[idx].sortOrder = list[swap].sortOrder;
   list[swap].sortOrder = a;
-  // ensure unique order after swap
-  reindexRecSortOrders();
+  reindexRecSortOrders(scope);
   markUnsaved();
   renderRecommendationsAdmin();
 }
 
 function renderRecStats(t) {
-  const cards = REC_TARGET_APPS.map(({ id, label }) => {
+  const scope = getRecScopeApp();
+  const apps = scope ? REC_TARGET_APPS.filter(a => a.id === scope) : REC_TARGET_APPS;
+  const cards = apps.map(({ id, label }) => {
     const st = recommendationsData.stats[id] || { downloads: 0, activeUsers: 0 };
     return `
       <div class="rec-stats-card">
@@ -2704,7 +2800,8 @@ function renderRecStats(t) {
 }
 
 function renderRecList(t) {
-  const list = sortedRecCards().filter(c => recFilterApp === 'all' || c.targetApp === recFilterApp);
+  const scope = getRecScopeApp();
+  const list = sortedRecCards().filter(c => !scope || c.targetApp === scope);
   if (!list.length) return `<div class="empty-state">${esc(t.recEmpty)}</div>`;
   return list.map(card => {
     const thumb = card.imageUrl
@@ -2716,7 +2813,7 @@ function renderRecList(t) {
         <div class="rec-list-main">
           <div class="rec-list-title">${esc(card.title || '—')}</div>
           <div class="rec-list-meta">
-            <span class="rec-badge">${esc(recAppLabel(card.targetApp))}</span>
+            ${scope ? '' : `<span class="rec-badge">${esc(recAppLabel(card.targetApp))}</span>`}
             <span class="rec-badge${!card.active ? ' off' : ''}">${esc(card.active ? t.recActive : t.recInactive)}</span>
             <span>#${card.sortOrder}</span>
             ${card.buttonLabel ? `<span>${esc(card.buttonLabel)}</span>` : ''}
@@ -2734,15 +2831,26 @@ function renderRecList(t) {
 }
 
 function renderRecEditor(t, card) {
+  const scope = getRecScopeApp();
   const imgPreview = card.imageUrl
     ? `<img class="rec-media-preview" src="${esc(adminAssetUrl(card.imageUrl))}" alt="">`
     : `<div class="rec-media-preview-ph">${esc(t.recNoMedia)}</div>`;
   const vidPreview = card.videoUrl
     ? `<video class="rec-media-preview" src="${esc(adminAssetUrl(card.videoUrl))}" muted playsinline></video>`
     : `<div class="rec-media-preview-ph">${esc(t.recNoMedia)}</div>`;
-  const appOpts = REC_TARGET_APPS.map(a =>
-    `<option value="${esc(a.id)}"${card.targetApp === a.id ? ' selected' : ''}>${esc(a.label)}</option>`
-  ).join('');
+  const lockedApp = scope || card.targetApp;
+  const appField = scope
+    ? `<div class="form-group">
+         <label class="form-label">${esc(t.recFieldTarget)}</label>
+         <input type="hidden" id="recEditTarget" value="${esc(lockedApp)}">
+         <div class="rec-badge" style="margin-top:4px">${esc(recAppLabel(lockedApp))}</div>
+       </div>`
+    : `<div class="form-group">
+         <label class="form-label">${esc(t.recFieldTarget)}</label>
+         <select class="form-input" id="recEditTarget">${REC_TARGET_APPS.map(a =>
+           `<option value="${esc(a.id)}"${card.targetApp === a.id ? ' selected' : ''}>${esc(a.label)}</option>`
+         ).join('')}</select>
+       </div>`;
 
   return `
     <div style="margin-bottom:14px">
@@ -2758,10 +2866,7 @@ function renderRecEditor(t, card) {
           <label class="form-label">${esc(t.recFieldDesc)}</label>
           <textarea class="form-textarea" id="recEditDesc" rows="3">${esc(card.description)}</textarea>
         </div>
-        <div class="form-group">
-          <label class="form-label">${esc(t.recFieldTarget)}</label>
-          <select class="form-input" id="recEditTarget">${appOpts}</select>
-        </div>
+        ${appField}
         <div class="form-group">
           <label class="form-label">${esc(t.recFieldImage)}</label>
           <div class="rec-media-row">
@@ -2810,6 +2915,8 @@ function renderRecommendationsAdmin() {
   const t = u();
   updateRecBadge();
   const editing = getEditingRecCard();
+  const project = resolveAdminProject(adminProject);
+  const scoped = project.group === 'app';
 
   const filterOpts = [
     `<option value="all"${recFilterApp === 'all' ? ' selected' : ''}>${esc(t.recFilterAll)}</option>`,
@@ -2818,15 +2925,21 @@ function renderRecommendationsAdmin() {
     ),
   ].join('');
 
+  const toolbar = scoped
+    ? `<div class="rec-toolbar">
+         <button type="button" class="btn btn-primary btn-sm" id="recAddBtn">${esc(t.recAdd)}</button>
+       </div>`
+    : `<div class="rec-toolbar">
+         <label class="form-label" style="margin:0">${esc(t.recFilterApp)}</label>
+         <select class="form-input" id="recFilterSelect">${filterOpts}</select>
+         <button type="button" class="btn btn-primary btn-sm" id="recAddBtn">${esc(t.recAdd)}</button>
+       </div>`;
+
   container.innerHTML = `
     <p class="rec-desc">${esc(t.recDesc)}</p>
     ${renderRecStats(t)}
     ${editing ? renderRecEditor(t, editing) : `
-      <div class="rec-toolbar">
-        <label class="form-label" style="margin:0">${esc(t.recFilterApp)}</label>
-        <select class="form-input" id="recFilterSelect">${filterOpts}</select>
-        <button type="button" class="btn btn-primary btn-sm" id="recAddBtn">${esc(t.recAdd)}</button>
-      </div>
+      ${toolbar}
       ${renderRecList(t)}
     `}`;
 
@@ -2834,7 +2947,7 @@ function renderRecommendationsAdmin() {
 }
 
 function bindRecommendationsEvents(container) {
-  container.querySelectorAll('#recStatDl_tv_sleep_timer, #recStatAu_tv_sleep_timer, #recStatDl_korsmotion_tv, #recStatAu_korsmotion_tv').forEach(el => {
+  container.querySelectorAll('[id^="recStatDl_"], [id^="recStatAu_"]').forEach(el => {
     el.addEventListener('input', () => {
       snapshotRecStats();
       markUnsaved();
@@ -2868,7 +2981,7 @@ function bindRecommendationsEvents(container) {
       if (!confirm(u().deleteConfirm)) return;
       recommendationsData.cards = recommendationsData.cards.filter(c => c.id !== btn.dataset.recDelete);
       if (recEditingId === btn.dataset.recDelete) recEditingId = null;
-      reindexRecSortOrders();
+      reindexRecSortOrders(getRecScopeApp());
       markUnsaved();
       renderRecommendationsAdmin();
     });

@@ -40,7 +40,7 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 /* Layout */
 .app{max-width:1000px;margin:0 auto;padding:28px 24px 100px}
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
-.header-left{display:flex;align-items:center;gap:16px}
+.header-left{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .header-logo{display:flex;align-items:center;gap:10px}
 .header-logo h1{font-size:20px;font-weight:700}
 .header-tag{font-size:11px;font-weight:600;background:var(--accent-dim);color:var(--accent);
@@ -54,6 +54,15 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
   border:none;cursor:pointer;background:transparent;color:var(--text-muted);transition:all .15s}
 .admin-lang-btn.active{background:var(--accent);color:#fff}
 .admin-lang-btn:hover:not(.active){background:var(--accent-dim);color:var(--accent)}
+
+/* Project tabs (Сайт / apps) */
+.admin-project-switcher{display:flex;gap:4px;background:var(--bg-input);border:2px solid var(--border);
+  border-radius:9px;padding:3px;flex-wrap:wrap}
+.admin-project-btn{padding:6px 14px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;
+  border:none;cursor:pointer;background:transparent;color:var(--text-muted);transition:all .15s;white-space:nowrap}
+.admin-project-btn.active{background:var(--accent);color:#fff}
+.admin-project-btn:hover:not(.active){background:var(--accent-dim);color:var(--accent)}
+.section[data-project-group].is-project-hidden{display:none !important}
 
 /* Forms */
 .form-group{margin-bottom:12px}
@@ -465,6 +474,11 @@ body.calc-fullscreen-open{overflow:hidden}
         <button class="admin-lang-btn" data-lang="de">DE</button>
         <button class="admin-lang-btn active" data-lang="en">EN</button>
       </div>
+      <div class="admin-project-switcher" id="adminProjectSwitcher" role="tablist" aria-label="Project">
+        <button type="button" class="admin-project-btn active" data-project="site" data-ui="projectSite" role="tab">Сайт</button>
+        <button type="button" class="admin-project-btn" data-project="tv_sleep_timer" role="tab">TV Sleep Timer</button>
+        <button type="button" class="admin-project-btn" data-project="korsmotion_tv" role="tab">KorsMotion TV</button>
+      </div>
       <button type="button" class="btn btn-ghost btn-sm" id="openSettingsModal" data-ui-title="settingsBtnTitle" title="Settings">⚙️</button>
     </div>
     <div class="header-actions">
@@ -474,7 +488,7 @@ body.calc-fullscreen-open{overflow:hidden}
   </div>
 
   <!-- Dashboard -->
-  <div class="section section-collapsible" data-section="dashboard">
+  <div class="section section-collapsible" data-section="dashboard" data-project-group="site">
     <div class="section-head section-head-toggle">
       <div class="section-head-left">
         <span class="section-chevron open">▾</span>
@@ -485,7 +499,7 @@ body.calc-fullscreen-open{overflow:hidden}
   </div>
 
   <!-- Hero / Главная -->
-  <div class="section section-collapsible" data-section="hero">
+  <div class="section section-collapsible" data-section="hero" data-project-group="site">
     <div class="section-head section-head-toggle">
       <div class="section-head-left">
         <span class="section-chevron">▾</span>
@@ -505,7 +519,7 @@ body.calc-fullscreen-open{overflow:hidden}
   </div>
 
   <!-- Portfolio -->
-  <div class="section section-collapsible" data-section="portfolio">
+  <div class="section section-collapsible" data-section="portfolio" data-project-group="site">
     <div class="section-head section-head-toggle">
       <div class="section-head-left">
         <span class="section-chevron">▾</span>
@@ -528,7 +542,7 @@ body.calc-fullscreen-open{overflow:hidden}
   </div>
 
   <!-- Development -->
-  <div class="section section-collapsible" data-section="devApps">
+  <div class="section section-collapsible" data-section="devApps" data-project-group="site">
     <div class="section-head section-head-toggle">
       <div class="section-head-left">
         <span class="section-chevron">▾</span>
@@ -553,8 +567,8 @@ body.calc-fullscreen-open{overflow:hidden}
     </div>
   </div>
 
-  <!-- Services -->
-  <div class="section section-collapsible" data-section="services">
+  <!-- Services / Услуги -->
+  <div class="section section-collapsible" data-section="services" data-project-group="site">
     <div class="section-head section-head-toggle">
       <div class="section-head-left">
         <span class="section-chevron">▾</span>
@@ -581,7 +595,7 @@ body.calc-fullscreen-open{overflow:hidden}
   </div>
 
   <!-- Reviews / Отзывы -->
-  <div class="section section-collapsible" data-section="reviews">
+  <div class="section section-collapsible" data-section="reviews" data-project-group="site">
     <div class="section-head section-head-toggle">
       <div class="section-head-left">
         <span class="section-chevron">▾</span>
@@ -602,7 +616,7 @@ body.calc-fullscreen-open{overflow:hidden}
   </div>
 
   <!-- Recommendations / Рекомендации -->
-  <div class="section section-collapsible" data-section="recommendations">
+  <div class="section section-collapsible" data-section="recommendations" data-project-group="app">
     <div class="section-head section-head-toggle">
       <div class="section-head-left">
         <span class="section-chevron">▾</span>
@@ -614,7 +628,7 @@ body.calc-fullscreen-open{overflow:hidden}
   </div>
 
   <!-- Calculator / Калькулятор -->
-  <div class="section section-collapsible calc-section-wrap" data-section="calculator" id="calcSectionWrap">
+  <div class="section section-collapsible calc-section-wrap" data-section="calculator" id="calcSectionWrap" data-project-group="site">
     <div class="section-head section-head-toggle">
       <div class="section-head-left">
         <span class="section-chevron">▾</span>
@@ -625,7 +639,7 @@ body.calc-fullscreen-open{overflow:hidden}
   </div>
 
   <!-- Clients / Клиенты -->
-  <div class="section section-collapsible" data-section="clients">
+  <div class="section section-collapsible" data-section="clients" data-project-group="site">
     <div class="section-head section-head-toggle">
       <div class="section-head-left">
         <span class="section-chevron">▾</span>
@@ -708,7 +722,7 @@ body.calc-fullscreen-open{overflow:hidden}
   </div>
 </div>
 
-<script src="admin.js?v=12"></script>
+<script src="admin.js?v=13"></script>
 </body>
 </html>
 <!-- Video preview CSS - добавь в <style> в admin/index.html -->
