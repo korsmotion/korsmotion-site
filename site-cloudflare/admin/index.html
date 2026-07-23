@@ -55,13 +55,23 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .admin-lang-btn.active{background:var(--accent);color:#fff}
 .admin-lang-btn:hover:not(.active){background:var(--accent-dim);color:var(--accent)}
 
-/* Project tabs (Сайт / apps) */
-.admin-project-switcher{display:flex;gap:4px;background:var(--bg-input);border:2px solid var(--border);
-  border-radius:9px;padding:3px;flex-wrap:wrap}
-.admin-project-btn{padding:6px 14px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;
-  border:none;cursor:pointer;background:transparent;color:var(--text-muted);transition:all .15s;white-space:nowrap}
-.admin-project-btn.active{background:var(--accent);color:#fff}
-.admin-project-btn:hover:not(.active){background:var(--accent-dim);color:var(--accent)}
+/* Project dropdown */
+.admin-project-menu{position:relative}
+.admin-project-trigger{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:9px;
+  font-family:inherit;font-size:12px;font-weight:700;border:2px solid var(--border);cursor:pointer;
+  background:var(--bg-input);color:var(--text);transition:all .15s;white-space:nowrap;max-width:min(320px,70vw)}
+.admin-project-trigger:hover,.admin-project-menu.open .admin-project-trigger{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+.admin-project-trigger-label{overflow:hidden;text-overflow:ellipsis}
+.admin-project-trigger-chevron{font-size:10px;opacity:.7;transition:transform .15s}
+.admin-project-menu.open .admin-project-trigger-chevron{transform:rotate(180deg)}
+.admin-project-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:220px;max-width:min(340px,90vw);
+  background:#fff;border:2px solid var(--border);border-radius:12px;box-shadow:0 12px 32px rgba(26,21,48,.12);
+  padding:6px;z-index:40}
+.admin-project-menu.open .admin-project-dropdown{display:block}
+.admin-project-option{display:block;width:100%;text-align:left;padding:10px 12px;border:none;border-radius:8px;
+  background:transparent;font-family:inherit;font-size:13px;font-weight:600;color:var(--text);cursor:pointer}
+.admin-project-option:hover{background:var(--accent-dim);color:var(--accent)}
+.admin-project-option.active{background:var(--accent);color:#fff}
 .section[data-project-group].is-project-hidden{display:none !important}
 
 /* Forms */
@@ -474,10 +484,12 @@ body.calc-fullscreen-open{overflow:hidden}
         <button class="admin-lang-btn" data-lang="de">DE</button>
         <button class="admin-lang-btn active" data-lang="en">EN</button>
       </div>
-      <div class="admin-project-switcher" id="adminProjectSwitcher" role="tablist" aria-label="Project">
-        <button type="button" class="admin-project-btn active" data-project="site" data-ui="projectSite" role="tab">Сайт</button>
-        <button type="button" class="admin-project-btn" data-project="tv_sleep_timer" role="tab">TV Sleep Timer</button>
-        <button type="button" class="admin-project-btn" data-project="korsmotion_tv" role="tab">KorsMotion TV</button>
+      <div class="admin-project-menu" id="adminProjectMenu">
+        <button type="button" class="admin-project-trigger" id="adminProjectTrigger" aria-haspopup="listbox" aria-expanded="false">
+          <span class="admin-project-trigger-label" id="adminProjectTriggerLabel">Проекты: Сайт</span>
+          <span class="admin-project-trigger-chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="admin-project-dropdown" id="adminProjectDropdown" role="listbox" hidden></div>
       </div>
       <button type="button" class="btn btn-ghost btn-sm" id="openSettingsModal" data-ui-title="settingsBtnTitle" title="Settings">⚙️</button>
     </div>
@@ -722,7 +734,7 @@ body.calc-fullscreen-open{overflow:hidden}
   </div>
 </div>
 
-<script src="admin.js?v=13"></script>
+<script src="admin.js?v=14"></script>
 </body>
 </html>
 <!-- Video preview CSS - добавь в <style> в admin/index.html -->

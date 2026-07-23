@@ -130,6 +130,7 @@ const UI = {
     recStatsHint: 'Пока без Google Play API — обновляй цифры вручную.',
     recNoMedia: 'Нет медиа',
     projectSite: 'Сайт',
+    projectsBtn: 'Проекты',
     calcTitle: 'Калькулятор', calcShow: 'Показать на сайте',
     calcAddGroup: '+ Добавить группу', calcAddOption: '+ Добавить опцию',
     calcDeleteGroup: 'Удалить группу', calcDeleteOption: 'Удалить',
@@ -250,6 +251,7 @@ const UI = {
     recStatsHint: 'Noch ohne Google Play API — Zahlen manuell pflegen.',
     recNoMedia: 'Kein Medium',
     projectSite: 'Website',
+    projectsBtn: 'Projects',
     calcTitle: 'Kalkulator', calcShow: 'Auf Website anzeigen',
     calcAddGroup: '+ Gruppe hinzufügen', calcAddOption: '+ Option hinzufügen',
     calcDeleteGroup: 'Gruppe löschen', calcDeleteOption: 'Löschen',
@@ -370,6 +372,7 @@ const UI = {
     recStatsHint: 'No Google Play API yet — update numbers by hand.',
     recNoMedia: 'No media',
     projectSite: 'Website',
+    projectsBtn: 'Projects',
     calcTitle: 'Calculator', calcShow: 'Show on site',
     calcAddGroup: '+ Add group', calcAddOption: '+ Add option',
     calcDeleteGroup: 'Delete group', calcDeleteOption: 'Delete',
@@ -1115,6 +1118,78 @@ function resolveAdminProject(id) {
   return ADMIN_PROJECTS.find(p => p.id === id) || ADMIN_PROJECTS[0];
 }
 
+function adminProjectLabel(project) {
+  const p = typeof project === 'string' ? resolveAdminProject(project) : (project || resolveAdminProject(adminProject));
+  if (p.uiKey) return u()[p.uiKey] || p.label || p.id;
+  return p.label || p.id;
+}
+
+function updateProjectMenuUI() {
+  const project = resolveAdminProject(adminProject);
+  const label = document.getElementById('adminProjectTriggerLabel');
+  if (label) label.textContent = `${u().projectsBtn}: ${adminProjectLabel(project)}`;
+  const dropdown = document.getElementById('adminProjectDropdown');
+  if (dropdown) {
+    dropdown.innerHTML = ADMIN_PROJECTS.map(p => `
+      <button type="button" class="admin-project-option${p.id === project.id ? ' active' : ''}"
+        role="option" aria-selected="${p.id === project.id ? 'true' : 'false'}" data-project="${esc(p.id)}">
+        ${esc(adminProjectLabel(p))}
+      </button>`).join('');
+    dropdown.querySelectorAll('[data-project]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setAdminProject(btn.dataset.project);
+        closeAdminProjectMenu();
+      });
+    });
+  }
+  const trigger = document.getElementById('adminProjectTrigger');
+  if (trigger) trigger.setAttribute('aria-expanded', document.getElementById('adminProjectMenu')?.classList.contains('open') ? 'true' : 'false');
+}
+
+function openAdminProjectMenu() {
+  const menu = document.getElementById('adminProjectMenu');
+  const dropdown = document.getElementById('adminProjectDropdown');
+  if (!menu || !dropdown) return;
+  updateProjectMenuUI();
+  menu.classList.add('open');
+  dropdown.hidden = false;
+  document.getElementById('adminProjectTrigger')?.setAttribute('aria-expanded', 'true');
+}
+
+function closeAdminProjectMenu() {
+  const menu = document.getElementById('adminProjectMenu');
+  const dropdown = document.getElementById('adminProjectDropdown');
+  if (!menu || !dropdown) return;
+  menu.classList.remove('open');
+  dropdown.hidden = true;
+  document.getElementById('adminProjectTrigger')?.setAttribute('aria-expanded', 'false');
+}
+
+function toggleAdminProjectMenu() {
+  const menu = document.getElementById('adminProjectMenu');
+  if (!menu) return;
+  if (menu.classList.contains('open')) closeAdminProjectMenu();
+  else openAdminProjectMenu();
+}
+
+function initAdminProjectMenu() {
+  const menu = document.getElementById('adminProjectMenu');
+  const trigger = document.getElementById('adminProjectTrigger');
+  if (!menu || !trigger || menu.dataset.bound === '1') return;
+  menu.dataset.bound = '1';
+  trigger.addEventListener('click', e => {
+    e.stopPropagation();
+    toggleAdminProjectMenu();
+  });
+  document.addEventListener('click', e => {
+    if (!menu.contains(e.target)) closeAdminProjectMenu();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeAdminProjectMenu();
+  });
+  updateProjectMenuUI();
+}
+
 function readAdminProjectFromUrl() {
   try {
     const p = new URLSearchParams(window.location.search).get('project');
@@ -1132,7 +1207,10 @@ function initAdminProject() {
 
 function setAdminProject(projectId, { skipRender } = {}) {
   const project = resolveAdminProject(projectId);
-  if (adminProject === project.id && !skipRender) return;
+  if (adminProject === project.id && !skipRender) {
+    updateProjectMenuUI();
+    return;
+  }
   snapshotRecEditor();
   snapshotRecStats();
   adminProject = project.id;
@@ -1150,9 +1228,7 @@ function setAdminProject(projectId, { skipRender } = {}) {
 
 function applyAdminProject({ skipRender, skipUrl } = {}) {
   const project = resolveAdminProject(adminProject);
-  document.querySelectorAll('.admin-project-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.project === project.id);
-  });
+  updateProjectMenuUI();
   document.querySelectorAll('.section[data-project-group]').forEach(sec => {
     const group = sec.dataset.projectGroup;
     const show = group === project.group;
@@ -1204,6 +1280,7 @@ function applyAdminLang() {
   });
   initSaveBtn();
   if (saveDirty) markUnsaved();
+  updateProjectMenuUI();
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -2045,9 +2122,7 @@ document.querySelectorAll('.admin-lang-btn').forEach(btn => {
   btn.addEventListener('click', () => setAdminLang(btn.dataset.lang));
 });
 
-document.querySelectorAll('.admin-project-btn').forEach(btn => {
-  btn.addEventListener('click', () => setAdminProject(btn.dataset.project));
-});
+initAdminProjectMenu();
 
 const saveGithubTokenBtn = document.getElementById('saveGithubTokenBtn');
 if (saveGithubTokenBtn) saveGithubTokenBtn.addEventListener('click', saveGithubToken);
