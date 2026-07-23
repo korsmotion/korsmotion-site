@@ -23,10 +23,17 @@ const API_REVIEWS = '/api/reviews';
 const API_HERO = '/api/hero';
 const API_CALCULATOR = '/api/calculator';
 const API_CLIENTS = '/api/clients';
+const API_RECOMMENDATIONS = '/api/recommendations';
 const WEATHER_CITY = 'Bischofszell,CH';
 const WEATHER_REFRESH_MS = 30 * 60 * 1000;
 const SECTION_COLLAPSE_KEY = 'korsmotion_admin_section_';
-const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, hero: false, portfolio: true, devApps: true, services: true, reviews: true, calculator: true, clients: true };
+const SECTION_COLLAPSE_DEFAULTS = { dashboard: false, hero: false, portfolio: true, devApps: true, services: true, reviews: true, recommendations: true, calculator: true, clients: true };
+const REC_TARGET_APPS = [
+  { id: 'tv_sleep_timer', label: 'TV Sleep Timer' },
+  { id: 'korsmotion_tv', label: 'KorsMotion TV' },
+];
+const REC_IMAGE_ACCEPT = 'image/*,.jpg,.jpeg,.png,.webp,.gif';
+const REC_VIDEO_ACCEPT = 'video/mp4,video/webm,.mp4,.webm';
 const CAT_COLLAPSE_PREFIX = 'korsmotion_cat_collapsed_';
 const PROJECT_CARD_COLLAPSE_PREFIX = 'korsmotion_proj_collapsed_';
 const APP_CARD_COLLAPSE_PREFIX = 'korsmotion_appcard_collapsed_';
@@ -89,6 +96,33 @@ const UI = {
     reviewsDelete: 'Удалить', reviewsDeleteShort: '✕ Удалить',
     reviewsEmptyPending: 'Нет новых отзывов', reviewsEmptyApproved: 'Нет одобренных отзывов',
     reviewsHidden: 'Скрыт',
+    recTitle: 'Рекомендации',
+    recDesc: 'Карточки «Рекомендуем» для TV Sleep Timer и KorsMotion TV. Приложения подтягивают ленту с /api/recommendations — обновление без релиза.',
+    recAdd: '+ Добавить карточку',
+    recEmpty: 'Нет карточек. Добавьте первую.',
+    recFilterAll: 'Все приложения',
+    recFilterApp: 'Приложение',
+    recFieldTitle: 'Заголовок',
+    recFieldDesc: 'Описание',
+    recFieldImage: 'Изображение',
+    recFieldVideo: 'Видео (MP4, опционально)',
+    recFieldBtnLabel: 'Текст кнопки',
+    recFieldBtnUrl: 'Ссылка кнопки (Play Store / deep link)',
+    recFieldTarget: 'Целевое приложение',
+    recFieldSort: 'Порядок',
+    recActive: 'Активна',
+    recInactive: 'Выключена',
+    recUploadImage: '📁 Загрузить фото',
+    recUploadVideo: '📁 Загрузить видео',
+    recMoveUp: '↑',
+    recMoveDown: '↓',
+    recEdit: 'Редактировать',
+    recBackList: '← К списку',
+    recStatsTitle: 'Статистика (вручную из Play Console)',
+    recStatsDownloads: 'Текущие загрузки',
+    recStatsUsers: 'Активные пользователи',
+    recStatsHint: 'Пока без Google Play API — обновляй цифры вручную.',
+    recNoMedia: 'Нет медиа',
     calcTitle: 'Калькулятор', calcShow: 'Показать на сайте',
     calcAddGroup: '+ Добавить группу', calcAddOption: '+ Добавить опцию',
     calcDeleteGroup: 'Удалить группу', calcDeleteOption: 'Удалить',
@@ -181,6 +215,33 @@ const UI = {
     reviewsDelete: 'Löschen', reviewsDeleteShort: '✕ Löschen',
     reviewsEmptyPending: 'Keine neuen Bewertungen', reviewsEmptyApproved: 'Keine genehmigten Bewertungen',
     reviewsHidden: 'Verborgen',
+    recTitle: 'Empfehlungen',
+    recDesc: 'Karten «Empfohlen» für TV Sleep Timer und KorsMotion TV. Apps laden den Feed von /api/recommendations — Update ohne App-Release.',
+    recAdd: '+ Karte hinzufügen',
+    recEmpty: 'Keine Karten. Erste hinzufügen.',
+    recFilterAll: 'Alle Apps',
+    recFilterApp: 'App',
+    recFieldTitle: 'Titel',
+    recFieldDesc: 'Beschreibung',
+    recFieldImage: 'Bild',
+    recFieldVideo: 'Video (MP4, optional)',
+    recFieldBtnLabel: 'Button-Text',
+    recFieldBtnUrl: 'Button-Link (Play Store / Deep Link)',
+    recFieldTarget: 'Ziel-App',
+    recFieldSort: 'Reihenfolge',
+    recActive: 'Aktiv',
+    recInactive: 'Aus',
+    recUploadImage: '📁 Bild hochladen',
+    recUploadVideo: '📁 Video hochladen',
+    recMoveUp: '↑',
+    recMoveDown: '↓',
+    recEdit: 'Bearbeiten',
+    recBackList: '← Zur Liste',
+    recStatsTitle: 'Statistik (manuell aus Play Console)',
+    recStatsDownloads: 'Aktuelle Downloads',
+    recStatsUsers: 'Aktive Nutzer',
+    recStatsHint: 'Noch ohne Google Play API — Zahlen manuell pflegen.',
+    recNoMedia: 'Kein Medium',
     calcTitle: 'Kalkulator', calcShow: 'Auf Website anzeigen',
     calcAddGroup: '+ Gruppe hinzufügen', calcAddOption: '+ Option hinzufügen',
     calcDeleteGroup: 'Gruppe löschen', calcDeleteOption: 'Löschen',
@@ -273,6 +334,33 @@ const UI = {
     reviewsDelete: 'Delete', reviewsDeleteShort: '✕ Delete',
     reviewsEmptyPending: 'No new reviews', reviewsEmptyApproved: 'No approved reviews',
     reviewsHidden: 'Hidden',
+    recTitle: 'Recommendations',
+    recDesc: '“Recommended” cards for TV Sleep Timer and KorsMotion TV. Apps fetch /api/recommendations — update content without an app release.',
+    recAdd: '+ Add card',
+    recEmpty: 'No cards yet. Add the first one.',
+    recFilterAll: 'All apps',
+    recFilterApp: 'App',
+    recFieldTitle: 'Title',
+    recFieldDesc: 'Description',
+    recFieldImage: 'Image',
+    recFieldVideo: 'Video (MP4, optional)',
+    recFieldBtnLabel: 'Button label',
+    recFieldBtnUrl: 'Button URL (Play Store / deep link)',
+    recFieldTarget: 'Target app',
+    recFieldSort: 'Sort order',
+    recActive: 'Active',
+    recInactive: 'Off',
+    recUploadImage: '📁 Upload image',
+    recUploadVideo: '📁 Upload video',
+    recMoveUp: '↑',
+    recMoveDown: '↓',
+    recEdit: 'Edit',
+    recBackList: '← Back to list',
+    recStatsTitle: 'Stats (manual from Play Console)',
+    recStatsDownloads: 'Current downloads',
+    recStatsUsers: 'Active users',
+    recStatsHint: 'No Google Play API yet — update numbers by hand.',
+    recNoMedia: 'No media',
     calcTitle: 'Calculator', calcShow: 'Show on site',
     calcAddGroup: '+ Add group', calcAddOption: '+ Add option',
     calcDeleteGroup: 'Delete group', calcDeleteOption: 'Delete',
@@ -368,6 +456,15 @@ const DEFAULT_SETTINGS = {
 };
 let settingsData = { ...DEFAULT_SETTINGS };
 let reviewsData = { reviews: [] };
+let recommendationsData = {
+  cards: [],
+  stats: {
+    tv_sleep_timer: { downloads: 0, activeUsers: 0 },
+    korsmotion_tv: { downloads: 0, activeUsers: 0 },
+  },
+};
+let recFilterApp = 'all';
+let recEditingId = null;
 let calculatorData = { visible: false, groups: [] };
 let clientsData = [];
 let clientsView = 'list';
@@ -664,11 +761,11 @@ function initDirtyTracking() {
   if (!app || app.dataset.dirtyBound === '1') return;
   app.dataset.dirtyBound = '1';
   app.addEventListener('input', e => {
-    if (e.target.closest('#projectsList, #devList, #servicesList, #heroSection, #reviewsSection, #calculatorSection, #clientsSection')) markUnsaved();
+    if (e.target.closest('#projectsList, #devList, #servicesList, #heroSection, #reviewsSection, #recommendationsSection, #calculatorSection, #clientsSection')) markUnsaved();
   });
   app.addEventListener('change', e => {
     if (['showDevSection', 'showPortfolioSection', 'showServicesSection', 'showReviewsSection', 'showHeroSection'].includes(e.target.id)) markUnsaved();
-    if (e.target.closest('#devList')) markUnsaved();
+    if (e.target.closest('#devList, #recommendationsSection')) markUnsaved();
   });
 }
 function adminAssetUrl(path) {
@@ -854,6 +951,7 @@ function mimeFromUploadPath(path) {
     jpg: 'image/jpeg',
     jpeg: 'image/jpeg',
     png: 'image/png',
+    webp: 'image/webp',
   };
   return map[ext] || 'application/octet-stream';
 }
@@ -1088,6 +1186,7 @@ async function loadData() {
   // Загружаем услуги отдельно из /api/services
   loadServices();
   loadReviewsAdmin();
+  loadRecommendationsAdmin();
   loadHeroAdmin();
   loadCalculatorAdmin();
   loadClientsAdmin();
@@ -1106,6 +1205,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
     if (!(await saveServices({ silent: true }))) throw new Error('services');
     if (!(await saveReviews({ silent: true }))) throw new Error('reviews');
+    if (!(await saveRecommendations({ silent: true }))) throw new Error('recommendations');
     if (!(await saveHero({ silent: true }))) throw new Error('hero');
     if (!(await saveCalculator({ silent: true }))) throw new Error('calculator');
     if (!(await saveClients({ silent: true }))) throw new Error('clients');
@@ -1148,6 +1248,7 @@ function renderAll() {
   renderDevelopment();
   renderServices();
   renderReviewsAdmin();
+  renderRecommendationsAdmin();
   renderCalculatorAdmin();
   renderClientsAdmin();
 }
@@ -2403,6 +2504,423 @@ function renderReviewsAdmin() {
       markUnsaved();
       renderReviewsAdmin();
     });
+  });
+}
+
+// ── Recommendations / Рекомендации ────────────────────────────────────────────
+function defaultRecStats() {
+  return {
+    tv_sleep_timer: { downloads: 0, activeUsers: 0 },
+    korsmotion_tv: { downloads: 0, activeUsers: 0 },
+  };
+}
+
+function normalizeRecCard(c, index) {
+  const item = c && typeof c === 'object' ? c : {};
+  const target = String(item.targetApp || '').trim();
+  return {
+    id: String(item.id || `rec_${Date.now().toString(36)}_${index || 0}`),
+    title: String(item.title || '').trim(),
+    description: String(item.description || '').trim(),
+    imageUrl: String(item.imageUrl || item.image || '').trim(),
+    videoUrl: String(item.videoUrl || item.video || '').trim(),
+    buttonLabel: String(item.buttonLabel || '').trim(),
+    buttonUrl: String(item.buttonUrl || item.actionUrl || '').trim(),
+    targetApp: REC_TARGET_APPS.some(a => a.id === target) ? target : 'tv_sleep_timer',
+    sortOrder: Number.isFinite(Number(item.sortOrder)) ? Number(item.sortOrder) : (index || 0),
+    active: item.active !== false,
+  };
+}
+
+function normalizeRecommendationsFeed(raw) {
+  const data = raw && typeof raw === 'object' ? raw : {};
+  const cards = Array.isArray(data.cards) ? data.cards.map(normalizeRecCard) : [];
+  const stats = defaultRecStats();
+  const src = data.stats && typeof data.stats === 'object' ? data.stats : {};
+  REC_TARGET_APPS.forEach(({ id }) => {
+    const row = src[id] && typeof src[id] === 'object' ? src[id] : {};
+    stats[id] = {
+      downloads: Math.max(0, parseInt(row.downloads, 10) || 0),
+      activeUsers: Math.max(0, parseInt(row.activeUsers, 10) || 0),
+    };
+  });
+  return { cards, stats };
+}
+
+function recAppLabel(appId) {
+  return REC_TARGET_APPS.find(a => a.id === appId)?.label || appId;
+}
+
+function getEditingRecCard() {
+  if (!recEditingId) return null;
+  return recommendationsData.cards.find(c => c.id === recEditingId) || null;
+}
+
+function updateRecBadge() {
+  const badge = document.getElementById('recCountBadge');
+  if (badge) badge.textContent = String(recommendationsData.cards.length);
+}
+
+function sortedRecCards() {
+  return recommendationsData.cards
+    .slice()
+    .sort((a, b) => (a.sortOrder - b.sortOrder) || a.title.localeCompare(b.title));
+}
+
+function reindexRecSortOrders() {
+  sortedRecCards().forEach((c, i) => { c.sortOrder = i; });
+}
+
+async function uploadRecMedia(file, cardId, kind) {
+  const ext = (file.name.split('.').pop() || (kind === 'video' ? 'mp4' : 'jpg')).toLowerCase();
+  const safeExt = ext.replace(/[^a-z0-9]/g, '') || (kind === 'video' ? 'mp4' : 'jpg');
+  const relPath = `images/recommendations/${cardId}/${kind}.${safeExt}`;
+  const githubPath = `site-cloudflare/${relPath}`;
+
+  if (getGithubToken()) {
+    try {
+      const url = await uploadImageToGitHub(file, githubPath);
+      return url;
+    } catch (_) {
+      // fall through to KV
+    }
+  }
+  await uploadFileToKV(file, relPath);
+  return relPath;
+}
+
+async function loadRecommendationsAdmin() {
+  try {
+    const res = await fetch(API_RECOMMENDATIONS, { headers: { 'X-Admin-Password': ADMIN_PASSWORD } });
+    if (res.ok) {
+      recommendationsData = normalizeRecommendationsFeed(await res.json());
+    }
+  } catch (_) {}
+  updateRecBadge();
+  renderRecommendationsAdmin();
+}
+
+async function saveRecommendations({ silent } = {}) {
+  try {
+    snapshotRecEditor();
+    snapshotRecStats();
+    reindexRecSortOrders();
+    const res = await fetch(API_RECOMMENDATIONS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: ADMIN_PASSWORD,
+        cards: recommendationsData.cards,
+        stats: recommendationsData.stats,
+      }),
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'error');
+    updateRecBadge();
+    if (!silent) showToast(u().saved, 'success');
+    return true;
+  } catch (e) {
+    if (!silent) showToast(u().saveError, 'error');
+    return false;
+  }
+}
+
+function snapshotRecEditor() {
+  const card = getEditingRecCard();
+  if (!card || !document.getElementById('recEditTitle')) return;
+  card.title = document.getElementById('recEditTitle')?.value || '';
+  card.description = document.getElementById('recEditDesc')?.value || '';
+  card.imageUrl = document.getElementById('recEditImage')?.value || '';
+  card.videoUrl = document.getElementById('recEditVideo')?.value || '';
+  card.buttonLabel = document.getElementById('recEditBtnLabel')?.value || '';
+  card.buttonUrl = document.getElementById('recEditBtnUrl')?.value || '';
+  card.targetApp = document.getElementById('recEditTarget')?.value || 'tv_sleep_timer';
+  card.sortOrder = parseInt(document.getElementById('recEditSort')?.value, 10) || 0;
+  card.active = !!document.getElementById('recEditActive')?.checked;
+}
+
+function snapshotRecStats() {
+  REC_TARGET_APPS.forEach(({ id }) => {
+    const dl = document.getElementById(`recStatDl_${id}`);
+    const au = document.getElementById(`recStatAu_${id}`);
+    if (!recommendationsData.stats[id]) recommendationsData.stats[id] = { downloads: 0, activeUsers: 0 };
+    if (dl) recommendationsData.stats[id].downloads = Math.max(0, parseInt(dl.value, 10) || 0);
+    if (au) recommendationsData.stats[id].activeUsers = Math.max(0, parseInt(au.value, 10) || 0);
+  });
+}
+
+function addRecommendationCard() {
+  snapshotRecEditor();
+  const nextOrder = recommendationsData.cards.reduce((m, c) => Math.max(m, c.sortOrder), -1) + 1;
+  const card = normalizeRecCard({
+    id: 'rec_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    title: adminLang === 'de' ? 'Neue Karte' : adminLang === 'en' ? 'New card' : 'Новая карточка',
+    buttonLabel: adminLang === 'de' ? 'Mehr erfahren' : adminLang === 'en' ? 'Learn more' : 'Узнать больше',
+    targetApp: recFilterApp !== 'all' ? recFilterApp : 'tv_sleep_timer',
+    sortOrder: nextOrder,
+    active: true,
+  }, nextOrder);
+  recommendationsData.cards.push(card);
+  recEditingId = card.id;
+  markUnsaved();
+  renderRecommendationsAdmin();
+}
+
+function moveRecCard(id, dir) {
+  snapshotRecEditor();
+  const list = sortedRecCards();
+  const idx = list.findIndex(c => c.id === id);
+  if (idx < 0) return;
+  const swap = idx + dir;
+  if (swap < 0 || swap >= list.length) return;
+  const a = list[idx].sortOrder;
+  list[idx].sortOrder = list[swap].sortOrder;
+  list[swap].sortOrder = a;
+  // ensure unique order after swap
+  reindexRecSortOrders();
+  markUnsaved();
+  renderRecommendationsAdmin();
+}
+
+function renderRecStats(t) {
+  const cards = REC_TARGET_APPS.map(({ id, label }) => {
+    const st = recommendationsData.stats[id] || { downloads: 0, activeUsers: 0 };
+    return `
+      <div class="rec-stats-card">
+        <h4>${esc(label)}</h4>
+        <div class="form-group">
+          <label class="form-label">${esc(t.recStatsDownloads)}</label>
+          <input class="form-input" type="number" min="0" id="recStatDl_${esc(id)}" value="${st.downloads}">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">${esc(t.recStatsUsers)}</label>
+          <input class="form-input" type="number" min="0" id="recStatAu_${esc(id)}" value="${st.activeUsers}">
+        </div>
+      </div>`;
+  }).join('');
+  return `
+    <div style="margin-bottom:8px;font-weight:800;font-size:14px">${esc(t.recStatsTitle)}</div>
+    <p class="rec-desc" style="margin-bottom:12px">${esc(t.recStatsHint)}</p>
+    <div class="rec-stats-grid">${cards}</div>`;
+}
+
+function renderRecList(t) {
+  const list = sortedRecCards().filter(c => recFilterApp === 'all' || c.targetApp === recFilterApp);
+  if (!list.length) return `<div class="empty-state">${esc(t.recEmpty)}</div>`;
+  return list.map(card => {
+    const thumb = card.imageUrl
+      ? `<img class="rec-card-thumb" src="${esc(adminAssetUrl(card.imageUrl))}" alt="" onerror="this.style.display='none'">`
+      : `<div class="rec-card-thumb-ph">${esc(t.recNoMedia)}</div>`;
+    return `
+      <div class="rec-list-row${!card.active ? ' inactive' : ''}" data-rec-id="${esc(card.id)}">
+        ${thumb}
+        <div class="rec-list-main">
+          <div class="rec-list-title">${esc(card.title || '—')}</div>
+          <div class="rec-list-meta">
+            <span class="rec-badge">${esc(recAppLabel(card.targetApp))}</span>
+            <span class="rec-badge${!card.active ? ' off' : ''}">${esc(card.active ? t.recActive : t.recInactive)}</span>
+            <span>#${card.sortOrder}</span>
+            ${card.buttonLabel ? `<span>${esc(card.buttonLabel)}</span>` : ''}
+          </div>
+        </div>
+        <div class="rec-list-actions">
+          <button type="button" class="btn btn-ghost btn-sm" data-rec-move="-1" data-rec-id="${esc(card.id)}">${esc(t.recMoveUp)}</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-rec-move="1" data-rec-id="${esc(card.id)}">${esc(t.recMoveDown)}</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-rec-toggle="${esc(card.id)}">${esc(card.active ? t.hide : t.show)}</button>
+          <button type="button" class="btn btn-primary btn-sm" data-rec-edit="${esc(card.id)}">${esc(t.recEdit)}</button>
+          <button type="button" class="btn btn-danger btn-sm" data-rec-delete="${esc(card.id)}">${esc(t.delete)}</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderRecEditor(t, card) {
+  const imgPreview = card.imageUrl
+    ? `<img class="rec-media-preview" src="${esc(adminAssetUrl(card.imageUrl))}" alt="">`
+    : `<div class="rec-media-preview-ph">${esc(t.recNoMedia)}</div>`;
+  const vidPreview = card.videoUrl
+    ? `<video class="rec-media-preview" src="${esc(adminAssetUrl(card.videoUrl))}" muted playsinline></video>`
+    : `<div class="rec-media-preview-ph">${esc(t.recNoMedia)}</div>`;
+  const appOpts = REC_TARGET_APPS.map(a =>
+    `<option value="${esc(a.id)}"${card.targetApp === a.id ? ' selected' : ''}>${esc(a.label)}</option>`
+  ).join('');
+
+  return `
+    <div style="margin-bottom:14px">
+      <button type="button" class="btn btn-ghost btn-sm" id="recBackBtn">${esc(t.recBackList)}</button>
+    </div>
+    <div class="item-card">
+      <div class="item-card-body" style="display:block">
+        <div class="form-group">
+          <label class="form-label">${esc(t.recFieldTitle)}</label>
+          <input class="form-input" id="recEditTitle" value="${esc(card.title)}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">${esc(t.recFieldDesc)}</label>
+          <textarea class="form-textarea" id="recEditDesc" rows="3">${esc(card.description)}</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">${esc(t.recFieldTarget)}</label>
+          <select class="form-input" id="recEditTarget">${appOpts}</select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">${esc(t.recFieldImage)}</label>
+          <div class="rec-media-row">
+            ${imgPreview}
+            <div style="flex:1;min-width:180px">
+              <input class="form-input" id="recEditImage" value="${esc(card.imageUrl)}" placeholder="https://... or images/...">
+              <button type="button" class="upload-btn" style="margin-top:8px" id="recUploadImageBtn">${esc(t.recUploadImage)}</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">${esc(t.recFieldVideo)}</label>
+          <div class="rec-media-row">
+            ${vidPreview}
+            <div style="flex:1;min-width:180px">
+              <input class="form-input" id="recEditVideo" value="${esc(card.videoUrl)}" placeholder="https://... or images/...">
+              <button type="button" class="upload-btn" style="margin-top:8px" id="recUploadVideoBtn">${esc(t.recUploadVideo)}</button>
+            </div>
+          </div>
+        </div>
+        <div class="item-fields" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label class="form-label">${esc(t.recFieldBtnLabel)}</label>
+            <input class="form-input" id="recEditBtnLabel" value="${esc(card.buttonLabel)}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">${esc(t.recFieldSort)}</label>
+            <input class="form-input" type="number" id="recEditSort" value="${card.sortOrder}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">${esc(t.recFieldBtnUrl)}</label>
+          <input class="form-input" id="recEditBtnUrl" value="${esc(card.buttonUrl)}" placeholder="https://play.google.com/...">
+        </div>
+        <label style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer">
+          <input type="checkbox" id="recEditActive"${card.active ? ' checked' : ''}>
+          ${esc(t.recActive)}
+        </label>
+      </div>
+    </div>`;
+}
+
+function renderRecommendationsAdmin() {
+  const container = document.getElementById('recommendationsSection');
+  if (!container) return;
+  const t = u();
+  updateRecBadge();
+  const editing = getEditingRecCard();
+
+  const filterOpts = [
+    `<option value="all"${recFilterApp === 'all' ? ' selected' : ''}>${esc(t.recFilterAll)}</option>`,
+    ...REC_TARGET_APPS.map(a =>
+      `<option value="${esc(a.id)}"${recFilterApp === a.id ? ' selected' : ''}>${esc(a.label)}</option>`
+    ),
+  ].join('');
+
+  container.innerHTML = `
+    <p class="rec-desc">${esc(t.recDesc)}</p>
+    ${renderRecStats(t)}
+    ${editing ? renderRecEditor(t, editing) : `
+      <div class="rec-toolbar">
+        <label class="form-label" style="margin:0">${esc(t.recFilterApp)}</label>
+        <select class="form-input" id="recFilterSelect">${filterOpts}</select>
+        <button type="button" class="btn btn-primary btn-sm" id="recAddBtn">${esc(t.recAdd)}</button>
+      </div>
+      ${renderRecList(t)}
+    `}`;
+
+  bindRecommendationsEvents(container);
+}
+
+function bindRecommendationsEvents(container) {
+  container.querySelectorAll('#recStatDl_tv_sleep_timer, #recStatAu_tv_sleep_timer, #recStatDl_korsmotion_tv, #recStatAu_korsmotion_tv').forEach(el => {
+    el.addEventListener('input', () => {
+      snapshotRecStats();
+      markUnsaved();
+    });
+  });
+
+  const filter = document.getElementById('recFilterSelect');
+  if (filter) {
+    filter.addEventListener('change', () => {
+      recFilterApp = filter.value || 'all';
+      renderRecommendationsAdmin();
+    });
+  }
+
+  document.getElementById('recAddBtn')?.addEventListener('click', () => addRecommendationCard());
+  document.getElementById('recBackBtn')?.addEventListener('click', () => {
+    snapshotRecEditor();
+    recEditingId = null;
+    renderRecommendationsAdmin();
+  });
+
+  container.querySelectorAll('[data-rec-edit]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      recEditingId = btn.dataset.recEdit;
+      renderRecommendationsAdmin();
+    });
+  });
+
+  container.querySelectorAll('[data-rec-delete]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!confirm(u().deleteConfirm)) return;
+      recommendationsData.cards = recommendationsData.cards.filter(c => c.id !== btn.dataset.recDelete);
+      if (recEditingId === btn.dataset.recDelete) recEditingId = null;
+      reindexRecSortOrders();
+      markUnsaved();
+      renderRecommendationsAdmin();
+    });
+  });
+
+  container.querySelectorAll('[data-rec-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = recommendationsData.cards.find(c => c.id === btn.dataset.recToggle);
+      if (!card) return;
+      card.active = !card.active;
+      markUnsaved();
+      renderRecommendationsAdmin();
+    });
+  });
+
+  container.querySelectorAll('[data-rec-move]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      moveRecCard(btn.dataset.recId, parseInt(btn.dataset.recMove, 10));
+    });
+  });
+
+  ['recEditTitle', 'recEditDesc', 'recEditImage', 'recEditVideo', 'recEditBtnLabel', 'recEditBtnUrl', 'recEditTarget', 'recEditSort', 'recEditActive'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => { snapshotRecEditor(); markUnsaved(); });
+    el.addEventListener('change', () => { snapshotRecEditor(); markUnsaved(); });
+  });
+
+  document.getElementById('recUploadImageBtn')?.addEventListener('click', () => {
+    const card = getEditingRecCard();
+    if (!card) return;
+    pickMediaFile(async (file) => {
+      try {
+        snapshotRecEditor();
+        card.imageUrl = await uploadRecMedia(file, card.id, 'image');
+        markUnsaved();
+        renderRecommendationsAdmin();
+      } catch (_) {}
+    }, REC_IMAGE_ACCEPT);
+  });
+
+  document.getElementById('recUploadVideoBtn')?.addEventListener('click', () => {
+    const card = getEditingRecCard();
+    if (!card) return;
+    pickMediaFile(async (file) => {
+      try {
+        snapshotRecEditor();
+        card.videoUrl = await uploadRecMedia(file, card.id, 'video');
+        markUnsaved();
+        renderRecommendationsAdmin();
+      } catch (_) {}
+    }, REC_VIDEO_ACCEPT);
   });
 }
 

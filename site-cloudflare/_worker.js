@@ -19,6 +19,7 @@ const MIME_BY_EXT = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
   png: 'image/png',
+  webp: 'image/webp',
 };
 
 function mimeFromPath(path) {
@@ -266,6 +267,76 @@ function normalizeReviews(raw) {
   const data = raw && typeof raw === 'object' ? raw : {};
   const reviews = Array.isArray(data.reviews) ? data.reviews : DEFAULT_REVIEWS.reviews;
   return { reviews: sanitizeReviewsList(reviews) };
+}
+
+const REC_TARGET_APPS = ['tv_sleep_timer', 'korsmotion_tv'];
+
+function defaultRecStats() {
+  return {
+    tv_sleep_timer: { downloads: 0, activeUsers: 0 },
+    korsmotion_tv: { downloads: 0, activeUsers: 0 },
+  };
+}
+
+function normalizeRecStats(raw) {
+  const base = defaultRecStats();
+  const src = raw && typeof raw === 'object' ? raw : {};
+  for (const app of REC_TARGET_APPS) {
+    const row = src[app] && typeof src[app] === 'object' ? src[app] : {};
+    base[app] = {
+      downloads: Math.max(0, parseInt(row.downloads, 10) || 0),
+      activeUsers: Math.max(0, parseInt(row.activeUsers, 10) || 0),
+    };
+  }
+  return base;
+}
+
+function normalizeRecommendationCard(c, index) {
+  const item = c && typeof c === 'object' ? c : {};
+  const target = String(item.targetApp || '').trim();
+  return {
+    id: String(item.id || `rec_${Date.now().toString(36)}_${index}`),
+    title: String(item.title || '').trim(),
+    description: String(item.description || '').trim(),
+    imageUrl: String(item.imageUrl || item.image || '').trim(),
+    videoUrl: String(item.videoUrl || item.video || '').trim(),
+    buttonLabel: String(item.buttonLabel || '').trim(),
+    buttonUrl: String(item.buttonUrl || item.actionUrl || '').trim(),
+    targetApp: REC_TARGET_APPS.includes(target) ? target : 'tv_sleep_timer',
+    sortOrder: Number.isFinite(Number(item.sortOrder)) ? Number(item.sortOrder) : index,
+    active: item.active !== false,
+  };
+}
+
+function normalizeRecommendations(raw) {
+  const data = raw && typeof raw === 'object' ? raw : {};
+  const cards = Array.isArray(data.cards) ? data.cards.map(normalizeRecommendationCard) : [];
+  return { cards, stats: normalizeRecStats(data.stats) };
+}
+
+function absoluteMediaUrl(request, path) {
+  if (!path) return '';
+  if (/^(https?:\/\/|data:)/i.test(path)) return path;
+  try {
+    const origin = new URL(request.url).origin;
+    return `${origin}/${String(path).replace(/^\.?\//, '')}`;
+  } catch {
+    return path;
+  }
+}
+
+function publicRecommendationCard(card, request) {
+  return {
+    id: card.id,
+    title: card.title,
+    description: card.description,
+    imageUrl: absoluteMediaUrl(request, card.imageUrl),
+    videoUrl: absoluteMediaUrl(request, card.videoUrl),
+    buttonLabel: card.buttonLabel,
+    buttonUrl: card.buttonUrl,
+    targetApp: card.targetApp,
+    sortOrder: card.sortOrder,
+  };
 }
 
 function normalizeHero(raw) {
@@ -681,6 +752,46 @@ export default {
       const raw = await env.KORSMOTION_DATA.get('calculator_data');
       if (raw) return json(normalizeCalculator(JSON.parse(raw)));
       return json(await loadCalculatorDefault(env, request));
+    }
+
+    // GET /api/recommendations — public feed (?app=) or full admin list
+    if (url.pathname === '/api/recommendations' && request.method === 'GET') {
+      const raw = await env.KORSMOTION_DATA.get('recommendations_feed');
+      const data = normalizeRecommendations(raw ? JSON.parse(raw) : {});
+      const isAdmin = request.headers.get('X-Admin-Password') === ADMIN_PASSWORD;
+      const appFilter = (url.searchParams.get('app') || '').trim();
+
+      if (isAdmin && !appFilter) {
+        return json(data);
+      }
+
+      let cards = data.cards.filter(c => c.active);
+      if (appFilter) cards = cards.filter(c => c.targetApp === appFilter);
+      cards = cards
+        .slice()
+        .sort((a, b) => (a.sortOrder - b.sortOrder) || a.title.localeCompare(b.title))
+        .map(c => publicRecommendationCard(c, request));
+
+      const payload = { cards, app: appFilter || null };
+      if (isAdmin) payload.stats = data.stats;
+      return json(payload);
+    }
+
+    // POST /api/recommendations — admin save
+    if (url.pathname === '/api/recommendations' && request.method === 'POST') {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return json({ error: 'Invalid JSON' }, 400);
+      }
+      if (body.password !== ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 401);
+      const feed = normalizeRecommendations({
+        cards: body.cards,
+        stats: body.stats,
+      });
+      await env.KORSMOTION_DATA.put('recommendations_feed', JSON.stringify(feed));
+      return json({ ok: true });
     }
 
     // GET /api/clients
