@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Kors Presentation</title>
+<meta name="description" content="Privacy policy of Kors Presentation for Android TV and Google TV by Kors Motion.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap');
+
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --border: #e4e2dc;
+    --accent: #5b3df0;
+    --accent-soft: #ece8ff;
+    --text: #1a1818;
+    --body: #3d3a35;
+    --muted: #6b6760;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    line-height: 1.75;
+  }
+
+  .hero {
+    padding: 72px 40px 48px;
+    max-width: 760px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .app-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-soft);
+    border-radius: 100px;
+    padding: 5px 14px 5px 8px;
+    margin-bottom: 28px;
+  }
+
+  .app-badge .dot {
+    width: 7px; height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  .app-badge span {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(36px, 6vw, 54px);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .updated { font-size: 14px; color: var(--muted); }
+
+  .lang {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .lang a {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 100px;
+    padding: 6px 16px;
+  }
+
+  .lang a:hover { border-color: var(--accent); }
+
+  .content {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 52px 40px 40px;
+  }
+
+  .content + .content { border-top: 1px solid var(--border); }
+
+  .lang-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 32px;
+  }
+
+  section { margin-bottom: 44px; }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  h2::before {
+    content: '';
+    display: block;
+    width: 3px; height: 20px;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  p, li { font-size: 16px; color: var(--body); }
+  p { margin-bottom: 12px; }
+
+  ul.plain { padding-left: 20px; margin-bottom: 12px; }
+  ul.plain li { margin-bottom: 6px; }
+
+  .highlight-box {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+  }
+
+  .highlight-box p { color: #2e1a8a; margin: 0; font-size: 15px; font-weight: 500; }
+
+  .permission-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .permission-list li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+
+  .perm-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .perm-desc { font-size: 14px; color: var(--muted); line-height: 1.55; margin: 0; }
+
+  .contact-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 26px 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+  }
+
+  .contact-item .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+
+  .contact-item .value { font-size: 15px; font-weight: 500; }
+  .contact-item a { color: var(--accent); text-decoration: none; font-size: 15px; font-weight: 500; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 40px;
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  footer span { font-size: 13px; color: var(--muted); }
+  footer a { font-size: 13px; color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .hero, .content, footer { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="app-badge">
+    <div class="dot"></div>
+    <span>Kors Presentation · Kors Motion</span>
+  </div>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated: November 4, 2026 · Version for the closed beta (0.9)</p>
+  <nav class="lang" aria-label="Language">
+    <a href="#en" lang="en">English</a>
+    <a href="#de" lang="de">Deutsch</a>
+  </nav>
+</div>
+
+<div class="content" id="en" lang="en">
+  <p class="lang-title">English</p>
+
+  <section>
+    <h2>Overview</h2>
+    <div class="highlight-box">
+      <p>Kors Presentation shows your own files on your TV. It does not collect personal data, has no account, no advertising and no analytics. Your files are never uploaded to Kors Motion or to anyone else.</p>
+    </div>
+    <p>Kors Presentation is an app for Android TV and Google TV, developed by Kors Motion (Sergej Korsakov), Switzerland. This policy explains what the app does with data on your TV and in your home network.</p>
+  </section>
+
+  <section>
+    <h2>Your files</h2>
+    <p>The app opens PDF, JPEG, PNG, MP4 and MP3 files from a USB drive, from the TV's own storage, or from a folder you allow in the Android system dialog. It can only read what Android gives it access to. It has no access to all files on the device.</p>
+    <p>Files are shown on the TV only. To display a file, the app may keep a temporary copy or preview images in its private storage on the TV. This storage belongs to the app, is not shared with other apps, and is removed when you uninstall the app.</p>
+    <p>When you allow a folder or a USB drive, the app remembers the address of that folder so it can find it again after a restart. This is not a password and contains no file contents.</p>
+  </section>
+
+  <section>
+    <h2>Phone remote</h2>
+    <p>You can control a presentation from a phone or tablet in the same home network. The phone opens a page that the TV itself provides. No server of Kors Motion or of a third party is involved.</p>
+    <ul class="plain">
+      <li>The TV shows a QR code with its local network address and a one-time code that expires after a short time.</li>
+      <li>A phone is connected only after you confirm it on the TV. You can disconnect it on the TV at any time.</li>
+      <li>The phone sends a short device name (for example "iPhone" or a name you type). It is shown on the TV so you know which phone is connected.</li>
+      <li>Between TV and phone only control commands and the current playback state are exchanged (for example file name, page number or play time).</li>
+      <li>The connection lives in the TV's memory and ends when the app is closed. The phone keeps its connection key only for the open browser tab, and its chosen colour theme in the browser's local storage.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Settings</h2>
+    <p>Theme, accent colour, interface size and slideshow settings are stored locally on the TV and never leave it.</p>
+  </section>
+
+  <section>
+    <h2>Permissions</h2>
+    <ul class="permission-list">
+      <li>
+        <div class="perm-name">Network access (INTERNET)</div>
+        <p class="perm-desc">Used only to accept the connection from your phone in your home network. The app does not send data to the internet.</p>
+      </li>
+      <li>
+        <div class="perm-name">Network state (ACCESS_NETWORK_STATE)</div>
+        <p class="perm-desc">Used to find the TV's local network address for the QR code.</p>
+      </li>
+      <li>
+        <div class="perm-name">Read storage (READ_EXTERNAL_STORAGE, Android 9 only)</div>
+        <p class="perm-desc">Used on Android 9 to read files from a USB drive. On newer Android versions you allow folders through the system dialog instead.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Third parties</h2>
+    <p>The app contains no advertising, analytics or tracking libraries. No data is shared with third parties. The app is distributed through Google Play; Google's privacy policy applies to Google Play itself.</p>
+  </section>
+
+  <section>
+    <h2>Children</h2>
+    <p>The app does not collect data from anyone, including children. There is no registration.</p>
+  </section>
+
+  <section>
+    <h2>Changes</h2>
+    <p>Later versions may add features such as a Kors Motion account, purchases or sending files from the phone to the TV. Before such a feature is released, this policy will be updated and the changes will be described here.</p>
+  </section>
+
+  <section>
+    <h2>Contact</h2>
+    <div class="contact-block">
+      <div class="contact-item">
+        <div class="label">Developer</div>
+        <div class="value">Kors Motion · Sergej Korsakov, Switzerland</div>
+      </div>
+      <div class="contact-item">
+        <div class="label">Support</div>
+        <a href="mailto:supportapp@korsmotion.ch">supportapp@korsmotion.ch</a>
+      </div>
+      <div class="contact-item">
+        <div class="label">Legal notice</div>
+        <a href="/impressum.html">Impressum</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="content" id="de" lang="de">
+  <p class="lang-title">Deutsch</p>
+
+  <section>
+    <h2>Überblick</h2>
+    <div class="highlight-box">
+      <p>Kors Presentation zeigt Ihre eigenen Dateien auf Ihrem Fernseher. Die App erhebt keine personenbezogenen Daten, hat kein Konto, keine Werbung und keine Analyse. Ihre Dateien werden nie zu Kors Motion oder an Dritte hochgeladen.</p>
+    </div>
+    <p>Kors Presentation ist eine App für Android TV und Google TV, entwickelt von Kors Motion (Sergej Korsakov), Schweiz. Diese Erklärung beschreibt, was die App mit Daten auf Ihrem Fernseher und in Ihrem Heimnetz macht.</p>
+  </section>
+
+  <section>
+    <h2>Ihre Dateien</h2>
+    <p>Die App öffnet PDF-, JPEG-, PNG-, MP4- und MP3-Dateien von einem USB-Stick, aus dem Speicher des Fernsehers oder aus einem Ordner, den Sie im Android-Systemdialog freigeben. Sie kann nur lesen, worauf Android ihr Zugriff gibt. Einen Zugriff auf alle Dateien des Geräts hat sie nicht.</p>
+    <p>Dateien werden nur auf dem Fernseher angezeigt. Zur Anzeige kann die App eine temporäre Kopie oder Vorschaubilder in ihrem privaten Speicher auf dem Fernseher ablegen. Dieser Speicher gehört der App, wird nicht mit anderen Apps geteilt und beim Deinstallieren gelöscht.</p>
+    <p>Wenn Sie einen Ordner oder USB-Stick freigeben, merkt sich die App die Adresse dieses Ordners, um ihn nach einem Neustart wiederzufinden. Das ist kein Passwort und enthält keine Dateiinhalte.</p>
+  </section>
+
+  <section>
+    <h2>Fernbedienung per Telefon</h2>
+    <p>Sie können eine Präsentation mit einem Telefon oder Tablet im selben Heimnetz steuern. Das Telefon öffnet eine Seite, die der Fernseher selbst bereitstellt. Ein Server von Kors Motion oder von Dritten ist nicht beteiligt.</p>
+    <ul class="plain">
+      <li>Der Fernseher zeigt einen QR-Code mit seiner lokalen Netzwerkadresse und einem Einmalcode, der nach kurzer Zeit abläuft.</li>
+      <li>Ein Telefon wird erst verbunden, nachdem Sie es am Fernseher bestätigt haben. Sie können es am Fernseher jederzeit trennen.</li>
+      <li>Das Telefon sendet einen kurzen Gerätenamen (zum Beispiel «iPhone» oder einen Namen, den Sie eingeben). Er wird am Fernseher angezeigt, damit Sie sehen, welches Telefon verbunden ist.</li>
+      <li>Zwischen Fernseher und Telefon werden nur Steuerbefehle und der aktuelle Wiedergabestatus ausgetauscht (zum Beispiel Dateiname, Seitenzahl oder Spielzeit).</li>
+      <li>Die Verbindung besteht nur im Arbeitsspeicher des Fernsehers und endet, wenn die App geschlossen wird. Das Telefon behält seinen Verbindungsschlüssel nur für den geöffneten Browser-Tab und das gewählte Farbschema im lokalen Speicher des Browsers.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Einstellungen</h2>
+    <p>Design, Akzentfarbe, Grösse der Oberfläche und Diashow-Einstellungen werden lokal auf dem Fernseher gespeichert und verlassen ihn nicht.</p>
+  </section>
+
+  <section>
+    <h2>Berechtigungen</h2>
+    <ul class="permission-list">
+      <li>
+        <div class="perm-name">Netzwerkzugriff (INTERNET)</div>
+        <p class="perm-desc">Nur um die Verbindung Ihres Telefons im Heimnetz anzunehmen. Die App sendet keine Daten ins Internet.</p>
+      </li>
+      <li>
+        <div class="perm-name">Netzwerkstatus (ACCESS_NETWORK_STATE)</div>
+        <p class="perm-desc">Um die lokale Netzwerkadresse des Fernsehers für den QR-Code zu ermitteln.</p>
+      </li>
+      <li>
+        <div class="perm-name">Speicher lesen (READ_EXTERNAL_STORAGE, nur Android 9)</div>
+        <p class="perm-desc">Unter Android 9 zum Lesen von Dateien auf einem USB-Stick. Auf neueren Android-Versionen geben Sie Ordner stattdessen über den Systemdialog frei.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Dritte</h2>
+    <p>Die App enthält keine Werbe-, Analyse- oder Tracking-Bibliotheken. Es werden keine Daten an Dritte weitergegeben. Die App wird über Google Play vertrieben; für Google Play selbst gilt die Datenschutzerklärung von Google.</p>
+  </section>
+
+  <section>
+    <h2>Kinder</h2>
+    <p>Die App erhebt von niemandem Daten, auch nicht von Kindern. Eine Registrierung gibt es nicht.</p>
+  </section>
+
+  <section>
+    <h2>Änderungen</h2>
+    <p>Spätere Versionen können Funktionen wie ein Kors-Motion-Konto, Käufe oder das Senden von Dateien vom Telefon an den Fernseher enthalten. Bevor eine solche Funktion erscheint, wird diese Erklärung aktualisiert und die Änderungen werden hier beschrieben.</p>
+  </section>
+
+  <section>
+    <h2>Kontakt</h2>
+    <div class="contact-block">
+      <div class="contact-item">
+        <div class="label">Entwickler</div>
+        <div class="value">Kors Motion · Sergej Korsakov, Schweiz</div>
+      </div>
+      <div class="contact-item">
+        <div class="label">Support</div>
+        <a href="mailto:supportapp@korsmotion.ch">supportapp@korsmotion.ch</a>
+      </div>
+      <div class="contact-item">
+        <div class="label">Impressum</div>
+        <a href="/impressum.html">Impressum</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <span>© 2026 Kors Motion. Switzerland.</span>
+  <a href="https://korsmotion.ch">← korsmotion.ch</a>
+</footer>
+
+</body>
+</html>
